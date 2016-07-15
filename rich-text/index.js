@@ -5,6 +5,12 @@ import initialState from './state.json'
 import keycode from 'keycode'
 
 /**
+ * Define the default node type.
+ */
+
+const DEFAULT_NODE = 'paragraph'
+
+/**
  * Define a set of node renderers.
  *
  * @type {Object}
@@ -12,10 +18,10 @@ import keycode from 'keycode'
 
 const NODES = {
   'block-quote': props => <blockquote {...props.attributes}>{props.children}</blockquote>,
-  'bulleted-list': props => <ul {...props.attributes}>{props.chidlren}</ul>,
+  'bulleted-list': props => <ul {...props.attributes}>{props.children}</ul>,
   'heading-one': props => <h1 {...props.attributes}>{props.children}</h1>,
   'heading-two': props => <h2 {...props.attributes}>{props.children}</h2>,
-  'list-item': props => <li {...props.attributes}>{props.chidlren}</li>,
+  'list-item': props => <li {...props.attributes}>{props.children}</li>,
   'numbered-list': props => <ol {...props.attributes}>{props.children}</ol>
 }
 
@@ -166,11 +172,29 @@ class RichText extends React.Component {
     const isActive = this.hasBlock(type)
     let { state } = this.state
 
-    state = state
+    let transform = state
       .transform()
       .setBlock(isActive ? 'paragraph' : type)
-      .apply()
 
+    // Handle the extra wrapping required for list buttons.
+    if (type == 'bulleted-list' || type == 'numbered-list') {
+      if (this.hasBlock('list-item')) {
+        transform = transform
+          .setBlock(DEFAULT_NODE)
+          .unwrapBlock(type)
+      } else {
+        transform = transform
+          .setBlock('list-item')
+          .wrapBlock(type)
+      }
+    }
+
+    // Handle everything but list buttons.
+    else {
+      transform = transform.setBlock(isActive ? DEFAULT_NODE : type)
+    }
+
+    state = transform.apply()
     this.setState({ state })
   }
 
