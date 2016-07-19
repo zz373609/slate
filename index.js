@@ -14,8 +14,11 @@ import Images from './images'
 import Links from './links'
 import PasteHtml from './paste-html'
 import PlainText from './plain-text'
+import ReadOnly from './read-only'
 import RichText from './rich-text'
 import Tables from './tables'
+import DevPerformancePlain from './development/performance-plain'
+import DevPerformanceRich from './development/performance-rich'
 
 /**
  * Perf.
@@ -66,6 +69,7 @@ class App extends React.Component {
         {this.renderTab('Tables', 'tables')}
         {this.renderTab('Code Highlighting', 'code-highlighting')}
         {this.renderTab('Paste HTML', 'paste-html')}
+        {this.renderTab('Read Only', 'read-only')}
       </div>
     )
   }
@@ -116,8 +120,11 @@ const router = (
       <Route path="links" component={Links} />
       <Route path="paste-html" component={PasteHtml} />
       <Route path="plain-text" component={PlainText} />
+      <Route path="read-only" component={ReadOnly} />
       <Route path="rich-text" component={RichText} />
       <Route path="tables" component={Tables} />
+      <Route path="dev-performance-plain" component={DevPerformancePlain} />
+      <Route path="dev-performance-rich" component={DevPerformanceRich} />
     </Route>
   </Router>
 )

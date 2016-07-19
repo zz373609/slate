@@ -17,7 +17,7 @@ const DEFAULT_NODE = 'paragraph'
  */
 
 const NODES = {
-  'block-quote': props => <blockquote {...props.attributes}>{props.children}</blockquote>,
+  'block-quote': (props) => <blockquote {...props.attributes}>{props.children}</blockquote>,
   'bulleted-list': props => <ul {...props.attributes}>{props.children}</ul>,
   'heading-one': props => <h1 {...props.attributes}>{props.children}</h1>,
   'heading-two': props => <h2 {...props.attributes}>{props.children}</h2>,
@@ -133,7 +133,7 @@ class RichText extends React.Component {
 
     state = state
       .transform()
-      [this.hasMark(mark) ? 'unmark' : 'mark'](mark)
+      [this.hasMark(mark) ? 'removeMark' : 'addMark'](mark)
       .apply()
 
     e.preventDefault()
@@ -154,7 +154,7 @@ class RichText extends React.Component {
 
     state = state
       .transform()
-      [isActive ? 'unmark' : 'mark'](type)
+      [isActive ? 'removeMark' : 'addMark'](type)
       .apply()
 
     this.setState({ state })
