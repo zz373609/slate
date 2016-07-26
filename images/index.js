@@ -1,11 +1,10 @@
 
-import { Editor, Mark, Raw, Void } from '../..'
+import { Editor, Raw, Void } from '../..'
 import React from 'react'
 import ReactDOM from 'react-dom'
 import initialState from './state.json'
 import isImage from 'is-image'
 import isUrl from 'is-url'
-import { Map } from 'immutable'
 
 /**
  * Define a set of node renderers.
@@ -19,7 +18,7 @@ const NODES = {
     const src = node.data.get('src')
     return (
       <Void {...props} className="image-block">
-        <img {...props.attributes} src={src} />
+        <img src={src} {...props.attributes} />
       </Void>
     )
   }
@@ -40,7 +39,7 @@ class Images extends React.Component {
    */
 
   state = {
-    state: Raw.deserialize(initialState)
+    state: Raw.deserialize(initialState, { terse: true })
   };
 
   /**
@@ -87,6 +86,8 @@ class Images extends React.Component {
           state={this.state.state}
           renderNode={this.renderNode}
           onChange={this.onChange}
+          onDocumentChange={this.onDocumentChange}
+          onDrop={this.onDrop}
           onPaste={this.onPaste}
         />
       </div>
@@ -115,6 +116,34 @@ class Images extends React.Component {
   }
 
   /**
+   * On document change, if the last block is an image, add another paragraph.
+   *
+   * @param {Document} document
+   * @param {State} state
+   */
+
+  onDocumentChange = (document, state) => {
+    const blocks = document.getBlocks()
+    const last = blocks.last()
+    if (last.type != 'image') return
+
+    const normalized = state
+      .transform()
+      .collapseToEndOf(last)
+      .splitBlock()
+      .setBlock({
+        type: 'paragraph',
+        isVoid: false,
+        data: {}
+      })
+      .apply({
+        snapshot: false
+      })
+
+    this.onChange(normalized)
+  }
+
+  /**
    * On clicking the image button, prompt for an image and insert it.
    *
    * @param {Event} e
@@ -127,6 +156,25 @@ class Images extends React.Component {
     let { state } = this.state
     state = this.insertImage(state, src)
     this.onChange(state)
+  }
+
+  /**
+   * On drop, insert the image wherever it is dropped.
+   *
+   * @param {Event} e
+   * @param {Object} drop
+   * @param {State} state
+   * @return {State}
+   */
+
+  onDrop = (e, drop, state) => {
+    if (drop.type != 'node') return
+    return state
+      .transform()
+      .removeNodeByKey(drop.node.key)
+      .moveTo(drop.target)
+      .insertBlock(drop.node)
+      .apply()
   }
 
   /**
