@@ -645,14 +645,17 @@ var _initialiseProps = function _initialiseProps() {
 
     var ranges = _this2.getRanges(key);
     var range = ranges.get(index);
+    var isLast = index == ranges.size - 1;
     var text = range.text;
     var marks = range.marks;
     var textContent = anchorNode.textContent;
 
-    // COMPAT: If the DOM text ends in a new line, we will have added one to
-    // account for browsers collapsing a single one, so remove it.
+    var lastChar = textContent.charAt(textContent.length - 1);
 
-    if (textContent.charAt(textContent.length - 1) == '\n') {
+    // If we're dealing with the last leaf, and the DOM text ends in a new line,
+    // we will have added another new line in <Leaf>'s render method to account
+    // for browsers collapsing a single trailing new lines, so remove it.
+    if (isLast && lastChar == '\n') {
       textContent = textContent.slice(0, -1);
     }
 
@@ -1777,17 +1780,21 @@ var Leaf = function (_React$Component) {
     value: function renderText() {
       var _props4 = this.props;
       var text = _props4.text;
-      var parent = _props4.parent;
+      var index = _props4.index;
+      var ranges = _props4.ranges;
 
       // If the text is empty, we need to render a <br/> to get the block to have
       // the proper height.
 
       if (text == '') return _react2.default.createElement('br', null);
 
-      // COMPAT: Browsers will collapse trailing new lines, so we need to add an
-      // extra trailing new lines to prevent that.
-      if (text.charAt(text.length - 1) == '\n') return text + '\n';
+      // COMPAT: Browsers will collapse trailing new lines at the end of blocks,
+      // so we need to add an extra trailing new lines to prevent that.
+      var lastChar = text.charAt(text.length - 1);
+      var isLast = index == ranges.size - 1;
+      if (isLast && lastChar == '\n') return text + '\n';
 
+      // Otherwise, just return the text.
       return text;
     }
   }, {
@@ -15241,10 +15248,15 @@ var PlainText = function (_React$Component) {
       state: _.Raw.deserialize(_state2.default, { terse: true })
     }, _this.onChange = function (state) {
       _this.setState({ state: state });
+    }, _this.onKeyDown = function (e, data, state) {
+      if (data.key == 'enter' && data.isShift) {
+        return state.transform().insertText('\n').apply();
+      }
     }, _this.render = function () {
       return _react2.default.createElement(_.Editor, {
         placeholder: 'Enter some plain text...',
         onChange: _this.onChange,
+        onKeyDown: _this.onKeyDown,
         renderNode: _this.renderNode,
         state: _this.state.state
       });
@@ -15262,6 +15274,14 @@ var PlainText = function (_React$Component) {
   /**
    * On change.
    *
+   * @param {State} state
+   */
+
+  /**
+   * On key down, if it's <shift-enter> add a soft break.
+   *
+   * @param {Event} e
+   * @param {Object} data
    * @param {State} state
    */
 
