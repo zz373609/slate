@@ -365,7 +365,11 @@ var _initialiseProps = function _initialiseProps() {
   var _this2 = this;
 
   this.shouldComponentUpdate = function (props, state) {
-    return props.className != _this2.props.className || props.readOnly != _this2.props.readOnly || props.spellCheck != _this2.props.spellCheck || props.style != _this2.props.style || props.state.isNative !== true;
+    // If the state has been transformed natively, never re-render, or else we
+    // will end up duplicating content.
+    if (props.state.isNative) return false;
+
+    return props.className != _this2.props.className || props.readOnly != _this2.props.readOnly || props.spellCheck != _this2.props.spellCheck || props.style != _this2.props.style;
   };
 
   this.componentWillUpdate = function (props, state) {
@@ -2021,6 +2025,8 @@ var Placeholder = function (_React$Component) {
       return false;
     }, _this.render = function () {
       var isVisible = _this.isVisible();
+      if (!isVisible) return null;
+
       var _this$props2 = _this.props;
       var children = _this$props2.children;
       var className = _this$props2.className;
@@ -2033,7 +2039,6 @@ var Placeholder = function (_React$Component) {
       }
 
       var styles = _extends({
-        display: isVisible ? 'block' : 'none',
         position: 'absolute',
         top: '0px',
         right: '0px',
@@ -54282,10 +54287,10 @@ function _compilePattern(pattern) {
   };
 }
 
-var CompiledPatternsCache = {};
+var CompiledPatternsCache = Object.create(null);
 
 function compilePattern(pattern) {
-  if (!(pattern in CompiledPatternsCache)) CompiledPatternsCache[pattern] = _compilePattern(pattern);
+  if (!CompiledPatternsCache[pattern]) CompiledPatternsCache[pattern] = _compilePattern(pattern);
 
   return CompiledPatternsCache[pattern];
 }
@@ -55906,6 +55911,7 @@ function createTransitionManager(history, routes) {
 }
 
 //export default useRoutes
+
 module.exports = exports['default'];
 },{"./TransitionUtils":301,"./computeChangedRoutes":304,"./getComponents":309,"./isActive":313,"./matchRoutes":316,"./routerWarning":317,"history/lib/Actions":145}],308:[function(require,module,exports){
 'use strict';
