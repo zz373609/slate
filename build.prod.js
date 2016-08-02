@@ -391,7 +391,7 @@ var _initialiseProps = function _initialiseProps() {
   this.componentDidUpdate = function (props, state) {
     setTimeout(function () {
       _this2.tmp.isRendering = false;
-    });
+    }, 1);
   };
 
   this.onBeforeInput = function (e) {
@@ -622,6 +622,7 @@ var _initialiseProps = function _initialiseProps() {
   };
 
   this.onInput = function (e) {
+    if (_this2.tmp.isRendering) return;
     if (_this2.tmp.isComposing) return;
     if (isNonEditable(e)) return;
     debug('onInput');
@@ -803,7 +804,7 @@ var _initialiseProps = function _initialiseProps() {
         // already at that position (for example when entering a character), since
         // our `insertText` transform already updates the selection. In those
         // cases we can safely ignore the event.
-        if (anchor.key == selection.anchorKey && anchor.offset == selection.anchorOffset && focus.key == selection.focusKey && focus.offset == selection.focusOffset) {
+        if (anchor.key == selection.anchorKey && anchor.offset == selection.anchorOffset && focus.key == selection.focusKey && focus.offset == selection.focusOffset && selection.isFocused) {
           return;
         }
 
@@ -819,7 +820,7 @@ var _initialiseProps = function _initialiseProps() {
         data.selection = selection.merge(properties).normalize(document);
       }
 
-    debug('onSelect', data);
+    debug('onSelect', { data: data, selection: data.selection.toJS() });
     _this2.props.onSelect(e, data);
   };
 
@@ -9093,6 +9094,10 @@ var _character = require('../models/character');
 
 var _character2 = _interopRequireDefault(_character);
 
+var _debug = require('debug');
+
+var _debug2 = _interopRequireDefault(_debug);
+
 var _placeholder = require('../components/placeholder');
 
 var _placeholder2 = _interopRequireDefault(_placeholder);
@@ -9108,6 +9113,14 @@ var _string2 = _interopRequireDefault(_string);
 function _interopRequireDefault(obj) {
   return obj && obj.__esModule ? obj : { default: obj };
 }
+
+/**
+ * Debug.
+ *
+ * @type {Function}
+ */
+
+var debug = (0, _debug2.default)('slate:core');
 
 /**
  * The default plugin.
@@ -9172,9 +9185,14 @@ function Plugin() {
 
     // Determine what the characters would be if natively inserted.
 
-    var prev = startText.getDecoratedCharacters(startBlock, renderDecorations);
-    var char = prev.get(startOffset);
-    var chars = prev.slice(0, startOffset).push(_character2.default.create({ text: e.data, marks: char && char.marks })).concat(prev.slice(startOffset));
+    var prevChars = startText.getDecoratedCharacters(startBlock, renderDecorations);
+    var prevChar = prevChars.get(startOffset - 1);
+    var char = _character2.default.create({
+      text: e.data,
+      marks: prevChar && prevChar.marks
+    });
+
+    var chars = prevChars.slice(0, startOffset).push(char).concat(prevChars.slice(startOffset));
 
     // Determine what the characters should be, if not natively inserted.
     var next = state.transform().insertText(e.data).apply();
@@ -9196,7 +9214,7 @@ function Plugin() {
     // If not native, prevent default so that the DOM remains untouched.
     if (!isNative) e.preventDefault();
 
-    // Return the new state.
+    debug('onBeforeInput', { data: data, isNative: isNative });
     return next;
   }
 
@@ -9210,7 +9228,11 @@ function Plugin() {
    */
 
   function onBlur(e, data, state) {
-    return state.transform().blur().apply({ isNative: true });
+    var isNative = true;
+
+    debug('onBlur', { data: data, isNative: isNative });
+
+    return state.transform().blur().apply({ isNative: isNative });
   }
 
   /**
@@ -9223,6 +9245,7 @@ function Plugin() {
    */
 
   function onCopy(e, data, state) {
+    debug('onCopy', data);
     onCutOrCopy(e, data, state);
   }
 
@@ -9237,6 +9260,7 @@ function Plugin() {
    */
 
   function onCut(e, data, state, editor) {
+    debug('onCut', data);
     onCutOrCopy(e, data, state);
 
     // Once the fake cut content has successfully been added to the clipboard,
@@ -9314,6 +9338,8 @@ function Plugin() {
    */
 
   function onDrop(e, data, state) {
+    debug('onDrop', { data: data });
+
     switch (data.type) {
       case 'text':
       case 'html':
@@ -9333,6 +9359,8 @@ function Plugin() {
    */
 
   function onDropFragment(e, data, state) {
+    debug('onDropFragment', { data: data });
+
     var selection = state.selection;
     var fragment = data.fragment;
     var target = data.target;
@@ -9362,6 +9390,8 @@ function Plugin() {
    */
 
   function onDropText(e, data, state) {
+    debug('onDropText', { data: data });
+
     var text = data.text;
     var target = data.target;
 
@@ -9385,6 +9415,8 @@ function Plugin() {
    */
 
   function onKeyDown(e, data, state) {
+    debug('onKeyDown', { data: data });
+
     switch (data.key) {
       case 'enter':
         return onKeyDownEnter(e, data, state);
@@ -9409,6 +9441,8 @@ function Plugin() {
    */
 
   function onKeyDownEnter(e, data, state) {
+    debug('onKeyDownEnter', { data: data });
+
     var document = state.document;
     var startKey = state.startKey;
     var startBlock = state.startBlock;
@@ -9435,6 +9469,7 @@ function Plugin() {
    */
 
   function onKeyDownBackspace(e, data, state) {
+    debug('onKeyDownBackspace', { data: data });
 
     // If expanded, delete regularly.
     if (state.isExpanded) {
@@ -9469,6 +9504,7 @@ function Plugin() {
    */
 
   function onKeyDownDelete(e, data, state) {
+    debug('onKeyDownDelete', { data: data });
 
     // If expanded, delete regularly.
     if (state.isExpanded) {
@@ -9504,6 +9540,9 @@ function Plugin() {
 
   function onKeyDownY(e, data, state) {
     if (!data.isMod) return;
+
+    debug('onKeyDownY', { data: data });
+
     return state.transform().redo();
   }
 
@@ -9518,6 +9557,9 @@ function Plugin() {
 
   function onKeyDownZ(e, data, state) {
     if (!data.isMod) return;
+
+    debug('onKeyDownZ', { data: data });
+
     return state.transform()[data.isShift ? 'redo' : 'undo']();
   }
 
@@ -9531,6 +9573,8 @@ function Plugin() {
    */
 
   function onPaste(e, data, state) {
+    debug('onPaste', { data: data });
+
     switch (data.type) {
       case 'fragment':
         return onPasteFragment(e, data, state);
@@ -9550,6 +9594,8 @@ function Plugin() {
    */
 
   function onPasteFragment(e, data, state) {
+    debug('onPasteFragment', { data: data });
+
     return state.transform().insertFragment(data.fragment).apply();
   }
 
@@ -9563,6 +9609,8 @@ function Plugin() {
    */
 
   function onPasteText(e, data, state) {
+    debug('onPasteText', { data: data });
+
     var transform = state.transform();
 
     data.text.split('\n').forEach(function (line, i) {
@@ -9584,6 +9632,8 @@ function Plugin() {
 
   function onSelect(e, data, state) {
     var selection = data.selection;
+
+    debug('onSelect', { data: data, selection: selection.toJS() });
 
     return state.transform().moveTo(selection).focus().apply();
   }
@@ -9623,7 +9673,7 @@ function Plugin() {
 
 exports.default = Plugin;
 
-},{"../components/placeholder":5,"../models/character":10,"../serializers/base-64":22,"../utils/string":30,"react":473}],22:[function(require,module,exports){
+},{"../components/placeholder":5,"../models/character":10,"../serializers/base-64":22,"../utils/string":30,"debug":89,"react":473}],22:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
