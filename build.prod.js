@@ -1600,6 +1600,12 @@ var Leaf = function (_React$Component) {
    * @param {Object} props
    */
 
+  /**
+   * Property types.
+   *
+   * @type {Object}
+   */
+
   function Leaf(props) {
     _classCallCheck(this, Leaf);
 
@@ -1626,7 +1632,7 @@ var Leaf = function (_React$Component) {
    */
 
   /**
-   * Property types.
+   * Default properties.
    *
    * @type {Object}
    */
@@ -1638,18 +1644,27 @@ var Leaf = function (_React$Component) {
      * Should component update?
      *
      * @param {Object} props
-     * @return {Boolean} shouldUpdate
+     * @return {Boolean}
      */
 
     value: function shouldComponentUpdate(props) {
+      // If any of the regular properties have changed, re-render.
       if (props.index != this.props.index || props.marks != this.props.marks || props.renderMark != this.props.renderMark || props.text != this.props.text) {
         return true;
       }
 
-      if (props.state.isBlurred) {
-        return false;
-      }
+      // If the DOM text does not equal the `text` property, re-render, this can
+      // happen because React gets out of sync when previously natively rendered.
+      var el = findDeepestNode(_reactDom2.default.findDOMNode(this));
+      var text = this.renderText(props);
+      if (el.textContent != text) return true;
 
+      // Otherwise, there aren't any content changes in this leaf, so if the
+      // selection is blurred we don't need to render to update it.
+      if (props.state.isBlurred) return false;
+
+      // Otherwise, if it's focused, only re-render if this leaf contains one or
+      // both of the selection's edges.
       var index = props.index;
       var node = props.node;
       var state = props.state;
@@ -1661,6 +1676,11 @@ var Leaf = function (_React$Component) {
 
       return state.selection.hasEdgeBetween(node, start, end);
     }
+
+    /**
+     * When the DOM updates, try updating the selection.
+     */
+
   }, {
     key: 'componentDidMount',
     value: function componentDidMount() {
@@ -1671,12 +1691,18 @@ var Leaf = function (_React$Component) {
     value: function componentDidUpdate() {
       this.updateSelection();
     }
+
+    /**
+     * Update the DOM selection if it's inside the leaf.
+     */
+
   }, {
     key: 'updateSelection',
     value: function updateSelection() {
       var _props = this.props;
       var state = _props.state;
       var ranges = _props.ranges;
+      var isVoid = _props.isVoid;
       var selection = state.selection;
 
       // If the selection is blurred we have nothing to do.
@@ -1699,6 +1725,13 @@ var Leaf = function (_React$Component) {
       var hasAnchor = selection.hasAnchorBetween(node, start, end);
       var hasFocus = selection.hasFocusBetween(node, start, end);
       if (!hasAnchor && !hasFocus) return;
+
+      // If the leaf is a void leaf, ensure that it has no width. This is due to
+      // void nodes always rendering an empty leaf, for browser compatibility.
+      if (isVoid) {
+        anchorOffset = 0;
+        focusOffset = 0;
+      }
 
       // We have a selection to render, so prepare a few things...
       var native = window.getSelection();
@@ -1751,14 +1784,21 @@ var Leaf = function (_React$Component) {
 
       this.debug('updateSelection');
     }
+
+    /**
+     * Render the leaf.
+     *
+     * @return {Element}
+     */
+
   }, {
     key: 'render',
     value: function render() {
       this.debug('render');
 
-      var _props3 = this.props;
-      var node = _props3.node;
-      var index = _props3.index;
+      var props = this.props;
+      var node = props.node;
+      var index = props.index;
 
       var offsetKey = _offsetKey2.default.stringify({
         key: node.key,
@@ -1771,22 +1811,25 @@ var Leaf = function (_React$Component) {
       // get out of sync, causing it to not realize the DOM needs updating.
       this.tmp.renders++;
 
-      return _react2.default.createElement('span', {
-        key: this.tmp.renders,
-        'data-offset-key': offsetKey
-      }, this.renderMarks());
+      return _react2.default.createElement('span', { key: this.tmp.renders, 'data-offset-key': offsetKey }, this.renderMarks(props));
     }
+
+    /**
+     * Render the text content of the leaf, accounting for browsers.
+     *
+     * @param {Object} props
+     * @return {Element}
+     */
+
   }, {
     key: 'renderText',
-    value: function renderText() {
-      var _props4 = this.props;
-      var text = _props4.text;
-      var index = _props4.index;
-      var ranges = _props4.ranges;
+    value: function renderText(_ref) {
+      var text = _ref.text;
+      var index = _ref.index;
+      var ranges = _ref.ranges;
 
       // If the text is empty, we need to render a <br/> to get the block to have
       // the proper height.
-
       if (text == '') return _react2.default.createElement('br', null);
 
       // COMPAT: Browsers will collapse trailing new lines at the end of blocks,
@@ -1798,14 +1841,21 @@ var Leaf = function (_React$Component) {
       // Otherwise, just return the text.
       return text;
     }
+
+    /**
+     * Render all of the leaf's mark components.
+     *
+     * @param {Object} props
+     * @return {Element}
+     */
+
   }, {
     key: 'renderMarks',
-    value: function renderMarks() {
-      var _props5 = this.props;
-      var marks = _props5.marks;
-      var renderMark = _props5.renderMark;
+    value: function renderMarks(props) {
+      var marks = props.marks;
+      var renderMark = props.renderMark;
 
-      var text = this.renderText();
+      var text = this.renderText(props);
 
       return marks.reduce(function (children, mark) {
         var Component = renderMark(mark, marks);
@@ -1827,12 +1877,16 @@ var Leaf = function (_React$Component) {
 
 Leaf.propTypes = {
   index: _react2.default.PropTypes.number.isRequired,
+  isVoid: _react2.default.PropTypes.bool,
   marks: _react2.default.PropTypes.object.isRequired,
   node: _react2.default.PropTypes.object.isRequired,
   ranges: _react2.default.PropTypes.object.isRequired,
   renderMark: _react2.default.PropTypes.func.isRequired,
   state: _react2.default.PropTypes.object.isRequired,
   text: _react2.default.PropTypes.string.isRequired
+};
+Leaf.defaultProps = {
+  isVoid: false
 };
 function findDeepestNode(element) {
   return element.firstChild ? findDeepestNode(element.firstChild) : element;
@@ -2593,6 +2647,7 @@ var Void = function (_React$Component) {
       });
 
       return _react2.default.createElement(_leaf2.default, {
+        isVoid: true,
         renderMark: noop,
         key: offsetKey,
         state: state,
@@ -6217,33 +6272,76 @@ var State = function (_ref) {
       if (!fragment.length) return state;
 
       // Lookup some nodes for determining the selection next.
-      var texts = fragment.getTexts();
-      var lastText = texts.last();
+      var lastText = fragment.getTexts().last();
       var lastInline = fragment.getClosestInline(lastText);
-      var startText = document.getDescendant(selection.startKey);
-      var startBlock = document.getClosestBlock(startText);
-      var startInline = document.getClosestInline(startText);
-      var nextText = document.getNextText(startText);
-      var nextBlock = nextText ? document.getClosestBlock(nextText) : null;
-      var nextNextText = nextText ? document.getNextText(nextText) : null;
-
-      var docTexts = document.getTexts();
+      var beforeTexts = document.getTexts();
 
       // Insert the fragment.
       document = document.insertFragmentAtRange(selection, fragment);
 
       // Determine what the selection should be after inserting.
-      var keys = docTexts.map(function (text) {
+      var keys = beforeTexts.map(function (text) {
         return text.key;
       });
       var text = document.getTexts().findLast(function (n) {
         return !keys.includes(n.key);
       });
+      var previousText = text ? document.getPreviousText(text) : null;
 
-      after = text ? selection.collapseToStartOf(text).moveForward(lastText.length) : selection.collapseToStart().moveForward(lastText.length);
+      if (text && lastInline && previousText) {
+        after = selection.collapseToEndOf(previousText);
+      } else if (text && lastInline) {
+        after = selection.collapseToStart();
+      } else if (text) {
+        after = selection.collapseToStartOf(text).moveForward(lastText.length);
+      } else {
+        after = selection.collapseToStart().moveForward(lastText.length);
+      }
 
       // Update the document and selection.
       selection = after;
+      state = state.merge({ document: document, selection: selection });
+      return state;
+    }
+
+    /**
+     * Insert a `inline` at the current selection.
+     *
+     * @param {String || Object || Block} inline
+     * @return {State} state
+     */
+
+  }, {
+    key: 'insertInline',
+    value: function insertInline(inline) {
+      var state = this;
+      var _state15 = state;
+      var document = _state15.document;
+      var selection = _state15.selection;
+      var startText = _state15.startText;
+
+      var after = selection;
+      var hasVoid = document.hasVoidParent(startText);
+
+      // Insert the inline
+      document = document.insertInlineAtRange(selection, inline);
+
+      // Determine what the selection should be after inserting.
+      if (hasVoid) {
+        selection = selection;
+      } else {
+        (function () {
+          var keys = state.document.getTexts().map(function (text) {
+            return text.key;
+          });
+          var text = document.getTexts().find(function (n) {
+            return !keys.includes(n.key);
+          });
+          selection = selection.collapseToEndOf(text);
+        })();
+      }
+
+      // Update the document and selection.
       state = state.merge({ document: document, selection: selection });
       return state;
     }
@@ -6260,10 +6358,10 @@ var State = function (_ref) {
     key: 'insertText',
     value: function insertText(text, marks) {
       var state = this;
-      var _state15 = state;
-      var cursorMarks = _state15.cursorMarks;
-      var document = _state15.document;
-      var selection = _state15.selection;
+      var _state16 = state;
+      var cursorMarks = _state16.cursorMarks;
+      var document = _state16.document;
+      var selection = _state16.selection;
 
       var after = selection;
 
@@ -6292,9 +6390,9 @@ var State = function (_ref) {
     key: 'moveTo',
     value: function moveTo(properties) {
       var state = this;
-      var _state16 = state;
-      var document = _state16.document;
-      var selection = _state16.selection;
+      var _state17 = state;
+      var document = _state17.document;
+      var selection = _state17.selection;
 
       // Allow for passing a `Selection` object.
 
@@ -6329,9 +6427,9 @@ var State = function (_ref) {
     key: 'setBlock',
     value: function setBlock(properties) {
       var state = this;
-      var _state17 = state;
-      var document = _state17.document;
-      var selection = _state17.selection;
+      var _state18 = state;
+      var document = _state18.document;
+      var selection = _state18.selection;
 
       document = document.setBlockAtRange(selection, properties);
       state = state.merge({ document: document });
@@ -6349,9 +6447,9 @@ var State = function (_ref) {
     key: 'setInline',
     value: function setInline(properties) {
       var state = this;
-      var _state18 = state;
-      var document = _state18.document;
-      var selection = _state18.selection;
+      var _state19 = state;
+      var document = _state19.document;
+      var selection = _state19.selection;
 
       document = document.setInlineAtRange(selection, properties);
       state = state.merge({ document: document });
@@ -6371,9 +6469,9 @@ var State = function (_ref) {
       var depth = arguments.length <= 0 || arguments[0] === undefined ? 1 : arguments[0];
 
       var state = this;
-      var _state19 = state;
-      var document = _state19.document;
-      var selection = _state19.selection;
+      var _state20 = state;
+      var document = _state20.document;
+      var selection = _state20.selection;
 
       // Split the document.
 
@@ -6404,9 +6502,9 @@ var State = function (_ref) {
       var depth = arguments.length <= 0 || arguments[0] === undefined ? Infinity : arguments[0];
 
       var state = this;
-      var _state20 = state;
-      var document = _state20.document;
-      var selection = _state20.selection;
+      var _state21 = state;
+      var document = _state21.document;
+      var selection = _state21.selection;
 
       // Split the document.
 
@@ -6440,10 +6538,10 @@ var State = function (_ref) {
     value: function removeMark(mark) {
       mark = normalizeMark(mark);
       var state = this;
-      var _state21 = state;
-      var cursorMarks = _state21.cursorMarks;
-      var document = _state21.document;
-      var selection = _state21.selection;
+      var _state22 = state;
+      var cursorMarks = _state22.cursorMarks;
+      var document = _state22.document;
+      var selection = _state22.selection;
 
       // If the selection is collapsed, remove the mark from the cursor instead.
 
@@ -6493,9 +6591,9 @@ var State = function (_ref) {
     key: 'wrapBlock',
     value: function wrapBlock(properties) {
       var state = this;
-      var _state22 = state;
-      var document = _state22.document;
-      var selection = _state22.selection;
+      var _state23 = state;
+      var document = _state23.document;
+      var selection = _state23.selection;
 
       document = document.wrapBlockAtRange(selection, properties);
       state = state.merge({ document: document });
@@ -6513,9 +6611,9 @@ var State = function (_ref) {
     key: 'unwrapBlock',
     value: function unwrapBlock(properties) {
       var state = this;
-      var _state23 = state;
-      var document = _state23.document;
-      var selection = _state23.selection;
+      var _state24 = state;
+      var document = _state24.document;
+      var selection = _state24.selection;
 
       document = document.unwrapBlockAtRange(selection, properties);
       state = state.merge({ document: document, selection: selection });
@@ -6533,9 +6631,9 @@ var State = function (_ref) {
     key: 'wrapInline',
     value: function wrapInline(properties) {
       var state = this;
-      var _state24 = state;
-      var document = _state24.document;
-      var selection = _state24.selection;
+      var _state25 = state;
+      var document = _state25.document;
+      var selection = _state25.selection;
       var _selection6 = selection;
       var startKey = _selection6.startKey;
 
@@ -6549,9 +6647,18 @@ var State = function (_ref) {
       } else if (selection.startOffset == 0) {
         var text = previous ? document.getNextText(previous) : document.getTexts().first();
         selection = selection.moveToRangeOf(text);
-      } else {
+      } else if (selection.startKey == selection.endKey) {
         var _text = document.getNextText(selection.startKey);
         selection = selection.moveToRangeOf(_text);
+      } else {
+        var anchor = document.getNextText(selection.anchorKey);
+        var focus = document.getDescendant(selection.focusKey);
+        selection = selection.merge({
+          anchorKey: anchor.key,
+          anchorOffset: 0,
+          focusKey: focus.key,
+          focusOffset: selection.focusOffset
+        });
       }
 
       state = state.merge({ document: document, selection: selection });
@@ -6569,9 +6676,9 @@ var State = function (_ref) {
     key: 'unwrapInline',
     value: function unwrapInline(properties) {
       var state = this;
-      var _state25 = state;
-      var document = _state25.document;
-      var selection = _state25.selection;
+      var _state26 = state;
+      var document = _state26.document;
+      var selection = _state26.selection;
 
       document = document.unwrapInlineAtRange(selection, properties);
       state = state.merge({ document: document, selection: selection });
@@ -13411,9 +13518,9 @@ var _reactDom = require('react-dom');
 
 var _reactDom2 = _interopRequireDefault(_reactDom);
 
-var _state2 = require('./state.json');
+var _state = require('./state.json');
 
-var _state3 = _interopRequireDefault(_state2);
+var _state2 = _interopRequireDefault(_state);
 
 var _isImage = require('is-image');
 
@@ -13472,7 +13579,7 @@ var Images = function (_React$Component) {
     }
 
     return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_Object$getPrototypeO = Object.getPrototypeOf(Images)).call.apply(_Object$getPrototypeO, [this].concat(args))), _this), _this.state = {
-      state: _.Raw.deserialize(_state3.default, { terse: true })
+      state: _.Raw.deserialize(_state2.default, { terse: true })
     }, _this.render = function () {
       return _react2.default.createElement(
         'div',
@@ -13542,29 +13649,7 @@ var Images = function (_React$Component) {
       if (!(0, _isImage2.default)(data.text)) return;
       return _this.insertImage(state, data.text);
     }, _this.insertImage = function (state, src) {
-      if (state.isExpanded) {
-        state = state.transform().delete().apply();
-      }
-
-      var _state = state;
-      var anchorBlock = _state.anchorBlock;
-      var selection = _state.selection;
-
-      var transform = state.transform();
-
-      if (anchorBlock.type == 'image') {
-        transform = transform.splitBlock();
-      } else if (anchorBlock.text != '') {
-        if (selection.isAtEndOf(anchorBlock)) {
-          transform = transform.splitBlock();
-        } else if (selection.isAtStartOf(anchorBlock)) {
-          transform = transform.splitBlock().collapseToStartOfPreviousBlock();
-        } else {
-          transform = transform.splitBlock().splitBlock().collapseToStartOfPreviousBlock();
-        }
-      }
-
-      return transform.setBlock({
+      return state.transform().insertBlock({
         type: 'image',
         isVoid: true,
         data: { src: src }
@@ -14028,11 +14113,17 @@ var Links = function (_React$Component) {
         state = state.transform().unwrapInline('link').apply();
       } else if (state.isExpanded) {
         var href = window.prompt('Enter the URL of the link:');
-        state = state.transform().wrapInline('link', new _immutable.Map({ href: href })).collapseToEnd().apply();
+        state = state.transform().wrapInline({
+          type: 'link',
+          data: { href: href }
+        }).collapseToEnd().apply();
       } else {
         var _href = window.prompt('Enter the URL of the link:');
         var text = window.prompt('Enter the text for the link:');
-        state = state.transform().insertText(text).extendBackward(text.length).wrapInline('link', new _immutable.Map({ href: _href })).collapseToEnd().apply();
+        state = state.transform().insertText(text).extendBackward(text.length).wrapInline({
+          type: 'link',
+          data: { href: _href }
+        }).collapseToEnd().apply();
       }
 
       _this.setState({ state: state });
@@ -14047,7 +14138,12 @@ var Links = function (_React$Component) {
         transform = transform.unwrapInline('link');
       }
 
-      return transform.wrapInline('link', { href: data.text }).collapseToEnd().apply();
+      return transform.wrapInline({
+        type: 'link',
+        data: {
+          href: data.text
+        }
+      }).collapseToEnd().apply();
     }, _this.render = function () {
       return _react2.default.createElement(
         'div',
