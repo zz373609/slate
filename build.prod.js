@@ -55699,7 +55699,7 @@ function getSelection(node) {
 }
 
 function getNodeWindow (domNode) {
-    const doc = domNode.ownerDocument || domNode
+    var doc = domNode.ownerDocument || domNode
     return doc.defaultView || doc.parentWindow
 }
 
@@ -55855,7 +55855,7 @@ module.exports = function(){
   var DefaultEventPluginOrder = require('react/lib/DefaultEventPluginOrder');
   DefaultEventPluginOrder.push(keyOf({ReactFrameAwareSelectEventPlugin: null}));
 
-  const EventPluginHub = require('react/lib/EventPluginHub');
+  var EventPluginHub = require('react/lib/EventPluginHub');
   //injection order
   EventPluginHub.injection.injectEventPluginOrder(DefaultEventPluginOrder);
 
