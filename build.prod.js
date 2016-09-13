@@ -1525,22 +1525,41 @@ var Leaf = function (_React$Component) {
       var text = this.renderText(props);
       if (el.textContent != text) return true;
 
-      // Otherwise, there aren't any content changes in this leaf, so if the
-      // selection is blurred we don't need to render to update it.
-      if (props.state.isBlurred) return false;
+      // If the selection was previously focused, and now it isn't, re-render so
+      // that the selection will be properly removed.
+      if (this.props.state.isFocused && props.state.isBlurred) {
+        var _props = this.props;
+        var index = _props.index;
+        var node = _props.node;
+        var ranges = _props.ranges;
+        var state = _props.state;
 
-      // Otherwise, if it's focused, only re-render if this leaf contains one or
-      // both of the selection's edges.
-      var index = props.index;
-      var node = props.node;
-      var state = props.state;
+        var _OffsetKey$findBounds = _offsetKey2.default.findBounds(index, ranges);
 
-      var _OffsetKey$findBounds = _offsetKey2.default.findBounds(index, props.ranges);
+        var start = _OffsetKey$findBounds.start;
+        var end = _OffsetKey$findBounds.end;
 
-      var start = _OffsetKey$findBounds.start;
-      var end = _OffsetKey$findBounds.end;
+        if (state.selection.hasEdgeBetween(node, start, end)) return true;
+      }
 
-      return state.selection.hasEdgeBetween(node, start, end);
+      // If the selection will be focused, only re-render if this leaf contains
+      // one or both of the selection's edges.
+      if (props.state.isFocused) {
+        var _index = props.index;
+        var _node = props.node;
+        var _ranges = props.ranges;
+        var _state = props.state;
+
+        var _OffsetKey$findBounds2 = _offsetKey2.default.findBounds(_index, _ranges);
+
+        var _start = _OffsetKey$findBounds2.start;
+        var _end = _OffsetKey$findBounds2.end;
+
+        if (_state.selection.hasEdgeBetween(_node, _start, _end)) return true;
+      }
+
+      // Otherwise, don't update.
+      return false;
     }
 
     /**
@@ -1565,10 +1584,10 @@ var Leaf = function (_React$Component) {
   }, {
     key: 'updateSelection',
     value: function updateSelection() {
-      var _props = this.props;
-      var state = _props.state;
-      var ranges = _props.ranges;
-      var isVoid = _props.isVoid;
+      var _props2 = this.props;
+      var state = _props2.state;
+      var ranges = _props2.ranges;
+      var isVoid = _props2.isVoid;
       var selection = state.selection;
 
       // If the selection is blurred we have nothing to do.
@@ -1577,14 +1596,14 @@ var Leaf = function (_React$Component) {
 
       var anchorOffset = selection.anchorOffset;
       var focusOffset = selection.focusOffset;
-      var _props2 = this.props;
-      var node = _props2.node;
-      var index = _props2.index;
+      var _props3 = this.props;
+      var node = _props3.node;
+      var index = _props3.index;
 
-      var _OffsetKey$findBounds2 = _offsetKey2.default.findBounds(index, ranges);
+      var _OffsetKey$findBounds3 = _offsetKey2.default.findBounds(index, ranges);
 
-      var start = _OffsetKey$findBounds2.start;
-      var end = _OffsetKey$findBounds2.end;
+      var start = _OffsetKey$findBounds3.start;
+      var end = _OffsetKey$findBounds3.end;
 
       // If neither matches, the selection doesn't start or end here, so exit.
 
@@ -2003,8 +2022,20 @@ var _initialiseProps = function _initialiseProps() {
       return true;
     }
 
-    // Otherwise, perform a peformant update check by default.
-    if (props.node != _this2.props.node || props.state.isFocused && props.state.selection.hasEdgeIn(props.node)) {
+    // If the node has changed, update.
+    if (props.node != _this2.props.node) {
+      return true;
+    }
+
+    // If the selection is focused and is inside the node, we need to update so
+    // that the selection will be set by one of the <Leaf> components.
+    if (props.state.isFocused && props.state.selection.hasEdgeIn(props.node)) {
+      return true;
+    }
+
+    // If the selection is blurred but was previously focused inside the node,
+    // we need to update to ensure the selection gets updated by re-rendering.
+    if (props.state.isBlurred && _this2.props.state.isFocused && _this2.props.state.selection.hasEdgeIn(props.node)) {
       return true;
     }
 
