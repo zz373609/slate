@@ -4717,40 +4717,6 @@ var Node = {
   },
 
   /**
-   * Insert child `nodes` after child by `key`.
-   *
-   * @param {String or Node} key
-   * @param {List} nodes
-   * @return {Node} node
-   */
-
-  insertChildrenAfter: function insertChildrenAfter(key, nodes) {
-    var child = this.assertChild(key);
-    var index = this.nodes.indexOf(child);
-
-    nodes = this.nodes.slice(0, index + 1).concat(nodes).concat(this.nodes.slice(index + 1));
-
-    return this.merge({ nodes: nodes });
-  },
-
-  /**
-   * Insert child `nodes` before child by `key`.
-   *
-   * @param {String or Node} key
-   * @param {List} nodes
-   * @return {Node} node
-   */
-
-  insertChildrenBefore: function insertChildrenBefore(key, nodes) {
-    var child = this.assertChild(key);
-    var index = this.nodes.indexOf(child);
-
-    nodes = this.nodes.slice(0, index).concat(nodes).concat(this.nodes.slice(index));
-
-    return this.merge({ nodes: nodes });
-  },
-
-  /**
    * Insert a `node` at `index`.
    *
    * @param {Number} index
@@ -4911,34 +4877,6 @@ var Node = {
     });
 
     return node;
-  },
-
-  /**
-   * Remove children after a child by `key`.
-   *
-   * @param {String or Node} key
-   * @return {Node} node
-   */
-
-  removeChildrenAfter: function removeChildrenAfter(key) {
-    var child = this.assertChild(key);
-    var index = this.nodes.indexOf(child);
-    var nodes = this.nodes.slice(0, index + 1);
-    return this.merge({ nodes: nodes });
-  },
-
-  /**
-   * Remove children after a child by `key`, including the child.
-   *
-   * @param {String or Node} key
-   * @return {Node} node
-   */
-
-  removeChildrenAfterIncluding: function removeChildrenAfterIncluding(key) {
-    var child = this.assertChild(key);
-    var index = this.nodes.indexOf(child);
-    var nodes = this.nodes.slice(0, index);
-    return this.merge({ nodes: nodes });
   },
 
   /**
@@ -7152,16 +7090,16 @@ var Text = function (_ref) {
   }, {
     key: 'updateMark',
     value: function updateMark(index, length, mark, properties) {
+      var m = mark.merge(properties);
       var characters = this.characters.map(function (char, i) {
         if (i < index) return char;
         if (i >= index + length) return char;
         var _char3 = char;
         var marks = _char3.marks;
 
-        var j = marks.indexOf(mark);
-        var m = marks.get(j);
-        m = m.merge(properties);
-        marks = marks.set(j, m);
+        if (!marks.has(mark)) return char;
+        marks = marks.remove(mark);
+        marks = marks.add(m);
         char = char.merge({ marks: marks });
         return char;
       });
@@ -10673,16 +10611,16 @@ function deleteAtRange(transform, range) {
   state = transform.state;
   document = state.document;
   ancestor = document.getCommonAncestor(startKey, endKey);
-
   var startBlock = document.getClosestBlock(startKey);
   var endBlock = document.getClosestBlock(document.getNextText(endKey));
-  var startIndex = ancestor.nodes.indexOf(startBlock);
-  var endIndex = ancestor.nodes.indexOf(endBlock);
-  var endLonelyParent = ancestor.getHighestChild(endBlock, function (parent) {
-    return parent.nodes.size == 1;
-  });
+  startChild = ancestor.getHighestChild(startBlock);
+  endChild = ancestor.getHighestChild(endBlock);
 
-  ancestor.nodes.slice(startIndex + 1, endIndex).forEach(function (child) {
+  var startIndex = ancestor.nodes.indexOf(startChild);
+  var endIndex = ancestor.nodes.indexOf(endChild);
+  var middles = ancestor.nodes.slice(startIndex + 1, endIndex);
+
+  middles.forEach(function (child) {
     transform.removeNodeByKey(child.key);
   });
 
@@ -10692,7 +10630,7 @@ function deleteAtRange(transform, range) {
     transform.moveNodeByKey(child.key, newKey, newIndex);
   });
 
-  transform.removeNodeByKey(endLonelyParent.key);
+  transform.removeNodeByKey(endChild.key);
   transform.normalizeDocument();
   return transform;
 }
@@ -10914,7 +10852,7 @@ function insertFragmentAtRange(transform, range, fragment) {
       fragment = fragment.removeDescendant(lonelyChild);
 
       fragment.nodes.forEach(function (node, i) {
-        var newIndex = startIndex + i + 2;
+        var newIndex = startIndex + i + 1;
         transform.insertNodeByKey(parent.key, newIndex, node);
       });
     })();
@@ -16839,7 +16777,7 @@ var Images = function (_React$Component) {
           return _this.onDropNode(e, data, state);
       }
     }, _this.onDropNode = function (e, data, state) {
-      return state.transform().removeNodeByKey(data.node.key).moveTo(data.target).insertBlock(data.node).apply();
+      return state.transform().unsetSelection().removeNodeByKey(data.node.key).moveTo(data.target).insertBlock(data.node).apply();
     }, _this.onDropOrPasteFiles = function (e, data, state, editor) {
       var _iteratorNormalCompletion = true;
       var _didIteratorError = false;
@@ -60482,8 +60420,6 @@ var _routerWarning = require('./routerWarning');
 
 var _routerWarning2 = _interopRequireDefault(_routerWarning);
 
-var _Actions = require('history/lib/Actions');
-
 var _computeChangedRoutes2 = require('./computeChangedRoutes');
 
 var _computeChangedRoutes3 = _interopRequireDefault(_computeChangedRoutes2);
@@ -60530,10 +60466,6 @@ function createTransitionManager(history, routes) {
     }
 
     return (0, _isActive3.default)(location, indexOnly, state.location, state.routes, state.params);
-  }
-
-  function createLocationFromRedirectInfo(location) {
-    return history.createLocation(location, _Actions.REPLACE);
   }
 
   var partialNextState = void 0;
@@ -60593,7 +60525,7 @@ function createTransitionManager(history, routes) {
     }
 
     function handleErrorOrRedirect(error, redirectInfo) {
-      if (error) callback(error);else callback(null, createLocationFromRedirectInfo(redirectInfo));
+      if (error) callback(error);else callback(null, redirectInfo);
     }
   }
 
@@ -60778,7 +60710,7 @@ function createTransitionManager(history, routes) {
 //export default useRoutes
 
 module.exports = exports['default'];
-},{"./TransitionUtils":276,"./computeChangedRoutes":279,"./getComponents":284,"./isActive":288,"./matchRoutes":291,"./routerWarning":292,"history/lib/Actions":163}],283:[function(require,module,exports){
+},{"./TransitionUtils":276,"./computeChangedRoutes":279,"./getComponents":284,"./isActive":288,"./matchRoutes":291,"./routerWarning":292}],283:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -61312,6 +61244,8 @@ exports.__esModule = true;
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
+var _Actions = require('history/lib/Actions');
+
 var _invariant = require('invariant');
 
 var _invariant2 = _interopRequireDefault(_invariant);
@@ -61370,7 +61304,7 @@ function match(_ref, callback) {
   history = (0, _RouterUtils.createRoutingHistory)(history, transitionManager);
 
   transitionManager.match(location, function (error, redirectLocation, nextState) {
-    callback(error, redirectLocation, nextState && _extends({}, nextState, {
+    callback(error, redirectLocation && router.createLocation(redirectLocation, _Actions.REPLACE), nextState && _extends({}, nextState, {
       history: history,
       router: router,
       matchContext: { history: history, transitionManager: transitionManager, router: router }
@@ -61387,7 +61321,7 @@ function match(_ref, callback) {
 
 exports.default = match;
 module.exports = exports['default'];
-},{"./RouteUtils":271,"./RouterUtils":274,"./createMemoryHistory":280,"./createTransitionManager":282,"invariant":193}],291:[function(require,module,exports){
+},{"./RouteUtils":271,"./RouterUtils":274,"./createMemoryHistory":280,"./createTransitionManager":282,"history/lib/Actions":163,"invariant":193}],291:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
