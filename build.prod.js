@@ -7314,35 +7314,7 @@ var Transform = function () {
       // If there's a previous save point, determine if the new operations should
       // be merged into the previous ones.
       if (previous && merge == null) {
-        var types = operations.map(function (op) {
-          return op.type;
-        });
-        var prevTypes = previous.map(function (op) {
-          return op.type;
-        });
-        var edits = types.filter(function (type) {
-          return type != 'set_selection';
-        });
-        var prevEdits = prevTypes.filter(function (type) {
-          return type != 'set_selection';
-        });
-        var onlySelections = types.every(function (type) {
-          return type == 'set_selection';
-        });
-        var onlyInserts = edits.length && edits.every(function (type) {
-          return type == 'insert_text';
-        });
-        var onlyRemoves = edits.length && edits.every(function (type) {
-          return type == 'remove_text';
-        });
-        var prevOnlyInserts = prevEdits.length && prevEdits.every(function (type) {
-          return type == 'insert_text';
-        });
-        var prevOnlyRemoves = prevEdits.length && prevEdits.every(function (type) {
-          return type == 'remove_text';
-        });
-
-        merge = onlySelections || onlyInserts && prevOnlyInserts || onlyRemoves && prevOnlyRemoves;
+        merge = isOnlySelections(operations) || isContiguousInserts(operations, previous) || isContiguousRemoves(operations, previous);
       }
 
       // Save the new operations.
@@ -7376,6 +7348,85 @@ Object.keys(_transforms2.default).forEach(function (type) {
     return _transforms2.default[type].apply(_transforms2.default, [this].concat(args));
   };
 });
+
+/**
+ * Check whether a list of `operations` only contains selection operations.
+ *
+ * @param {Array} operations
+ * @return {Boolean}
+ */
+
+function isOnlySelections(operations) {
+  return operations.every(function (op) {
+    return op.type == 'set_selection';
+  });
+}
+
+/**
+ * Check whether a list of `operations` and a list of `previous` operations are
+ * contiguous text insertions.
+ *
+ * @param {Array} operations
+ * @param {Array} previous
+ */
+
+function isContiguousInserts(operations, previous) {
+  var edits = operations.filter(function (op) {
+    return op.type != 'set_selection';
+  });
+  var prevEdits = previous.filter(function (op) {
+    return op.type != 'set_selection';
+  });
+  if (!edits.length || !prevEdits.length) return false;
+
+  var onlyInserts = edits.every(function (op) {
+    return op.type == 'insert_text';
+  });
+  var prevOnlyInserts = prevEdits.every(function (op) {
+    return op.type == 'insert_text';
+  });
+  if (!onlyInserts || !prevOnlyInserts) return false;
+
+  var first = edits[0];
+  var last = prevEdits[prevEdits.length - 1];
+  if (first.key != last.key) return false;
+  if (first.offset != last.offset + last.text.length) return false;
+
+  return true;
+}
+
+/**
+ * Check whether a list of `operations` and a list of `previous` operations are
+ * contiguous text removals.
+ *
+ * @param {Array} operations
+ * @param {Array} previous
+ */
+
+function isContiguousRemoves(operations, previous) {
+  var edits = operations.filter(function (op) {
+    return op.type != 'set_selection';
+  });
+  var prevEdits = previous.filter(function (op) {
+    return op.type != 'set_selection';
+  });
+  if (!edits.length || !prevEdits.length) return false;
+
+  var onlyRemoves = edits.every(function (op) {
+    return op.type == 'remove_text';
+  });
+  var prevOnlyRemoves = prevEdits.every(function (op) {
+    return op.type == 'remove_text';
+  });
+  if (!onlyRemoves || !prevOnlyRemoves) return false;
+
+  var first = edits[0];
+  var last = prevEdits[prevEdits.length - 1];
+  if (first.key != last.key) return false;
+  if (first.offset + first.length != last.offset) return false;
+
+  return true;
+}
 
 /**
  * Export.
