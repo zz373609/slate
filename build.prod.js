@@ -1,6 +1,4786 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 'use strict';
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _ = require('../..');
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _state4 = require('./state.json');
+
+var _state5 = _interopRequireDefault(_state4);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+/**
+ * Define a schema.
+ *
+ * @type {Object}
+ */
+
+var schema = {
+  nodes: {
+    'block-quote': function blockQuote(props) {
+      return _react2.default.createElement(
+        'blockquote',
+        null,
+        props.children
+      );
+    },
+    'bulleted-list': function bulletedList(props) {
+      return _react2.default.createElement(
+        'ul',
+        null,
+        props.children
+      );
+    },
+    'heading-one': function headingOne(props) {
+      return _react2.default.createElement(
+        'h1',
+        null,
+        props.children
+      );
+    },
+    'heading-two': function headingTwo(props) {
+      return _react2.default.createElement(
+        'h2',
+        null,
+        props.children
+      );
+    },
+    'heading-three': function headingThree(props) {
+      return _react2.default.createElement(
+        'h3',
+        null,
+        props.children
+      );
+    },
+    'heading-four': function headingFour(props) {
+      return _react2.default.createElement(
+        'h4',
+        null,
+        props.children
+      );
+    },
+    'heading-five': function headingFive(props) {
+      return _react2.default.createElement(
+        'h5',
+        null,
+        props.children
+      );
+    },
+    'heading-six': function headingSix(props) {
+      return _react2.default.createElement(
+        'h6',
+        null,
+        props.children
+      );
+    },
+    'list-item': function listItem(props) {
+      return _react2.default.createElement(
+        'li',
+        null,
+        props.children
+      );
+    }
+  }
+};
+
+/**
+ * The auto-markdown example.
+ *
+ * @type {Component}
+ */
+
+var AutoMarkdown = function (_React$Component) {
+  _inherits(AutoMarkdown, _React$Component);
+
+  function AutoMarkdown() {
+    var _ref;
+
+    var _temp, _this, _ret;
+
+    _classCallCheck(this, AutoMarkdown);
+
+    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = AutoMarkdown.__proto__ || Object.getPrototypeOf(AutoMarkdown)).call.apply(_ref, [this].concat(args))), _this), _this.state = {
+      state: _.Raw.deserialize(_state5.default, { terse: true })
+    }, _this.getType = function (chars) {
+      switch (chars) {
+        case '*':
+        case '-':
+        case '+':
+          return 'list-item';
+        case '>':
+          return 'block-quote';
+        case '#':
+          return 'heading-one';
+        case '##':
+          return 'heading-two';
+        case '###':
+          return 'heading-three';
+        case '####':
+          return 'heading-four';
+        case '#####':
+          return 'heading-five';
+        case '######':
+          return 'heading-six';
+        default:
+          return null;
+      }
+    }, _this.render = function () {
+      return _react2.default.createElement(
+        'div',
+        { className: 'editor' },
+        _react2.default.createElement(_.Editor, {
+          schema: schema,
+          state: _this.state.state,
+          onChange: _this.onChange,
+          onKeyDown: _this.onKeyDown
+        })
+      );
+    }, _this.onChange = function (state) {
+      _this.setState({ state: state });
+    }, _this.onKeyDown = function (e, data, state) {
+      switch (data.key) {
+        case 'space':
+          return _this.onSpace(e, state);
+        case 'backspace':
+          return _this.onBackspace(e, state);
+        case 'enter':
+          return _this.onEnter(e, state);
+      }
+    }, _this.onSpace = function (e, state) {
+      if (state.isExpanded) return;
+      var _state = state;
+      var selection = _state.selection;
+      var _state2 = state;
+      var startText = _state2.startText;
+      var startBlock = _state2.startBlock;
+      var startOffset = _state2.startOffset;
+
+      var chars = startBlock.text.slice(0, startOffset).replace(/\s*/g, '');
+      var type = _this.getType(chars);
+
+      if (!type) return;
+      if (type == 'list-item' && startBlock.type == 'list-item') return;
+      e.preventDefault();
+
+      var transform = state.transform().setBlock(type);
+
+      if (type == 'list-item') transform = transform.wrapBlock('bulleted-list');
+
+      state = transform.extendToStartOf(startBlock).delete().apply();
+
+      return state;
+    }, _this.onBackspace = function (e, state) {
+      if (state.isExpanded) return;
+      if (state.startOffset != 0) return;
+      var _state3 = state;
+      var startBlock = _state3.startBlock;
+
+
+      if (startBlock.type == 'paragraph') return;
+      e.preventDefault();
+
+      var transform = state.transform().setBlock('paragraph');
+
+      if (startBlock.type == 'list-item') transform = transform.unwrapBlock('bulleted-list');
+
+      state = transform.apply();
+      return state;
+    }, _this.onEnter = function (e, state) {
+      if (state.isExpanded) return;
+      var startBlock = state.startBlock;
+      var startOffset = state.startOffset;
+      var endOffset = state.endOffset;
+
+      if (startOffset == 0 && startBlock.length == 0) return _this.onBackspace(e, state);
+      if (endOffset != startBlock.length) return;
+
+      if (startBlock.type != 'heading-one' && startBlock.type != 'heading-two' && startBlock.type != 'heading-three' && startBlock.type != 'heading-four' && startBlock.type != 'heading-five' && startBlock.type != 'heading-six' && startBlock.type != 'block-quote') {
+        return;
+      }
+
+      e.preventDefault();
+      return state.transform().splitBlock().setBlock('paragraph').apply();
+    }, _temp), _possibleConstructorReturn(_this, _ret);
+  }
+
+  /**
+   * Deserialize the raw initial state.
+   *
+   * @type {Object}
+   */
+
+  /**
+   * Get the block type for a series of auto-markdown shortcut `chars`.
+   *
+   * @param {String} chars
+   * @return {String} block
+   */
+
+  /**
+   *
+   * Render the example.
+   *
+   * @return {Component} component
+   */
+
+  /**
+   * On change.
+   *
+   * @param {State} state
+   */
+
+  /**
+   * On key down, check for our specific key shortcuts.
+   *
+   * @param {Event} e
+   * @param {Data} data
+   * @param {State} state
+   * @return {State or Null} state
+   */
+
+  /**
+   * On space, if it was after an auto-markdown shortcut, convert the current
+   * node into the shortcut's corresponding type.
+   *
+   * @param {Event} e
+   * @param {State} state
+   * @return {State or Null} state
+   */
+
+  /**
+   * On backspace, if at the start of a non-paragraph, convert it back into a
+   * paragraph node.
+   *
+   * @param {Event} e
+   * @param {State} state
+   * @return {State or Null} state
+   */
+
+  /**
+   * On return, if at the end of a node type that should not be extended,
+   * create a new paragraph below it.
+   *
+   * @param {Event} e
+   * @param {State} state
+   * @return {State or Null} state
+   */
+
+  return AutoMarkdown;
+}(_react2.default.Component);
+
+/**
+ * Export.
+ */
+
+exports.default = AutoMarkdown;
+
+},{"../..":40,"./state.json":2,"react":444}],2:[function(require,module,exports){
+module.exports={
+  "nodes": [
+    {
+      "kind": "block",
+      "type": "paragraph",
+      "nodes": [
+        {
+          "kind": "text",
+          "text": "The editor gives you full control over the logic you can add. For example, it's fairly common to want to add markdown-like shortcuts to editors. So that, when you start a line with \"> \" you get a blockquote that looks like this:"
+        }
+      ]
+    },
+    {
+      "kind": "block",
+      "type": "block-quote",
+      "nodes": [
+        {
+          "kind": "text",
+          "text": "A wise quote."
+        }
+      ]
+    },
+    {
+      "kind": "block",
+      "type": "paragraph",
+      "nodes": [
+        {
+          "kind": "text",
+          "text": "Order when you start a line with \"## \" you get a level-two heading, like this:"
+        }
+      ]
+    },
+    {
+      "kind": "block",
+      "type": "heading-two",
+      "nodes": [
+        {
+          "kind": "text",
+          "text": "Try it out!"
+        }
+      ]
+    },
+    {
+      "kind": "block",
+      "type": "paragraph",
+      "nodes": [
+        {
+          "kind": "text",
+          "text": "Try it out for yourself! Try starting a new line with \">\", \"-\", or \"#\"s."
+        }
+      ]
+    }
+  ]
+}
+
+},{}],3:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _ = require('../..');
+
+var _prismjs = require('prismjs');
+
+var _prismjs2 = _interopRequireDefault(_prismjs);
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _state = require('./state.json');
+
+var _state2 = _interopRequireDefault(_state);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+/**
+ * Define a code block component.
+ *
+ * @param {Object} props
+ * @return {Element}
+ */
+
+function CodeBlock(props) {
+  var attributes = props.attributes;
+  var children = props.children;
+  var editor = props.editor;
+  var node = props.node;
+
+  var language = node.data.get('language');
+
+  function onChange(e) {
+    var state = editor.getState();
+    var next = state.transform().setNodeByKey(node.key, {
+      data: {
+        language: e.target.value
+      }
+    }).apply();
+    editor.onChange(next);
+  }
+
+  return _react2.default.createElement(
+    'div',
+    { style: { position: 'relative' } },
+    _react2.default.createElement(
+      'pre',
+      null,
+      _react2.default.createElement(
+        'code',
+        props.attributes,
+        props.children
+      )
+    ),
+    _react2.default.createElement(
+      'div',
+      {
+        contentEditable: false,
+        style: { position: 'absolute', top: '5px', right: '5px' }
+      },
+      _react2.default.createElement(
+        'select',
+        { value: language, onChange: onChange },
+        _react2.default.createElement(
+          'option',
+          { value: 'css' },
+          'CSS'
+        ),
+        _react2.default.createElement(
+          'option',
+          { value: 'js' },
+          'JavaScript'
+        ),
+        _react2.default.createElement(
+          'option',
+          { value: 'html' },
+          'HTML'
+        )
+      )
+    )
+  );
+}
+
+/**
+ * Define a Prism.js decorator for code blocks.
+ *
+ * @param {Text} text
+ * @param {Block} block
+ */
+
+function codeBlockDecorator(text, block) {
+  var characters = text.characters.asMutable();
+  var language = block.data.get('language');
+  var string = text.text;
+  var grammar = _prismjs2.default.languages[language];
+  var tokens = _prismjs2.default.tokenize(string, grammar);
+  var offset = 0;
+
+  var _iteratorNormalCompletion = true;
+  var _didIteratorError = false;
+  var _iteratorError = undefined;
+
+  try {
+    for (var _iterator = tokens[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+      var token = _step.value;
+
+      if (typeof token == 'string') {
+        offset += token.length;
+        continue;
+      }
+
+      var length = offset + token.content.length;
+      var type = 'highlight-' + token.type;
+
+      for (var i = offset; i < length; i++) {
+        var char = characters.get(i);
+        var _char = char;
+        var marks = _char.marks;
+
+        marks = marks.add(_.Mark.create({ type: type }));
+        char = char.merge({ marks: marks });
+        characters = characters.set(i, char);
+      }
+
+      offset = length;
+    }
+  } catch (err) {
+    _didIteratorError = true;
+    _iteratorError = err;
+  } finally {
+    try {
+      if (!_iteratorNormalCompletion && _iterator.return) {
+        _iterator.return();
+      }
+    } finally {
+      if (_didIteratorError) {
+        throw _iteratorError;
+      }
+    }
+  }
+
+  return characters.asImmutable();
+}
+
+/**
+ * Define a schema.
+ *
+ * @type {Object}
+ */
+
+var schema = {
+  nodes: {
+    code: {
+      render: CodeBlock,
+      decorate: codeBlockDecorator
+    }
+  },
+  marks: {
+    'highlight-comment': {
+      opacity: '0.33'
+    },
+    'highlight-keyword': {
+      fontWeight: 'bold'
+    },
+    'highlight-punctuation': {
+      opacity: '0.75'
+    }
+  }
+};
+
+/**
+ * The code highlighting example.
+ *
+ * @type {Component}
+ */
+
+var CodeHighlighting = function (_React$Component) {
+  _inherits(CodeHighlighting, _React$Component);
+
+  function CodeHighlighting() {
+    var _ref;
+
+    var _temp, _this, _ret;
+
+    _classCallCheck(this, CodeHighlighting);
+
+    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = CodeHighlighting.__proto__ || Object.getPrototypeOf(CodeHighlighting)).call.apply(_ref, [this].concat(args))), _this), _this.state = {
+      state: _.Raw.deserialize(_state2.default, { terse: true })
+    }, _this.onChange = function (state) {
+      _this.setState({ state: state });
+    }, _this.onKeyDown = function (e, data, state) {
+      if (data.key != 'enter') return;
+      var startBlock = state.startBlock;
+
+      if (startBlock.type != 'code') return;
+
+      var transform = state.transform();
+      if (state.isExpanded) transform = transform.delete();
+      transform = transform.insertText('\n');
+
+      return transform.apply();
+    }, _this.render = function () {
+      return _react2.default.createElement(
+        'div',
+        { className: 'editor' },
+        _react2.default.createElement(_.Editor, {
+          schema: schema,
+          state: _this.state.state,
+          onKeyDown: _this.onKeyDown,
+          onChange: _this.onChange
+        })
+      );
+    }, _temp), _possibleConstructorReturn(_this, _ret);
+  }
+
+  /**
+   * Deserialize the raw initial state.
+   *
+   * @type {Object}
+   */
+
+  /**
+   * On change, save the new state.
+   *
+   * @param {State} state
+   */
+
+  /**
+   * On key down inside code blocks, insert soft new lines.
+   *
+   * @param {Event} e
+   * @param {Object} data
+   * @param {State} state
+   * @return {State}
+   */
+
+  /**
+   * Render.
+   *
+   * @return {Component}
+   */
+
+  return CodeHighlighting;
+}(_react2.default.Component);
+
+/**
+ * Export.
+ */
+
+exports.default = CodeHighlighting;
+
+},{"../..":40,"./state.json":4,"prismjs":247,"react":444}],4:[function(require,module,exports){
+module.exports={
+  "nodes": [
+    {
+      "kind": "block",
+      "type": "paragraph",
+      "nodes": [
+        {
+          "kind": "text",
+          "text": "There are certain behaviors that require rendering dynamic marks on string of text, like rendering code highlighting. For example:"
+        }
+      ]
+    },
+    {
+      "kind": "block",
+      "type": "code",
+      "data": {
+        "language": "js"
+      },
+      "nodes": [
+        {
+          "kind": "text",
+          "text": "// A simple FizzBuzz implementation.\nfor (var i = 1; i <= 100; i++) {\n  if (i % 15 == 0) {\n    console.log('Fizz Buzz');\n  } else if (i % 5 == 0) {\n    console.log('Buzz');\n  } else if (i % 3 == 0) {\n    console.log('Fizz');\n  } else {\n    console.log(i);\n  }\n}"
+        }
+      ]
+    },
+    {
+      "kind": "block",
+      "type": "paragraph",
+      "nodes": [
+        {
+          "kind": "text",
+          "text": "Try it out for yourself!"
+        }
+      ]
+    }
+  ]
+}
+
+},{}],5:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _ = require('../../..');
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _state = require('./state.json');
+
+var _state2 = _interopRequireDefault(_state);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+/**
+ * The plain text example.
+ *
+ * @type {Component}
+ */
+
+var PlainText = function (_React$Component) {
+  _inherits(PlainText, _React$Component);
+
+  function PlainText() {
+    var _ref;
+
+    var _temp, _this, _ret;
+
+    _classCallCheck(this, PlainText);
+
+    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = PlainText.__proto__ || Object.getPrototypeOf(PlainText)).call.apply(_ref, [this].concat(args))), _this), _this.state = {
+      state: _.Plain.deserialize(_state2.default)
+    }, _this.onChange = function (state) {
+      _this.setState({ state: state });
+    }, _this.render = function () {
+      return _react2.default.createElement(_.Editor, {
+        placeholder: 'Enter some plain text...',
+        state: _this.state.state,
+        onChange: _this.onChange
+      });
+    }, _temp), _possibleConstructorReturn(_this, _ret);
+  }
+
+  /**
+   * Deserialize the initial editor state.
+   *
+   * @type {Object}
+   */
+
+  /**
+   * On change.
+   *
+   * @param {State} state
+   */
+
+  /**
+   * Render the editor.
+   *
+   * @return {Component} component
+   */
+
+  return PlainText;
+}(_react2.default.Component);
+
+/**
+ * Export.
+ */
+
+exports.default = PlainText;
+
+},{"../../..":40,"./state.json":6,"react":444}],6:[function(require,module,exports){
+module.exports="For the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.\nFor the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.\nFor the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.For the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.\nFor the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.\nFor the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.\nFor the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.\nFor the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.For the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.\nFor the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.\nFor the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.\nFor the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.\nFor the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.For the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.\nFor the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the sadfijasd;lkfjas;dlkfja;lsdkfj;alksdjf;sdaljfsf lskajdflkadsjflksdajflksdajfnecessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.\nFor the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.\nFor the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.\nFor the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.For the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.\nFor the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist."
+
+},{}],7:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _ = require('../../..');
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _state = require('./state.json');
+
+var _state2 = _interopRequireDefault(_state);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+/**
+ * Define the default node type.
+ */
+
+var DEFAULT_NODE = 'paragraph';
+
+/**
+ * Define a schema.
+ *
+ * @type {Object}
+ */
+
+var schema = {
+  nodes: {
+    'block-quote': function blockQuote(props) {
+      return _react2.default.createElement(
+        'blockquote',
+        props.attributes,
+        props.children
+      );
+    },
+    'bulleted-list': function bulletedList(props) {
+      return _react2.default.createElement(
+        'ul',
+        props.attributes,
+        props.children
+      );
+    },
+    'heading-one': function headingOne(props) {
+      return _react2.default.createElement(
+        'h1',
+        props.attributes,
+        props.children
+      );
+    },
+    'heading-two': function headingTwo(props) {
+      return _react2.default.createElement(
+        'h2',
+        props.attributes,
+        props.children
+      );
+    },
+    'list-item': function listItem(props) {
+      return _react2.default.createElement(
+        'li',
+        props.attributes,
+        props.children
+      );
+    },
+    'numbered-list': function numberedList(props) {
+      return _react2.default.createElement(
+        'ol',
+        props.attributes,
+        props.children
+      );
+    }
+  },
+  marks: {
+    bold: {
+      fontWeight: 'bold'
+    },
+    code: {
+      fontFamily: 'monospace',
+      backgroundColor: '#eee',
+      padding: '3px',
+      borderRadius: '4px'
+    },
+    italic: {
+      fontStyle: 'italic'
+    },
+    underlined: {
+      textDecoration: 'underline'
+    }
+  }
+};
+
+/**
+ * The rich text example.
+ *
+ * @type {Component}
+ */
+
+var RichText = function (_React$Component) {
+  _inherits(RichText, _React$Component);
+
+  function RichText() {
+    var _ref;
+
+    var _temp, _this, _ret;
+
+    _classCallCheck(this, RichText);
+
+    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = RichText.__proto__ || Object.getPrototypeOf(RichText)).call.apply(_ref, [this].concat(args))), _this), _this.state = {
+      state: _.Raw.deserialize(_state2.default, { terse: true })
+    }, _this.hasMark = function (type) {
+      var state = _this.state.state;
+
+      return state.marks.some(function (mark) {
+        return mark.type == type;
+      });
+    }, _this.hasBlock = function (type) {
+      var state = _this.state.state;
+
+      return state.blocks.some(function (node) {
+        return node.type == type;
+      });
+    }, _this.onChange = function (state) {
+      _this.setState({ state: state });
+    }, _this.onKeyDown = function (e, data, state) {
+      if (!data.isMod) return;
+      var mark = void 0;
+
+      switch (data.key) {
+        case 'b':
+          mark = 'bold';
+          break;
+        case 'i':
+          mark = 'italic';
+          break;
+        case 'u':
+          mark = 'underlined';
+          break;
+        case '`':
+          mark = 'code';
+          break;
+        default:
+          return;
+      }
+
+      state = state.transform()[_this.hasMark(mark) ? 'removeMark' : 'addMark'](mark).apply();
+
+      e.preventDefault();
+      return state;
+    }, _this.onClickMark = function (e, type) {
+      e.preventDefault();
+      var isActive = _this.hasMark(type);
+      var state = _this.state.state;
+
+
+      state = state.transform()[isActive ? 'removeMark' : 'addMark'](type).apply();
+
+      _this.setState({ state: state });
+    }, _this.onClickBlock = function (e, type) {
+      e.preventDefault();
+      var isActive = _this.hasBlock(type);
+      var state = _this.state.state;
+
+
+      var transform = state.transform().setBlock(isActive ? 'paragraph' : type);
+
+      // Handle the extra wrapping required for list buttons.
+      if (type == 'bulleted-list' || type == 'numbered-list') {
+        if (_this.hasBlock('list-item')) {
+          transform = transform.setBlock(DEFAULT_NODE).unwrapBlock(type);
+        } else {
+          transform = transform.setBlock('list-item').wrapBlock(type);
+        }
+      }
+
+      // Handle everything but list buttons.
+      else {
+          transform = transform.setBlock(isActive ? DEFAULT_NODE : type);
+        }
+
+      state = transform.apply();
+      _this.setState({ state: state });
+    }, _this.render = function () {
+      return _react2.default.createElement(
+        'div',
+        null,
+        _this.renderToolbar(),
+        _this.renderEditor()
+      );
+    }, _this.renderToolbar = function () {
+      return _react2.default.createElement(
+        'div',
+        { className: 'menu toolbar-menu' },
+        _this.renderMarkButton('bold', 'format_bold'),
+        _this.renderMarkButton('italic', 'format_italic'),
+        _this.renderMarkButton('underlined', 'format_underlined'),
+        _this.renderMarkButton('code', 'code'),
+        _this.renderBlockButton('heading-one', 'looks_one'),
+        _this.renderBlockButton('heading-two', 'looks_two'),
+        _this.renderBlockButton('block-quote', 'format_quote'),
+        _this.renderBlockButton('numbered-list', 'format_list_numbered'),
+        _this.renderBlockButton('bulleted-list', 'format_list_bulleted')
+      );
+    }, _this.renderMarkButton = function (type, icon) {
+      var isActive = _this.hasMark(type);
+      var onMouseDown = function onMouseDown(e) {
+        return _this.onClickMark(e, type);
+      };
+
+      return _react2.default.createElement(
+        'span',
+        { className: 'button', onMouseDown: onMouseDown, 'data-active': isActive },
+        _react2.default.createElement(
+          'span',
+          { className: 'material-icons' },
+          icon
+        )
+      );
+    }, _this.renderBlockButton = function (type, icon) {
+      var isActive = _this.hasBlock(type);
+      var onMouseDown = function onMouseDown(e) {
+        return _this.onClickBlock(e, type);
+      };
+
+      return _react2.default.createElement(
+        'span',
+        { className: 'button', onMouseDown: onMouseDown, 'data-active': isActive },
+        _react2.default.createElement(
+          'span',
+          { className: 'material-icons' },
+          icon
+        )
+      );
+    }, _this.renderEditor = function () {
+      return _react2.default.createElement(
+        'div',
+        { className: 'editor' },
+        _react2.default.createElement(_.Editor, {
+          placeholder: 'Enter some rich text...',
+          schema: schema,
+          state: _this.state.state,
+          onChange: _this.onChange,
+          onKeyDown: _this.onKeyDown
+        })
+      );
+    }, _temp), _possibleConstructorReturn(_this, _ret);
+  }
+
+  /**
+   * Deserialize the initial editor state.
+   *
+   * @type {Object}
+   */
+
+  /**
+   * Check if the current selection has a mark with `type` in it.
+   *
+   * @param {String} type
+   * @return {Boolean}
+   */
+
+  /**
+   * Check if the any of the currently selected blocks are of `type`.
+   *
+   * @param {String} type
+   * @return {Boolean}
+   */
+
+  /**
+   * On change, save the new state.
+   *
+   * @param {State} state
+   */
+
+  /**
+   * On key down, if it's a formatting command toggle a mark.
+   *
+   * @param {Event} e
+   * @param {Object} data
+   * @param {State} state
+   * @return {State}
+   */
+
+  /**
+   * When a mark button is clicked, toggle the current mark.
+   *
+   * @param {Event} e
+   * @param {String} type
+   */
+
+  /**
+   * When a block button is clicked, toggle the block type.
+   *
+   * @param {Event} e
+   * @param {String} type
+   */
+
+  /**
+   * Render.
+   *
+   * @return {Element}
+   */
+
+  /**
+   * Render the toolbar.
+   *
+   * @return {Element}
+   */
+
+  /**
+   * Render a mark-toggling toolbar button.
+   *
+   * @param {String} type
+   * @param {String} icon
+   * @return {Element}
+   */
+
+  /**
+   * Render a block-toggling toolbar button.
+   *
+   * @param {String} type
+   * @param {String} icon
+   * @return {Element}
+   */
+
+  /**
+   * Render the Slate editor.
+   *
+   * @return {Element}
+   */
+
+  return RichText;
+}(_react2.default.Component);
+
+/**
+ * Export.
+ */
+
+exports.default = RichText;
+
+},{"../../..":40,"./state.json":8,"react":444}],8:[function(require,module,exports){
+module.exports={
+  "nodes": [
+    {
+      "kind": "block",
+      "type": "paragraph",
+      "nodes": [
+        {
+          "kind": "text",
+          "ranges": [
+            {
+              "text": "This is editable "
+            },
+            {
+              "text": "rich",
+              "marks": [
+                {
+                  "type": "bold"
+                }
+              ]
+            },
+            {
+              "text": " text, "
+            },
+            {
+              "text": "much",
+              "marks": [
+                {
+                  "type": "italic"
+                }
+              ]
+            },
+            {
+              "text": " better than a "
+            },
+            {
+              "text": "<textarea>",
+              "marks": [
+                {
+                  "type": "code"
+                }
+              ]
+            },
+            {
+              "text": "!"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "block",
+      "type": "paragraph",
+      "nodes": [
+        {
+          "kind": "text",
+          "ranges": [
+            {
+              "text": "Since it's rich text, you can do things like turn a selection of text "
+            },
+            {
+              "text": "bold",
+              "marks": [
+                {
+                  "type": "bold"
+                }
+              ]
+            },{
+              "text": ", or add a semantically rendered block quote in the middle of the page, like this:"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "block",
+      "type": "block-quote",
+      "nodes": [
+        {
+          "kind": "text",
+          "text": "A wise quote."
+        }
+      ]
+    },
+    {
+      "kind": "block",
+      "type": "paragraph",
+      "nodes": [
+        {
+          "kind": "text",
+          "text": "Try it out for yourself!"
+        }
+      ]
+    }
+  ]
+}
+
+},{}],9:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _ = require('../..');
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _reactDom = require('react-dom');
+
+var _reactDom2 = _interopRequireDefault(_reactDom);
+
+var _video = require('./video');
+
+var _video2 = _interopRequireDefault(_video);
+
+var _state = require('./state.json');
+
+var _state2 = _interopRequireDefault(_state);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+/**
+ * Define a schema.
+ *
+ * @type {Object}
+ */
+
+var schema = {
+  nodes: {
+    video: _video2.default
+  }
+};
+
+/**
+ * The images example.
+ *
+ * @type {Component}
+ */
+
+var Embeds = function (_React$Component) {
+  _inherits(Embeds, _React$Component);
+
+  function Embeds() {
+    var _ref;
+
+    var _temp, _this, _ret;
+
+    _classCallCheck(this, Embeds);
+
+    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = Embeds.__proto__ || Object.getPrototypeOf(Embeds)).call.apply(_ref, [this].concat(args))), _this), _this.state = {
+      state: _.Raw.deserialize(_state2.default, { terse: true })
+    }, _this.onChange = function (state) {
+      _this.setState({ state: state });
+    }, _this.render = function () {
+      return _react2.default.createElement(
+        'div',
+        { className: 'editor' },
+        _react2.default.createElement(_.Editor, {
+          schema: schema,
+          state: _this.state.state,
+          onChange: _this.onChange
+        })
+      );
+    }, _temp), _possibleConstructorReturn(_this, _ret);
+  }
+
+  /**
+   * Deserialize the raw initial state.
+   *
+   * @type {Object}
+   */
+
+  /**
+   * On change.
+   *
+   * @param {State} state
+   */
+
+  /**
+   * Render the app.
+   *
+   * @return {Element} element
+   */
+
+  return Embeds;
+}(_react2.default.Component);
+
+/**
+ * Export.
+ */
+
+exports.default = Embeds;
+
+},{"../..":40,"./state.json":10,"./video":11,"react":444,"react-dom":252}],10:[function(require,module,exports){
+module.exports={
+  "nodes": [
+    {
+      "kind": "block",
+      "type": "paragraph",
+      "nodes": [
+        {
+          "kind": "text",
+          "text": "In addition to simple image nodes, you can actually create complex embedded nodes. For example, this one contains an input element that lets you change the video being rendered!"
+        }
+      ]
+    },
+    {
+      "kind": "block",
+      "type": "video",
+      "isVoid": true,
+      "data": {
+        "video": "https://www.youtube.com/embed/FaHEusBG20c"
+      }
+    },
+    {
+      "kind": "block",
+      "type": "paragraph",
+      "nodes": [
+        {
+          "kind": "text",
+          "text": "Try it out! If you want another good video URL to try, go with: https://www.youtube.com/embed/6Ejga4kJUts"
+        }
+      ]
+    }
+  ]
+}
+
+},{}],11:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+/**
+ * An video embed component.
+ *
+ * @type {Component}
+ */
+
+var Video = function (_React$Component) {
+  _inherits(Video, _React$Component);
+
+  function Video() {
+    var _ref;
+
+    var _temp, _this, _ret;
+
+    _classCallCheck(this, Video);
+
+    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = Video.__proto__ || Object.getPrototypeOf(Video)).call.apply(_ref, [this].concat(args))), _this), _this.onChange = function (e) {
+      var video = e.target.value;
+      var _this$props = _this.props;
+      var node = _this$props.node;
+      var state = _this$props.state;
+      var editor = _this$props.editor;
+
+      var properties = {
+        data: { video: video }
+      };
+
+      var next = editor.getState().transform().setNodeByKey(node.key, properties).apply();
+
+      editor.onChange(next);
+    }, _this.onClick = function (e) {
+      e.stopPropagation();
+    }, _this.render = function () {
+      return _react2.default.createElement(
+        'div',
+        _this.props.attributes,
+        _this.renderVideo(),
+        _this.renderInput()
+      );
+    }, _this.renderVideo = function () {
+      var video = _this.props.node.data.get('video');
+      var wrapperStyle = {
+        position: 'relative',
+        paddingBottom: '66.66%',
+        paddingTop: '25px',
+        height: '0'
+      };
+
+      var iframeStyle = {
+        position: 'absolute',
+        top: '0px',
+        left: '0px',
+        width: '100%',
+        height: '100%'
+      };
+
+      return _react2.default.createElement(
+        'div',
+        { style: wrapperStyle },
+        _react2.default.createElement('iframe', {
+          id: 'ytplayer',
+          type: 'text/html',
+          width: '640',
+          height: '390',
+          src: video,
+          frameBorder: '0',
+          style: iframeStyle
+        })
+      );
+    }, _this.renderInput = function () {
+      var video = _this.props.node.data.get('video');
+      return _react2.default.createElement('input', {
+        value: video,
+        onChange: _this.onChange,
+        onClick: _this.onClick,
+        style: { marginTop: '5px' }
+      });
+    }, _temp), _possibleConstructorReturn(_this, _ret);
+  }
+
+  /**
+   * When the input text changes, update the `video` data on the node.
+   *
+   * @param {Event} e
+   */
+
+  /**
+   * When clicks happen in the input, stop propagation so that the void node
+   * itself isn't focused, since that would unfocus the input.
+   *
+   * @type {Event} e
+   */
+
+  /**
+   * Render.
+   *
+   * @return {Element}
+   */
+
+  /**
+   * Render the Youtube iframe, responsively.
+   *
+   * @return {Element}
+   */
+
+  /**
+   * Render the video URL input.
+   *
+   * @return {Element}
+   */
+
+  return Video;
+}(_react2.default.Component);
+
+/**
+ * Export.
+ */
+
+exports.default = Video;
+
+},{"react":444}],12:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _ = require('../..');
+
+var _reactPortal = require('react-portal');
+
+var _reactPortal2 = _interopRequireDefault(_reactPortal);
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _selectionPosition = require('selection-position');
+
+var _selectionPosition2 = _interopRequireDefault(_selectionPosition);
+
+var _state = require('./state.json');
+
+var _state2 = _interopRequireDefault(_state);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+/**
+ * Define a schema.
+ *
+ * @type {Object}
+ */
+
+var schema = {
+  marks: {
+    bold: function bold(props) {
+      return _react2.default.createElement(
+        'strong',
+        null,
+        props.children
+      );
+    },
+    code: function code(props) {
+      return _react2.default.createElement(
+        'code',
+        null,
+        props.children
+      );
+    },
+    italic: function italic(props) {
+      return _react2.default.createElement(
+        'em',
+        null,
+        props.children
+      );
+    },
+    underlined: function underlined(props) {
+      return _react2.default.createElement(
+        'u',
+        null,
+        props.children
+      );
+    }
+  }
+};
+
+/**
+ * The hovering menu example.
+ *
+ * @type {Component}
+ */
+
+var HoveringMenu = function (_React$Component) {
+  _inherits(HoveringMenu, _React$Component);
+
+  function HoveringMenu() {
+    var _ref;
+
+    var _temp, _this, _ret;
+
+    _classCallCheck(this, HoveringMenu);
+
+    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = HoveringMenu.__proto__ || Object.getPrototypeOf(HoveringMenu)).call.apply(_ref, [this].concat(args))), _this), _this.state = {
+      state: _.Raw.deserialize(_state2.default, { terse: true })
+    }, _this.componentDidMount = function () {
+      _this.updateMenu();
+    }, _this.componentDidUpdate = function () {
+      _this.updateMenu();
+    }, _this.hasMark = function (type) {
+      var state = _this.state.state;
+
+      return state.marks.some(function (mark) {
+        return mark.type == type;
+      });
+    }, _this.onChange = function (state) {
+      _this.setState({ state: state });
+    }, _this.onClickMark = function (e, type) {
+      e.preventDefault();
+      var state = _this.state.state;
+
+
+      state = state.transform().toggleMark(type).apply();
+
+      _this.setState({ state: state });
+    }, _this.onOpen = function (portal) {
+      _this.setState({ menu: portal.firstChild });
+    }, _this.render = function () {
+      return _react2.default.createElement(
+        'div',
+        null,
+        _this.renderMenu(),
+        _this.renderEditor()
+      );
+    }, _this.renderMenu = function () {
+      var state = _this.state.state;
+
+      var isOpen = state.isExpanded && state.isFocused;
+      return _react2.default.createElement(
+        _reactPortal2.default,
+        { isOpened: true, onOpen: _this.onOpen },
+        _react2.default.createElement(
+          'div',
+          { className: 'menu hover-menu' },
+          _this.renderMarkButton('bold', 'format_bold'),
+          _this.renderMarkButton('italic', 'format_italic'),
+          _this.renderMarkButton('underlined', 'format_underlined'),
+          _this.renderMarkButton('code', 'code')
+        )
+      );
+    }, _this.renderMarkButton = function (type, icon) {
+      var isActive = _this.hasMark(type);
+      var onMouseDown = function onMouseDown(e) {
+        return _this.onClickMark(e, type);
+      };
+
+      return _react2.default.createElement(
+        'span',
+        { className: 'button', onMouseDown: onMouseDown, 'data-active': isActive },
+        _react2.default.createElement(
+          'span',
+          { className: 'material-icons' },
+          icon
+        )
+      );
+    }, _this.renderEditor = function () {
+      return _react2.default.createElement(
+        'div',
+        { className: 'editor' },
+        _react2.default.createElement(_.Editor, {
+          schema: schema,
+          state: _this.state.state,
+          onChange: _this.onChange
+        })
+      );
+    }, _this.updateMenu = function () {
+      var _this$state = _this.state;
+      var menu = _this$state.menu;
+      var state = _this$state.state;
+
+      if (!menu) return;
+
+      if (state.isBlurred || state.isCollapsed) {
+        menu.removeAttribute('style');
+        return;
+      }
+
+      var rect = (0, _selectionPosition2.default)();
+      menu.style.opacity = 1;
+      menu.style.top = rect.top + window.scrollY - menu.offsetHeight + 'px';
+      menu.style.left = rect.left + window.scrollX - menu.offsetWidth / 2 + rect.width / 2 + 'px';
+    }, _temp), _possibleConstructorReturn(_this, _ret);
+  }
+
+  /**
+   * Deserialize the raw initial state.
+   *
+   * @type {Object}
+   */
+
+  /**
+   * On update, update the menu.
+   */
+
+  /**
+   * Check if the current selection has a mark with `type` in it.
+   *
+   * @param {String} type
+   * @return {Boolean}
+   */
+
+  /**
+   * On change, save the new state.
+   *
+   * @param {State} state
+   */
+
+  /**
+   * When a mark button is clicked, toggle the current mark.
+   *
+   * @param {Event} e
+   * @param {String} type
+   */
+
+  /**
+   * When the portal opens, cache the menu element.
+   *
+   * @param {Element} portal
+   */
+
+  /**
+   * Render.
+   *
+   * @return {Element}
+   */
+
+  /**
+   * Render the hovering menu.
+   *
+   * @return {Element}
+   */
+
+  /**
+   * Render a mark-toggling toolbar button.
+   *
+   * @param {String} type
+   * @param {String} icon
+   * @return {Element}
+   */
+
+  /**
+   * Render the Slate editor.
+   *
+   * @return {Element}
+   */
+
+  /**
+   * Update the menu's absolute position.
+   */
+
+  return HoveringMenu;
+}(_react2.default.Component);
+
+/**
+ * Export.
+ */
+
+exports.default = HoveringMenu;
+
+},{"../..":40,"./state.json":13,"react":444,"react-portal":258,"selection-position":456}],13:[function(require,module,exports){
+module.exports={
+  "nodes": [
+    {
+      "kind": "block",
+      "type": "paragraph",
+      "nodes": [
+        {
+          "kind": "text",
+          "ranges": [
+            {
+              "text": "This example shows how you can make a hovering menu appear above your content, which you can use to make text "
+            },
+            {
+              "text": "bold",
+              "marks": [
+                {
+                  "type": "bold"
+                }
+              ]
+            },
+            {
+              "text": ", "
+            },
+            {
+              "text": "italic",
+              "marks": [
+                {
+                  "type": "italic"
+                }
+              ]
+            },
+            {
+              "text": ", or anything else you might want to do!"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "block",
+      "type": "paragraph",
+      "nodes": [
+        {
+          "kind": "text",
+          "ranges": [
+            {
+              "text": "Try it out yourself! Just "
+            },
+            {
+              "text": "select any piece of text and the menu will appear",
+              "marks": [
+                {
+                  "type": "bold"
+                },
+                {
+                  "type": "italic"
+                }
+              ]
+            },
+            {
+              "text": "."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+
+},{}],14:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _ = require('../..');
+
+var _reactFrameComponent = require('react-frame-component');
+
+var _reactFrameComponent2 = _interopRequireDefault(_reactFrameComponent);
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _reactDom = require('react-dom');
+
+var _reactDom2 = _interopRequireDefault(_reactDom);
+
+var _state = require('./state.json');
+
+var _state2 = _interopRequireDefault(_state);
+
+var _reactFrameAwareSelectionPlugin = require('react-frame-aware-selection-plugin');
+
+var _reactFrameAwareSelectionPlugin2 = _interopRequireDefault(_reactFrameAwareSelectionPlugin);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+/**
+ * Injector to make `onSelect` work in iframes in React.
+ */
+
+(0, _reactFrameAwareSelectionPlugin2.default)();
+
+/**
+ * Define the default node type.
+ */
+
+var DEFAULT_NODE = 'paragraph';
+
+/**
+ * Define a schema.
+ *
+ * @type {Object}
+ */
+
+var schema = {
+  nodes: {
+    'block-code': function blockCode(props) {
+      return _react2.default.createElement(
+        'pre',
+        null,
+        _react2.default.createElement(
+          'code',
+          props.attributes,
+          props.children
+        )
+      );
+    },
+    'block-quote': function blockQuote(props) {
+      return _react2.default.createElement(
+        'blockquote',
+        props.attributes,
+        props.children
+      );
+    },
+    'heading-two': function headingTwo(props) {
+      return _react2.default.createElement(
+        'h2',
+        props.attributes,
+        props.children
+      );
+    },
+    'paragraph': function paragraph(props) {
+      return _react2.default.createElement(
+        'p',
+        props.attributes,
+        props.children
+      );
+    }
+  },
+  marks: {
+    bold: function bold(props) {
+      return _react2.default.createElement(
+        'strong',
+        null,
+        props.children
+      );
+    },
+    highlight: function highlight(props) {
+      return _react2.default.createElement(
+        'mark',
+        null,
+        props.children
+      );
+    },
+    italic: function italic(props) {
+      return _react2.default.createElement(
+        'em',
+        null,
+        props.children
+      );
+    }
+  }
+};
+
+/**
+ * The iframes example.
+ *
+ * @type {Component}
+ */
+
+var Iframes = function (_React$Component) {
+  _inherits(Iframes, _React$Component);
+
+  function Iframes() {
+    var _ref;
+
+    var _temp, _this, _ret;
+
+    _classCallCheck(this, Iframes);
+
+    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = Iframes.__proto__ || Object.getPrototypeOf(Iframes)).call.apply(_ref, [this].concat(args))), _this), _this.state = {
+      state: _.Raw.deserialize(_state2.default, { terse: true })
+    }, _this.hasMark = function (type) {
+      var state = _this.state.state;
+
+      return state.marks.some(function (mark) {
+        return mark.type == type;
+      });
+    }, _this.hasBlock = function (type) {
+      var state = _this.state.state;
+
+      return state.blocks.some(function (node) {
+        return node.type == type;
+      });
+    }, _this.onChange = function (state) {
+      _this.setState({ state: state });
+    }, _this.onKeyDown = function (e, data, state) {
+      if (!data.isMod) return;
+      var mark = void 0;
+
+      switch (data.key) {
+        case 'b':
+          mark = 'bold';
+          break;
+        case 'i':
+          mark = 'italic';
+          break;
+        default:
+          return;
+      }
+
+      state = state.transform().toggleMark(mark).apply();
+
+      e.preventDefault();
+      return state;
+    }, _this.onClickMark = function (e, type) {
+      e.preventDefault();
+      var state = _this.state.state;
+
+
+      state = state.transform().toggleMark(type).apply();
+
+      _this.setState({ state: state });
+    }, _this.onClickBlock = function (e, type) {
+      e.preventDefault();
+      var state = _this.state.state;
+
+      var isActive = _this.hasBlock(type);
+
+      state = state.transform().setBlock(isActive ? DEFAULT_NODE : type).apply();
+
+      _this.setState({ state: state });
+    }, _this.render = function () {
+      var bootstrap = _react2.default.createElement('link', {
+        href: 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css',
+        rel: 'stylesheet',
+        integrity: 'sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u',
+        crossOrigin: 'anonymous'
+      });
+
+      var style = {
+        width: '100%',
+        height: '500px'
+      };
+
+      return _react2.default.createElement(
+        'div',
+        null,
+        _react2.default.createElement(
+          'p',
+          { style: { marginBottom: '10px' } },
+          'This editor is rendered inside of an ',
+          _react2.default.createElement(
+            'code',
+            null,
+            'iframe'
+          ),
+          ' element, and everything works as usual! This is helpful for scenarios where you need the content to be rendered in an isolated, for example to create a "live example" with a specific set of stylesheets applied.'
+        ),
+        _react2.default.createElement(
+          'p',
+          { style: { marginBottom: '10px' } },
+          'In this example\'s case, we\'ve added Bootstrap\'s CSS to the ',
+          _react2.default.createElement(
+            'code',
+            null,
+            'iframe'
+          ),
+          ' for default styles:'
+        ),
+        _react2.default.createElement(
+          _reactFrameComponent2.default,
+          { head: bootstrap, style: style },
+          _react2.default.createElement(
+            'div',
+            { style: { padding: '20px' } },
+            _this.renderToolbar(),
+            _this.renderEditor()
+          )
+        )
+      );
+    }, _this.renderToolbar = function () {
+      return _react2.default.createElement(
+        'div',
+        { className: 'btn-group', style: { marginBottom: '20px' } },
+        _this.renderMarkButton('bold', 'bold'),
+        _this.renderMarkButton('italic', 'italic'),
+        _this.renderMarkButton('highlight', 'pencil'),
+        _this.renderBlockButton('heading-two', 'header'),
+        _this.renderBlockButton('block-code', 'console'),
+        _this.renderBlockButton('block-quote', 'comment')
+      );
+    }, _this.renderMarkButton = function (type, icon) {
+      var isActive = _this.hasMark(type);
+      var onMouseDown = function onMouseDown(e) {
+        return _this.onClickMark(e, type);
+      };
+      var className = 'btn btn-primary';
+      if (isActive) className += ' active';
+
+      return _react2.default.createElement(
+        'button',
+        { className: className, onMouseDown: onMouseDown },
+        _react2.default.createElement('span', { className: 'glyphicon glyphicon-' + icon })
+      );
+    }, _this.renderBlockButton = function (type, icon) {
+      var isActive = _this.hasBlock(type);
+      var onMouseDown = function onMouseDown(e) {
+        return _this.onClickBlock(e, type);
+      };
+      var className = 'btn btn-primary';
+      if (isActive) className += ' active';
+
+      return _react2.default.createElement(
+        'button',
+        { className: className, onMouseDown: onMouseDown },
+        _react2.default.createElement('span', { className: 'glyphicon glyphicon-' + icon })
+      );
+    }, _this.renderEditor = function () {
+      return _react2.default.createElement(_.Editor, {
+        placeholder: 'Enter some rich text...',
+        schema: schema,
+        state: _this.state.state,
+        onChange: _this.onChange,
+        onKeyDown: _this.onKeyDown
+      });
+    }, _temp), _possibleConstructorReturn(_this, _ret);
+  }
+
+  /**
+   * Deserialize the initial editor state.
+   *
+   * @type {Object}
+   */
+
+  /**
+   * Check if the current selection has a mark with `type` in it.
+   *
+   * @param {String} type
+   * @return {Boolean}
+   */
+
+  /**
+   * Check if the any of the currently selected blocks are of `type`.
+   *
+   * @param {String} type
+   * @return {Boolean}
+   */
+
+  /**
+   * On change, save the new state.
+   *
+   * @param {State} state
+   */
+
+  /**
+   * On key down, if it's a formatting command toggle a mark.
+   *
+   * @param {Event} e
+   * @param {Object} data
+   * @param {State} state
+   * @return {State}
+   */
+
+  /**
+   * When a mark button is clicked, toggle the current mark.
+   *
+   * @param {Event} e
+   * @param {String} type
+   */
+
+  /**
+   * When a block button is clicked, toggle the block type.
+   *
+   * @param {Event} e
+   * @param {String} type
+   */
+
+  /**
+   * Render.
+   *
+   * @return {Element}
+   */
+
+  /**
+   * Render the toolbar.
+   *
+   * @return {Element}
+   */
+
+  /**
+   * Render a mark-toggling toolbar button.
+   *
+   * @param {String} type
+   * @param {String} icon
+   * @return {Element}
+   */
+
+  /**
+   * Render a block-toggling toolbar button.
+   *
+   * @param {String} type
+   * @param {String} icon
+   * @return {Element}
+   */
+
+  /**
+   * Render the Slate editor.
+   *
+   * @return {Element}
+   */
+
+  return Iframes;
+}(_react2.default.Component);
+
+exports.default = Iframes;
+
+},{"../..":40,"./state.json":15,"react":444,"react-dom":252,"react-frame-aware-selection-plugin":255,"react-frame-component":257}],15:[function(require,module,exports){
+module.exports={
+  "nodes": [
+    {
+      "kind": "block",
+      "type": "paragraph",
+      "nodes": [
+        {
+          "kind": "text",
+          "ranges": [
+            {
+              "text": "This is editable "
+            },
+            {
+              "text": "rich",
+              "marks": [
+                {
+                  "type": "bold"
+                },
+                {
+                  "type": "italic"
+                }
+              ]
+            },
+            {
+              "text": " text that is being styled by Bootstrap's CSS rules!"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "block",
+      "type": "paragraph",
+      "nodes": [
+        {
+          "kind": "text",
+          "ranges": [
+            {
+              "text": "Since it's rich text, you can do things like turn a selection of text "
+            },
+            {
+              "text": "bold",
+              "marks": [
+                {
+                  "type": "bold"
+                }
+              ]
+            },{
+              "text": ", or add a semantically rendered block quote in the middle of the page, like this:"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "block",
+      "type": "block-quote",
+      "nodes": [
+        {
+          "kind": "text",
+          "text": "A wise quote."
+        }
+      ]
+    },
+    {
+      "kind": "block",
+      "type": "paragraph",
+      "nodes": [
+        {
+          "kind": "text",
+          "text": "And since it's inside an iframe which loads Bootstrap's CSS, the content will automatically take on Bootstrap's style rules. For example, code blocks will look like Bootstrap code blocks do:"
+        }
+      ]
+    },
+    {
+      "kind": "block",
+      "type": "block-code",
+      "nodes": [
+        {
+          "kind": "text",
+          "text": "console.log('Hello world!');"
+        }
+      ]
+    },
+    {
+      "kind": "block",
+      "type": "paragraph",
+      "nodes": [
+        {
+          "kind": "text",
+          "text": "Try it out for yourself!"
+        }
+      ]
+    }
+  ]
+}
+
+},{}],16:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _ = require('../..');
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _reactDom = require('react-dom');
+
+var _reactDom2 = _interopRequireDefault(_reactDom);
+
+var _state = require('./state.json');
+
+var _state2 = _interopRequireDefault(_state);
+
+var _isImage = require('is-image');
+
+var _isImage2 = _interopRequireDefault(_isImage);
+
+var _isUrl = require('is-url');
+
+var _isUrl2 = _interopRequireDefault(_isUrl);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+/**
+ * Define a schema.
+ *
+ * @type {Object}
+ */
+
+var schema = {
+  nodes: {
+    image: function image(props) {
+      var node = props.node;
+      var state = props.state;
+
+      var isFocused = state.selection.hasEdgeIn(node);
+      var src = node.data.get('src');
+      var className = isFocused ? 'active' : null;
+      return _react2.default.createElement('img', _extends({ src: src, className: className }, props.attributes));
+    }
+  }
+};
+
+/**
+ * The images example.
+ *
+ * @type {Component}
+ */
+
+var Images = function (_React$Component) {
+  _inherits(Images, _React$Component);
+
+  function Images() {
+    var _ref;
+
+    var _temp, _this, _ret;
+
+    _classCallCheck(this, Images);
+
+    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = Images.__proto__ || Object.getPrototypeOf(Images)).call.apply(_ref, [this].concat(args))), _this), _this.state = {
+      state: _.Raw.deserialize(_state2.default, { terse: true })
+    }, _this.render = function () {
+      return _react2.default.createElement(
+        'div',
+        null,
+        _this.renderToolbar(),
+        _this.renderEditor()
+      );
+    }, _this.renderToolbar = function () {
+      return _react2.default.createElement(
+        'div',
+        { className: 'menu toolbar-menu' },
+        _react2.default.createElement(
+          'span',
+          { className: 'button', onMouseDown: _this.onClickImage },
+          _react2.default.createElement(
+            'span',
+            { className: 'material-icons' },
+            'image'
+          )
+        )
+      );
+    }, _this.renderEditor = function () {
+      return _react2.default.createElement(
+        'div',
+        { className: 'editor' },
+        _react2.default.createElement(_.Editor, {
+          schema: schema,
+          state: _this.state.state,
+          onChange: _this.onChange,
+          onDocumentChange: _this.onDocumentChange,
+          onDrop: _this.onDrop,
+          onPaste: _this.onPaste
+        })
+      );
+    }, _this.onChange = function (state) {
+      _this.setState({ state: state });
+    }, _this.onDocumentChange = function (document, state) {
+      var blocks = document.getBlocks();
+      var last = blocks.last();
+      if (last.type != 'image') return;
+
+      var normalized = state.transform().collapseToEndOf(last).splitBlock().setBlock({
+        type: 'paragraph',
+        isVoid: false,
+        data: {}
+      }).apply({
+        snapshot: false
+      });
+
+      _this.onChange(normalized);
+    }, _this.onClickImage = function (e) {
+      e.preventDefault();
+      var src = window.prompt('Enter the URL of the image:');
+      if (!src) return;
+      var state = _this.state.state;
+
+      state = _this.insertImage(state, src);
+      _this.onChange(state);
+    }, _this.onDrop = function (e, data, state, editor) {
+      switch (data.type) {
+        case 'files':
+          return _this.onDropOrPasteFiles(e, data, state, editor);
+        case 'node':
+          return _this.onDropNode(e, data, state);
+      }
+    }, _this.onDropNode = function (e, data, state) {
+      return state.transform().unsetSelection().removeNodeByKey(data.node.key).moveTo(data.target).insertBlock(data.node).apply();
+    }, _this.onDropOrPasteFiles = function (e, data, state, editor) {
+      var _iteratorNormalCompletion = true;
+      var _didIteratorError = false;
+      var _iteratorError = undefined;
+
+      try {
+        var _loop = function _loop() {
+          var file = _step.value;
+
+          var reader = new FileReader();
+
+          var _file$type$split = file.type.split('/');
+
+          var _file$type$split2 = _slicedToArray(_file$type$split, 2);
+
+          var type = _file$type$split2[0];
+          var ext = _file$type$split2[1];
+
+          if (type != 'image') return 'continue';
+
+          reader.addEventListener('load', function () {
+            state = editor.getState();
+            state = _this.insertImage(state, reader.result);
+            editor.onChange(state);
+          });
+
+          reader.readAsDataURL(file);
+        };
+
+        for (var _iterator = data.files[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+          var _ret2 = _loop();
+
+          if (_ret2 === 'continue') continue;
+        }
+      } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion && _iterator.return) {
+            _iterator.return();
+          }
+        } finally {
+          if (_didIteratorError) {
+            throw _iteratorError;
+          }
+        }
+      }
+    }, _this.onPaste = function (e, data, state, editor) {
+      switch (data.type) {
+        case 'files':
+          return _this.onDropOrPasteFiles(e, data, state, editor);
+        case 'text':
+          return _this.onPasteText(e, data, state);
+      }
+    }, _this.onPasteText = function (e, data, state) {
+      if (!(0, _isUrl2.default)(data.text)) return;
+      if (!(0, _isImage2.default)(data.text)) return;
+      return _this.insertImage(state, data.text);
+    }, _this.insertImage = function (state, src) {
+      return state.transform().insertBlock({
+        type: 'image',
+        isVoid: true,
+        data: { src: src }
+      }).apply();
+    }, _temp), _possibleConstructorReturn(_this, _ret);
+  }
+
+  /**
+   * Deserialize the raw initial state.
+   *
+   * @type {Object}
+   */
+
+  /**
+   * Render the app.
+   *
+   * @return {Element} element
+   */
+
+  /**
+   * Render the toolbar.
+   *
+   * @return {Element} element
+   */
+
+  /**
+   * Render the editor.
+   *
+   * @return {Element} element
+   */
+
+  /**
+   * On change.
+   *
+   * @param {State} state
+   */
+
+  /**
+   * On document change, if the last block is an image, add another paragraph.
+   *
+   * @param {Document} document
+   * @param {State} state
+   */
+
+  /**
+   * On clicking the image button, prompt for an image and insert it.
+   *
+   * @param {Event} e
+   */
+
+  /**
+   * On drop, insert the image wherever it is dropped.
+   *
+   * @param {Event} e
+   * @param {Object} data
+   * @param {State} state
+   * @param {Editor} editor
+   * @return {State}
+   */
+
+  /**
+   * On drop node, insert the node wherever it is dropped.
+   *
+   * @param {Event} e
+   * @param {Object} data
+   * @param {State} state
+   * @return {State}
+   */
+
+  /**
+   * On drop or paste files, read and insert the image files.
+   *
+   * @param {Event} e
+   * @param {Object} data
+   * @param {State} state
+   * @param {Editor} editor
+   * @return {State}
+   */
+
+  /**
+   * On paste, if the pasted content is an image URL, insert it.
+   *
+   * @param {Event} e
+   * @param {Object} data
+   * @param {State} state
+   * @param {Editor} editor
+   * @return {State}
+   */
+
+  /**
+   * On paste text, if the pasted content is an image URL, insert it.
+   *
+   * @param {Event} e
+   * @param {Object} data
+   * @param {State} state
+   * @return {State}
+   */
+
+  /**
+   * Insert an image with `src` at the current selection.
+   *
+   * @param {State} state
+   * @param {String} src
+   * @return {State}
+   */
+
+  return Images;
+}(_react2.default.Component);
+
+/**
+ * Export.
+ */
+
+exports.default = Images;
+
+},{"../..":40,"./state.json":17,"is-image":196,"is-url":197,"react":444,"react-dom":252}],17:[function(require,module,exports){
+module.exports={
+  "nodes": [
+    {
+      "kind": "block",
+      "type": "paragraph",
+      "nodes": [
+        {
+          "kind": "text",
+          "text": "In addition to nodes that contain editable text, you can also create other types of nodes, like images or videos."
+        }
+      ]
+    },
+    {
+      "kind": "block",
+      "type": "image",
+      "isVoid": true,
+      "data": {
+        "src": "https://img.washingtonpost.com/wp-apps/imrs.php?src=https://img.washingtonpost.com/news/speaking-of-science/wp-content/uploads/sites/36/2015/10/as12-49-7278-1024x1024.jpg&w=1484"
+      }
+    },
+    {
+      "kind": "block",
+      "type": "paragraph",
+      "nodes": [
+        {
+          "kind": "text",
+          "text": "This example shows images in action. It features two ways to add images. You can either add an image via the toolbar icon above, or if you want in on a little secret, copy an image URL to your keyboard and paste it anywhere in the editor!"
+        }
+      ]
+    }
+  ]
+}
+
+},{}],18:[function(require,module,exports){
+'use strict';
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _reactDom = require('react-dom');
+
+var _reactDom2 = _interopRequireDefault(_reactDom);
+
+var _reactRouter = require('react-router');
+
+var _autoMarkdown = require('./auto-markdown');
+
+var _autoMarkdown2 = _interopRequireDefault(_autoMarkdown);
+
+var _codeHighlighting = require('./code-highlighting');
+
+var _codeHighlighting2 = _interopRequireDefault(_codeHighlighting);
+
+var _embeds = require('./embeds');
+
+var _embeds2 = _interopRequireDefault(_embeds);
+
+var _hoveringMenu = require('./hovering-menu');
+
+var _hoveringMenu2 = _interopRequireDefault(_hoveringMenu);
+
+var _iframes = require('./iframes');
+
+var _iframes2 = _interopRequireDefault(_iframes);
+
+var _images = require('./images');
+
+var _images2 = _interopRequireDefault(_images);
+
+var _links = require('./links');
+
+var _links2 = _interopRequireDefault(_links);
+
+var _pasteHtml = require('./paste-html');
+
+var _pasteHtml2 = _interopRequireDefault(_pasteHtml);
+
+var _plainText = require('./plain-text');
+
+var _plainText2 = _interopRequireDefault(_plainText);
+
+var _plugins = require('./plugins');
+
+var _plugins2 = _interopRequireDefault(_plugins);
+
+var _rtl = require('./rtl');
+
+var _rtl2 = _interopRequireDefault(_rtl);
+
+var _readOnly = require('./read-only');
+
+var _readOnly2 = _interopRequireDefault(_readOnly);
+
+var _richText = require('./rich-text');
+
+var _richText2 = _interopRequireDefault(_richText);
+
+var _tables = require('./tables');
+
+var _tables2 = _interopRequireDefault(_tables);
+
+var _performancePlain = require('./development/performance-plain');
+
+var _performancePlain2 = _interopRequireDefault(_performancePlain);
+
+var _performanceRich = require('./development/performance-rich');
+
+var _performanceRich2 = _interopRequireDefault(_performanceRich);
+
+var _reactAddonsPerf = require('react-addons-perf');
+
+var _reactAddonsPerf2 = _interopRequireDefault(_reactAddonsPerf);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+/**
+ * Examples.
+ */
+
+/**
+ * Perf.
+ */
+
+window.Perf = _reactAddonsPerf2.default;
+
+/**
+ * Define our example app.
+ *
+ * @type {Component} App
+ */
+
+var App = function (_React$Component) {
+  _inherits(App, _React$Component);
+
+  function App() {
+    _classCallCheck(this, App);
+
+    return _possibleConstructorReturn(this, (App.__proto__ || Object.getPrototypeOf(App)).apply(this, arguments));
+  }
+
+  _createClass(App, [{
+    key: 'render',
+
+
+    /**
+     * Render the example app.
+     *
+     * @return {Element} element
+     */
+
+    value: function render() {
+      return _react2.default.createElement(
+        'div',
+        { className: 'app' },
+        this.renderTabBar(),
+        this.renderExample()
+      );
+    }
+
+    /**
+     * Render the tab bar.
+     *
+     * @return {Element} element
+     */
+
+  }, {
+    key: 'renderTabBar',
+    value: function renderTabBar() {
+      return _react2.default.createElement(
+        'div',
+        { className: 'tabs' },
+        this.renderTab('Rich Text', 'rich-text'),
+        this.renderTab('Plain Text', 'plain-text'),
+        this.renderTab('Auto-markdown', 'auto-markdown'),
+        this.renderTab('Hovering Menu', 'hovering-menu'),
+        this.renderTab('Links', 'links'),
+        this.renderTab('Images', 'images'),
+        this.renderTab('Embeds', 'embeds'),
+        this.renderTab('Tables', 'tables'),
+        this.renderTab('Code Highlighting', 'code-highlighting'),
+        this.renderTab('Paste HTML', 'paste-html'),
+        this.renderTab('Read-only', 'read-only'),
+        this.renderTab('RTL', 'rtl'),
+        this.renderTab('Plugins', 'plugins'),
+        this.renderTab('Iframes', 'iframes')
+      );
+    }
+
+    /**
+     * Render a tab with `name` and `slug`.
+     *
+     * @param {String} name
+     * @param {String} slug
+     */
+
+  }, {
+    key: 'renderTab',
+    value: function renderTab(name, slug) {
+      return _react2.default.createElement(
+        _reactRouter.Link,
+        { className: 'tab', activeClassName: 'active', to: slug },
+        name
+      );
+    }
+
+    /**
+     * Render the example.
+     *
+     * @return {Element} element
+     */
+
+  }, {
+    key: 'renderExample',
+    value: function renderExample() {
+      return _react2.default.createElement(
+        'div',
+        { className: 'example' },
+        this.props.children
+      );
+    }
+  }]);
+
+  return App;
+}(_react2.default.Component);
+
+/**
+ * Router.
+ *
+ * @type {Element} router
+ */
+
+var router = _react2.default.createElement(
+  _reactRouter.Router,
+  { history: _reactRouter.hashHistory },
+  _react2.default.createElement(
+    _reactRouter.Route,
+    { path: '/', component: App },
+    _react2.default.createElement(_reactRouter.IndexRedirect, { to: 'rich-text' }),
+    _react2.default.createElement(_reactRouter.Route, { path: 'auto-markdown', component: _autoMarkdown2.default }),
+    _react2.default.createElement(_reactRouter.Route, { path: 'code-highlighting', component: _codeHighlighting2.default }),
+    _react2.default.createElement(_reactRouter.Route, { path: 'embeds', component: _embeds2.default }),
+    _react2.default.createElement(_reactRouter.Route, { path: 'hovering-menu', component: _hoveringMenu2.default }),
+    _react2.default.createElement(_reactRouter.Route, { path: 'iframes', component: _iframes2.default }),
+    _react2.default.createElement(_reactRouter.Route, { path: 'images', component: _images2.default }),
+    _react2.default.createElement(_reactRouter.Route, { path: 'links', component: _links2.default }),
+    _react2.default.createElement(_reactRouter.Route, { path: 'paste-html', component: _pasteHtml2.default }),
+    _react2.default.createElement(_reactRouter.Route, { path: 'plain-text', component: _plainText2.default }),
+    _react2.default.createElement(_reactRouter.Route, { path: 'plugins', component: _plugins2.default }),
+    _react2.default.createElement(_reactRouter.Route, { path: 'read-only', component: _readOnly2.default }),
+    _react2.default.createElement(_reactRouter.Route, { path: 'rich-text', component: _richText2.default }),
+    _react2.default.createElement(_reactRouter.Route, { path: 'rtl', component: _rtl2.default }),
+    _react2.default.createElement(_reactRouter.Route, { path: 'tables', component: _tables2.default }),
+    _react2.default.createElement(_reactRouter.Route, { path: 'dev-performance-plain', component: _performancePlain2.default }),
+    _react2.default.createElement(_reactRouter.Route, { path: 'dev-performance-rich', component: _performanceRich2.default })
+  )
+);
+
+/**
+ * Mount the router.
+ */
+
+var root = document.body.querySelector('main');
+_reactDom2.default.render(router, root);
+
+},{"./auto-markdown":1,"./code-highlighting":3,"./development/performance-plain":5,"./development/performance-rich":7,"./embeds":9,"./hovering-menu":12,"./iframes":14,"./images":16,"./links":19,"./paste-html":21,"./plain-text":23,"./plugins":24,"./read-only":25,"./rich-text":26,"./rtl":28,"./tables":30,"react":444,"react-addons-perf":251,"react-dom":252,"react-router":288}],19:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _ = require('../..');
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _reactDom = require('react-dom');
+
+var _reactDom2 = _interopRequireDefault(_reactDom);
+
+var _state = require('./state.json');
+
+var _state2 = _interopRequireDefault(_state);
+
+var _isUrl = require('is-url');
+
+var _isUrl2 = _interopRequireDefault(_isUrl);
+
+var _immutable = require('immutable');
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+/**
+ * Define a schema.
+ *
+ * @type {Object}
+ */
+
+var schema = {
+  nodes: {
+    paragraph: function paragraph(props) {
+      return _react2.default.createElement(
+        'p',
+        null,
+        props.children
+      );
+    },
+    link: function link(props) {
+      var data = props.node.data;
+
+      var href = data.get('href');
+      return _react2.default.createElement(
+        'a',
+        _extends({}, props.attributes, { href: href }),
+        props.children
+      );
+    }
+  }
+};
+
+/**
+ * The links example.
+ *
+ * @type {Component}
+ */
+
+var Links = function (_React$Component) {
+  _inherits(Links, _React$Component);
+
+  function Links() {
+    var _ref;
+
+    var _temp, _this, _ret;
+
+    _classCallCheck(this, Links);
+
+    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = Links.__proto__ || Object.getPrototypeOf(Links)).call.apply(_ref, [this].concat(args))), _this), _this.state = {
+      state: _.Raw.deserialize(_state2.default, { terse: true })
+    }, _this.hasLinks = function () {
+      var state = _this.state.state;
+
+      return state.inlines.some(function (inline) {
+        return inline.type == 'link';
+      });
+    }, _this.onChange = function (state) {
+      _this.setState({ state: state });
+    }, _this.onClickLink = function (e) {
+      e.preventDefault();
+      var state = _this.state.state;
+
+      var hasLinks = _this.hasLinks();
+
+      if (hasLinks) {
+        state = state.transform().unwrapInline('link').apply();
+      } else if (state.isExpanded) {
+        var href = window.prompt('Enter the URL of the link:');
+        state = state.transform().wrapInline({
+          type: 'link',
+          data: { href: href }
+        }).collapseToEnd().apply();
+      } else {
+        var _href = window.prompt('Enter the URL of the link:');
+        var text = window.prompt('Enter the text for the link:');
+        state = state.transform().insertText(text).extendBackward(text.length).wrapInline({
+          type: 'link',
+          data: { href: _href }
+        }).collapseToEnd().apply();
+      }
+
+      _this.setState({ state: state });
+    }, _this.onPaste = function (e, data, state) {
+      if (state.isCollapsed) return;
+      if (data.type != 'text' && data.type != 'html') return;
+      if (!(0, _isUrl2.default)(data.text)) return;
+
+      var transform = state.transform();
+
+      if (_this.hasLinks()) {
+        transform = transform.unwrapInline('link');
+      }
+
+      return transform.wrapInline({
+        type: 'link',
+        data: {
+          href: data.text
+        }
+      }).collapseToEnd().apply();
+    }, _this.render = function () {
+      return _react2.default.createElement(
+        'div',
+        null,
+        _this.renderToolbar(),
+        _this.renderEditor()
+      );
+    }, _this.renderToolbar = function () {
+      var hasLinks = _this.hasLinks();
+      return _react2.default.createElement(
+        'div',
+        { className: 'menu toolbar-menu' },
+        _react2.default.createElement(
+          'span',
+          { className: 'button', onMouseDown: _this.onClickLink, 'data-active': hasLinks },
+          _react2.default.createElement(
+            'span',
+            { className: 'material-icons' },
+            'link'
+          )
+        )
+      );
+    }, _this.renderEditor = function () {
+      return _react2.default.createElement(
+        'div',
+        { className: 'editor' },
+        _react2.default.createElement(_.Editor, {
+          schema: schema,
+          state: _this.state.state,
+          onChange: _this.onChange,
+          onPaste: _this.onPaste
+        })
+      );
+    }, _temp), _possibleConstructorReturn(_this, _ret);
+  }
+
+  /**
+   * Deserialize the raw initial state.
+   *
+   * @type {Object}
+   */
+
+  /**
+   * Check whether the current selection has a link in it.
+   *
+   * @return {Boolean} hasLinks
+   */
+
+  /**
+   * On change.
+   *
+   * @param {State} state
+   */
+
+  /**
+   * When clicking a link, if the selection has a link in it, remove the link.
+   * Otherwise, add a new link with an href and text.
+   *
+   * @param {Event} e
+   */
+
+  /**
+   * On paste, if the text is a link, wrap the selection in a link.
+   *
+   * @param {Event} e
+   * @param {Object} data
+   * @param {State} state
+   */
+
+  /**
+   * Render the app.
+   *
+   * @return {Element} element
+   */
+
+  /**
+   * Render the toolbar.
+   *
+   * @return {Element} element
+   */
+
+  /**
+   * Render the editor.
+   *
+   * @return {Element} element
+   */
+
+  return Links;
+}(_react2.default.Component);
+
+/**
+ * Export.
+ */
+
+exports.default = Links;
+
+},{"../..":40,"./state.json":20,"immutable":191,"is-url":197,"react":444,"react-dom":252}],20:[function(require,module,exports){
+module.exports={
+  "nodes": [
+    {
+      "kind": "block",
+      "type": "paragraph",
+      "nodes": [
+        {
+          "kind": "text",
+          "text": "In addition to block nodes, you can create inline nodes, like "
+        },
+        {
+          "kind": "inline",
+          "type": "link",
+          "data": {
+            "href": "https://en.wikipedia.org/wiki/Hypertext"
+          },
+          "nodes": [
+            {
+              "kind": "text",
+              "text": "hyperlinks"
+            },
+          ]
+        },
+        {
+          "kind": "text",
+          "text": "!"
+        }
+      ]
+    },
+    {
+      "kind": "block",
+      "type": "paragraph",
+      "nodes": [
+        {
+          "kind": "text",
+          "text": "This example shows hyperlinks in action. It features two ways to add links. You can either add a link via the toolbar icon above, or if you want in on a little secret, copy a URL to your keyboard and paste it while a range of text is selected."
+        }
+      ]
+    }
+  ]
+}
+
+},{}],21:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _ = require('../..');
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _state = require('./state.json');
+
+var _state2 = _interopRequireDefault(_state);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+/**
+ * Define a schema.
+ *
+ * @type {Object}
+ */
+
+var schema = {
+  nodes: {
+    'bulleted-list': function bulletedList(props) {
+      return _react2.default.createElement(
+        'ul',
+        props.attributes,
+        props.children
+      );
+    },
+    'code': function code(props) {
+      return _react2.default.createElement(
+        'pre',
+        null,
+        _react2.default.createElement(
+          'code',
+          props.attributes,
+          props.children
+        )
+      );
+    },
+    'heading-one': function headingOne(props) {
+      return _react2.default.createElement(
+        'h1',
+        props.attributes,
+        props.children
+      );
+    },
+    'heading-two': function headingTwo(props) {
+      return _react2.default.createElement(
+        'h2',
+        props.attributes,
+        props.children
+      );
+    },
+    'heading-three': function headingThree(props) {
+      return _react2.default.createElement(
+        'h3',
+        props.attributes,
+        props.children
+      );
+    },
+    'heading-four': function headingFour(props) {
+      return _react2.default.createElement(
+        'h4',
+        props.attributes,
+        props.children
+      );
+    },
+    'heading-five': function headingFive(props) {
+      return _react2.default.createElement(
+        'h5',
+        props.attributes,
+        props.children
+      );
+    },
+    'heading-six': function headingSix(props) {
+      return _react2.default.createElement(
+        'h6',
+        props.attributes,
+        props.children
+      );
+    },
+    'list-item': function listItem(props) {
+      return _react2.default.createElement(
+        'li',
+        props.attributes,
+        props.children
+      );
+    },
+    'numbered-list': function numberedList(props) {
+      return _react2.default.createElement(
+        'ol',
+        props.attributes,
+        props.children
+      );
+    },
+    'quote': function quote(props) {
+      return _react2.default.createElement(
+        'blockquote',
+        props.attributes,
+        props.children
+      );
+    },
+    'link': function link(props) {
+      var data = props.node.data;
+
+      var href = data.get('href');
+      return _react2.default.createElement(
+        'a',
+        _extends({ href: href }, props.attributes),
+        props.children
+      );
+    }
+  },
+  marks: {
+    bold: function bold(props) {
+      return _react2.default.createElement(
+        'strong',
+        null,
+        props.children
+      );
+    },
+    code: function code(props) {
+      return _react2.default.createElement(
+        'code',
+        null,
+        props.children
+      );
+    },
+    italic: function italic(props) {
+      return _react2.default.createElement(
+        'em',
+        null,
+        props.children
+      );
+    },
+    underlined: function underlined(props) {
+      return _react2.default.createElement(
+        'u',
+        null,
+        props.children
+      );
+    }
+  }
+};
+
+/**
+ * Tags to blocks.
+ *
+ * @type {Object}
+ */
+
+var BLOCK_TAGS = {
+  p: 'paragraph',
+  li: 'list-item',
+  ul: 'bulleted-list',
+  ol: 'numbered-list',
+  blockquote: 'quote',
+  pre: 'code',
+  h1: 'heading-one',
+  h2: 'heading-two',
+  h3: 'heading-three',
+  h4: 'heading-four',
+  h5: 'heading-five',
+  h6: 'heading-six'
+};
+
+/**
+ * Tags to marks.
+ *
+ * @type {Object}
+ */
+
+var MARK_TAGS = {
+  strong: 'bold',
+  em: 'italic',
+  u: 'underline',
+  s: 'strikethrough',
+  code: 'code'
+};
+
+/**
+ * Serializer rules.
+ *
+ * @type {Array}
+ */
+
+var RULES = [{
+  deserialize: function deserialize(el, next) {
+    var block = BLOCK_TAGS[el.tagName];
+    if (!block) return;
+    return {
+      kind: 'block',
+      type: block,
+      nodes: next(el.children)
+    };
+  }
+}, {
+  deserialize: function deserialize(el, next) {
+    var mark = MARK_TAGS[el.tagName];
+    if (!mark) return;
+    return {
+      kind: 'mark',
+      type: mark,
+      nodes: next(el.children)
+    };
+  }
+}, {
+  // Special case for code blocks, which need to grab the nested children.
+  deserialize: function deserialize(el, next) {
+    if (el.tagName != 'pre') return;
+    var code = el.children[0];
+    var children = code && code.tagName == 'code' ? code.children : el.children;
+
+    return {
+      kind: 'block',
+      type: 'code',
+      nodes: next(children)
+    };
+  }
+}, {
+  // Special case for links, to grab their href.
+  deserialize: function deserialize(el, next) {
+    if (el.tagName != 'a') return;
+    return {
+      kind: 'inline',
+      type: 'link',
+      nodes: next(el.children),
+      data: {
+        href: el.attribs.href
+      }
+    };
+  }
+}];
+
+/**
+ * Create a new HTML serializer with `RULES`.
+ *
+ * @type {Html}
+ */
+
+var serializer = new _.Html({ rules: RULES });
+
+/**
+ * The pasting html example.
+ *
+ * @type {Component}
+ */
+
+var PasteHtml = function (_React$Component) {
+  _inherits(PasteHtml, _React$Component);
+
+  function PasteHtml() {
+    var _ref;
+
+    var _temp, _this, _ret;
+
+    _classCallCheck(this, PasteHtml);
+
+    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = PasteHtml.__proto__ || Object.getPrototypeOf(PasteHtml)).call.apply(_ref, [this].concat(args))), _this), _this.state = {
+      state: _.Raw.deserialize(_state2.default, { terse: true })
+    }, _this.onChange = function (state) {
+      _this.setState({ state: state });
+    }, _this.onPaste = function (e, data, state) {
+      if (data.type != 'html') return;
+
+      var _serializer$deseriali = serializer.deserialize(data.html);
+
+      var document = _serializer$deseriali.document;
+
+
+      return state.transform().insertFragment(document).apply();
+    }, _this.render = function () {
+      return _react2.default.createElement(
+        'div',
+        { className: 'editor' },
+        _react2.default.createElement(_.Editor, {
+          schema: schema,
+          state: _this.state.state,
+          onPaste: _this.onPaste,
+          onChange: _this.onChange
+        })
+      );
+    }, _temp), _possibleConstructorReturn(_this, _ret);
+  }
+
+  /**
+   * Deserialize the raw initial state.
+   *
+   * @type {Object}
+   */
+
+  /**
+   * On change, save the new state.
+   *
+   * @param {State} state
+   */
+
+  /**
+   * On paste, deserialize the HTML and then insert the fragment.
+   *
+   * @param {Event} e
+   * @param {Object} data
+   * @param {State} state
+   */
+
+  /**
+   * Render.
+   *
+   * @return {Component}
+   */
+
+  return PasteHtml;
+}(_react2.default.Component);
+
+/**
+ * Export.
+ */
+
+exports.default = PasteHtml;
+
+},{"../..":40,"./state.json":22,"react":444}],22:[function(require,module,exports){
+module.exports={
+  "nodes": [
+    {
+      "kind": "block",
+      "type": "paragraph",
+      "nodes": [
+        {
+          "kind": "text",
+          "text": "By default, pasting content into a Slate editor will use the content's plain text representation. This is fine for some use cases, but sometimes you want to actually be able to paste in content and have it parsed into blocks and links and things. To do this, you need to add a parser that triggers on paste. This is an example of doing exactly that!"
+        }
+      ]
+    },
+    {
+      "kind": "block",
+      "type": "paragraph",
+      "nodes": [
+        {
+          "kind": "text",
+          "text": "Try it out for yourself! Copy and paste some HTML content from another site into this editor."
+        }
+      ]
+    }
+  ]
+}
+
+},{}],23:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _ = require('../..');
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+/**
+ * The plain text example.
+ *
+ * @type {Component}
+ */
+
+var PlainText = function (_React$Component) {
+  _inherits(PlainText, _React$Component);
+
+  function PlainText() {
+    var _ref;
+
+    var _temp, _this, _ret;
+
+    _classCallCheck(this, PlainText);
+
+    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = PlainText.__proto__ || Object.getPrototypeOf(PlainText)).call.apply(_ref, [this].concat(args))), _this), _this.state = {
+      state: _.Plain.deserialize('This is editable plain text, just like a <textarea>!')
+    }, _this.onChange = function (state) {
+      _this.setState({ state: state });
+    }, _this.render = function () {
+      return _react2.default.createElement(_.Editor, {
+        placeholder: 'Enter some plain text...',
+        state: _this.state.state,
+        onChange: _this.onChange
+      });
+    }, _temp), _possibleConstructorReturn(_this, _ret);
+  }
+
+  /**
+   * Deserialize the initial editor state.
+   *
+   * @type {Object}
+   */
+
+  /**
+   * On change.
+   *
+   * @param {State} state
+   */
+
+  /**
+   * Render the editor.
+   *
+   * @return {Component} component
+   */
+
+  return PlainText;
+}(_react2.default.Component);
+
+/**
+ * Export.
+ */
+
+exports.default = PlainText;
+
+},{"../..":40,"react":444}],24:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _ = require('../..');
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _slateAutoReplaceText = require('slate-auto-replace-text');
+
+var _slateAutoReplaceText2 = _interopRequireDefault(_slateAutoReplaceText);
+
+var _slateCollapseOnEscape = require('slate-collapse-on-escape');
+
+var _slateCollapseOnEscape2 = _interopRequireDefault(_slateCollapseOnEscape);
+
+var _slateSoftBreak = require('slate-soft-break');
+
+var _slateSoftBreak2 = _interopRequireDefault(_slateSoftBreak);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+/**
+ * Plugins.
+ */
+
+var plugins = [(0, _slateAutoReplaceText2.default)('(c)', '©'), (0, _slateAutoReplaceText2.default)('(r)', '®'), (0, _slateAutoReplaceText2.default)('(tm)', '™'), (0, _slateCollapseOnEscape2.default)(), (0, _slateSoftBreak2.default)()];
+
+/**
+ * The plugins example.
+ *
+ * @type {Component}
+ */
+
+var Plugins = function (_React$Component) {
+  _inherits(Plugins, _React$Component);
+
+  function Plugins() {
+    var _ref;
+
+    var _temp, _this, _ret;
+
+    _classCallCheck(this, Plugins);
+
+    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = Plugins.__proto__ || Object.getPrototypeOf(Plugins)).call.apply(_ref, [this].concat(args))), _this), _this.state = {
+      state: _.Plain.deserialize('This example shows how you can extend Slate with plugins! It uses three fairly simple plugins, but you can use any plugins you want, or write your own!\n\nThe first is an "auto replacer". Try typing "(c)" and you\'ll see it turn into a copyright symbol automatically!\n\nThe second is a simple plugin to collapse the selection whenever the escape key is pressed. Try selecting some text and pressing escape.\n\nAnd the third is another simple plugin that inserts a "soft" break when enter is pressed instead of creating a new block. Try pressing enter!')
+    }, _this.onChange = function (state) {
+      _this.setState({ state: state });
+    }, _this.render = function () {
+      return _react2.default.createElement(_.Editor, {
+        placeholder: 'Enter some text...',
+        plugins: plugins,
+        state: _this.state.state,
+        onChange: _this.onChange
+      });
+    }, _temp), _possibleConstructorReturn(_this, _ret);
+  }
+
+  /**
+   * Deserialize the initial editor state.
+   *
+   * @type {Object}
+   */
+
+  /**
+   * On change.
+   *
+   * @param {State} state
+   */
+
+  /**
+   * Render the editor.
+   *
+   * @return {Component} component
+   */
+
+  return Plugins;
+}(_react2.default.Component);
+
+/**
+ * Export.
+ */
+
+exports.default = Plugins;
+
+},{"../..":40,"react":444,"slate-auto-replace-text":457,"slate-collapse-on-escape":458,"slate-soft-break":459}],25:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _ = require('../..');
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+/**
+ * The read-only example.
+ *
+ * @type {Component}
+ */
+
+var ReadOnly = function (_React$Component) {
+  _inherits(ReadOnly, _React$Component);
+
+  function ReadOnly() {
+    var _ref;
+
+    var _temp, _this, _ret;
+
+    _classCallCheck(this, ReadOnly);
+
+    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = ReadOnly.__proto__ || Object.getPrototypeOf(ReadOnly)).call.apply(_ref, [this].concat(args))), _this), _this.state = {
+      state: _.Plain.deserialize('This is read-only text. You should not be able to edit it, which is useful for scenarios where you want to render via Slate, without giving the user editing permissions.')
+    }, _this.onChange = function (state) {
+      _this.setState({ state: state });
+    }, _this.render = function () {
+      return _react2.default.createElement(_.Editor, {
+        readOnly: true,
+        placeholder: 'Enter some text...',
+        state: _this.state.state,
+        onChange: _this.onChange
+      });
+    }, _temp), _possibleConstructorReturn(_this, _ret);
+  }
+
+  /**
+   * Deserialize the initial editor state.
+   *
+   * @type {Object}
+   */
+
+  /**
+   * On change.
+   *
+   * @param {State} state
+   */
+
+  /**
+   * Render the editor.
+   *
+   * @return {Component} component
+   */
+
+  return ReadOnly;
+}(_react2.default.Component);
+
+/**
+ * Export.
+ */
+
+exports.default = ReadOnly;
+
+},{"../..":40,"react":444}],26:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _ = require('../..');
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _state2 = require('./state.json');
+
+var _state3 = _interopRequireDefault(_state2);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+/**
+ * Define the default node type.
+ */
+
+var DEFAULT_NODE = 'paragraph';
+
+/**
+ * Define a schema.
+ *
+ * @type {Object}
+ */
+
+var schema = {
+  nodes: {
+    'block-quote': function blockQuote(props) {
+      return _react2.default.createElement(
+        'blockquote',
+        props.attributes,
+        props.children
+      );
+    },
+    'bulleted-list': function bulletedList(props) {
+      return _react2.default.createElement(
+        'ul',
+        props.attributes,
+        props.children
+      );
+    },
+    'heading-one': function headingOne(props) {
+      return _react2.default.createElement(
+        'h1',
+        props.attributes,
+        props.children
+      );
+    },
+    'heading-two': function headingTwo(props) {
+      return _react2.default.createElement(
+        'h2',
+        props.attributes,
+        props.children
+      );
+    },
+    'list-item': function listItem(props) {
+      return _react2.default.createElement(
+        'li',
+        props.attributes,
+        props.children
+      );
+    },
+    'numbered-list': function numberedList(props) {
+      return _react2.default.createElement(
+        'ol',
+        props.attributes,
+        props.children
+      );
+    }
+  },
+  marks: {
+    bold: {
+      fontWeight: 'bold'
+    },
+    code: {
+      fontFamily: 'monospace',
+      backgroundColor: '#eee',
+      padding: '3px',
+      borderRadius: '4px'
+    },
+    italic: {
+      fontStyle: 'italic'
+    },
+    underlined: {
+      textDecoration: 'underline'
+    }
+  }
+};
+
+/**
+ * The rich text example.
+ *
+ * @type {Component}
+ */
+
+var RichText = function (_React$Component) {
+  _inherits(RichText, _React$Component);
+
+  function RichText() {
+    var _ref;
+
+    var _temp, _this, _ret;
+
+    _classCallCheck(this, RichText);
+
+    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = RichText.__proto__ || Object.getPrototypeOf(RichText)).call.apply(_ref, [this].concat(args))), _this), _this.state = {
+      state: _.Raw.deserialize(_state3.default, { terse: true })
+    }, _this.hasMark = function (type) {
+      var state = _this.state.state;
+
+      return state.marks.some(function (mark) {
+        return mark.type == type;
+      });
+    }, _this.hasBlock = function (type) {
+      var state = _this.state.state;
+
+      return state.blocks.some(function (node) {
+        return node.type == type;
+      });
+    }, _this.onChange = function (state) {
+      _this.setState({ state: state });
+    }, _this.onKeyDown = function (e, data, state) {
+      if (!data.isMod) return;
+      var mark = void 0;
+
+      switch (data.key) {
+        case 'b':
+          mark = 'bold';
+          break;
+        case 'i':
+          mark = 'italic';
+          break;
+        case 'u':
+          mark = 'underlined';
+          break;
+        case '`':
+          mark = 'code';
+          break;
+        default:
+          return;
+      }
+
+      state = state.transform().toggleMark(mark).apply();
+
+      e.preventDefault();
+      return state;
+    }, _this.onClickMark = function (e, type) {
+      e.preventDefault();
+      var state = _this.state.state;
+
+
+      state = state.transform().toggleMark(type).apply();
+
+      _this.setState({ state: state });
+    }, _this.onClickBlock = function (e, type) {
+      e.preventDefault();
+      var state = _this.state.state;
+
+      var transform = state.transform();
+      var _state = state;
+      var document = _state.document;
+
+      // Handle everything but list buttons.
+
+      if (type != 'bulleted-list' && type != 'numbered-list') {
+        var isActive = _this.hasBlock(type);
+        var isList = _this.hasBlock('list-item');
+
+        if (isList) {
+          transform = transform.setBlock(isActive ? DEFAULT_NODE : type).unwrapBlock('bulleted-list').unwrapBlock('numbered-list');
+        } else {
+          transform = transform.setBlock(isActive ? DEFAULT_NODE : type);
+        }
+      }
+
+      // Handle the extra wrapping required for list buttons.
+      else {
+          var _isList = _this.hasBlock('list-item');
+          var isType = state.blocks.some(function (block) {
+            return !!document.getClosest(block, function (parent) {
+              return parent.type == type;
+            });
+          });
+
+          if (_isList && isType) {
+            transform = transform.setBlock(DEFAULT_NODE).unwrapBlock('bulleted-list').unwrapBlock('numbered-list');
+          } else if (_isList) {
+            transform = transform.unwrapBlock(type == 'bulleted-list' ? 'numbered-list' : 'bulleted-list').wrapBlock(type);
+          } else {
+            transform = transform.setBlock('list-item').wrapBlock(type);
+          }
+        }
+
+      state = transform.apply();
+      _this.setState({ state: state });
+    }, _this.render = function () {
+      return _react2.default.createElement(
+        'div',
+        null,
+        _this.renderToolbar(),
+        _this.renderEditor()
+      );
+    }, _this.renderToolbar = function () {
+      return _react2.default.createElement(
+        'div',
+        { className: 'menu toolbar-menu' },
+        _this.renderMarkButton('bold', 'format_bold'),
+        _this.renderMarkButton('italic', 'format_italic'),
+        _this.renderMarkButton('underlined', 'format_underlined'),
+        _this.renderMarkButton('code', 'code'),
+        _this.renderBlockButton('heading-one', 'looks_one'),
+        _this.renderBlockButton('heading-two', 'looks_two'),
+        _this.renderBlockButton('block-quote', 'format_quote'),
+        _this.renderBlockButton('numbered-list', 'format_list_numbered'),
+        _this.renderBlockButton('bulleted-list', 'format_list_bulleted')
+      );
+    }, _this.renderMarkButton = function (type, icon) {
+      var isActive = _this.hasMark(type);
+      var onMouseDown = function onMouseDown(e) {
+        return _this.onClickMark(e, type);
+      };
+
+      return _react2.default.createElement(
+        'span',
+        { className: 'button', onMouseDown: onMouseDown, 'data-active': isActive },
+        _react2.default.createElement(
+          'span',
+          { className: 'material-icons' },
+          icon
+        )
+      );
+    }, _this.renderBlockButton = function (type, icon) {
+      var isActive = _this.hasBlock(type);
+      var onMouseDown = function onMouseDown(e) {
+        return _this.onClickBlock(e, type);
+      };
+
+      return _react2.default.createElement(
+        'span',
+        { className: 'button', onMouseDown: onMouseDown, 'data-active': isActive },
+        _react2.default.createElement(
+          'span',
+          { className: 'material-icons' },
+          icon
+        )
+      );
+    }, _this.renderEditor = function () {
+      return _react2.default.createElement(
+        'div',
+        { className: 'editor' },
+        _react2.default.createElement(_.Editor, {
+          placeholder: 'Enter some rich text...',
+          schema: schema,
+          state: _this.state.state,
+          onChange: _this.onChange,
+          onKeyDown: _this.onKeyDown
+        })
+      );
+    }, _temp), _possibleConstructorReturn(_this, _ret);
+  }
+
+  /**
+   * Deserialize the initial editor state.
+   *
+   * @type {Object}
+   */
+
+  /**
+   * Check if the current selection has a mark with `type` in it.
+   *
+   * @param {String} type
+   * @return {Boolean}
+   */
+
+  /**
+   * Check if the any of the currently selected blocks are of `type`.
+   *
+   * @param {String} type
+   * @return {Boolean}
+   */
+
+  /**
+   * On change, save the new state.
+   *
+   * @param {State} state
+   */
+
+  /**
+   * On key down, if it's a formatting command toggle a mark.
+   *
+   * @param {Event} e
+   * @param {Object} data
+   * @param {State} state
+   * @return {State}
+   */
+
+  /**
+   * When a mark button is clicked, toggle the current mark.
+   *
+   * @param {Event} e
+   * @param {String} type
+   */
+
+  /**
+   * When a block button is clicked, toggle the block type.
+   *
+   * @param {Event} e
+   * @param {String} type
+   */
+
+  /**
+   * Render.
+   *
+   * @return {Element}
+   */
+
+  /**
+   * Render the toolbar.
+   *
+   * @return {Element}
+   */
+
+  /**
+   * Render a mark-toggling toolbar button.
+   *
+   * @param {String} type
+   * @param {String} icon
+   * @return {Element}
+   */
+
+  /**
+   * Render a block-toggling toolbar button.
+   *
+   * @param {String} type
+   * @param {String} icon
+   * @return {Element}
+   */
+
+  /**
+   * Render the Slate editor.
+   *
+   * @return {Element}
+   */
+
+  return RichText;
+}(_react2.default.Component);
+
+/**
+ * Export.
+ */
+
+exports.default = RichText;
+
+},{"../..":40,"./state.json":27,"react":444}],27:[function(require,module,exports){
+arguments[4][8][0].apply(exports,arguments)
+},{"dup":8}],28:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _ = require('../..');
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _slateSoftBreak = require('slate-soft-break');
+
+var _slateSoftBreak2 = _interopRequireDefault(_slateSoftBreak);
+
+var _state = require('./state.json');
+
+var _state2 = _interopRequireDefault(_state);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+/**
+ * Define a schema.
+ *
+ * @type {Object}
+ */
+
+var schema = {
+  nodes: {
+    'block-quote': function blockQuote(props) {
+      return _react2.default.createElement(
+        'blockquote',
+        props.attributes,
+        props.children
+      );
+    }
+  }
+};
+
+/**
+ * The plain text example.
+ *
+ * @type {Component}
+ */
+
+var PlainText = function (_React$Component) {
+  _inherits(PlainText, _React$Component);
+
+  function PlainText() {
+    var _ref;
+
+    var _temp, _this, _ret;
+
+    _classCallCheck(this, PlainText);
+
+    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = PlainText.__proto__ || Object.getPrototypeOf(PlainText)).call.apply(_ref, [this].concat(args))), _this), _this.state = {
+      state: _.Raw.deserialize(_state2.default, { terse: true })
+    }, _this.onChange = function (state) {
+      _this.setState({ state: state });
+    }, _this.onKeyDown = function (e, data, state) {
+      if (data.key == 'enter' && data.isShift) {
+        return state.transform().insertText('\n').apply();
+      }
+    }, _this.render = function () {
+      return _react2.default.createElement(_.Editor, {
+        placeholder: 'Enter some plain text...',
+        schema: schema,
+        state: _this.state.state,
+        onChange: _this.onChange,
+        onKeyDown: _this.onKeyDown
+      });
+    }, _temp), _possibleConstructorReturn(_this, _ret);
+  }
+
+  /**
+   * Deserialize the initial editor state.
+   *
+   * @type {Object}
+   */
+
+  /**
+   * On change.
+   *
+   * @param {State} state
+   */
+
+  /**
+   * On key down, if it's <shift-enter> add a soft break.
+   *
+   * @param {Event} e
+   * @param {Object} data
+   * @param {State} state
+   */
+
+  /**
+   * Render the editor.
+   *
+   * @return {Component} component
+   */
+
+  return PlainText;
+}(_react2.default.Component);
+
+/**
+ * Export.
+ */
+
+exports.default = PlainText;
+
+},{"../..":40,"./state.json":29,"react":444,"slate-soft-break":459}],29:[function(require,module,exports){
+module.exports={
+  "nodes": [
+    {
+      "kind": "block",
+      "type": "paragraph",
+      "nodes": [
+        {
+          "kind": "text",
+          "text": "Slate supports both left-to-right text editing (English, French, etc.) and right-to-left text editing (Arabic, Hebrew, etc.) which it automatically detects. Here's an example featuring excerpts from Khalil Gibran:"
+        }
+      ]
+    },
+    {
+      "kind": "block",
+      "type": "block-quote",
+      "nodes": [
+        {
+          "kind": "text",
+          "text": "Et un jeune dit : parle-nous de l'amitié.\nEt il répondit, disant :\nVotre ami est votre besoin qui a trouvé une réponse.\nIl est le champ que vous semez avec amour et moissonnez avec reconnaissance.\nIl est votre table et votre foyer."
+        }
+      ]
+    },
+    {
+      "kind": "block",
+      "type": "block-quote",
+      "nodes": [
+        {
+          "kind": "text",
+          "text": "ثم قال له شاب: هات حدثناعن الصداقة.\nفأجاب و قال:\nإن صديقك هو كفاية حاجاتك.\nهو حقك الذي تزرعه بالمحبة و تحصده بالشكر.\nهو مائدتك و موقدك."
+        }
+      ]
+    },
+    {
+      "kind": "block",
+      "type": "block-quote",
+      "nodes": [
+        {
+          "kind": "text",
+          "text": "And a youth said, \"Speak to us of Friendship.\"\nYour friend is your needs answered.\nHe is your field which you sow with love and reap with thanksgiving.\nAnd he is your board and your fireside."
+        }
+      ]
+    },
+    {
+      "kind": "block",
+      "type": "paragraph",
+      "nodes": [
+        {
+          "kind": "text",
+          "text": "Try it out for yourself!"
+        }
+      ]
+    }
+  ]
+}
+
+},{}],30:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _ = require('../..');
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _state = require('./state.json');
+
+var _state2 = _interopRequireDefault(_state);
+
+var _keycode = require('keycode');
+
+var _keycode2 = _interopRequireDefault(_keycode);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+/**
+ * Define a schema.
+ *
+ * @type {Object}
+ */
+
+var schema = {
+  nodes: {
+    'table': function table(props) {
+      return _react2.default.createElement(
+        'table',
+        null,
+        _react2.default.createElement(
+          'tbody',
+          props.attributes,
+          props.children
+        )
+      );
+    },
+    'table-row': function tableRow(props) {
+      return _react2.default.createElement(
+        'tr',
+        props.attributes,
+        props.children
+      );
+    },
+    'table-cell': function tableCell(props) {
+      return _react2.default.createElement(
+        'td',
+        props.attributes,
+        props.children
+      );
+    }
+  },
+  marks: {
+    'bold': function bold(props) {
+      return _react2.default.createElement(
+        'strong',
+        null,
+        props.children
+      );
+    }
+  }
+};
+
+/**
+ * The tables example.
+ *
+ * @type {Component}
+ */
+
+var Tables = function (_React$Component) {
+  _inherits(Tables, _React$Component);
+
+  function Tables() {
+    var _ref;
+
+    var _temp, _this, _ret;
+
+    _classCallCheck(this, Tables);
+
+    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = Tables.__proto__ || Object.getPrototypeOf(Tables)).call.apply(_ref, [this].concat(args))), _this), _this.state = {
+      state: _.Raw.deserialize(_state2.default, { terse: true })
+    }, _this.onBackspace = function (e, state) {
+      if (state.startOffset != 0) return;
+      e.preventDefault();
+      return state;
+    }, _this.onChange = function (state) {
+      _this.setState({ state: state });
+    }, _this.onDelete = function (e, state) {
+      if (state.endOffset != state.startText.length) return;
+      e.preventDefault();
+      return state;
+    }, _this.onEnter = function (e, state) {
+      e.preventDefault();
+      return state;
+    }, _this.onKeyDown = function (e, data, state) {
+      var document = state.document;
+      var selection = state.selection;
+      var startKey = selection.startKey;
+
+      var startNode = document.getDescendant(startKey);
+
+      if (selection.isAtStartOf(startNode)) {
+        var previous = document.getPreviousText(startNode);
+        var prevBlock = document.getClosestBlock(previous);
+
+        if (prevBlock.type == 'table-cell') {
+          e.preventDefault();
+          return state;
+        }
+      }
+
+      if (state.startBlock.type != 'table-cell') return;
+      switch (data.key) {
+        case 'backspace':
+          return _this.onBackspace(e, state);
+        case 'delete':
+          return _this.onDelete(e, state);
+        case 'enter':
+          return _this.onEnter(e, state);
+      }
+    }, _this.render = function () {
+      return _react2.default.createElement(
+        'div',
+        { className: 'editor' },
+        _react2.default.createElement(_.Editor, {
+          schema: schema,
+          state: _this.state.state,
+          onKeyDown: _this.onKeyDown,
+          onChange: _this.onChange
+        })
+      );
+    }, _temp), _possibleConstructorReturn(_this, _ret);
+  }
+
+  /**
+   * Deserialize the raw initial state.
+   *
+   * @type {Object}
+   */
+
+  /**
+   * On backspace, do nothing if at the start of a table cell.
+   *
+   * @param {Event} e
+   * @param {State} state
+   * @return {State or Null} state
+   */
+
+  /**
+   * On change.
+   *
+   * @param {State} state
+   */
+
+  /**
+   * On delete, do nothing if at the end of a table cell.
+   *
+   * @param {Event} e
+   * @param {State} state
+   * @return {State or Null} state
+   */
+
+  /**
+   * On return, do nothing if inside a table cell.
+   *
+   * @param {Event} e
+   * @param {State} state
+   * @return {State or Null} state
+   */
+
+  /**
+   * On key down, check for our specific key shortcuts.
+   *
+   * @param {Event} e
+   * @param {Object} data
+   * @param {State} state
+   * @return {State or Null} state
+   */
+
+  /**
+   * Render the example.
+   *
+   * @return {Component} component
+   */
+
+  return Tables;
+}(_react2.default.Component);
+
+/**
+ * Export.
+ */
+
+exports.default = Tables;
+
+},{"../..":40,"./state.json":31,"keycode":199,"react":444}],31:[function(require,module,exports){
+module.exports={
+  "nodes": [
+    {
+      "kind": "block",
+      "type": "paragraph",
+      "nodes": [
+        {
+          "kind": "text",
+          "text": "Since the editor is based on a recursive tree model, similar to an HTML document, you can create complex nested structures, like tables:"
+        }
+      ]
+    },
+    {
+      "kind": "block",
+      "type": "table",
+      "nodes": [
+        {
+          "kind": "block",
+          "type": "table-row",
+          "nodes": [
+            {
+              "kind": "block",
+              "type": "table-cell",
+              "nodes": [
+                {
+                  "kind": "text",
+                  "ranges": [
+                    {
+                      "text": ""
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "block",
+              "type": "table-cell",
+              "nodes": [
+                {
+                  "kind": "text",
+                  "ranges": [
+                    {
+                      "text": "Human",
+                      "marks": [
+                        {
+                          "type": "bold"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "block",
+              "type": "table-cell",
+              "nodes": [
+                {
+                  "kind": "text",
+                  "ranges": [
+                    {
+                      "text": "Dog",
+                      "marks": [
+                        {
+                          "type": "bold"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "block",
+              "type": "table-cell",
+              "nodes": [
+                {
+                  "kind": "text",
+                  "ranges": [
+                    {
+                      "text": "Cat",
+                      "marks": [
+                        {
+                          "type": "bold"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "block",
+          "type": "table-row",
+          "nodes": [
+            {
+              "kind": "block",
+              "type": "table-cell",
+              "nodes": [
+                {
+                  "kind": "text",
+                  "ranges": [
+                    {
+                      "text": "# of Feet",
+                      "marks": [
+                        {
+                          "type": "bold"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "block",
+              "type": "table-cell",
+              "nodes": [
+                {
+                  "kind": "text",
+                  "ranges": [
+                    {
+                      "text": "1"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "block",
+              "type": "table-cell",
+              "nodes": [
+                {
+                  "kind": "text",
+                  "ranges": [
+                    {
+                      "text": "4"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "block",
+              "type": "table-cell",
+              "nodes": [
+                {
+                  "kind": "text",
+                  "ranges": [
+                    {
+                      "text": "4"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "block",
+          "type": "table-row",
+          "nodes": [
+            {
+              "kind": "block",
+              "type": "table-cell",
+              "nodes": [
+                {
+                  "kind": "text",
+                  "ranges": [
+                    {
+                      "text": "# of Lives",
+                      "marks": [
+                        {
+                          "type": "bold"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "block",
+              "type": "table-cell",
+              "nodes": [
+                {
+                  "kind": "text",
+                  "ranges": [
+                    {
+                      "text": "1"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "block",
+              "type": "table-cell",
+              "nodes": [
+                {
+                  "kind": "text",
+                  "ranges": [
+                    {
+                      "text": "1"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "block",
+              "type": "table-cell",
+              "nodes": [
+                {
+                  "kind": "text",
+                  "ranges": [
+                    {
+                      "text": "9"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "block",
+      "type": "paragraph",
+      "nodes": [
+        {
+          "kind": "text",
+          "text": "This table is just a basic example, but you could augment it to add support for table headers, adding column and rows, or even formulas if you wanted to get really crazy..."
+        }
+      ]
+    }
+  ]
+}
+
+},{}],32:[function(require,module,exports){
+'use strict';
+
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
 Object.defineProperty(exports, "__esModule", {
@@ -818,7 +5598,7 @@ function isNonEditable(event) {
 
 exports.default = Content;
 
-},{"../constants/environment":7,"../constants/types":8,"../models/selection":18,"../serializers/base-64":23,"../utils/offset-key":41,"../utils/transfer":44,"./node":4,"debug":103,"get-window":161,"keycode":199,"lodash/includes":224,"react":443}],2:[function(require,module,exports){
+},{"../constants/environment":38,"../constants/types":39,"../models/selection":49,"../serializers/base-64":54,"../utils/offset-key":72,"../utils/transfer":75,"./node":35,"debug":103,"get-window":161,"keycode":199,"lodash/includes":225,"react":444}],33:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
@@ -1382,7 +6162,7 @@ try {
 
 exports.default = Editor;
 
-},{"../models/schema":17,"../models/state":19,"../plugins/core":22,"../utils/is-react-component":38,"./content":1,"debug":103,"react":443,"type-of":465}],3:[function(require,module,exports){
+},{"../models/schema":48,"../models/state":50,"../plugins/core":53,"../utils/is-react-component":69,"./content":32,"debug":103,"react":444,"type-of":466}],34:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
@@ -1784,7 +6564,7 @@ function findDeepestNode(element) {
 
 exports.default = Leaf;
 
-},{"../utils/offset-key":41,"debug":103,"get-window":161,"react":443,"react-dom":251}],4:[function(require,module,exports){
+},{"../utils/offset-key":72,"debug":103,"get-window":161,"react":444,"react-dom":252}],35:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
@@ -2207,7 +6987,7 @@ var _initialiseProps = function _initialiseProps() {
 
 exports.default = Node;
 
-},{"../constants/types":8,"../serializers/base-64":23,"../utils/scroll-to":42,"./leaf":3,"./void":6,"debug":103,"react":443,"react-dom":251}],5:[function(require,module,exports){
+},{"../constants/types":39,"../serializers/base-64":54,"../utils/scroll-to":73,"./leaf":34,"./void":37,"debug":103,"react":444,"react-dom":252}],36:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
@@ -2356,7 +7136,7 @@ Placeholder.propTypes = {
 };
 exports.default = Placeholder;
 
-},{"react":443}],6:[function(require,module,exports){
+},{"react":444}],37:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
@@ -2558,7 +7338,7 @@ Void.propTypes = {
 };
 exports.default = Void;
 
-},{"../constants/environment":7,"../models/mark":15,"../utils/offset-key":41,"./leaf":3,"keycode":199,"react":443,"react-dom":251}],7:[function(require,module,exports){
+},{"../constants/environment":38,"../models/mark":46,"../utils/offset-key":72,"./leaf":34,"keycode":199,"react":444,"react-dom":252}],38:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -2612,7 +7392,7 @@ exports.default = {
 };
 
 }).call(this,require('_process'))
-},{"_process":248,"detect-browser":108,"lodash/includes":224,"ua-parser-js":466}],8:[function(require,module,exports){
+},{"_process":249,"detect-browser":108,"lodash/includes":225,"ua-parser-js":467}],39:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2636,7 +7416,7 @@ var TYPES = {
 
 exports.default = TYPES;
 
-},{}],9:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2780,7 +7560,7 @@ exports.default = {
   findDOMNode: _findDomNode2.default
 };
 
-},{"./components/editor":2,"./components/placeholder":5,"./models/block":10,"./models/character":11,"./models/data":12,"./models/document":13,"./models/inline":14,"./models/mark":15,"./models/schema":17,"./models/selection":18,"./models/state":19,"./models/text":20,"./serializers/html":24,"./serializers/plain":25,"./serializers/raw":26,"./transforms":31,"./utils/find-dom-node":36}],10:[function(require,module,exports){
+},{"./components/editor":33,"./components/placeholder":36,"./models/block":41,"./models/character":42,"./models/data":43,"./models/document":44,"./models/inline":45,"./models/mark":46,"./models/schema":48,"./models/selection":49,"./models/state":50,"./models/text":51,"./serializers/html":55,"./serializers/plain":56,"./serializers/raw":57,"./transforms":62,"./utils/find-dom-node":67}],41:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
@@ -2989,7 +7769,7 @@ for (var method in _node2.default) {
 
 exports.default = Block;
 
-},{"../utils/uid":45,"./data":12,"./document":13,"./inline":14,"./node":16,"./text":20,"immutable":191}],11:[function(require,module,exports){
+},{"../utils/uid":76,"./data":43,"./document":44,"./inline":45,"./node":47,"./text":51,"immutable":191}],42:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
@@ -3132,7 +7912,7 @@ var Character = function (_CharacterRecord) {
 
 exports.default = Character;
 
-},{"./mark":15,"immutable":191}],12:[function(require,module,exports){
+},{"./mark":46,"immutable":191}],43:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -3170,7 +7950,7 @@ var Data = {
 
 exports.default = Data;
 
-},{"immutable":191}],13:[function(require,module,exports){
+},{"immutable":191}],44:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
@@ -3345,7 +8125,7 @@ for (var method in _node2.default) {
 
 exports.default = Document;
 
-},{"../utils/uid":45,"./block":10,"./inline":14,"./node":16,"immutable":191}],14:[function(require,module,exports){
+},{"../utils/uid":76,"./block":41,"./inline":45,"./node":47,"immutable":191}],45:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
@@ -3552,7 +8332,7 @@ for (var method in _node2.default) {
 
 exports.default = Inline;
 
-},{"../utils/uid":45,"./block":10,"./data":12,"./document":13,"./node":16,"./text":20,"immutable":191}],15:[function(require,module,exports){
+},{"../utils/uid":76,"./block":41,"./data":43,"./document":44,"./node":47,"./text":51,"immutable":191}],46:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
@@ -3701,7 +8481,7 @@ var Mark = function (_ref) {
 
 exports.default = Mark;
 
-},{"../utils/memoize":39,"./data":12,"immutable":191}],16:[function(require,module,exports){
+},{"../utils/memoize":70,"./data":43,"immutable":191}],47:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -3913,7 +8693,7 @@ var Node = {
 
     return this.getTexts().map(function (text) {
       return _this.getClosestBlock(text);
-    }).toSet().toList();
+    }).toOrderedSet().toList();
   },
 
   /**
@@ -4371,7 +9151,7 @@ var Node = {
       return _this3.getFurthestInline(text);
     }).filter(function (exists) {
       return exists;
-    }).toSet().toList();
+    }).toOrderedSet().toList();
   },
 
   /**
@@ -4388,7 +9168,7 @@ var Node = {
       return _this4.getClosestInline(text);
     }).filter(function (exists) {
       return exists;
-    }).toSet().toList();
+    }).toOrderedSet().toList();
   },
 
   /**
@@ -4748,6 +9528,43 @@ var Node = {
   },
 
   /**
+   * Join a node by `key` with another `withKey`.
+   *
+   * @param {String} key
+   * @param {String} withKey
+   * @return {Node}
+   */
+
+  joinNode: function joinNode(key, withKey) {
+    var node = this;
+    var target = node.assertPath(key);
+    var withTarget = node.assertPath(withKey);
+    var parent = node.getParent(target);
+    var isParent = node == parent;
+    var index = parent.nodes.indexOf(target);
+
+    if (target.kind == 'text') {
+      var _withTarget = withTarget;
+      var characters = _withTarget.characters;
+
+      characters = characters.concat(target.characters);
+      withTarget = withTarget.merge({ characters: characters });
+    } else {
+      (function () {
+        var size = withTarget.nodes.size;
+        target.nodes.forEach(function (child, i) {
+          withTarget = withTarget.insertNode(size + i, child);
+        });
+      })();
+    }
+
+    parent = parent.removeNode(index);
+    node = isParent ? parent : node.updateDescendant(parent);
+    node = node.updateDescendant(withTarget);
+    return node;
+  },
+
+  /**
    * Map all child nodes, updating them in their parents. This method is
    * optimized to not return a new node if no changes are made.
    *
@@ -4913,6 +9730,93 @@ var Node = {
   },
 
   /**
+   * Split a node by `path` at `offset`.
+   *
+   * @param {String} path
+   * @param {Number} offset
+   * @return {Node}
+   */
+
+  splitNode: function splitNode(path, offset) {
+    var base = this;
+    var node = base.assertPath(path);
+    var parent = base.getParent(node);
+    var isParent = base == parent;
+    var index = parent.nodes.indexOf(node);
+
+    var child = node;
+    var one = void 0;
+    var two = void 0;
+
+    if (node.kind != 'text') {
+      child = node.getTextAtOffset(offset);
+    }
+
+    while (child && child != parent) {
+      if (child.kind == 'text') {
+        var i = node.kind == 'text' ? offset : offset - node.getOffset(child);
+        var _child = child;
+        var characters = _child.characters;
+
+        var oneChars = characters.take(i);
+        var twoChars = characters.skip(i);
+        one = child.merge({ characters: oneChars });
+        two = child.merge({ characters: twoChars, key: (0, _uid2.default)() });
+      } else {
+        var _child2 = child;
+        var nodes = _child2.nodes;
+
+        var oneNodes = nodes.takeUntil(function (n) {
+          return n.key == one.key;
+        }).push(one);
+        var twoNodes = nodes.skipUntil(function (n) {
+          return n.key == one.key;
+        }).rest().unshift(two);
+        one = child.merge({ nodes: oneNodes }).normalize();
+        two = child.merge({ nodes: twoNodes, key: (0, _uid2.default)() }).normalize();
+      }
+
+      child = base.getParent(child);
+    }
+
+    parent = parent.removeNode(index);
+    parent = parent.insertNode(index, two);
+    parent = parent.insertNode(index, one);
+    base = isParent ? parent : base.updateDescendant(parent);
+    return base;
+  },
+
+  /**
+   * Split the block nodes at a `range`, to optional `height`.
+   *
+   * @param {Selection} range
+   * @param {Number} height (optional)
+   * @return {Node}
+   */
+
+  splitBlockAtRange: function splitBlockAtRange(range) {
+    var height = arguments.length <= 1 || arguments[1] === undefined ? 1 : arguments[1];
+    var startKey = range.startKey;
+    var startOffset = range.startOffset;
+
+    var base = this;
+    var node = base.assertDescendant(startKey);
+    var parent = base.getClosestBlock(node);
+    var offset = startOffset;
+    var h = 0;
+
+    while (parent && parent.kind == 'block' && h < height) {
+      offset += parent.getOffset(node);
+      node = parent;
+      parent = base.getClosestBlock(parent);
+      h++;
+    }
+
+    var path = base.getPath(node.key);
+    return this.splitNode(path, offset).normalize();
+  },
+
+  /**
    * Set a new value for a child node by `key`.
    *
    * @param {Node} node
@@ -4950,7 +9854,7 @@ var Node = {
 
 exports.default = Node;
 
-},{"../utils/is-in-range":37,"../utils/memoize":39,"../utils/normalize":40,"../utils/uid":45,"./block":10,"./character":11,"./data":12,"./document":13,"./inline":14,"./mark":15,"./selection":18,"./text":20,"direction":110,"immutable":191,"lodash/includes":224}],17:[function(require,module,exports){
+},{"../utils/is-in-range":68,"../utils/memoize":70,"../utils/normalize":71,"../utils/uid":76,"./block":41,"./character":42,"./data":43,"./document":44,"./inline":45,"./mark":46,"./selection":49,"./text":51,"direction":110,"immutable":191,"lodash/includes":225}],48:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
@@ -5358,7 +10262,7 @@ function normalizeMarkComponent(render) {
 
 exports.default = Schema;
 
-},{"../utils/is-react-component":38,"../utils/memoize":39,"immutable":191,"lodash/includes":224,"react":443,"type-of":465}],18:[function(require,module,exports){
+},{"../utils/is-react-component":69,"../utils/memoize":70,"immutable":191,"lodash/includes":225,"react":444,"type-of":466}],49:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
@@ -6151,7 +11055,7 @@ EDGE_METHODS.forEach(function (pattern) {
 
 exports.default = Selection;
 
-},{"../utils/memoize":39,"immutable":191,"lodash/includes":224}],19:[function(require,module,exports){
+},{"../utils/memoize":70,"immutable":191,"lodash/includes":225}],50:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
@@ -6754,7 +11658,7 @@ var State = function (_ref) {
 
 exports.default = State;
 
-},{"../utils/uid":45,"./document":13,"./mark":15,"./selection":18,"./transform":21,"immutable":191}],20:[function(require,module,exports){
+},{"../utils/uid":76,"./document":44,"./mark":46,"./selection":49,"./transform":52,"immutable":191}],51:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
@@ -7220,7 +12124,7 @@ var Text = function (_ref) {
 
 exports.default = Text;
 
-},{"../utils/memoize":39,"../utils/uid":45,"./character":11,"./mark":15,"immutable":191}],21:[function(require,module,exports){
+},{"../utils/memoize":70,"../utils/uid":76,"./character":42,"./mark":46,"immutable":191}],52:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -7237,6 +12141,10 @@ var _createClass = function () {
   };
 }();
 
+var _debug = require('debug');
+
+var _debug2 = _interopRequireDefault(_debug);
+
 var _transforms = require('../transforms');
 
 var _transforms2 = _interopRequireDefault(_transforms);
@@ -7250,6 +12158,14 @@ function _classCallCheck(instance, Constructor) {
     throw new TypeError("Cannot call a class as a function");
   }
 }
+
+/**
+ * Debug.
+ *
+ * @type {Function}
+ */
+
+var debug = (0, _debug2.default)('slate:transform');
 
 /**
  * Transform.
@@ -7296,10 +12212,9 @@ var Transform = function () {
     value: function apply() {
       var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
       var merge = options.merge;
+      var save = options.save;
       var _options$isNative = options.isNative;
       var isNative = _options$isNative === undefined ? false : _options$isNative;
-      var _options$save = options.save;
-      var save = _options$save === undefined ? true : _options$save;
       var state = this.state;
       var operations = this.operations;
       var history = state.history;
@@ -7317,10 +12232,13 @@ var Transform = function () {
         merge = isOnlySelections(operations) || isContiguousInserts(operations, previous) || isContiguousRemoves(operations, previous);
       }
 
-      // Save the new operations.
-      if (save || !previous) {
-        this.save({ merge: merge });
+      // If the save flag isn't set, determine whether we should save.
+      if (save == null) {
+        save = !isOnlySelections(operations);
       }
+
+      // Save the new operations.
+      if (save) this.save({ merge: merge });
 
       // Return the new state with the `isNative` flag set.
       return this.state.merge({ isNative: !!isNative });
@@ -7345,6 +12263,7 @@ Object.keys(_transforms2.default).forEach(function (type) {
       args[_key] = arguments[_key];
     }
 
+    debug(type, { args: args });
     return _transforms2.default[type].apply(_transforms2.default, [this].concat(args));
   };
 });
@@ -7436,7 +12355,7 @@ function isContiguousRemoves(operations, previous) {
 
 exports.default = Transform;
 
-},{"../transforms":31}],22:[function(require,module,exports){
+},{"../transforms":62,"debug":103}],53:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -8145,7 +13064,7 @@ function Plugin() {
 
 exports.default = Plugin;
 
-},{"../components/placeholder":5,"../models/character":11,"../serializers/base-64":23,"../utils/string":43,"debug":103,"get-window":161,"react":443}],23:[function(require,module,exports){
+},{"../components/placeholder":36,"../models/character":42,"../serializers/base-64":54,"../utils/string":74,"debug":103,"get-window":161,"react":444}],54:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -8249,7 +13168,7 @@ exports.default = {
   serializeNode: serializeNode
 };
 
-},{"./raw":26}],24:[function(require,module,exports){
+},{"./raw":57}],55:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -8714,7 +13633,7 @@ function addKey(element) {
 
 exports.default = Html;
 
-},{"../models/block":10,"../models/document":13,"../models/inline":14,"../models/mark":15,"../models/state":19,"../models/text":20,"./raw":26,"cheerio":82,"immutable":191,"react":443,"react-dom/server":252,"type-of":465}],25:[function(require,module,exports){
+},{"../models/block":41,"../models/document":44,"../models/inline":45,"../models/mark":46,"../models/state":50,"../models/text":51,"./raw":57,"cheerio":82,"immutable":191,"react":444,"react-dom/server":253,"type-of":466}],56:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -8805,7 +13724,7 @@ exports.default = {
   serialize: serialize
 };
 
-},{"../models/block":10,"../models/document":13,"../models/state":19,"../models/text":20}],26:[function(require,module,exports){
+},{"../models/block":41,"../models/document":44,"../models/state":50,"../models/text":51}],57:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -9435,7 +14354,7 @@ var Raw = {
 
 exports.default = Raw;
 
-},{"../models/block":10,"../models/character":11,"../models/document":13,"../models/inline":14,"../models/mark":15,"../models/state":19,"../models/text":20,"is-empty":195}],27:[function(require,module,exports){
+},{"../models/block":41,"../models/character":42,"../models/document":44,"../models/inline":45,"../models/mark":46,"../models/state":50,"../models/text":51,"is-empty":195}],58:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -9609,21 +14528,7 @@ function joinNode(state, operation) {
   var _state4 = state;
   var document = _state4.document;
 
-  var target = document.assertPath(path);
-  var node = document.assertPath(withPath);
-  var parent = document.getParent(target);
-  var isParent = document == parent;
-  var index = parent.nodes.indexOf(target);
-  var size = node.nodes.size;
-
-  target.nodes.forEach(function (child, i) {
-    node = node.insertNode(size + i, child);
-  });
-
-  parent = parent.removeNode(index);
-  document = isParent ? parent : document.updateDescendant(parent);
-  document = document.updateDescendant(node);
-  document = document.normalize();
+  document = document.joinNode(path, withPath);
   state = state.merge({ document: document });
   return state;
 }
@@ -9702,7 +14607,6 @@ function removeNode(state, operation) {
   var isParent = document == parent;
   parent = parent.removeNode(index);
   document = isParent ? parent : document.updateDescendant(parent);
-  document = document.normalize();
   state = state.merge({ document: document });
   return state;
 }
@@ -9820,55 +14724,13 @@ function splitNode(state, operation) {
   var _state12 = state;
   var document = _state12.document;
 
-  var node = document.assertPath(path);
-  var parent = document.getParent(node);
-  var isParent = document == parent;
-  var index = parent.nodes.indexOf(node);
+  document = document.splitNode(path, offset);
 
-  var child = node;
-  var one = void 0;
-  var two = void 0;
-
-  if (node.kind != 'text') {
-    child = node.getTextAtOffset(offset);
-  }
-
-  while (child && child != parent) {
-    if (child.kind == 'text') {
-      var i = node.kind == 'text' ? offset : offset - node.getOffset(child);
-      var _child = child;
-      var characters = _child.characters;
-
-      var oneChars = characters.take(i);
-      var twoChars = characters.skip(i);
-      one = child.merge({ characters: oneChars });
-      two = child.merge({ characters: twoChars, key: (0, _uid2.default)() });
-    } else {
-      var _child2 = child;
-      var nodes = _child2.nodes;
-
-      var oneNodes = nodes.takeUntil(function (n) {
-        return n.key == one.key;
-      }).push(one);
-      var twoNodes = nodes.skipUntil(function (n) {
-        return n.key == one.key;
-      }).rest().unshift(two);
-      one = child.merge({ nodes: oneNodes });
-      two = child.merge({ nodes: twoNodes, key: (0, _uid2.default)() });
-    }
-
-    child = document.getParent(child);
-  }
-
-  parent = parent.removeNode(index);
-  parent = parent.insertNode(index, two);
-  parent = parent.insertNode(index, one);
-  document = isParent ? parent : document.updateDescendant(parent);
   state = state.merge({ document: document });
   return state;
 }
 
-},{"../utils/uid":45,"debug":103}],28:[function(require,module,exports){
+},{"../utils/uid":76,"debug":103}],59:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -10527,7 +15389,7 @@ function wrapText(transform, prefix) {
   return transform.unsetSelection().wrapTextAtRange(selection, prefix, suffix).moveTo(after);
 }
 
-},{"../utils/normalize":40}],29:[function(require,module,exports){
+},{"../utils/normalize":71}],60:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -10681,7 +15543,10 @@ function deleteAtRange(transform, range) {
     transform.moveNodeByKey(child.key, newKey, newIndex);
   });
 
-  transform.removeNodeByKey(endChild.key);
+  var lonely = document.getFurthest(endBlock, function (p) {
+    return p.nodes.size == 1;
+  }) || endBlock;
+  transform.removeNodeByKey(lonely.key);
   transform.normalizeDocument();
   return transform;
 }
@@ -10745,7 +15610,7 @@ function deleteBackwardAtRange(transform, range) {
   }
 
   range = range.merge({
-    focusOffset: focusOffset - 1,
+    focusOffset: focusOffset - n,
     isBackward: true
   });
 
@@ -10801,7 +15666,7 @@ function deleteForwardAtRange(transform, range) {
   }
 
   range = range.merge({
-    focusOffset: focusOffset + 1
+    focusOffset: focusOffset + n
   });
 
   return transform.deleteAtRange(range);
@@ -11236,7 +16101,7 @@ function unwrapBlockAtRange(transform, range, properties) {
     });
   }).filter(function (exists) {
     return exists;
-  }).toSet().toList();
+  }).toOrderedSet().toList();
 
   wrappers.forEach(function (block) {
     var first = block.nodes.first();
@@ -11317,7 +16182,7 @@ function unwrapInlineAtRange(transform, range, properties) {
     });
   }).filter(function (exists) {
     return exists;
-  }).toSet().toList();
+  }).toOrderedSet().toList();
 
   inlines.forEach(function (inline) {
     var parent = document.getParent(inline);
@@ -11348,24 +16213,55 @@ function wrapBlockAtRange(transform, range, block) {
   var document = state.document;
 
   var blocks = document.getBlocksAtRange(range);
-  var depth = blocks.map(function (n) {
-    return document.getDepth(n);
-  }).min();
+  var firstblock = blocks.first();
+  var lastblock = blocks.last();
+  var parent = void 0,
+      siblings = void 0,
+      index = void 0;
 
-  var siblings = blocks.map(function (node) {
-    var d = document.getDepth(node);
-    if (d == depth) return node;
-    return document.getClosest(node, function (p) {
-      return document.getDepth(p) == depth;
-    });
-  }).toSet().toList();
+  // if there is only one block in the selection then we know the parent and siblings
+  if (blocks.length === 1) {
+    parent = document.getParent(firstblock);
+    siblings = blocks;
+  }
 
-  var first = siblings.first();
-  var parent = document.getParent(first);
-  var index = parent.nodes.indexOf(first);
+  // determine closest shared parent to all blocks in selection
+  else {
+      parent = document.getClosest(firstblock, function (p1) {
+        return !!document.getClosest(lastblock, function (p2) {
+          return p1 == p2;
+        });
+      });
+    }
 
-  transform.insertNodeByKey(parent.key, index, block);
+  // if no shared parent could be found then the parent is the document
+  if (parent == null) parent = document;
 
+  // create a list of direct children siblings of parent that fall in the selection
+  if (siblings == null) {
+    var indexes = parent.nodes.reduce(function (ind, node, i) {
+      if (node == firstblock || node.hasDescendant(firstblock)) ind[0] = i;
+      if (node == lastblock || node.hasDescendant(lastblock)) ind[1] = i;
+      return ind;
+    }, []);
+
+    index = indexes[0];
+    siblings = parent.nodes.slice(indexes[0], indexes[1] + 1);
+  }
+
+  // get the index to place the new wrapped node at
+  if (index == null) {
+    index = parent.nodes.indexOf(siblings.first());
+  }
+
+  // inject the new block node into the parent
+  if (parent != document) {
+    transform.insertNodeByKey(parent.key, index, block);
+  } else {
+    transform.insertNodeOperation([], index, block);
+  }
+
+  // move the sibling nodes into the new block node
   siblings.forEach(function (node, i) {
     transform.moveNodeByKey(node.key, block.key, i);
   });
@@ -11501,7 +16397,7 @@ function wrapTextAtRange(transform, range, prefix) {
   return transform;
 }
 
-},{"../models/block":10,"../models/inline":14,"../models/selection":18,"../models/text":20,"../utils/is-in-range":37,"../utils/normalize":40,"../utils/uid":45,"immutable":191}],30:[function(require,module,exports){
+},{"../models/block":41,"../models/inline":45,"../models/selection":49,"../models/text":51,"../utils/is-in-range":68,"../utils/normalize":71,"../utils/uid":76,"immutable":191}],61:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -11517,6 +16413,10 @@ exports.removeTextByKey = removeTextByKey;
 exports.setMarkByKey = setMarkByKey;
 exports.setNodeByKey = setNodeByKey;
 exports.splitNodeByKey = splitNodeByKey;
+
+var _text = require('../models/text');
+
+var _text2 = _interopRequireDefault(_text);
 
 var _normalize = require('../utils/normalize');
 
@@ -11639,8 +16539,21 @@ function removeNodeByKey(transform, key) {
   var state = transform.state;
   var document = state.document;
 
+  var node = document.assertDescendant(key);
+  var parent = document.getParent(key);
+  var index = parent.nodes.indexOf(node);
   var path = document.getPath(key);
-  return transform.removeNodeOperation(path);
+  transform.removeNodeOperation(path);
+
+  // If the node isn't a text node, or it isn't the last node in its parent,
+  // then we have nothing else to do.
+  if (node.kind != 'text' || parent.nodes.size > 1) return transform;
+
+  // Otherwise, re-add an empty text node into the parent so that we guarantee
+  // to always have text nodes as the leaves of the node tree.
+  var text = _text2.default.create();
+  transform.insertNodeByKey(parent.key, index, text);
+  return transform;
 }
 
 /**
@@ -11718,7 +16631,7 @@ function splitNodeByKey(transform, key, offset) {
   return transform.splitNodeOperation(path, offset);
 }
 
-},{"../utils/normalize":40,"../utils/uid":45}],31:[function(require,module,exports){
+},{"../models/text":51,"../utils/normalize":71,"../utils/uid":76}],62:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -11914,7 +16827,7 @@ exports.default = {
  * Operations.
  */
 
-},{"./apply-operation":27,"./at-current-range":28,"./at-range":29,"./by-key":30,"./normalize":32,"./on-history":33,"./on-selection":34,"./operations":35}],32:[function(require,module,exports){
+},{"./apply-operation":58,"./at-current-range":59,"./at-range":60,"./by-key":61,"./normalize":63,"./on-history":64,"./on-selection":65,"./operations":66}],63:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -11960,7 +16873,7 @@ function normalizeSelection(transform) {
   return transform;
 }
 
-},{}],33:[function(require,module,exports){
+},{}],64:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -12097,7 +17010,7 @@ function undo(transform) {
   return transform;
 }
 
-},{}],34:[function(require,module,exports){
+},{}],65:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -12588,7 +17501,7 @@ function unsetSelection(transform) {
   });
 }
 
-},{}],35:[function(require,module,exports){
+},{}],66:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -12986,23 +17899,31 @@ function setSelectionOperation(transform, properties) {
   var selection = state.selection;
 
   var prevProps = {};
+  var props = {};
 
-  // If the current selection has marks, and the new selection doesn't change
-  // them in some way, they are old and should be removed.
-  if (selection.marks && properties.marks == selection.marks) {
-    properties.marks = null;
-  }
-
-  // Create a dictionary of the previous values for all of the properties that
+  // Remove any properties that are already equal to the current selection. And
+  // create a dictionary of the previous values for all of the properties that
   // are being changed, for the inverse operation.
   for (var k in properties) {
+    if (properties[k] == selection[k]) continue;
+    props[k] = properties[k];
     prevProps[k] = selection[k];
   }
 
+  // If the selection moves, clear any marks, unless the new selection
+  // does change the marks in some way
+  var moved = ['anchorKey', 'anchorOffset', 'focusKey', 'focusOffset'].some(function (p) {
+    return props.hasOwnProperty(p);
+  });
+
+  if (selection.marks && properties.marks == selection.marks && moved) {
+    props.marks = null;
+  }
+
   // Resolve the selection keys into paths.
-  if (properties.anchorKey) {
-    properties.anchorPath = document.getPath(properties.anchorKey);
-    delete properties.anchorKey;
+  if (props.anchorKey) {
+    props.anchorPath = document.getPath(props.anchorKey);
+    delete props.anchorKey;
   }
 
   if (prevProps.anchorKey) {
@@ -13010,9 +17931,9 @@ function setSelectionOperation(transform, properties) {
     delete prevProps.anchorKey;
   }
 
-  if (properties.focusKey) {
-    properties.focusPath = document.getPath(properties.focusKey);
-    delete properties.focusKey;
+  if (props.focusKey) {
+    props.focusPath = document.getPath(props.focusKey);
+    delete props.focusKey;
   }
 
   if (prevProps.focusKey) {
@@ -13029,7 +17950,7 @@ function setSelectionOperation(transform, properties) {
   // Define the operation.
   var operation = {
     type: 'set_selection',
-    properties: properties,
+    properties: props,
     inverse: inverse
   };
 
@@ -13065,7 +17986,7 @@ function splitNodeOperation(transform, path, offset) {
   return transform.applyOperation(operation);
 }
 
-},{"../utils/normalize":40,"../utils/uid":45}],36:[function(require,module,exports){
+},{"../utils/normalize":71,"../utils/uid":76}],67:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -13095,7 +18016,7 @@ function findDOMNode(node) {
 
 exports.default = findDOMNode;
 
-},{}],37:[function(require,module,exports){
+},{}],68:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -13138,7 +18059,7 @@ function isInRange(index, text, range) {
 
 exports.default = isInRange;
 
-},{}],38:[function(require,module,exports){
+},{}],69:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -13164,7 +18085,7 @@ function isReactComponent(object) {
 
 exports.default = isReactComponent;
 
-},{}],39:[function(require,module,exports){
+},{}],70:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -13247,7 +18168,7 @@ function memoize(object, properties) {
 
 exports.default = memoize;
 
-},{"immutable":191}],40:[function(require,module,exports){
+},{"immutable":191}],71:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -13526,7 +18447,7 @@ exports.default = {
   selectionProperties: selectionProperties
 };
 
-},{"../models/block":10,"../models/data":12,"../models/document":13,"../models/inline":14,"../models/mark":15,"../models/selection":18,"../models/text":20,"type-of":465}],41:[function(require,module,exports){
+},{"../models/block":41,"../models/data":43,"../models/document":44,"../models/inline":45,"../models/mark":46,"../models/selection":49,"../models/text":51,"type-of":466}],72:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -13734,7 +18655,7 @@ exports.default = {
   stringify: stringify
 };
 
-},{}],42:[function(require,module,exports){
+},{}],73:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -13813,7 +18734,7 @@ function scrollTo(element, options) {
 
 exports.default = scrollTo;
 
-},{"get-window":161}],43:[function(require,module,exports){
+},{"get-window":161}],74:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -14027,7 +18948,7 @@ exports.default = {
   getWordOffsetForward: getWordOffsetForward
 };
 
-},{"esrever":133}],44:[function(require,module,exports){
+},{"esrever":133}],75:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -14370,7 +19291,7 @@ var Transfer = function () {
 
 exports.default = Transfer;
 
-},{"../constants/types":8,"../serializers/base-64":23}],45:[function(require,module,exports){
+},{"../constants/types":39,"../serializers/base-64":54}],76:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -14401,4773 +19322,10 @@ function uid() {
 
 exports.default = uid;
 
-},{"uid":467}],46:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _ = require('../..');
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-var _state4 = require('./state.json');
-
-var _state5 = _interopRequireDefault(_state4);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-/**
- * Define a schema.
- *
- * @type {Object}
- */
-
-var schema = {
-  nodes: {
-    'block-quote': function blockQuote(props) {
-      return _react2.default.createElement(
-        'blockquote',
-        null,
-        props.children
-      );
-    },
-    'bulleted-list': function bulletedList(props) {
-      return _react2.default.createElement(
-        'ul',
-        null,
-        props.children
-      );
-    },
-    'heading-one': function headingOne(props) {
-      return _react2.default.createElement(
-        'h1',
-        null,
-        props.children
-      );
-    },
-    'heading-two': function headingTwo(props) {
-      return _react2.default.createElement(
-        'h2',
-        null,
-        props.children
-      );
-    },
-    'heading-three': function headingThree(props) {
-      return _react2.default.createElement(
-        'h3',
-        null,
-        props.children
-      );
-    },
-    'heading-four': function headingFour(props) {
-      return _react2.default.createElement(
-        'h4',
-        null,
-        props.children
-      );
-    },
-    'heading-five': function headingFive(props) {
-      return _react2.default.createElement(
-        'h5',
-        null,
-        props.children
-      );
-    },
-    'heading-six': function headingSix(props) {
-      return _react2.default.createElement(
-        'h6',
-        null,
-        props.children
-      );
-    },
-    'list-item': function listItem(props) {
-      return _react2.default.createElement(
-        'li',
-        null,
-        props.children
-      );
-    }
-  }
-};
-
-/**
- * The auto-markdown example.
- *
- * @type {Component}
- */
-
-var AutoMarkdown = function (_React$Component) {
-  _inherits(AutoMarkdown, _React$Component);
-
-  function AutoMarkdown() {
-    var _ref;
-
-    var _temp, _this, _ret;
-
-    _classCallCheck(this, AutoMarkdown);
-
-    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-      args[_key] = arguments[_key];
-    }
-
-    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = AutoMarkdown.__proto__ || Object.getPrototypeOf(AutoMarkdown)).call.apply(_ref, [this].concat(args))), _this), _this.state = {
-      state: _.Raw.deserialize(_state5.default, { terse: true })
-    }, _this.getType = function (chars) {
-      switch (chars) {
-        case '*':
-        case '-':
-        case '+':
-          return 'list-item';
-        case '>':
-          return 'block-quote';
-        case '#':
-          return 'heading-one';
-        case '##':
-          return 'heading-two';
-        case '###':
-          return 'heading-three';
-        case '####':
-          return 'heading-four';
-        case '#####':
-          return 'heading-five';
-        case '######':
-          return 'heading-six';
-        default:
-          return null;
-      }
-    }, _this.render = function () {
-      return _react2.default.createElement(
-        'div',
-        { className: 'editor' },
-        _react2.default.createElement(_.Editor, {
-          schema: schema,
-          state: _this.state.state,
-          onChange: _this.onChange,
-          onKeyDown: _this.onKeyDown
-        })
-      );
-    }, _this.onChange = function (state) {
-      _this.setState({ state: state });
-    }, _this.onKeyDown = function (e, data, state) {
-      switch (data.key) {
-        case 'space':
-          return _this.onSpace(e, state);
-        case 'backspace':
-          return _this.onBackspace(e, state);
-        case 'enter':
-          return _this.onEnter(e, state);
-      }
-    }, _this.onSpace = function (e, state) {
-      if (state.isExpanded) return;
-      var _state = state;
-      var selection = _state.selection;
-      var _state2 = state;
-      var startText = _state2.startText;
-      var startBlock = _state2.startBlock;
-      var startOffset = _state2.startOffset;
-
-      var chars = startBlock.text.slice(0, startOffset).replace(/\s*/g, '');
-      var type = _this.getType(chars);
-
-      if (!type) return;
-      if (type == 'list-item' && startBlock.type == 'list-item') return;
-      e.preventDefault();
-
-      var transform = state.transform().setBlock(type);
-
-      if (type == 'list-item') transform = transform.wrapBlock('bulleted-list');
-
-      state = transform.extendToStartOf(startBlock).delete().apply();
-
-      return state;
-    }, _this.onBackspace = function (e, state) {
-      if (state.isExpanded) return;
-      if (state.startOffset != 0) return;
-      var _state3 = state;
-      var startBlock = _state3.startBlock;
-
-
-      if (startBlock.type == 'paragraph') return;
-      e.preventDefault();
-
-      var transform = state.transform().setBlock('paragraph');
-
-      if (startBlock.type == 'list-item') transform = transform.unwrapBlock('bulleted-list');
-
-      state = transform.apply();
-      return state;
-    }, _this.onEnter = function (e, state) {
-      if (state.isExpanded) return;
-      var startBlock = state.startBlock;
-      var startOffset = state.startOffset;
-      var endOffset = state.endOffset;
-
-      if (startOffset == 0 && startBlock.length == 0) return _this.onBackspace(e, state);
-      if (endOffset != startBlock.length) return;
-
-      if (startBlock.type != 'heading-one' && startBlock.type != 'heading-two' && startBlock.type != 'heading-three' && startBlock.type != 'heading-four' && startBlock.type != 'heading-five' && startBlock.type != 'heading-six' && startBlock.type != 'block-quote') {
-        return;
-      }
-
-      e.preventDefault();
-      return state.transform().splitBlock().setBlock('paragraph').apply();
-    }, _temp), _possibleConstructorReturn(_this, _ret);
-  }
-
-  /**
-   * Deserialize the raw initial state.
-   *
-   * @type {Object}
-   */
-
-  /**
-   * Get the block type for a series of auto-markdown shortcut `chars`.
-   *
-   * @param {String} chars
-   * @return {String} block
-   */
-
-  /**
-   *
-   * Render the example.
-   *
-   * @return {Component} component
-   */
-
-  /**
-   * On change.
-   *
-   * @param {State} state
-   */
-
-  /**
-   * On key down, check for our specific key shortcuts.
-   *
-   * @param {Event} e
-   * @param {Data} data
-   * @param {State} state
-   * @return {State or Null} state
-   */
-
-  /**
-   * On space, if it was after an auto-markdown shortcut, convert the current
-   * node into the shortcut's corresponding type.
-   *
-   * @param {Event} e
-   * @param {State} state
-   * @return {State or Null} state
-   */
-
-  /**
-   * On backspace, if at the start of a non-paragraph, convert it back into a
-   * paragraph node.
-   *
-   * @param {Event} e
-   * @param {State} state
-   * @return {State or Null} state
-   */
-
-  /**
-   * On return, if at the end of a node type that should not be extended,
-   * create a new paragraph below it.
-   *
-   * @param {Event} e
-   * @param {State} state
-   * @return {State or Null} state
-   */
-
-  return AutoMarkdown;
-}(_react2.default.Component);
-
-/**
- * Export.
- */
-
-exports.default = AutoMarkdown;
-
-},{"../..":9,"./state.json":47,"react":443}],47:[function(require,module,exports){
-module.exports={
-  "nodes": [
-    {
-      "kind": "block",
-      "type": "paragraph",
-      "nodes": [
-        {
-          "kind": "text",
-          "text": "The editor gives you full control over the logic you can add. For example, it's fairly common to want to add markdown-like shortcuts to editors. So that, when you start a line with \"> \" you get a blockquote that looks like this:"
-        }
-      ]
-    },
-    {
-      "kind": "block",
-      "type": "block-quote",
-      "nodes": [
-        {
-          "kind": "text",
-          "text": "A wise quote."
-        }
-      ]
-    },
-    {
-      "kind": "block",
-      "type": "paragraph",
-      "nodes": [
-        {
-          "kind": "text",
-          "text": "Order when you start a line with \"## \" you get a level-two heading, like this:"
-        }
-      ]
-    },
-    {
-      "kind": "block",
-      "type": "heading-two",
-      "nodes": [
-        {
-          "kind": "text",
-          "text": "Try it out!"
-        }
-      ]
-    },
-    {
-      "kind": "block",
-      "type": "paragraph",
-      "nodes": [
-        {
-          "kind": "text",
-          "text": "Try it out for yourself! Try starting a new line with \">\", \"-\", or \"#\"s."
-        }
-      ]
-    }
-  ]
-}
-
-},{}],48:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _ = require('../..');
-
-var _prismjs = require('prismjs');
-
-var _prismjs2 = _interopRequireDefault(_prismjs);
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-var _state = require('./state.json');
-
-var _state2 = _interopRequireDefault(_state);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-/**
- * Define a code block component.
- *
- * @param {Object} props
- * @return {Element}
- */
-
-function CodeBlock(props) {
-  var attributes = props.attributes;
-  var children = props.children;
-  var editor = props.editor;
-  var node = props.node;
-
-  var language = node.data.get('language');
-
-  function onChange(e) {
-    var state = editor.getState();
-    var next = state.transform().setNodeByKey(node.key, {
-      data: {
-        language: e.target.value
-      }
-    }).apply();
-    editor.onChange(next);
-  }
-
-  return _react2.default.createElement(
-    'div',
-    { style: { position: 'relative' } },
-    _react2.default.createElement(
-      'pre',
-      null,
-      _react2.default.createElement(
-        'code',
-        props.attributes,
-        props.children
-      )
-    ),
-    _react2.default.createElement(
-      'div',
-      {
-        contentEditable: false,
-        style: { position: 'absolute', top: '5px', right: '5px' }
-      },
-      _react2.default.createElement(
-        'select',
-        { value: language, onChange: onChange },
-        _react2.default.createElement(
-          'option',
-          { value: 'css' },
-          'CSS'
-        ),
-        _react2.default.createElement(
-          'option',
-          { value: 'js' },
-          'JavaScript'
-        ),
-        _react2.default.createElement(
-          'option',
-          { value: 'html' },
-          'HTML'
-        )
-      )
-    )
-  );
-}
-
-/**
- * Define a Prism.js decorator for code blocks.
- *
- * @param {Text} text
- * @param {Block} block
- */
-
-function codeBlockDecorator(text, block) {
-  var characters = text.characters.asMutable();
-  var language = block.data.get('language');
-  var string = text.text;
-  var grammar = _prismjs2.default.languages[language];
-  var tokens = _prismjs2.default.tokenize(string, grammar);
-  var offset = 0;
-
-  var _iteratorNormalCompletion = true;
-  var _didIteratorError = false;
-  var _iteratorError = undefined;
-
-  try {
-    for (var _iterator = tokens[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-      var token = _step.value;
-
-      if (typeof token == 'string') {
-        offset += token.length;
-        continue;
-      }
-
-      var length = offset + token.content.length;
-      var type = 'highlight-' + token.type;
-
-      for (var i = offset; i < length; i++) {
-        var char = characters.get(i);
-        var _char = char;
-        var marks = _char.marks;
-
-        marks = marks.add(_.Mark.create({ type: type }));
-        char = char.merge({ marks: marks });
-        characters = characters.set(i, char);
-      }
-
-      offset = length;
-    }
-  } catch (err) {
-    _didIteratorError = true;
-    _iteratorError = err;
-  } finally {
-    try {
-      if (!_iteratorNormalCompletion && _iterator.return) {
-        _iterator.return();
-      }
-    } finally {
-      if (_didIteratorError) {
-        throw _iteratorError;
-      }
-    }
-  }
-
-  return characters.asImmutable();
-}
-
-/**
- * Define a schema.
- *
- * @type {Object}
- */
-
-var schema = {
-  nodes: {
-    code: {
-      render: CodeBlock,
-      decorate: codeBlockDecorator
-    }
-  },
-  marks: {
-    'highlight-comment': {
-      opacity: '0.33'
-    },
-    'highlight-keyword': {
-      fontWeight: 'bold'
-    },
-    'highlight-punctuation': {
-      opacity: '0.75'
-    }
-  }
-};
-
-/**
- * The code highlighting example.
- *
- * @type {Component}
- */
-
-var CodeHighlighting = function (_React$Component) {
-  _inherits(CodeHighlighting, _React$Component);
-
-  function CodeHighlighting() {
-    var _ref;
-
-    var _temp, _this, _ret;
-
-    _classCallCheck(this, CodeHighlighting);
-
-    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-      args[_key] = arguments[_key];
-    }
-
-    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = CodeHighlighting.__proto__ || Object.getPrototypeOf(CodeHighlighting)).call.apply(_ref, [this].concat(args))), _this), _this.state = {
-      state: _.Raw.deserialize(_state2.default, { terse: true })
-    }, _this.onChange = function (state) {
-      _this.setState({ state: state });
-    }, _this.onKeyDown = function (e, data, state) {
-      if (data.key != 'enter') return;
-      var startBlock = state.startBlock;
-
-      if (startBlock.type != 'code') return;
-
-      var transform = state.transform();
-      if (state.isExpanded) transform = transform.delete();
-      transform = transform.insertText('\n');
-
-      return transform.apply();
-    }, _this.render = function () {
-      return _react2.default.createElement(
-        'div',
-        { className: 'editor' },
-        _react2.default.createElement(_.Editor, {
-          schema: schema,
-          state: _this.state.state,
-          onKeyDown: _this.onKeyDown,
-          onChange: _this.onChange
-        })
-      );
-    }, _temp), _possibleConstructorReturn(_this, _ret);
-  }
-
-  /**
-   * Deserialize the raw initial state.
-   *
-   * @type {Object}
-   */
-
-  /**
-   * On change, save the new state.
-   *
-   * @param {State} state
-   */
-
-  /**
-   * On key down inside code blocks, insert soft new lines.
-   *
-   * @param {Event} e
-   * @param {Object} data
-   * @param {State} state
-   * @return {State}
-   */
-
-  /**
-   * Render.
-   *
-   * @return {Component}
-   */
-
-  return CodeHighlighting;
-}(_react2.default.Component);
-
-/**
- * Export.
- */
-
-exports.default = CodeHighlighting;
-
-},{"../..":9,"./state.json":49,"prismjs":246,"react":443}],49:[function(require,module,exports){
-module.exports={
-  "nodes": [
-    {
-      "kind": "block",
-      "type": "paragraph",
-      "nodes": [
-        {
-          "kind": "text",
-          "text": "There are certain behaviors that require rendering dynamic marks on string of text, like rendering code highlighting. For example:"
-        }
-      ]
-    },
-    {
-      "kind": "block",
-      "type": "code",
-      "data": {
-        "language": "js"
-      },
-      "nodes": [
-        {
-          "kind": "text",
-          "text": "// A simple FizzBuzz implementation.\nfor (var i = 1; i <= 100; i++) {\n  if (i % 15 == 0) {\n    console.log('Fizz Buzz');\n  } else if (i % 5 == 0) {\n    console.log('Buzz');\n  } else if (i % 3 == 0) {\n    console.log('Fizz');\n  } else {\n    console.log(i);\n  }\n}"
-        }
-      ]
-    },
-    {
-      "kind": "block",
-      "type": "paragraph",
-      "nodes": [
-        {
-          "kind": "text",
-          "text": "Try it out for yourself!"
-        }
-      ]
-    }
-  ]
-}
-
-},{}],50:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _ = require('../../..');
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-var _state = require('./state.json');
-
-var _state2 = _interopRequireDefault(_state);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-/**
- * The plain text example.
- *
- * @type {Component}
- */
-
-var PlainText = function (_React$Component) {
-  _inherits(PlainText, _React$Component);
-
-  function PlainText() {
-    var _ref;
-
-    var _temp, _this, _ret;
-
-    _classCallCheck(this, PlainText);
-
-    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-      args[_key] = arguments[_key];
-    }
-
-    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = PlainText.__proto__ || Object.getPrototypeOf(PlainText)).call.apply(_ref, [this].concat(args))), _this), _this.state = {
-      state: _.Plain.deserialize(_state2.default)
-    }, _this.onChange = function (state) {
-      _this.setState({ state: state });
-    }, _this.render = function () {
-      return _react2.default.createElement(_.Editor, {
-        placeholder: 'Enter some plain text...',
-        state: _this.state.state,
-        onChange: _this.onChange
-      });
-    }, _temp), _possibleConstructorReturn(_this, _ret);
-  }
-
-  /**
-   * Deserialize the initial editor state.
-   *
-   * @type {Object}
-   */
-
-  /**
-   * On change.
-   *
-   * @param {State} state
-   */
-
-  /**
-   * Render the editor.
-   *
-   * @return {Component} component
-   */
-
-  return PlainText;
-}(_react2.default.Component);
-
-/**
- * Export.
- */
-
-exports.default = PlainText;
-
-},{"../../..":9,"./state.json":51,"react":443}],51:[function(require,module,exports){
-module.exports="For the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.\nFor the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.\nFor the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.For the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.\nFor the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.\nFor the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.\nFor the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.\nFor the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.For the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.\nFor the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.\nFor the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.\nFor the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.\nFor the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.For the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.\nFor the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the sadfijasd;lkfjas;dlkfja;lsdkfj;alksdjf;sdaljfsf lskajdflkadsjflksdajflksdajfnecessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.\nFor the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.\nFor the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.\nFor the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.For the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.\nFor the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist."
-
-},{}],52:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _ = require('../../..');
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-var _state = require('./state.json');
-
-var _state2 = _interopRequireDefault(_state);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-/**
- * Define the default node type.
- */
-
-var DEFAULT_NODE = 'paragraph';
-
-/**
- * Define a schema.
- *
- * @type {Object}
- */
-
-var schema = {
-  nodes: {
-    'block-quote': function blockQuote(props) {
-      return _react2.default.createElement(
-        'blockquote',
-        props.attributes,
-        props.children
-      );
-    },
-    'bulleted-list': function bulletedList(props) {
-      return _react2.default.createElement(
-        'ul',
-        props.attributes,
-        props.children
-      );
-    },
-    'heading-one': function headingOne(props) {
-      return _react2.default.createElement(
-        'h1',
-        props.attributes,
-        props.children
-      );
-    },
-    'heading-two': function headingTwo(props) {
-      return _react2.default.createElement(
-        'h2',
-        props.attributes,
-        props.children
-      );
-    },
-    'list-item': function listItem(props) {
-      return _react2.default.createElement(
-        'li',
-        props.attributes,
-        props.children
-      );
-    },
-    'numbered-list': function numberedList(props) {
-      return _react2.default.createElement(
-        'ol',
-        props.attributes,
-        props.children
-      );
-    }
-  },
-  marks: {
-    bold: {
-      fontWeight: 'bold'
-    },
-    code: {
-      fontFamily: 'monospace',
-      backgroundColor: '#eee',
-      padding: '3px',
-      borderRadius: '4px'
-    },
-    italic: {
-      fontStyle: 'italic'
-    },
-    underlined: {
-      textDecoration: 'underline'
-    }
-  }
-};
-
-/**
- * The rich text example.
- *
- * @type {Component}
- */
-
-var RichText = function (_React$Component) {
-  _inherits(RichText, _React$Component);
-
-  function RichText() {
-    var _ref;
-
-    var _temp, _this, _ret;
-
-    _classCallCheck(this, RichText);
-
-    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-      args[_key] = arguments[_key];
-    }
-
-    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = RichText.__proto__ || Object.getPrototypeOf(RichText)).call.apply(_ref, [this].concat(args))), _this), _this.state = {
-      state: _.Raw.deserialize(_state2.default, { terse: true })
-    }, _this.hasMark = function (type) {
-      var state = _this.state.state;
-
-      return state.marks.some(function (mark) {
-        return mark.type == type;
-      });
-    }, _this.hasBlock = function (type) {
-      var state = _this.state.state;
-
-      return state.blocks.some(function (node) {
-        return node.type == type;
-      });
-    }, _this.onChange = function (state) {
-      _this.setState({ state: state });
-    }, _this.onKeyDown = function (e, data, state) {
-      if (!data.isMod) return;
-      var mark = void 0;
-
-      switch (data.key) {
-        case 'b':
-          mark = 'bold';
-          break;
-        case 'i':
-          mark = 'italic';
-          break;
-        case 'u':
-          mark = 'underlined';
-          break;
-        case '`':
-          mark = 'code';
-          break;
-        default:
-          return;
-      }
-
-      state = state.transform()[_this.hasMark(mark) ? 'removeMark' : 'addMark'](mark).apply();
-
-      e.preventDefault();
-      return state;
-    }, _this.onClickMark = function (e, type) {
-      e.preventDefault();
-      var isActive = _this.hasMark(type);
-      var state = _this.state.state;
-
-
-      state = state.transform()[isActive ? 'removeMark' : 'addMark'](type).apply();
-
-      _this.setState({ state: state });
-    }, _this.onClickBlock = function (e, type) {
-      e.preventDefault();
-      var isActive = _this.hasBlock(type);
-      var state = _this.state.state;
-
-
-      var transform = state.transform().setBlock(isActive ? 'paragraph' : type);
-
-      // Handle the extra wrapping required for list buttons.
-      if (type == 'bulleted-list' || type == 'numbered-list') {
-        if (_this.hasBlock('list-item')) {
-          transform = transform.setBlock(DEFAULT_NODE).unwrapBlock(type);
-        } else {
-          transform = transform.setBlock('list-item').wrapBlock(type);
-        }
-      }
-
-      // Handle everything but list buttons.
-      else {
-          transform = transform.setBlock(isActive ? DEFAULT_NODE : type);
-        }
-
-      state = transform.apply();
-      _this.setState({ state: state });
-    }, _this.render = function () {
-      return _react2.default.createElement(
-        'div',
-        null,
-        _this.renderToolbar(),
-        _this.renderEditor()
-      );
-    }, _this.renderToolbar = function () {
-      return _react2.default.createElement(
-        'div',
-        { className: 'menu toolbar-menu' },
-        _this.renderMarkButton('bold', 'format_bold'),
-        _this.renderMarkButton('italic', 'format_italic'),
-        _this.renderMarkButton('underlined', 'format_underlined'),
-        _this.renderMarkButton('code', 'code'),
-        _this.renderBlockButton('heading-one', 'looks_one'),
-        _this.renderBlockButton('heading-two', 'looks_two'),
-        _this.renderBlockButton('block-quote', 'format_quote'),
-        _this.renderBlockButton('numbered-list', 'format_list_numbered'),
-        _this.renderBlockButton('bulleted-list', 'format_list_bulleted')
-      );
-    }, _this.renderMarkButton = function (type, icon) {
-      var isActive = _this.hasMark(type);
-      var onMouseDown = function onMouseDown(e) {
-        return _this.onClickMark(e, type);
-      };
-
-      return _react2.default.createElement(
-        'span',
-        { className: 'button', onMouseDown: onMouseDown, 'data-active': isActive },
-        _react2.default.createElement(
-          'span',
-          { className: 'material-icons' },
-          icon
-        )
-      );
-    }, _this.renderBlockButton = function (type, icon) {
-      var isActive = _this.hasBlock(type);
-      var onMouseDown = function onMouseDown(e) {
-        return _this.onClickBlock(e, type);
-      };
-
-      return _react2.default.createElement(
-        'span',
-        { className: 'button', onMouseDown: onMouseDown, 'data-active': isActive },
-        _react2.default.createElement(
-          'span',
-          { className: 'material-icons' },
-          icon
-        )
-      );
-    }, _this.renderEditor = function () {
-      return _react2.default.createElement(
-        'div',
-        { className: 'editor' },
-        _react2.default.createElement(_.Editor, {
-          placeholder: 'Enter some rich text...',
-          schema: schema,
-          state: _this.state.state,
-          onChange: _this.onChange,
-          onKeyDown: _this.onKeyDown
-        })
-      );
-    }, _temp), _possibleConstructorReturn(_this, _ret);
-  }
-
-  /**
-   * Deserialize the initial editor state.
-   *
-   * @type {Object}
-   */
-
-  /**
-   * Check if the current selection has a mark with `type` in it.
-   *
-   * @param {String} type
-   * @return {Boolean}
-   */
-
-  /**
-   * Check if the any of the currently selected blocks are of `type`.
-   *
-   * @param {String} type
-   * @return {Boolean}
-   */
-
-  /**
-   * On change, save the new state.
-   *
-   * @param {State} state
-   */
-
-  /**
-   * On key down, if it's a formatting command toggle a mark.
-   *
-   * @param {Event} e
-   * @param {Object} data
-   * @param {State} state
-   * @return {State}
-   */
-
-  /**
-   * When a mark button is clicked, toggle the current mark.
-   *
-   * @param {Event} e
-   * @param {String} type
-   */
-
-  /**
-   * When a block button is clicked, toggle the block type.
-   *
-   * @param {Event} e
-   * @param {String} type
-   */
-
-  /**
-   * Render.
-   *
-   * @return {Element}
-   */
-
-  /**
-   * Render the toolbar.
-   *
-   * @return {Element}
-   */
-
-  /**
-   * Render a mark-toggling toolbar button.
-   *
-   * @param {String} type
-   * @param {String} icon
-   * @return {Element}
-   */
-
-  /**
-   * Render a block-toggling toolbar button.
-   *
-   * @param {String} type
-   * @param {String} icon
-   * @return {Element}
-   */
-
-  /**
-   * Render the Slate editor.
-   *
-   * @return {Element}
-   */
-
-  return RichText;
-}(_react2.default.Component);
-
-/**
- * Export.
- */
-
-exports.default = RichText;
-
-},{"../../..":9,"./state.json":53,"react":443}],53:[function(require,module,exports){
-module.exports={
-  "nodes": [
-    {
-      "kind": "block",
-      "type": "paragraph",
-      "nodes": [
-        {
-          "kind": "text",
-          "ranges": [
-            {
-              "text": "This is editable "
-            },
-            {
-              "text": "rich",
-              "marks": [
-                {
-                  "type": "bold"
-                }
-              ]
-            },
-            {
-              "text": " text, "
-            },
-            {
-              "text": "much",
-              "marks": [
-                {
-                  "type": "italic"
-                }
-              ]
-            },
-            {
-              "text": " better than a "
-            },
-            {
-              "text": "<textarea>",
-              "marks": [
-                {
-                  "type": "code"
-                }
-              ]
-            },
-            {
-              "text": "!"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "kind": "block",
-      "type": "paragraph",
-      "nodes": [
-        {
-          "kind": "text",
-          "ranges": [
-            {
-              "text": "Since it's rich text, you can do things like turn a selection of text "
-            },
-            {
-              "text": "bold",
-              "marks": [
-                {
-                  "type": "bold"
-                }
-              ]
-            },{
-              "text": ", or add a semantically rendered block quote in the middle of the page, like this:"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "kind": "block",
-      "type": "block-quote",
-      "nodes": [
-        {
-          "kind": "text",
-          "text": "A wise quote."
-        }
-      ]
-    },
-    {
-      "kind": "block",
-      "type": "paragraph",
-      "nodes": [
-        {
-          "kind": "text",
-          "text": "Try it out for yourself!"
-        }
-      ]
-    }
-  ]
-}
-
-},{}],54:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _ = require('../..');
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-var _reactDom = require('react-dom');
-
-var _reactDom2 = _interopRequireDefault(_reactDom);
-
-var _video = require('./video');
-
-var _video2 = _interopRequireDefault(_video);
-
-var _state = require('./state.json');
-
-var _state2 = _interopRequireDefault(_state);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-/**
- * Define a schema.
- *
- * @type {Object}
- */
-
-var schema = {
-  nodes: {
-    video: _video2.default
-  }
-};
-
-/**
- * The images example.
- *
- * @type {Component}
- */
-
-var Embeds = function (_React$Component) {
-  _inherits(Embeds, _React$Component);
-
-  function Embeds() {
-    var _ref;
-
-    var _temp, _this, _ret;
-
-    _classCallCheck(this, Embeds);
-
-    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-      args[_key] = arguments[_key];
-    }
-
-    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = Embeds.__proto__ || Object.getPrototypeOf(Embeds)).call.apply(_ref, [this].concat(args))), _this), _this.state = {
-      state: _.Raw.deserialize(_state2.default, { terse: true })
-    }, _this.onChange = function (state) {
-      _this.setState({ state: state });
-    }, _this.render = function () {
-      return _react2.default.createElement(
-        'div',
-        { className: 'editor' },
-        _react2.default.createElement(_.Editor, {
-          schema: schema,
-          state: _this.state.state,
-          onChange: _this.onChange
-        })
-      );
-    }, _temp), _possibleConstructorReturn(_this, _ret);
-  }
-
-  /**
-   * Deserialize the raw initial state.
-   *
-   * @type {Object}
-   */
-
-  /**
-   * On change.
-   *
-   * @param {State} state
-   */
-
-  /**
-   * Render the app.
-   *
-   * @return {Element} element
-   */
-
-  return Embeds;
-}(_react2.default.Component);
-
-/**
- * Export.
- */
-
-exports.default = Embeds;
-
-},{"../..":9,"./state.json":55,"./video":56,"react":443,"react-dom":251}],55:[function(require,module,exports){
-module.exports={
-  "nodes": [
-    {
-      "kind": "block",
-      "type": "paragraph",
-      "nodes": [
-        {
-          "kind": "text",
-          "text": "In addition to simple image nodes, you can actually create complex embedded nodes. For example, this one contains an input element that lets you change the video being rendered!"
-        }
-      ]
-    },
-    {
-      "kind": "block",
-      "type": "video",
-      "isVoid": true,
-      "data": {
-        "video": "https://www.youtube.com/embed/FaHEusBG20c"
-      }
-    },
-    {
-      "kind": "block",
-      "type": "paragraph",
-      "nodes": [
-        {
-          "kind": "text",
-          "text": "Try it out! If you want another good video URL to try, go with: https://www.youtube.com/embed/6Ejga4kJUts"
-        }
-      ]
-    }
-  ]
-}
-
-},{}],56:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-/**
- * An video embed component.
- *
- * @type {Component}
- */
-
-var Video = function (_React$Component) {
-  _inherits(Video, _React$Component);
-
-  function Video() {
-    var _ref;
-
-    var _temp, _this, _ret;
-
-    _classCallCheck(this, Video);
-
-    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-      args[_key] = arguments[_key];
-    }
-
-    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = Video.__proto__ || Object.getPrototypeOf(Video)).call.apply(_ref, [this].concat(args))), _this), _this.onChange = function (e) {
-      var video = e.target.value;
-      var _this$props = _this.props;
-      var node = _this$props.node;
-      var state = _this$props.state;
-      var editor = _this$props.editor;
-
-      var properties = {
-        data: { video: video }
-      };
-
-      var next = editor.getState().transform().setNodeByKey(node.key, properties).apply();
-
-      editor.onChange(next);
-    }, _this.onClick = function (e) {
-      e.stopPropagation();
-    }, _this.render = function () {
-      return _react2.default.createElement(
-        'div',
-        _this.props.attributes,
-        _this.renderVideo(),
-        _this.renderInput()
-      );
-    }, _this.renderVideo = function () {
-      var video = _this.props.node.data.get('video');
-      var wrapperStyle = {
-        position: 'relative',
-        paddingBottom: '66.66%',
-        paddingTop: '25px',
-        height: '0'
-      };
-
-      var iframeStyle = {
-        position: 'absolute',
-        top: '0px',
-        left: '0px',
-        width: '100%',
-        height: '100%'
-      };
-
-      return _react2.default.createElement(
-        'div',
-        { style: wrapperStyle },
-        _react2.default.createElement('iframe', {
-          id: 'ytplayer',
-          type: 'text/html',
-          width: '640',
-          height: '390',
-          src: video,
-          frameBorder: '0',
-          style: iframeStyle
-        })
-      );
-    }, _this.renderInput = function () {
-      var video = _this.props.node.data.get('video');
-      return _react2.default.createElement('input', {
-        value: video,
-        onChange: _this.onChange,
-        onClick: _this.onClick,
-        style: { marginTop: '5px' }
-      });
-    }, _temp), _possibleConstructorReturn(_this, _ret);
-  }
-
-  /**
-   * When the input text changes, update the `video` data on the node.
-   *
-   * @param {Event} e
-   */
-
-  /**
-   * When clicks happen in the input, stop propagation so that the void node
-   * itself isn't focused, since that would unfocus the input.
-   *
-   * @type {Event} e
-   */
-
-  /**
-   * Render.
-   *
-   * @return {Element}
-   */
-
-  /**
-   * Render the Youtube iframe, responsively.
-   *
-   * @return {Element}
-   */
-
-  /**
-   * Render the video URL input.
-   *
-   * @return {Element}
-   */
-
-  return Video;
-}(_react2.default.Component);
-
-/**
- * Export.
- */
-
-exports.default = Video;
-
-},{"react":443}],57:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _ = require('../..');
-
-var _reactPortal = require('react-portal');
-
-var _reactPortal2 = _interopRequireDefault(_reactPortal);
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-var _selectionPosition = require('selection-position');
-
-var _selectionPosition2 = _interopRequireDefault(_selectionPosition);
-
-var _state = require('./state.json');
-
-var _state2 = _interopRequireDefault(_state);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-/**
- * Define a schema.
- *
- * @type {Object}
- */
-
-var schema = {
-  marks: {
-    bold: function bold(props) {
-      return _react2.default.createElement(
-        'strong',
-        null,
-        props.children
-      );
-    },
-    code: function code(props) {
-      return _react2.default.createElement(
-        'code',
-        null,
-        props.children
-      );
-    },
-    italic: function italic(props) {
-      return _react2.default.createElement(
-        'em',
-        null,
-        props.children
-      );
-    },
-    underlined: function underlined(props) {
-      return _react2.default.createElement(
-        'u',
-        null,
-        props.children
-      );
-    }
-  }
-};
-
-/**
- * The hovering menu example.
- *
- * @type {Component}
- */
-
-var HoveringMenu = function (_React$Component) {
-  _inherits(HoveringMenu, _React$Component);
-
-  function HoveringMenu() {
-    var _ref;
-
-    var _temp, _this, _ret;
-
-    _classCallCheck(this, HoveringMenu);
-
-    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-      args[_key] = arguments[_key];
-    }
-
-    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = HoveringMenu.__proto__ || Object.getPrototypeOf(HoveringMenu)).call.apply(_ref, [this].concat(args))), _this), _this.state = {
-      state: _.Raw.deserialize(_state2.default, { terse: true })
-    }, _this.componentDidMount = function () {
-      _this.updateMenu();
-    }, _this.componentDidUpdate = function () {
-      _this.updateMenu();
-    }, _this.hasMark = function (type) {
-      var state = _this.state.state;
-
-      return state.marks.some(function (mark) {
-        return mark.type == type;
-      });
-    }, _this.onChange = function (state) {
-      _this.setState({ state: state });
-    }, _this.onClickMark = function (e, type) {
-      e.preventDefault();
-      var state = _this.state.state;
-
-
-      state = state.transform().toggleMark(type).apply();
-
-      _this.setState({ state: state });
-    }, _this.onOpen = function (portal) {
-      _this.setState({ menu: portal.firstChild });
-    }, _this.render = function () {
-      return _react2.default.createElement(
-        'div',
-        null,
-        _this.renderMenu(),
-        _this.renderEditor()
-      );
-    }, _this.renderMenu = function () {
-      var state = _this.state.state;
-
-      var isOpen = state.isExpanded && state.isFocused;
-      return _react2.default.createElement(
-        _reactPortal2.default,
-        { isOpened: true, onOpen: _this.onOpen },
-        _react2.default.createElement(
-          'div',
-          { className: 'menu hover-menu' },
-          _this.renderMarkButton('bold', 'format_bold'),
-          _this.renderMarkButton('italic', 'format_italic'),
-          _this.renderMarkButton('underlined', 'format_underlined'),
-          _this.renderMarkButton('code', 'code')
-        )
-      );
-    }, _this.renderMarkButton = function (type, icon) {
-      var isActive = _this.hasMark(type);
-      var onMouseDown = function onMouseDown(e) {
-        return _this.onClickMark(e, type);
-      };
-
-      return _react2.default.createElement(
-        'span',
-        { className: 'button', onMouseDown: onMouseDown, 'data-active': isActive },
-        _react2.default.createElement(
-          'span',
-          { className: 'material-icons' },
-          icon
-        )
-      );
-    }, _this.renderEditor = function () {
-      return _react2.default.createElement(
-        'div',
-        { className: 'editor' },
-        _react2.default.createElement(_.Editor, {
-          schema: schema,
-          state: _this.state.state,
-          onChange: _this.onChange
-        })
-      );
-    }, _this.updateMenu = function () {
-      var _this$state = _this.state;
-      var menu = _this$state.menu;
-      var state = _this$state.state;
-
-      if (!menu) return;
-
-      if (state.isBlurred || state.isCollapsed) {
-        menu.removeAttribute('style');
-        return;
-      }
-
-      var rect = (0, _selectionPosition2.default)();
-      menu.style.opacity = 1;
-      menu.style.top = rect.top + window.scrollY - menu.offsetHeight + 'px';
-      menu.style.left = rect.left + window.scrollX - menu.offsetWidth / 2 + rect.width / 2 + 'px';
-    }, _temp), _possibleConstructorReturn(_this, _ret);
-  }
-
-  /**
-   * Deserialize the raw initial state.
-   *
-   * @type {Object}
-   */
-
-  /**
-   * On update, update the menu.
-   */
-
-  /**
-   * Check if the current selection has a mark with `type` in it.
-   *
-   * @param {String} type
-   * @return {Boolean}
-   */
-
-  /**
-   * On change, save the new state.
-   *
-   * @param {State} state
-   */
-
-  /**
-   * When a mark button is clicked, toggle the current mark.
-   *
-   * @param {Event} e
-   * @param {String} type
-   */
-
-  /**
-   * When the portal opens, cache the menu element.
-   *
-   * @param {Element} portal
-   */
-
-  /**
-   * Render.
-   *
-   * @return {Element}
-   */
-
-  /**
-   * Render the hovering menu.
-   *
-   * @return {Element}
-   */
-
-  /**
-   * Render a mark-toggling toolbar button.
-   *
-   * @param {String} type
-   * @param {String} icon
-   * @return {Element}
-   */
-
-  /**
-   * Render the Slate editor.
-   *
-   * @return {Element}
-   */
-
-  /**
-   * Update the menu's absolute position.
-   */
-
-  return HoveringMenu;
-}(_react2.default.Component);
-
-/**
- * Export.
- */
-
-exports.default = HoveringMenu;
-
-},{"../..":9,"./state.json":58,"react":443,"react-portal":257,"selection-position":455}],58:[function(require,module,exports){
-module.exports={
-  "nodes": [
-    {
-      "kind": "block",
-      "type": "paragraph",
-      "nodes": [
-        {
-          "kind": "text",
-          "ranges": [
-            {
-              "text": "This example shows how you can make a hovering menu appear above your content, which you can use to make text "
-            },
-            {
-              "text": "bold",
-              "marks": [
-                {
-                  "type": "bold"
-                }
-              ]
-            },
-            {
-              "text": ", "
-            },
-            {
-              "text": "italic",
-              "marks": [
-                {
-                  "type": "italic"
-                }
-              ]
-            },
-            {
-              "text": ", or anything else you might want to do!"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "kind": "block",
-      "type": "paragraph",
-      "nodes": [
-        {
-          "kind": "text",
-          "ranges": [
-            {
-              "text": "Try it out yourself! Just "
-            },
-            {
-              "text": "select any piece of text and the menu will appear",
-              "marks": [
-                {
-                  "type": "bold"
-                },
-                {
-                  "type": "italic"
-                }
-              ]
-            },
-            {
-              "text": "."
-            }
-          ]
-        }
-      ]
-    }
-  ]
-}
-
-},{}],59:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _ = require('../..');
-
-var _reactFrameComponent = require('react-frame-component');
-
-var _reactFrameComponent2 = _interopRequireDefault(_reactFrameComponent);
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-var _reactDom = require('react-dom');
-
-var _reactDom2 = _interopRequireDefault(_reactDom);
-
-var _state = require('./state.json');
-
-var _state2 = _interopRequireDefault(_state);
-
-var _reactFrameAwareSelectionPlugin = require('react-frame-aware-selection-plugin');
-
-var _reactFrameAwareSelectionPlugin2 = _interopRequireDefault(_reactFrameAwareSelectionPlugin);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-/**
- * Injector to make `onSelect` work in iframes in React.
- */
-
-(0, _reactFrameAwareSelectionPlugin2.default)();
-
-/**
- * Define the default node type.
- */
-
-var DEFAULT_NODE = 'paragraph';
-
-/**
- * Define a schema.
- *
- * @type {Object}
- */
-
-var schema = {
-  nodes: {
-    'block-code': function blockCode(props) {
-      return _react2.default.createElement(
-        'pre',
-        null,
-        _react2.default.createElement(
-          'code',
-          props.attributes,
-          props.children
-        )
-      );
-    },
-    'block-quote': function blockQuote(props) {
-      return _react2.default.createElement(
-        'blockquote',
-        props.attributes,
-        props.children
-      );
-    },
-    'heading-two': function headingTwo(props) {
-      return _react2.default.createElement(
-        'h2',
-        props.attributes,
-        props.children
-      );
-    },
-    'paragraph': function paragraph(props) {
-      return _react2.default.createElement(
-        'p',
-        props.attributes,
-        props.children
-      );
-    }
-  },
-  marks: {
-    bold: function bold(props) {
-      return _react2.default.createElement(
-        'strong',
-        null,
-        props.children
-      );
-    },
-    highlight: function highlight(props) {
-      return _react2.default.createElement(
-        'mark',
-        null,
-        props.children
-      );
-    },
-    italic: function italic(props) {
-      return _react2.default.createElement(
-        'em',
-        null,
-        props.children
-      );
-    }
-  }
-};
-
-/**
- * The iframes example.
- *
- * @type {Component}
- */
-
-var Iframes = function (_React$Component) {
-  _inherits(Iframes, _React$Component);
-
-  function Iframes() {
-    var _ref;
-
-    var _temp, _this, _ret;
-
-    _classCallCheck(this, Iframes);
-
-    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-      args[_key] = arguments[_key];
-    }
-
-    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = Iframes.__proto__ || Object.getPrototypeOf(Iframes)).call.apply(_ref, [this].concat(args))), _this), _this.state = {
-      state: _.Raw.deserialize(_state2.default, { terse: true })
-    }, _this.hasMark = function (type) {
-      var state = _this.state.state;
-
-      return state.marks.some(function (mark) {
-        return mark.type == type;
-      });
-    }, _this.hasBlock = function (type) {
-      var state = _this.state.state;
-
-      return state.blocks.some(function (node) {
-        return node.type == type;
-      });
-    }, _this.onChange = function (state) {
-      _this.setState({ state: state });
-    }, _this.onKeyDown = function (e, data, state) {
-      if (!data.isMod) return;
-      var mark = void 0;
-
-      switch (data.key) {
-        case 'b':
-          mark = 'bold';
-          break;
-        case 'i':
-          mark = 'italic';
-          break;
-        default:
-          return;
-      }
-
-      state = state.transform().toggleMark(mark).apply();
-
-      e.preventDefault();
-      return state;
-    }, _this.onClickMark = function (e, type) {
-      e.preventDefault();
-      var state = _this.state.state;
-
-
-      state = state.transform().toggleMark(type).apply();
-
-      _this.setState({ state: state });
-    }, _this.onClickBlock = function (e, type) {
-      e.preventDefault();
-      var state = _this.state.state;
-
-      var isActive = _this.hasBlock(type);
-
-      state = state.transform().setBlock(isActive ? DEFAULT_NODE : type).apply();
-
-      _this.setState({ state: state });
-    }, _this.render = function () {
-      var bootstrap = _react2.default.createElement('link', {
-        href: 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css',
-        rel: 'stylesheet',
-        integrity: 'sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u',
-        crossOrigin: 'anonymous'
-      });
-
-      var style = {
-        width: '100%',
-        height: '500px'
-      };
-
-      return _react2.default.createElement(
-        'div',
-        null,
-        _react2.default.createElement(
-          'p',
-          { style: { marginBottom: '10px' } },
-          'This editor is rendered inside of an ',
-          _react2.default.createElement(
-            'code',
-            null,
-            'iframe'
-          ),
-          ' element, and everything works as usual! This is helpful for scenarios where you need the content to be rendered in an isolated, for example to create a "live example" with a specific set of stylesheets applied.'
-        ),
-        _react2.default.createElement(
-          'p',
-          { style: { marginBottom: '10px' } },
-          'In this example\'s case, we\'ve added Bootstrap\'s CSS to the ',
-          _react2.default.createElement(
-            'code',
-            null,
-            'iframe'
-          ),
-          ' for default styles:'
-        ),
-        _react2.default.createElement(
-          _reactFrameComponent2.default,
-          { head: bootstrap, style: style },
-          _react2.default.createElement(
-            'div',
-            { style: { padding: '20px' } },
-            _this.renderToolbar(),
-            _this.renderEditor()
-          )
-        )
-      );
-    }, _this.renderToolbar = function () {
-      return _react2.default.createElement(
-        'div',
-        { className: 'btn-group', style: { marginBottom: '20px' } },
-        _this.renderMarkButton('bold', 'bold'),
-        _this.renderMarkButton('italic', 'italic'),
-        _this.renderMarkButton('highlight', 'pencil'),
-        _this.renderBlockButton('heading-two', 'header'),
-        _this.renderBlockButton('block-code', 'console'),
-        _this.renderBlockButton('block-quote', 'comment')
-      );
-    }, _this.renderMarkButton = function (type, icon) {
-      var isActive = _this.hasMark(type);
-      var onMouseDown = function onMouseDown(e) {
-        return _this.onClickMark(e, type);
-      };
-      var className = 'btn btn-primary';
-      if (isActive) className += ' active';
-
-      return _react2.default.createElement(
-        'button',
-        { className: className, onMouseDown: onMouseDown },
-        _react2.default.createElement('span', { className: 'glyphicon glyphicon-' + icon })
-      );
-    }, _this.renderBlockButton = function (type, icon) {
-      var isActive = _this.hasBlock(type);
-      var onMouseDown = function onMouseDown(e) {
-        return _this.onClickBlock(e, type);
-      };
-      var className = 'btn btn-primary';
-      if (isActive) className += ' active';
-
-      return _react2.default.createElement(
-        'button',
-        { className: className, onMouseDown: onMouseDown },
-        _react2.default.createElement('span', { className: 'glyphicon glyphicon-' + icon })
-      );
-    }, _this.renderEditor = function () {
-      return _react2.default.createElement(_.Editor, {
-        placeholder: 'Enter some rich text...',
-        schema: schema,
-        state: _this.state.state,
-        onChange: _this.onChange,
-        onKeyDown: _this.onKeyDown
-      });
-    }, _temp), _possibleConstructorReturn(_this, _ret);
-  }
-
-  /**
-   * Deserialize the initial editor state.
-   *
-   * @type {Object}
-   */
-
-  /**
-   * Check if the current selection has a mark with `type` in it.
-   *
-   * @param {String} type
-   * @return {Boolean}
-   */
-
-  /**
-   * Check if the any of the currently selected blocks are of `type`.
-   *
-   * @param {String} type
-   * @return {Boolean}
-   */
-
-  /**
-   * On change, save the new state.
-   *
-   * @param {State} state
-   */
-
-  /**
-   * On key down, if it's a formatting command toggle a mark.
-   *
-   * @param {Event} e
-   * @param {Object} data
-   * @param {State} state
-   * @return {State}
-   */
-
-  /**
-   * When a mark button is clicked, toggle the current mark.
-   *
-   * @param {Event} e
-   * @param {String} type
-   */
-
-  /**
-   * When a block button is clicked, toggle the block type.
-   *
-   * @param {Event} e
-   * @param {String} type
-   */
-
-  /**
-   * Render.
-   *
-   * @return {Element}
-   */
-
-  /**
-   * Render the toolbar.
-   *
-   * @return {Element}
-   */
-
-  /**
-   * Render a mark-toggling toolbar button.
-   *
-   * @param {String} type
-   * @param {String} icon
-   * @return {Element}
-   */
-
-  /**
-   * Render a block-toggling toolbar button.
-   *
-   * @param {String} type
-   * @param {String} icon
-   * @return {Element}
-   */
-
-  /**
-   * Render the Slate editor.
-   *
-   * @return {Element}
-   */
-
-  return Iframes;
-}(_react2.default.Component);
-
-exports.default = Iframes;
-
-},{"../..":9,"./state.json":60,"react":443,"react-dom":251,"react-frame-aware-selection-plugin":254,"react-frame-component":256}],60:[function(require,module,exports){
-module.exports={
-  "nodes": [
-    {
-      "kind": "block",
-      "type": "paragraph",
-      "nodes": [
-        {
-          "kind": "text",
-          "ranges": [
-            {
-              "text": "This is editable "
-            },
-            {
-              "text": "rich",
-              "marks": [
-                {
-                  "type": "bold"
-                },
-                {
-                  "type": "italic"
-                }
-              ]
-            },
-            {
-              "text": " text that is being styled by Bootstrap's CSS rules!"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "kind": "block",
-      "type": "paragraph",
-      "nodes": [
-        {
-          "kind": "text",
-          "ranges": [
-            {
-              "text": "Since it's rich text, you can do things like turn a selection of text "
-            },
-            {
-              "text": "bold",
-              "marks": [
-                {
-                  "type": "bold"
-                }
-              ]
-            },{
-              "text": ", or add a semantically rendered block quote in the middle of the page, like this:"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "kind": "block",
-      "type": "block-quote",
-      "nodes": [
-        {
-          "kind": "text",
-          "text": "A wise quote."
-        }
-      ]
-    },
-    {
-      "kind": "block",
-      "type": "paragraph",
-      "nodes": [
-        {
-          "kind": "text",
-          "text": "And since it's inside an iframe which loads Bootstrap's CSS, the content will automatically take on Bootstrap's style rules. For example, code blocks will look like Bootstrap code blocks do:"
-        }
-      ]
-    },
-    {
-      "kind": "block",
-      "type": "block-code",
-      "nodes": [
-        {
-          "kind": "text",
-          "text": "console.log('Hello world!');"
-        }
-      ]
-    },
-    {
-      "kind": "block",
-      "type": "paragraph",
-      "nodes": [
-        {
-          "kind": "text",
-          "text": "Try it out for yourself!"
-        }
-      ]
-    }
-  ]
-}
-
-},{}],61:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-var _ = require('../..');
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-var _reactDom = require('react-dom');
-
-var _reactDom2 = _interopRequireDefault(_reactDom);
-
-var _state = require('./state.json');
-
-var _state2 = _interopRequireDefault(_state);
-
-var _isImage = require('is-image');
-
-var _isImage2 = _interopRequireDefault(_isImage);
-
-var _isUrl = require('is-url');
-
-var _isUrl2 = _interopRequireDefault(_isUrl);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-/**
- * Define a schema.
- *
- * @type {Object}
- */
-
-var schema = {
-  nodes: {
-    image: function image(props) {
-      var node = props.node;
-      var state = props.state;
-
-      var isFocused = state.selection.hasEdgeIn(node);
-      var src = node.data.get('src');
-      var className = isFocused ? 'active' : null;
-      return _react2.default.createElement('img', _extends({ src: src, className: className }, props.attributes));
-    }
-  }
-};
-
-/**
- * The images example.
- *
- * @type {Component}
- */
-
-var Images = function (_React$Component) {
-  _inherits(Images, _React$Component);
-
-  function Images() {
-    var _ref;
-
-    var _temp, _this, _ret;
-
-    _classCallCheck(this, Images);
-
-    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-      args[_key] = arguments[_key];
-    }
-
-    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = Images.__proto__ || Object.getPrototypeOf(Images)).call.apply(_ref, [this].concat(args))), _this), _this.state = {
-      state: _.Raw.deserialize(_state2.default, { terse: true })
-    }, _this.render = function () {
-      return _react2.default.createElement(
-        'div',
-        null,
-        _this.renderToolbar(),
-        _this.renderEditor()
-      );
-    }, _this.renderToolbar = function () {
-      return _react2.default.createElement(
-        'div',
-        { className: 'menu toolbar-menu' },
-        _react2.default.createElement(
-          'span',
-          { className: 'button', onMouseDown: _this.onClickImage },
-          _react2.default.createElement(
-            'span',
-            { className: 'material-icons' },
-            'image'
-          )
-        )
-      );
-    }, _this.renderEditor = function () {
-      return _react2.default.createElement(
-        'div',
-        { className: 'editor' },
-        _react2.default.createElement(_.Editor, {
-          schema: schema,
-          state: _this.state.state,
-          onChange: _this.onChange,
-          onDocumentChange: _this.onDocumentChange,
-          onDrop: _this.onDrop,
-          onPaste: _this.onPaste
-        })
-      );
-    }, _this.onChange = function (state) {
-      _this.setState({ state: state });
-    }, _this.onDocumentChange = function (document, state) {
-      var blocks = document.getBlocks();
-      var last = blocks.last();
-      if (last.type != 'image') return;
-
-      var normalized = state.transform().collapseToEndOf(last).splitBlock().setBlock({
-        type: 'paragraph',
-        isVoid: false,
-        data: {}
-      }).apply({
-        snapshot: false
-      });
-
-      _this.onChange(normalized);
-    }, _this.onClickImage = function (e) {
-      e.preventDefault();
-      var src = window.prompt('Enter the URL of the image:');
-      if (!src) return;
-      var state = _this.state.state;
-
-      state = _this.insertImage(state, src);
-      _this.onChange(state);
-    }, _this.onDrop = function (e, data, state, editor) {
-      switch (data.type) {
-        case 'files':
-          return _this.onDropOrPasteFiles(e, data, state, editor);
-        case 'node':
-          return _this.onDropNode(e, data, state);
-      }
-    }, _this.onDropNode = function (e, data, state) {
-      return state.transform().unsetSelection().removeNodeByKey(data.node.key).moveTo(data.target).insertBlock(data.node).apply();
-    }, _this.onDropOrPasteFiles = function (e, data, state, editor) {
-      var _iteratorNormalCompletion = true;
-      var _didIteratorError = false;
-      var _iteratorError = undefined;
-
-      try {
-        var _loop = function _loop() {
-          var file = _step.value;
-
-          var reader = new FileReader();
-
-          var _file$type$split = file.type.split('/');
-
-          var _file$type$split2 = _slicedToArray(_file$type$split, 2);
-
-          var type = _file$type$split2[0];
-          var ext = _file$type$split2[1];
-
-          if (type != 'image') return 'continue';
-
-          reader.addEventListener('load', function () {
-            state = editor.getState();
-            state = _this.insertImage(state, reader.result);
-            editor.onChange(state);
-          });
-
-          reader.readAsDataURL(file);
-        };
-
-        for (var _iterator = data.files[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-          var _ret2 = _loop();
-
-          if (_ret2 === 'continue') continue;
-        }
-      } catch (err) {
-        _didIteratorError = true;
-        _iteratorError = err;
-      } finally {
-        try {
-          if (!_iteratorNormalCompletion && _iterator.return) {
-            _iterator.return();
-          }
-        } finally {
-          if (_didIteratorError) {
-            throw _iteratorError;
-          }
-        }
-      }
-    }, _this.onPaste = function (e, data, state, editor) {
-      switch (data.type) {
-        case 'files':
-          return _this.onDropOrPasteFiles(e, data, state, editor);
-        case 'text':
-          return _this.onPasteText(e, data, state);
-      }
-    }, _this.onPasteText = function (e, data, state) {
-      if (!(0, _isUrl2.default)(data.text)) return;
-      if (!(0, _isImage2.default)(data.text)) return;
-      return _this.insertImage(state, data.text);
-    }, _this.insertImage = function (state, src) {
-      return state.transform().insertBlock({
-        type: 'image',
-        isVoid: true,
-        data: { src: src }
-      }).apply();
-    }, _temp), _possibleConstructorReturn(_this, _ret);
-  }
-
-  /**
-   * Deserialize the raw initial state.
-   *
-   * @type {Object}
-   */
-
-  /**
-   * Render the app.
-   *
-   * @return {Element} element
-   */
-
-  /**
-   * Render the toolbar.
-   *
-   * @return {Element} element
-   */
-
-  /**
-   * Render the editor.
-   *
-   * @return {Element} element
-   */
-
-  /**
-   * On change.
-   *
-   * @param {State} state
-   */
-
-  /**
-   * On document change, if the last block is an image, add another paragraph.
-   *
-   * @param {Document} document
-   * @param {State} state
-   */
-
-  /**
-   * On clicking the image button, prompt for an image and insert it.
-   *
-   * @param {Event} e
-   */
-
-  /**
-   * On drop, insert the image wherever it is dropped.
-   *
-   * @param {Event} e
-   * @param {Object} data
-   * @param {State} state
-   * @param {Editor} editor
-   * @return {State}
-   */
-
-  /**
-   * On drop node, insert the node wherever it is dropped.
-   *
-   * @param {Event} e
-   * @param {Object} data
-   * @param {State} state
-   * @return {State}
-   */
-
-  /**
-   * On drop or paste files, read and insert the image files.
-   *
-   * @param {Event} e
-   * @param {Object} data
-   * @param {State} state
-   * @param {Editor} editor
-   * @return {State}
-   */
-
-  /**
-   * On paste, if the pasted content is an image URL, insert it.
-   *
-   * @param {Event} e
-   * @param {Object} data
-   * @param {State} state
-   * @param {Editor} editor
-   * @return {State}
-   */
-
-  /**
-   * On paste text, if the pasted content is an image URL, insert it.
-   *
-   * @param {Event} e
-   * @param {Object} data
-   * @param {State} state
-   * @return {State}
-   */
-
-  /**
-   * Insert an image with `src` at the current selection.
-   *
-   * @param {State} state
-   * @param {String} src
-   * @return {State}
-   */
-
-  return Images;
-}(_react2.default.Component);
-
-/**
- * Export.
- */
-
-exports.default = Images;
-
-},{"../..":9,"./state.json":62,"is-image":196,"is-url":197,"react":443,"react-dom":251}],62:[function(require,module,exports){
-module.exports={
-  "nodes": [
-    {
-      "kind": "block",
-      "type": "paragraph",
-      "nodes": [
-        {
-          "kind": "text",
-          "text": "In addition to nodes that contain editable text, you can also create other types of nodes, like images or videos."
-        }
-      ]
-    },
-    {
-      "kind": "block",
-      "type": "image",
-      "isVoid": true,
-      "data": {
-        "src": "https://img.washingtonpost.com/wp-apps/imrs.php?src=https://img.washingtonpost.com/news/speaking-of-science/wp-content/uploads/sites/36/2015/10/as12-49-7278-1024x1024.jpg&w=1484"
-      }
-    },
-    {
-      "kind": "block",
-      "type": "paragraph",
-      "nodes": [
-        {
-          "kind": "text",
-          "text": "This example shows images in action. It features two ways to add images. You can either add an image via the toolbar icon above, or if you want in on a little secret, copy an image URL to your keyboard and paste it anywhere in the editor!"
-        }
-      ]
-    }
-  ]
-}
-
-},{}],63:[function(require,module,exports){
-'use strict';
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-var _reactDom = require('react-dom');
-
-var _reactDom2 = _interopRequireDefault(_reactDom);
-
-var _reactRouter = require('react-router');
-
-var _autoMarkdown = require('./auto-markdown');
-
-var _autoMarkdown2 = _interopRequireDefault(_autoMarkdown);
-
-var _codeHighlighting = require('./code-highlighting');
-
-var _codeHighlighting2 = _interopRequireDefault(_codeHighlighting);
-
-var _embeds = require('./embeds');
-
-var _embeds2 = _interopRequireDefault(_embeds);
-
-var _hoveringMenu = require('./hovering-menu');
-
-var _hoveringMenu2 = _interopRequireDefault(_hoveringMenu);
-
-var _iframes = require('./iframes');
-
-var _iframes2 = _interopRequireDefault(_iframes);
-
-var _images = require('./images');
-
-var _images2 = _interopRequireDefault(_images);
-
-var _links = require('./links');
-
-var _links2 = _interopRequireDefault(_links);
-
-var _pasteHtml = require('./paste-html');
-
-var _pasteHtml2 = _interopRequireDefault(_pasteHtml);
-
-var _plainText = require('./plain-text');
-
-var _plainText2 = _interopRequireDefault(_plainText);
-
-var _plugins = require('./plugins');
-
-var _plugins2 = _interopRequireDefault(_plugins);
-
-var _rtl = require('./rtl');
-
-var _rtl2 = _interopRequireDefault(_rtl);
-
-var _readOnly = require('./read-only');
-
-var _readOnly2 = _interopRequireDefault(_readOnly);
-
-var _richText = require('./rich-text');
-
-var _richText2 = _interopRequireDefault(_richText);
-
-var _tables = require('./tables');
-
-var _tables2 = _interopRequireDefault(_tables);
-
-var _performancePlain = require('./development/performance-plain');
-
-var _performancePlain2 = _interopRequireDefault(_performancePlain);
-
-var _performanceRich = require('./development/performance-rich');
-
-var _performanceRich2 = _interopRequireDefault(_performanceRich);
-
-var _reactAddonsPerf = require('react-addons-perf');
-
-var _reactAddonsPerf2 = _interopRequireDefault(_reactAddonsPerf);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-/**
- * Examples.
- */
-
-/**
- * Perf.
- */
-
-window.Perf = _reactAddonsPerf2.default;
-
-/**
- * Define our example app.
- *
- * @type {Component} App
- */
-
-var App = function (_React$Component) {
-  _inherits(App, _React$Component);
-
-  function App() {
-    _classCallCheck(this, App);
-
-    return _possibleConstructorReturn(this, (App.__proto__ || Object.getPrototypeOf(App)).apply(this, arguments));
-  }
-
-  _createClass(App, [{
-    key: 'render',
-
-
-    /**
-     * Render the example app.
-     *
-     * @return {Element} element
-     */
-
-    value: function render() {
-      return _react2.default.createElement(
-        'div',
-        { className: 'app' },
-        this.renderTabBar(),
-        this.renderExample()
-      );
-    }
-
-    /**
-     * Render the tab bar.
-     *
-     * @return {Element} element
-     */
-
-  }, {
-    key: 'renderTabBar',
-    value: function renderTabBar() {
-      return _react2.default.createElement(
-        'div',
-        { className: 'tabs' },
-        this.renderTab('Rich Text', 'rich-text'),
-        this.renderTab('Plain Text', 'plain-text'),
-        this.renderTab('Auto-markdown', 'auto-markdown'),
-        this.renderTab('Hovering Menu', 'hovering-menu'),
-        this.renderTab('Links', 'links'),
-        this.renderTab('Images', 'images'),
-        this.renderTab('Embeds', 'embeds'),
-        this.renderTab('Tables', 'tables'),
-        this.renderTab('Code Highlighting', 'code-highlighting'),
-        this.renderTab('Paste HTML', 'paste-html'),
-        this.renderTab('Read-only', 'read-only'),
-        this.renderTab('RTL', 'rtl'),
-        this.renderTab('Plugins', 'plugins'),
-        this.renderTab('Iframes', 'iframes')
-      );
-    }
-
-    /**
-     * Render a tab with `name` and `slug`.
-     *
-     * @param {String} name
-     * @param {String} slug
-     */
-
-  }, {
-    key: 'renderTab',
-    value: function renderTab(name, slug) {
-      return _react2.default.createElement(
-        _reactRouter.Link,
-        { className: 'tab', activeClassName: 'active', to: slug },
-        name
-      );
-    }
-
-    /**
-     * Render the example.
-     *
-     * @return {Element} element
-     */
-
-  }, {
-    key: 'renderExample',
-    value: function renderExample() {
-      return _react2.default.createElement(
-        'div',
-        { className: 'example' },
-        this.props.children
-      );
-    }
-  }]);
-
-  return App;
-}(_react2.default.Component);
-
-/**
- * Router.
- *
- * @type {Element} router
- */
-
-var router = _react2.default.createElement(
-  _reactRouter.Router,
-  { history: _reactRouter.hashHistory },
-  _react2.default.createElement(
-    _reactRouter.Route,
-    { path: '/', component: App },
-    _react2.default.createElement(_reactRouter.IndexRedirect, { to: 'rich-text' }),
-    _react2.default.createElement(_reactRouter.Route, { path: 'auto-markdown', component: _autoMarkdown2.default }),
-    _react2.default.createElement(_reactRouter.Route, { path: 'code-highlighting', component: _codeHighlighting2.default }),
-    _react2.default.createElement(_reactRouter.Route, { path: 'embeds', component: _embeds2.default }),
-    _react2.default.createElement(_reactRouter.Route, { path: 'hovering-menu', component: _hoveringMenu2.default }),
-    _react2.default.createElement(_reactRouter.Route, { path: 'iframes', component: _iframes2.default }),
-    _react2.default.createElement(_reactRouter.Route, { path: 'images', component: _images2.default }),
-    _react2.default.createElement(_reactRouter.Route, { path: 'links', component: _links2.default }),
-    _react2.default.createElement(_reactRouter.Route, { path: 'paste-html', component: _pasteHtml2.default }),
-    _react2.default.createElement(_reactRouter.Route, { path: 'plain-text', component: _plainText2.default }),
-    _react2.default.createElement(_reactRouter.Route, { path: 'plugins', component: _plugins2.default }),
-    _react2.default.createElement(_reactRouter.Route, { path: 'read-only', component: _readOnly2.default }),
-    _react2.default.createElement(_reactRouter.Route, { path: 'rich-text', component: _richText2.default }),
-    _react2.default.createElement(_reactRouter.Route, { path: 'rtl', component: _rtl2.default }),
-    _react2.default.createElement(_reactRouter.Route, { path: 'tables', component: _tables2.default }),
-    _react2.default.createElement(_reactRouter.Route, { path: 'dev-performance-plain', component: _performancePlain2.default }),
-    _react2.default.createElement(_reactRouter.Route, { path: 'dev-performance-rich', component: _performanceRich2.default })
-  )
-);
-
-/**
- * Mount the router.
- */
-
-var root = document.body.querySelector('main');
-_reactDom2.default.render(router, root);
-
-},{"./auto-markdown":46,"./code-highlighting":48,"./development/performance-plain":50,"./development/performance-rich":52,"./embeds":54,"./hovering-menu":57,"./iframes":59,"./images":61,"./links":64,"./paste-html":66,"./plain-text":68,"./plugins":69,"./read-only":70,"./rich-text":71,"./rtl":73,"./tables":75,"react":443,"react-addons-perf":250,"react-dom":251,"react-router":287}],64:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-var _ = require('../..');
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-var _reactDom = require('react-dom');
-
-var _reactDom2 = _interopRequireDefault(_reactDom);
-
-var _state = require('./state.json');
-
-var _state2 = _interopRequireDefault(_state);
-
-var _isUrl = require('is-url');
-
-var _isUrl2 = _interopRequireDefault(_isUrl);
-
-var _immutable = require('immutable');
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-/**
- * Define a schema.
- *
- * @type {Object}
- */
-
-var schema = {
-  nodes: {
-    paragraph: function paragraph(props) {
-      return _react2.default.createElement(
-        'p',
-        null,
-        props.children
-      );
-    },
-    link: function link(props) {
-      var data = props.node.data;
-
-      var href = data.get('href');
-      return _react2.default.createElement(
-        'a',
-        _extends({}, props.attributes, { href: href }),
-        props.children
-      );
-    }
-  }
-};
-
-/**
- * The links example.
- *
- * @type {Component}
- */
-
-var Links = function (_React$Component) {
-  _inherits(Links, _React$Component);
-
-  function Links() {
-    var _ref;
-
-    var _temp, _this, _ret;
-
-    _classCallCheck(this, Links);
-
-    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-      args[_key] = arguments[_key];
-    }
-
-    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = Links.__proto__ || Object.getPrototypeOf(Links)).call.apply(_ref, [this].concat(args))), _this), _this.state = {
-      state: _.Raw.deserialize(_state2.default, { terse: true })
-    }, _this.hasLinks = function () {
-      var state = _this.state.state;
-
-      return state.inlines.some(function (inline) {
-        return inline.type == 'link';
-      });
-    }, _this.onChange = function (state) {
-      _this.setState({ state: state });
-    }, _this.onClickLink = function (e) {
-      e.preventDefault();
-      var state = _this.state.state;
-
-      var hasLinks = _this.hasLinks();
-
-      if (hasLinks) {
-        state = state.transform().unwrapInline('link').apply();
-      } else if (state.isExpanded) {
-        var href = window.prompt('Enter the URL of the link:');
-        state = state.transform().wrapInline({
-          type: 'link',
-          data: { href: href }
-        }).collapseToEnd().apply();
-      } else {
-        var _href = window.prompt('Enter the URL of the link:');
-        var text = window.prompt('Enter the text for the link:');
-        state = state.transform().insertText(text).extendBackward(text.length).wrapInline({
-          type: 'link',
-          data: { href: _href }
-        }).collapseToEnd().apply();
-      }
-
-      _this.setState({ state: state });
-    }, _this.onPaste = function (e, data, state) {
-      if (state.isCollapsed) return;
-      if (data.type != 'text' && data.type != 'html') return;
-      if (!(0, _isUrl2.default)(data.text)) return;
-
-      var transform = state.transform();
-
-      if (_this.hasLinks()) {
-        transform = transform.unwrapInline('link');
-      }
-
-      return transform.wrapInline({
-        type: 'link',
-        data: {
-          href: data.text
-        }
-      }).collapseToEnd().apply();
-    }, _this.render = function () {
-      return _react2.default.createElement(
-        'div',
-        null,
-        _this.renderToolbar(),
-        _this.renderEditor()
-      );
-    }, _this.renderToolbar = function () {
-      var hasLinks = _this.hasLinks();
-      return _react2.default.createElement(
-        'div',
-        { className: 'menu toolbar-menu' },
-        _react2.default.createElement(
-          'span',
-          { className: 'button', onMouseDown: _this.onClickLink, 'data-active': hasLinks },
-          _react2.default.createElement(
-            'span',
-            { className: 'material-icons' },
-            'link'
-          )
-        )
-      );
-    }, _this.renderEditor = function () {
-      return _react2.default.createElement(
-        'div',
-        { className: 'editor' },
-        _react2.default.createElement(_.Editor, {
-          schema: schema,
-          state: _this.state.state,
-          onChange: _this.onChange,
-          onPaste: _this.onPaste
-        })
-      );
-    }, _temp), _possibleConstructorReturn(_this, _ret);
-  }
-
-  /**
-   * Deserialize the raw initial state.
-   *
-   * @type {Object}
-   */
-
-  /**
-   * Check whether the current selection has a link in it.
-   *
-   * @return {Boolean} hasLinks
-   */
-
-  /**
-   * On change.
-   *
-   * @param {State} state
-   */
-
-  /**
-   * When clicking a link, if the selection has a link in it, remove the link.
-   * Otherwise, add a new link with an href and text.
-   *
-   * @param {Event} e
-   */
-
-  /**
-   * On paste, if the text is a link, wrap the selection in a link.
-   *
-   * @param {Event} e
-   * @param {Object} data
-   * @param {State} state
-   */
-
-  /**
-   * Render the app.
-   *
-   * @return {Element} element
-   */
-
-  /**
-   * Render the toolbar.
-   *
-   * @return {Element} element
-   */
-
-  /**
-   * Render the editor.
-   *
-   * @return {Element} element
-   */
-
-  return Links;
-}(_react2.default.Component);
-
-/**
- * Export.
- */
-
-exports.default = Links;
-
-},{"../..":9,"./state.json":65,"immutable":191,"is-url":197,"react":443,"react-dom":251}],65:[function(require,module,exports){
-module.exports={
-  "nodes": [
-    {
-      "kind": "block",
-      "type": "paragraph",
-      "nodes": [
-        {
-          "kind": "text",
-          "text": "In addition to block nodes, you can create inline nodes, like "
-        },
-        {
-          "kind": "inline",
-          "type": "link",
-          "data": {
-            "href": "https://en.wikipedia.org/wiki/Hypertext"
-          },
-          "nodes": [
-            {
-              "kind": "text",
-              "text": "hyperlinks"
-            },
-          ]
-        },
-        {
-          "kind": "text",
-          "text": "!"
-        }
-      ]
-    },
-    {
-      "kind": "block",
-      "type": "paragraph",
-      "nodes": [
-        {
-          "kind": "text",
-          "text": "This example shows hyperlinks in action. It features two ways to add links. You can either add a link via the toolbar icon above, or if you want in on a little secret, copy a URL to your keyboard and paste it while a range of text is selected."
-        }
-      ]
-    }
-  ]
-}
-
-},{}],66:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-var _ = require('../..');
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-var _state = require('./state.json');
-
-var _state2 = _interopRequireDefault(_state);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-/**
- * Define a schema.
- *
- * @type {Object}
- */
-
-var schema = {
-  nodes: {
-    'bulleted-list': function bulletedList(props) {
-      return _react2.default.createElement(
-        'ul',
-        props.attributes,
-        props.children
-      );
-    },
-    'code': function code(props) {
-      return _react2.default.createElement(
-        'pre',
-        null,
-        _react2.default.createElement(
-          'code',
-          props.attributes,
-          props.children
-        )
-      );
-    },
-    'heading-one': function headingOne(props) {
-      return _react2.default.createElement(
-        'h1',
-        props.attributes,
-        props.children
-      );
-    },
-    'heading-two': function headingTwo(props) {
-      return _react2.default.createElement(
-        'h2',
-        props.attributes,
-        props.children
-      );
-    },
-    'heading-three': function headingThree(props) {
-      return _react2.default.createElement(
-        'h3',
-        props.attributes,
-        props.children
-      );
-    },
-    'heading-four': function headingFour(props) {
-      return _react2.default.createElement(
-        'h4',
-        props.attributes,
-        props.children
-      );
-    },
-    'heading-five': function headingFive(props) {
-      return _react2.default.createElement(
-        'h5',
-        props.attributes,
-        props.children
-      );
-    },
-    'heading-six': function headingSix(props) {
-      return _react2.default.createElement(
-        'h6',
-        props.attributes,
-        props.children
-      );
-    },
-    'list-item': function listItem(props) {
-      return _react2.default.createElement(
-        'li',
-        props.attributes,
-        props.children
-      );
-    },
-    'numbered-list': function numberedList(props) {
-      return _react2.default.createElement(
-        'ol',
-        props.attributes,
-        props.children
-      );
-    },
-    'quote': function quote(props) {
-      return _react2.default.createElement(
-        'blockquote',
-        props.attributes,
-        props.children
-      );
-    },
-    'link': function link(props) {
-      var data = props.node.data;
-
-      var href = data.get('href');
-      return _react2.default.createElement(
-        'a',
-        _extends({ href: href }, props.attributes),
-        props.children
-      );
-    }
-  },
-  marks: {
-    bold: function bold(props) {
-      return _react2.default.createElement(
-        'strong',
-        null,
-        props.children
-      );
-    },
-    code: function code(props) {
-      return _react2.default.createElement(
-        'code',
-        null,
-        props.children
-      );
-    },
-    italic: function italic(props) {
-      return _react2.default.createElement(
-        'em',
-        null,
-        props.children
-      );
-    },
-    underlined: function underlined(props) {
-      return _react2.default.createElement(
-        'u',
-        null,
-        props.children
-      );
-    }
-  }
-};
-
-/**
- * Tags to blocks.
- *
- * @type {Object}
- */
-
-var BLOCK_TAGS = {
-  p: 'paragraph',
-  li: 'list-item',
-  ul: 'bulleted-list',
-  ol: 'numbered-list',
-  blockquote: 'quote',
-  pre: 'code',
-  h1: 'heading-one',
-  h2: 'heading-two',
-  h3: 'heading-three',
-  h4: 'heading-four',
-  h5: 'heading-five',
-  h6: 'heading-six'
-};
-
-/**
- * Tags to marks.
- *
- * @type {Object}
- */
-
-var MARK_TAGS = {
-  strong: 'bold',
-  em: 'italic',
-  u: 'underline',
-  s: 'strikethrough',
-  code: 'code'
-};
-
-/**
- * Serializer rules.
- *
- * @type {Array}
- */
-
-var RULES = [{
-  deserialize: function deserialize(el, next) {
-    var block = BLOCK_TAGS[el.tagName];
-    if (!block) return;
-    return {
-      kind: 'block',
-      type: block,
-      nodes: next(el.children)
-    };
-  }
-}, {
-  deserialize: function deserialize(el, next) {
-    var mark = MARK_TAGS[el.tagName];
-    if (!mark) return;
-    return {
-      kind: 'mark',
-      type: mark,
-      nodes: next(el.children)
-    };
-  }
-}, {
-  // Special case for code blocks, which need to grab the nested children.
-  deserialize: function deserialize(el, next) {
-    if (el.tagName != 'pre') return;
-    var code = el.children[0];
-    var children = code && code.tagName == 'code' ? code.children : el.children;
-
-    return {
-      kind: 'block',
-      type: 'code',
-      nodes: next(children)
-    };
-  }
-}, {
-  // Special case for links, to grab their href.
-  deserialize: function deserialize(el, next) {
-    if (el.tagName != 'a') return;
-    return {
-      kind: 'inline',
-      type: 'link',
-      nodes: next(el.children),
-      data: {
-        href: el.attribs.href
-      }
-    };
-  }
-}];
-
-/**
- * Create a new HTML serializer with `RULES`.
- *
- * @type {Html}
- */
-
-var serializer = new _.Html({ rules: RULES });
-
-/**
- * The pasting html example.
- *
- * @type {Component}
- */
-
-var PasteHtml = function (_React$Component) {
-  _inherits(PasteHtml, _React$Component);
-
-  function PasteHtml() {
-    var _ref;
-
-    var _temp, _this, _ret;
-
-    _classCallCheck(this, PasteHtml);
-
-    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-      args[_key] = arguments[_key];
-    }
-
-    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = PasteHtml.__proto__ || Object.getPrototypeOf(PasteHtml)).call.apply(_ref, [this].concat(args))), _this), _this.state = {
-      state: _.Raw.deserialize(_state2.default, { terse: true })
-    }, _this.onChange = function (state) {
-      _this.setState({ state: state });
-    }, _this.onPaste = function (e, data, state) {
-      if (data.type != 'html') return;
-
-      var _serializer$deseriali = serializer.deserialize(data.html);
-
-      var document = _serializer$deseriali.document;
-
-
-      return state.transform().insertFragment(document).apply();
-    }, _this.render = function () {
-      return _react2.default.createElement(
-        'div',
-        { className: 'editor' },
-        _react2.default.createElement(_.Editor, {
-          schema: schema,
-          state: _this.state.state,
-          onPaste: _this.onPaste,
-          onChange: _this.onChange
-        })
-      );
-    }, _temp), _possibleConstructorReturn(_this, _ret);
-  }
-
-  /**
-   * Deserialize the raw initial state.
-   *
-   * @type {Object}
-   */
-
-  /**
-   * On change, save the new state.
-   *
-   * @param {State} state
-   */
-
-  /**
-   * On paste, deserialize the HTML and then insert the fragment.
-   *
-   * @param {Event} e
-   * @param {Object} data
-   * @param {State} state
-   */
-
-  /**
-   * Render.
-   *
-   * @return {Component}
-   */
-
-  return PasteHtml;
-}(_react2.default.Component);
-
-/**
- * Export.
- */
-
-exports.default = PasteHtml;
-
-},{"../..":9,"./state.json":67,"react":443}],67:[function(require,module,exports){
-module.exports={
-  "nodes": [
-    {
-      "kind": "block",
-      "type": "paragraph",
-      "nodes": [
-        {
-          "kind": "text",
-          "text": "By default, pasting content into a Slate editor will use the content's plain text representation. This is fine for some use cases, but sometimes you want to actually be able to paste in content and have it parsed into blocks and links and things. To do this, you need to add a parser that triggers on paste. This is an example of doing exactly that!"
-        }
-      ]
-    },
-    {
-      "kind": "block",
-      "type": "paragraph",
-      "nodes": [
-        {
-          "kind": "text",
-          "text": "Try it out for yourself! Copy and paste some HTML content from another site into this editor."
-        }
-      ]
-    }
-  ]
-}
-
-},{}],68:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _ = require('../..');
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-/**
- * The plain text example.
- *
- * @type {Component}
- */
-
-var PlainText = function (_React$Component) {
-  _inherits(PlainText, _React$Component);
-
-  function PlainText() {
-    var _ref;
-
-    var _temp, _this, _ret;
-
-    _classCallCheck(this, PlainText);
-
-    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-      args[_key] = arguments[_key];
-    }
-
-    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = PlainText.__proto__ || Object.getPrototypeOf(PlainText)).call.apply(_ref, [this].concat(args))), _this), _this.state = {
-      state: _.Plain.deserialize('This is editable plain text, just like a <textarea>!')
-    }, _this.onChange = function (state) {
-      _this.setState({ state: state });
-    }, _this.render = function () {
-      return _react2.default.createElement(_.Editor, {
-        placeholder: 'Enter some plain text...',
-        state: _this.state.state,
-        onChange: _this.onChange
-      });
-    }, _temp), _possibleConstructorReturn(_this, _ret);
-  }
-
-  /**
-   * Deserialize the initial editor state.
-   *
-   * @type {Object}
-   */
-
-  /**
-   * On change.
-   *
-   * @param {State} state
-   */
-
-  /**
-   * Render the editor.
-   *
-   * @return {Component} component
-   */
-
-  return PlainText;
-}(_react2.default.Component);
-
-/**
- * Export.
- */
-
-exports.default = PlainText;
-
-},{"../..":9,"react":443}],69:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _ = require('../..');
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-var _slateAutoReplaceText = require('slate-auto-replace-text');
-
-var _slateAutoReplaceText2 = _interopRequireDefault(_slateAutoReplaceText);
-
-var _slateCollapseOnEscape = require('slate-collapse-on-escape');
-
-var _slateCollapseOnEscape2 = _interopRequireDefault(_slateCollapseOnEscape);
-
-var _slateSoftBreak = require('slate-soft-break');
-
-var _slateSoftBreak2 = _interopRequireDefault(_slateSoftBreak);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-/**
- * Plugins.
- */
-
-var plugins = [(0, _slateAutoReplaceText2.default)('(c)', '©'), (0, _slateAutoReplaceText2.default)('(r)', '®'), (0, _slateAutoReplaceText2.default)('(tm)', '™'), (0, _slateCollapseOnEscape2.default)(), (0, _slateSoftBreak2.default)()];
-
-/**
- * The plugins example.
- *
- * @type {Component}
- */
-
-var Plugins = function (_React$Component) {
-  _inherits(Plugins, _React$Component);
-
-  function Plugins() {
-    var _ref;
-
-    var _temp, _this, _ret;
-
-    _classCallCheck(this, Plugins);
-
-    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-      args[_key] = arguments[_key];
-    }
-
-    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = Plugins.__proto__ || Object.getPrototypeOf(Plugins)).call.apply(_ref, [this].concat(args))), _this), _this.state = {
-      state: _.Plain.deserialize('This example shows how you can extend Slate with plugins! It uses three fairly simple plugins, but you can use any plugins you want, or write your own!\n\nThe first is an "auto replacer". Try typing "(c)" and you\'ll see it turn into a copyright symbol automatically!\n\nThe second is a simple plugin to collapse the selection whenever the escape key is pressed. Try selecting some text and pressing escape.\n\nAnd the third is another simple plugin that inserts a "soft" break when enter is pressed instead of creating a new block. Try pressing enter!')
-    }, _this.onChange = function (state) {
-      _this.setState({ state: state });
-    }, _this.render = function () {
-      return _react2.default.createElement(_.Editor, {
-        placeholder: 'Enter some text...',
-        plugins: plugins,
-        state: _this.state.state,
-        onChange: _this.onChange
-      });
-    }, _temp), _possibleConstructorReturn(_this, _ret);
-  }
-
-  /**
-   * Deserialize the initial editor state.
-   *
-   * @type {Object}
-   */
-
-  /**
-   * On change.
-   *
-   * @param {State} state
-   */
-
-  /**
-   * Render the editor.
-   *
-   * @return {Component} component
-   */
-
-  return Plugins;
-}(_react2.default.Component);
-
-/**
- * Export.
- */
-
-exports.default = Plugins;
-
-},{"../..":9,"react":443,"slate-auto-replace-text":456,"slate-collapse-on-escape":457,"slate-soft-break":458}],70:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _ = require('../..');
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-/**
- * The read-only example.
- *
- * @type {Component}
- */
-
-var ReadOnly = function (_React$Component) {
-  _inherits(ReadOnly, _React$Component);
-
-  function ReadOnly() {
-    var _ref;
-
-    var _temp, _this, _ret;
-
-    _classCallCheck(this, ReadOnly);
-
-    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-      args[_key] = arguments[_key];
-    }
-
-    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = ReadOnly.__proto__ || Object.getPrototypeOf(ReadOnly)).call.apply(_ref, [this].concat(args))), _this), _this.state = {
-      state: _.Plain.deserialize('This is read-only text. You should not be able to edit it, which is useful for scenarios where you want to render via Slate, without giving the user editing permissions.')
-    }, _this.onChange = function (state) {
-      _this.setState({ state: state });
-    }, _this.render = function () {
-      return _react2.default.createElement(_.Editor, {
-        readOnly: true,
-        placeholder: 'Enter some text...',
-        state: _this.state.state,
-        onChange: _this.onChange
-      });
-    }, _temp), _possibleConstructorReturn(_this, _ret);
-  }
-
-  /**
-   * Deserialize the initial editor state.
-   *
-   * @type {Object}
-   */
-
-  /**
-   * On change.
-   *
-   * @param {State} state
-   */
-
-  /**
-   * Render the editor.
-   *
-   * @return {Component} component
-   */
-
-  return ReadOnly;
-}(_react2.default.Component);
-
-/**
- * Export.
- */
-
-exports.default = ReadOnly;
-
-},{"../..":9,"react":443}],71:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _ = require('../..');
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-var _state2 = require('./state.json');
-
-var _state3 = _interopRequireDefault(_state2);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-/**
- * Define the default node type.
- */
-
-var DEFAULT_NODE = 'paragraph';
-
-/**
- * Define a schema.
- *
- * @type {Object}
- */
-
-var schema = {
-  nodes: {
-    'block-quote': function blockQuote(props) {
-      return _react2.default.createElement(
-        'blockquote',
-        props.attributes,
-        props.children
-      );
-    },
-    'bulleted-list': function bulletedList(props) {
-      return _react2.default.createElement(
-        'ul',
-        props.attributes,
-        props.children
-      );
-    },
-    'heading-one': function headingOne(props) {
-      return _react2.default.createElement(
-        'h1',
-        props.attributes,
-        props.children
-      );
-    },
-    'heading-two': function headingTwo(props) {
-      return _react2.default.createElement(
-        'h2',
-        props.attributes,
-        props.children
-      );
-    },
-    'list-item': function listItem(props) {
-      return _react2.default.createElement(
-        'li',
-        props.attributes,
-        props.children
-      );
-    },
-    'numbered-list': function numberedList(props) {
-      return _react2.default.createElement(
-        'ol',
-        props.attributes,
-        props.children
-      );
-    }
-  },
-  marks: {
-    bold: {
-      fontWeight: 'bold'
-    },
-    code: {
-      fontFamily: 'monospace',
-      backgroundColor: '#eee',
-      padding: '3px',
-      borderRadius: '4px'
-    },
-    italic: {
-      fontStyle: 'italic'
-    },
-    underlined: {
-      textDecoration: 'underline'
-    }
-  }
-};
-
-/**
- * The rich text example.
- *
- * @type {Component}
- */
-
-var RichText = function (_React$Component) {
-  _inherits(RichText, _React$Component);
-
-  function RichText() {
-    var _ref;
-
-    var _temp, _this, _ret;
-
-    _classCallCheck(this, RichText);
-
-    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-      args[_key] = arguments[_key];
-    }
-
-    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = RichText.__proto__ || Object.getPrototypeOf(RichText)).call.apply(_ref, [this].concat(args))), _this), _this.state = {
-      state: _.Raw.deserialize(_state3.default, { terse: true })
-    }, _this.hasMark = function (type) {
-      var state = _this.state.state;
-
-      return state.marks.some(function (mark) {
-        return mark.type == type;
-      });
-    }, _this.hasBlock = function (type) {
-      var state = _this.state.state;
-
-      return state.blocks.some(function (node) {
-        return node.type == type;
-      });
-    }, _this.onChange = function (state) {
-      _this.setState({ state: state });
-    }, _this.onKeyDown = function (e, data, state) {
-      if (!data.isMod) return;
-      var mark = void 0;
-
-      switch (data.key) {
-        case 'b':
-          mark = 'bold';
-          break;
-        case 'i':
-          mark = 'italic';
-          break;
-        case 'u':
-          mark = 'underlined';
-          break;
-        case '`':
-          mark = 'code';
-          break;
-        default:
-          return;
-      }
-
-      state = state.transform().toggleMark(mark).apply();
-
-      e.preventDefault();
-      return state;
-    }, _this.onClickMark = function (e, type) {
-      e.preventDefault();
-      var state = _this.state.state;
-
-
-      state = state.transform().toggleMark(type).apply();
-
-      _this.setState({ state: state });
-    }, _this.onClickBlock = function (e, type) {
-      e.preventDefault();
-      var state = _this.state.state;
-
-      var transform = state.transform();
-      var _state = state;
-      var document = _state.document;
-
-      // Handle everything but list buttons.
-
-      if (type != 'bulleted-list' && type != 'numbered-list') {
-        var isActive = _this.hasBlock(type);
-        var isList = _this.hasBlock('list-item');
-
-        if (isList) {
-          transform = transform.setBlock(isActive ? DEFAULT_NODE : type).unwrapBlock('bulleted-list').unwrapBlock('numbered-list');
-        } else {
-          transform = transform.setBlock(isActive ? DEFAULT_NODE : type);
-        }
-      }
-
-      // Handle the extra wrapping required for list buttons.
-      else {
-          var _isList = _this.hasBlock('list-item');
-          var isType = state.blocks.some(function (block) {
-            return !!document.getClosest(block, function (parent) {
-              return parent.type == type;
-            });
-          });
-
-          if (_isList && isType) {
-            transform = transform.setBlock(DEFAULT_NODE).unwrapBlock('bulleted-list').unwrapBlock('numbered-list');
-          } else if (_isList) {
-            transform = transform.unwrapBlock(type == 'bulleted-list' ? 'numbered-list' : 'bulleted-list').wrapBlock(type);
-          } else {
-            transform = transform.setBlock('list-item').wrapBlock(type);
-          }
-        }
-
-      state = transform.apply();
-      _this.setState({ state: state });
-    }, _this.render = function () {
-      return _react2.default.createElement(
-        'div',
-        null,
-        _this.renderToolbar(),
-        _this.renderEditor()
-      );
-    }, _this.renderToolbar = function () {
-      return _react2.default.createElement(
-        'div',
-        { className: 'menu toolbar-menu' },
-        _this.renderMarkButton('bold', 'format_bold'),
-        _this.renderMarkButton('italic', 'format_italic'),
-        _this.renderMarkButton('underlined', 'format_underlined'),
-        _this.renderMarkButton('code', 'code'),
-        _this.renderBlockButton('heading-one', 'looks_one'),
-        _this.renderBlockButton('heading-two', 'looks_two'),
-        _this.renderBlockButton('block-quote', 'format_quote'),
-        _this.renderBlockButton('numbered-list', 'format_list_numbered'),
-        _this.renderBlockButton('bulleted-list', 'format_list_bulleted')
-      );
-    }, _this.renderMarkButton = function (type, icon) {
-      var isActive = _this.hasMark(type);
-      var onMouseDown = function onMouseDown(e) {
-        return _this.onClickMark(e, type);
-      };
-
-      return _react2.default.createElement(
-        'span',
-        { className: 'button', onMouseDown: onMouseDown, 'data-active': isActive },
-        _react2.default.createElement(
-          'span',
-          { className: 'material-icons' },
-          icon
-        )
-      );
-    }, _this.renderBlockButton = function (type, icon) {
-      var isActive = _this.hasBlock(type);
-      var onMouseDown = function onMouseDown(e) {
-        return _this.onClickBlock(e, type);
-      };
-
-      return _react2.default.createElement(
-        'span',
-        { className: 'button', onMouseDown: onMouseDown, 'data-active': isActive },
-        _react2.default.createElement(
-          'span',
-          { className: 'material-icons' },
-          icon
-        )
-      );
-    }, _this.renderEditor = function () {
-      return _react2.default.createElement(
-        'div',
-        { className: 'editor' },
-        _react2.default.createElement(_.Editor, {
-          placeholder: 'Enter some rich text...',
-          schema: schema,
-          state: _this.state.state,
-          onChange: _this.onChange,
-          onKeyDown: _this.onKeyDown
-        })
-      );
-    }, _temp), _possibleConstructorReturn(_this, _ret);
-  }
-
-  /**
-   * Deserialize the initial editor state.
-   *
-   * @type {Object}
-   */
-
-  /**
-   * Check if the current selection has a mark with `type` in it.
-   *
-   * @param {String} type
-   * @return {Boolean}
-   */
-
-  /**
-   * Check if the any of the currently selected blocks are of `type`.
-   *
-   * @param {String} type
-   * @return {Boolean}
-   */
-
-  /**
-   * On change, save the new state.
-   *
-   * @param {State} state
-   */
-
-  /**
-   * On key down, if it's a formatting command toggle a mark.
-   *
-   * @param {Event} e
-   * @param {Object} data
-   * @param {State} state
-   * @return {State}
-   */
-
-  /**
-   * When a mark button is clicked, toggle the current mark.
-   *
-   * @param {Event} e
-   * @param {String} type
-   */
-
-  /**
-   * When a block button is clicked, toggle the block type.
-   *
-   * @param {Event} e
-   * @param {String} type
-   */
-
-  /**
-   * Render.
-   *
-   * @return {Element}
-   */
-
-  /**
-   * Render the toolbar.
-   *
-   * @return {Element}
-   */
-
-  /**
-   * Render a mark-toggling toolbar button.
-   *
-   * @param {String} type
-   * @param {String} icon
-   * @return {Element}
-   */
-
-  /**
-   * Render a block-toggling toolbar button.
-   *
-   * @param {String} type
-   * @param {String} icon
-   * @return {Element}
-   */
-
-  /**
-   * Render the Slate editor.
-   *
-   * @return {Element}
-   */
-
-  return RichText;
-}(_react2.default.Component);
-
-/**
- * Export.
- */
-
-exports.default = RichText;
-
-},{"../..":9,"./state.json":72,"react":443}],72:[function(require,module,exports){
-arguments[4][53][0].apply(exports,arguments)
-},{"dup":53}],73:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _ = require('../..');
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-var _slateSoftBreak = require('slate-soft-break');
-
-var _slateSoftBreak2 = _interopRequireDefault(_slateSoftBreak);
-
-var _state = require('./state.json');
-
-var _state2 = _interopRequireDefault(_state);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-/**
- * Define a schema.
- *
- * @type {Object}
- */
-
-var schema = {
-  nodes: {
-    'block-quote': function blockQuote(props) {
-      return _react2.default.createElement(
-        'blockquote',
-        props.attributes,
-        props.children
-      );
-    }
-  }
-};
-
-/**
- * The plain text example.
- *
- * @type {Component}
- */
-
-var PlainText = function (_React$Component) {
-  _inherits(PlainText, _React$Component);
-
-  function PlainText() {
-    var _ref;
-
-    var _temp, _this, _ret;
-
-    _classCallCheck(this, PlainText);
-
-    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-      args[_key] = arguments[_key];
-    }
-
-    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = PlainText.__proto__ || Object.getPrototypeOf(PlainText)).call.apply(_ref, [this].concat(args))), _this), _this.state = {
-      state: _.Raw.deserialize(_state2.default, { terse: true })
-    }, _this.onChange = function (state) {
-      _this.setState({ state: state });
-    }, _this.onKeyDown = function (e, data, state) {
-      if (data.key == 'enter' && data.isShift) {
-        return state.transform().insertText('\n').apply();
-      }
-    }, _this.render = function () {
-      return _react2.default.createElement(_.Editor, {
-        placeholder: 'Enter some plain text...',
-        schema: schema,
-        state: _this.state.state,
-        onChange: _this.onChange,
-        onKeyDown: _this.onKeyDown
-      });
-    }, _temp), _possibleConstructorReturn(_this, _ret);
-  }
-
-  /**
-   * Deserialize the initial editor state.
-   *
-   * @type {Object}
-   */
-
-  /**
-   * On change.
-   *
-   * @param {State} state
-   */
-
-  /**
-   * On key down, if it's <shift-enter> add a soft break.
-   *
-   * @param {Event} e
-   * @param {Object} data
-   * @param {State} state
-   */
-
-  /**
-   * Render the editor.
-   *
-   * @return {Component} component
-   */
-
-  return PlainText;
-}(_react2.default.Component);
-
-/**
- * Export.
- */
-
-exports.default = PlainText;
-
-},{"../..":9,"./state.json":74,"react":443,"slate-soft-break":458}],74:[function(require,module,exports){
-module.exports={
-  "nodes": [
-    {
-      "kind": "block",
-      "type": "paragraph",
-      "nodes": [
-        {
-          "kind": "text",
-          "text": "Slate supports both left-to-right text editing (English, French, etc.) and right-to-left text editing (Arabic, Hebrew, etc.) which it automatically detects. Here's an example featuring excerpts from Khalil Gibran:"
-        }
-      ]
-    },
-    {
-      "kind": "block",
-      "type": "block-quote",
-      "nodes": [
-        {
-          "kind": "text",
-          "text": "Et un jeune dit : parle-nous de l'amitié.\nEt il répondit, disant :\nVotre ami est votre besoin qui a trouvé une réponse.\nIl est le champ que vous semez avec amour et moissonnez avec reconnaissance.\nIl est votre table et votre foyer."
-        }
-      ]
-    },
-    {
-      "kind": "block",
-      "type": "block-quote",
-      "nodes": [
-        {
-          "kind": "text",
-          "text": "ثم قال له شاب: هات حدثناعن الصداقة.\nفأجاب و قال:\nإن صديقك هو كفاية حاجاتك.\nهو حقك الذي تزرعه بالمحبة و تحصده بالشكر.\nهو مائدتك و موقدك."
-        }
-      ]
-    },
-    {
-      "kind": "block",
-      "type": "block-quote",
-      "nodes": [
-        {
-          "kind": "text",
-          "text": "And a youth said, \"Speak to us of Friendship.\"\nYour friend is your needs answered.\nHe is your field which you sow with love and reap with thanksgiving.\nAnd he is your board and your fireside."
-        }
-      ]
-    },
-    {
-      "kind": "block",
-      "type": "paragraph",
-      "nodes": [
-        {
-          "kind": "text",
-          "text": "Try it out for yourself!"
-        }
-      ]
-    }
-  ]
-}
-
-},{}],75:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _ = require('../..');
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-var _state = require('./state.json');
-
-var _state2 = _interopRequireDefault(_state);
-
-var _keycode = require('keycode');
-
-var _keycode2 = _interopRequireDefault(_keycode);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-/**
- * Define a schema.
- *
- * @type {Object}
- */
-
-var schema = {
-  nodes: {
-    'table': function table(props) {
-      return _react2.default.createElement(
-        'table',
-        null,
-        _react2.default.createElement(
-          'tbody',
-          props.attributes,
-          props.children
-        )
-      );
-    },
-    'table-row': function tableRow(props) {
-      return _react2.default.createElement(
-        'tr',
-        props.attributes,
-        props.children
-      );
-    },
-    'table-cell': function tableCell(props) {
-      return _react2.default.createElement(
-        'td',
-        props.attributes,
-        props.children
-      );
-    }
-  },
-  marks: {
-    'bold': function bold(props) {
-      return _react2.default.createElement(
-        'strong',
-        null,
-        props.children
-      );
-    }
-  }
-};
-
-/**
- * The tables example.
- *
- * @type {Component}
- */
-
-var Tables = function (_React$Component) {
-  _inherits(Tables, _React$Component);
-
-  function Tables() {
-    var _ref;
-
-    var _temp, _this, _ret;
-
-    _classCallCheck(this, Tables);
-
-    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-      args[_key] = arguments[_key];
-    }
-
-    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = Tables.__proto__ || Object.getPrototypeOf(Tables)).call.apply(_ref, [this].concat(args))), _this), _this.state = {
-      state: _.Raw.deserialize(_state2.default, { terse: true })
-    }, _this.onBackspace = function (e, state) {
-      if (state.startOffset != 0) return;
-      e.preventDefault();
-      return state;
-    }, _this.onChange = function (state) {
-      _this.setState({ state: state });
-    }, _this.onDelete = function (e, state) {
-      if (state.endOffset != state.startText.length) return;
-      e.preventDefault();
-      return state;
-    }, _this.onEnter = function (e, state) {
-      e.preventDefault();
-      return state;
-    }, _this.onKeyDown = function (e, data, state) {
-      if (state.startBlock.type != 'table-cell') return;
-      switch (data.key) {
-        case 'backspace':
-          return _this.onBackspace(e, state);
-        case 'delete':
-          return _this.onDelete(e, state);
-        case 'enter':
-          return _this.onEnter(e, state);
-      }
-    }, _this.render = function () {
-      return _react2.default.createElement(
-        'div',
-        { className: 'editor' },
-        _react2.default.createElement(_.Editor, {
-          schema: schema,
-          state: _this.state.state,
-          onKeyDown: _this.onKeyDown,
-          onChange: _this.onChange
-        })
-      );
-    }, _temp), _possibleConstructorReturn(_this, _ret);
-  }
-
-  /**
-   * Deserialize the raw initial state.
-   *
-   * @type {Object}
-   */
-
-  /**
-   * On backspace, do nothing if at the start of a table cell.
-   *
-   * @param {Event} e
-   * @param {State} state
-   * @return {State or Null} state
-   */
-
-  /**
-   * On change.
-   *
-   * @param {State} state
-   */
-
-  /**
-   * On delete, do nothing if at the end of a table cell.
-   *
-   * @param {Event} e
-   * @param {State} state
-   * @return {State or Null} state
-   */
-
-  /**
-   * On return, do nothing if inside a table cell.
-   *
-   * @param {Event} e
-   * @param {State} state
-   * @return {State or Null} state
-   */
-
-  /**
-   * On key down, check for our specific key shortcuts.
-   *
-   * @param {Event} e
-   * @param {Object} data
-   * @param {State} state
-   * @return {State or Null} state
-   */
-
-  /**
-   * Render the example.
-   *
-   * @return {Component} component
-   */
-
-  return Tables;
-}(_react2.default.Component);
-
-/**
- * Export.
- */
-
-exports.default = Tables;
-
-},{"../..":9,"./state.json":76,"keycode":199,"react":443}],76:[function(require,module,exports){
-module.exports={
-  "nodes": [
-    {
-      "kind": "block",
-      "type": "paragraph",
-      "nodes": [
-        {
-          "kind": "text",
-          "text": "Since the editor is based on a recursive tree model, similar to an HTML document, you can create complex nested structures, like tables:"
-        }
-      ]
-    },
-    {
-      "kind": "block",
-      "type": "table",
-      "nodes": [
-        {
-          "kind": "block",
-          "type": "table-row",
-          "nodes": [
-            {
-              "kind": "block",
-              "type": "table-cell",
-              "nodes": [
-                {
-                  "kind": "text",
-                  "ranges": [
-                    {
-                      "text": ""
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "block",
-              "type": "table-cell",
-              "nodes": [
-                {
-                  "kind": "text",
-                  "ranges": [
-                    {
-                      "text": "Human",
-                      "marks": [
-                        {
-                          "type": "bold"
-                        }
-                      ]
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "block",
-              "type": "table-cell",
-              "nodes": [
-                {
-                  "kind": "text",
-                  "ranges": [
-                    {
-                      "text": "Dog",
-                      "marks": [
-                        {
-                          "type": "bold"
-                        }
-                      ]
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "block",
-              "type": "table-cell",
-              "nodes": [
-                {
-                  "kind": "text",
-                  "ranges": [
-                    {
-                      "text": "Cat",
-                      "marks": [
-                        {
-                          "type": "bold"
-                        }
-                      ]
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "kind": "block",
-          "type": "table-row",
-          "nodes": [
-            {
-              "kind": "block",
-              "type": "table-cell",
-              "nodes": [
-                {
-                  "kind": "text",
-                  "ranges": [
-                    {
-                      "text": "# of Feet",
-                      "marks": [
-                        {
-                          "type": "bold"
-                        }
-                      ]
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "block",
-              "type": "table-cell",
-              "nodes": [
-                {
-                  "kind": "text",
-                  "ranges": [
-                    {
-                      "text": "1"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "block",
-              "type": "table-cell",
-              "nodes": [
-                {
-                  "kind": "text",
-                  "ranges": [
-                    {
-                      "text": "4"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "block",
-              "type": "table-cell",
-              "nodes": [
-                {
-                  "kind": "text",
-                  "ranges": [
-                    {
-                      "text": "4"
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "kind": "block",
-          "type": "table-row",
-          "nodes": [
-            {
-              "kind": "block",
-              "type": "table-cell",
-              "nodes": [
-                {
-                  "kind": "text",
-                  "ranges": [
-                    {
-                      "text": "# of Lives",
-                      "marks": [
-                        {
-                          "type": "bold"
-                        }
-                      ]
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "block",
-              "type": "table-cell",
-              "nodes": [
-                {
-                  "kind": "text",
-                  "ranges": [
-                    {
-                      "text": "1"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "block",
-              "type": "table-cell",
-              "nodes": [
-                {
-                  "kind": "text",
-                  "ranges": [
-                    {
-                      "text": "1"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "block",
-              "type": "table-cell",
-              "nodes": [
-                {
-                  "kind": "text",
-                  "ranges": [
-                    {
-                      "text": "9"
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "kind": "block",
-      "type": "paragraph",
-      "nodes": [
-        {
-          "kind": "text",
-          "text": "This table is just a basic example, but you could augment it to add support for table headers, adding column and rows, or even formulas if you wanted to get really crazy..."
-        }
-      ]
-    }
-  ]
-}
-
-},{}],77:[function(require,module,exports){
+},{"uid":468}],77:[function(require,module,exports){
 'use strict'
 
+exports.byteLength = byteLength
 exports.toByteArray = toByteArray
 exports.fromByteArray = fromByteArray
 
@@ -19175,23 +19333,17 @@ var lookup = []
 var revLookup = []
 var Arr = typeof Uint8Array !== 'undefined' ? Uint8Array : Array
 
-function init () {
-  var code = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
-  for (var i = 0, len = code.length; i < len; ++i) {
-    lookup[i] = code[i]
-    revLookup[code.charCodeAt(i)] = i
-  }
-
-  revLookup['-'.charCodeAt(0)] = 62
-  revLookup['_'.charCodeAt(0)] = 63
+var code = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+for (var i = 0, len = code.length; i < len; ++i) {
+  lookup[i] = code[i]
+  revLookup[code.charCodeAt(i)] = i
 }
 
-init()
+revLookup['-'.charCodeAt(0)] = 62
+revLookup['_'.charCodeAt(0)] = 63
 
-function toByteArray (b64) {
-  var i, j, l, tmp, placeHolders, arr
+function placeHoldersCount (b64) {
   var len = b64.length
-
   if (len % 4 > 0) {
     throw new Error('Invalid string. Length must be a multiple of 4')
   }
@@ -19201,9 +19353,19 @@ function toByteArray (b64) {
   // represent one byte
   // if there is only one, then the three characters before it represent 2 bytes
   // this is just a cheap hack to not do indexOf twice
-  placeHolders = b64[len - 2] === '=' ? 2 : b64[len - 1] === '=' ? 1 : 0
+  return b64[len - 2] === '=' ? 2 : b64[len - 1] === '=' ? 1 : 0
+}
 
+function byteLength (b64) {
   // base64 is 4/3 + up to two characters of the original data
+  return b64.length * 3 / 4 - placeHoldersCount(b64)
+}
+
+function toByteArray (b64) {
+  var i, j, l, tmp, placeHolders, arr
+  var len = b64.length
+  placeHolders = placeHoldersCount(b64)
+
   arr = new Arr(len * 3 / 4 - placeHolders)
 
   // if there are placeholders, only get up to the last complete 4 chars
@@ -24501,7 +24663,7 @@ module.exports = {
 	pseudos: pseudos
 };
 
-},{"./attributes.js":96,"boolbase":78,"domutils":117,"nth-check":242}],101:[function(require,module,exports){
+},{"./attributes.js":96,"boolbase":78,"domutils":117,"nth-check":243}],101:[function(require,module,exports){
 module.exports = sortByProcedure;
 
 /*
@@ -25221,7 +25383,7 @@ function coerce(val) {
   return val;
 }
 
-},{"ms":240}],105:[function(require,module,exports){
+},{"ms":241}],105:[function(require,module,exports){
 var pSlice = Array.prototype.slice;
 var objectKeys = require('./lib/keys.js');
 var isArguments = require('./lib/is_arguments.js');
@@ -25360,6 +25522,7 @@ module.exports = function detectBrowser(userAgentString) {
   var browsers = [
     [ 'edge', /Edge\/([0-9\._]+)/ ],
     [ 'chrome', /(?!Chrom.*OPR)Chrom(?:e|ium)\/([0-9\.]+)(:?\s|$)/ ],
+    [ 'crios', /CriOS\/([0-9\.]+)(:?\s|$)/ ],
     [ 'firefox', /Firefox\/([0-9\.]+)(?:\s|$)/ ],
     [ 'opera', /Opera\/([0-9\.]+)(?:\s|$)/ ],
     [ 'opera', /OPR\/([0-9\.]+)(:?\s|$)$/ ],
@@ -28538,7 +28701,7 @@ function readState(key) {
   return null;
 }
 }).call(this,require('_process'))
-},{"_process":248,"warning":179}],166:[function(require,module,exports){
+},{"_process":249,"warning":179}],166:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -28670,7 +28833,7 @@ function parsePath(path) {
   };
 }
 }).call(this,require('_process'))
-},{"_process":248,"warning":179}],169:[function(require,module,exports){
+},{"_process":249,"warning":179}],169:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -28853,7 +29016,7 @@ function createBrowserHistory() {
 exports['default'] = createBrowserHistory;
 module.exports = exports['default'];
 }).call(this,require('_process'))
-},{"./Actions":163,"./DOMStateStorage":165,"./DOMUtils":166,"./ExecutionEnvironment":167,"./PathUtils":168,"./createDOMHistory":170,"_process":248,"invariant":193}],170:[function(require,module,exports){
+},{"./Actions":163,"./DOMStateStorage":165,"./DOMUtils":166,"./ExecutionEnvironment":167,"./PathUtils":168,"./createDOMHistory":170,"_process":249,"invariant":193}],170:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -28896,7 +29059,7 @@ function createDOMHistory(options) {
 exports['default'] = createDOMHistory;
 module.exports = exports['default'];
 }).call(this,require('_process'))
-},{"./DOMUtils":166,"./ExecutionEnvironment":167,"./createHistory":172,"_process":248,"invariant":193}],171:[function(require,module,exports){
+},{"./DOMUtils":166,"./ExecutionEnvironment":167,"./createHistory":172,"_process":249,"invariant":193}],171:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -29145,7 +29308,7 @@ function createHashHistory() {
 exports['default'] = createHashHistory;
 module.exports = exports['default'];
 }).call(this,require('_process'))
-},{"./Actions":163,"./DOMStateStorage":165,"./DOMUtils":166,"./ExecutionEnvironment":167,"./PathUtils":168,"./createDOMHistory":170,"_process":248,"invariant":193,"warning":179}],172:[function(require,module,exports){
+},{"./Actions":163,"./DOMStateStorage":165,"./DOMUtils":166,"./ExecutionEnvironment":167,"./PathUtils":168,"./createDOMHistory":170,"_process":249,"invariant":193,"warning":179}],172:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -29436,7 +29599,7 @@ function createHistory() {
 exports['default'] = createHistory;
 module.exports = exports['default'];
 }).call(this,require('_process'))
-},{"./Actions":163,"./AsyncUtils":164,"./PathUtils":168,"./createLocation":173,"./deprecate":175,"./runTransitionHook":176,"_process":248,"deep-equal":105,"warning":179}],173:[function(require,module,exports){
+},{"./Actions":163,"./AsyncUtils":164,"./PathUtils":168,"./createLocation":173,"./deprecate":175,"./runTransitionHook":176,"_process":249,"deep-equal":105,"warning":179}],173:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -29490,7 +29653,7 @@ function createLocation() {
 exports['default'] = createLocation;
 module.exports = exports['default'];
 }).call(this,require('_process'))
-},{"./Actions":163,"./PathUtils":168,"_process":248,"warning":179}],174:[function(require,module,exports){
+},{"./Actions":163,"./PathUtils":168,"_process":249,"warning":179}],174:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -29647,7 +29810,7 @@ function createMemoryHistory() {
 exports['default'] = createMemoryHistory;
 module.exports = exports['default'];
 }).call(this,require('_process'))
-},{"./Actions":163,"./PathUtils":168,"./createHistory":172,"_process":248,"invariant":193,"warning":179}],175:[function(require,module,exports){
+},{"./Actions":163,"./PathUtils":168,"./createHistory":172,"_process":249,"invariant":193,"warning":179}],175:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -29669,7 +29832,7 @@ function deprecate(fn, message) {
 exports['default'] = deprecate;
 module.exports = exports['default'];
 }).call(this,require('_process'))
-},{"_process":248,"warning":179}],176:[function(require,module,exports){
+},{"_process":249,"warning":179}],176:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -29696,7 +29859,7 @@ function runTransitionHook(hook, location, callback) {
 exports['default'] = runTransitionHook;
 module.exports = exports['default'];
 }).call(this,require('_process'))
-},{"_process":248,"warning":179}],177:[function(require,module,exports){
+},{"_process":249,"warning":179}],177:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -29857,7 +30020,7 @@ function useBasename(createHistory) {
 exports['default'] = useBasename;
 module.exports = exports['default'];
 }).call(this,require('_process'))
-},{"./ExecutionEnvironment":167,"./PathUtils":168,"./deprecate":175,"./runTransitionHook":176,"_process":248,"warning":179}],178:[function(require,module,exports){
+},{"./ExecutionEnvironment":167,"./PathUtils":168,"./deprecate":175,"./runTransitionHook":176,"_process":249,"warning":179}],178:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -30036,7 +30199,7 @@ function useQueries(createHistory) {
 exports['default'] = useQueries;
 module.exports = exports['default'];
 }).call(this,require('_process'))
-},{"./PathUtils":168,"./deprecate":175,"./runTransitionHook":176,"_process":248,"query-string":249,"warning":179}],179:[function(require,module,exports){
+},{"./PathUtils":168,"./deprecate":175,"./runTransitionHook":176,"_process":249,"query-string":250,"warning":179}],179:[function(require,module,exports){
 /**
  * Copyright 2014-2015, Facebook, Inc.
  * All rights reserved.
@@ -31657,7 +31820,7 @@ WritableStream.prototype._write = function(chunk, encoding, cb){
 	this._parser.write(chunk);
 	cb();
 };
-},{"./Parser.js":183,"buffer":81,"inherits":192,"readable-stream":79,"stream":459,"string_decoder":461}],188:[function(require,module,exports){
+},{"./Parser.js":183,"buffer":81,"inherits":192,"readable-stream":79,"stream":460,"string_decoder":462}],188:[function(require,module,exports){
 var Parser = require("./Parser.js"),
     DomHandler = require("domhandler");
 
@@ -37064,7 +37227,7 @@ module.exports = function (filepath) {
 	return path.extname(filepath).slice(1).toLowerCase() in exts;
 };
 
-},{"image-extensions":190,"path":245}],197:[function(require,module,exports){
+},{"image-extensions":190,"path":246}],197:[function(require,module,exports){
 
 /**
  * Expose `isUrl`.
@@ -55369,7 +55532,7 @@ function arrayLikeKeys(value, inherited) {
 
 module.exports = arrayLikeKeys;
 
-},{"./_baseTimes":218,"./_isIndex":220,"./isArguments":225,"./isArray":226}],213:[function(require,module,exports){
+},{"./_baseTimes":218,"./_isIndex":220,"./isArguments":226,"./isArray":227}],213:[function(require,module,exports){
 /**
  * A specialized version of `_.map` for arrays without support for iteratee
  * shorthands.
@@ -55420,7 +55583,8 @@ module.exports = baseFindIndex;
 
 },{}],215:[function(require,module,exports){
 var baseFindIndex = require('./_baseFindIndex'),
-    baseIsNaN = require('./_baseIsNaN');
+    baseIsNaN = require('./_baseIsNaN'),
+    strictIndexOf = require('./_strictIndexOf');
 
 /**
  * The base implementation of `_.indexOf` without `fromIndex` bounds checks.
@@ -55432,23 +55596,14 @@ var baseFindIndex = require('./_baseFindIndex'),
  * @returns {number} Returns the index of the matched value, else `-1`.
  */
 function baseIndexOf(array, value, fromIndex) {
-  if (value !== value) {
-    return baseFindIndex(array, baseIsNaN, fromIndex);
-  }
-  var index = fromIndex - 1,
-      length = array.length;
-
-  while (++index < length) {
-    if (array[index] === value) {
-      return index;
-    }
-  }
-  return -1;
+  return value === value
+    ? strictIndexOf(array, value, fromIndex)
+    : baseFindIndex(array, baseIsNaN, fromIndex);
 }
 
 module.exports = baseIndexOf;
 
-},{"./_baseFindIndex":214,"./_baseIsNaN":216}],216:[function(require,module,exports){
+},{"./_baseFindIndex":214,"./_baseIsNaN":216,"./_strictIndexOf":224}],216:[function(require,module,exports){
 /**
  * The base implementation of `_.isNaN` without support for number objects.
  *
@@ -55607,6 +55762,31 @@ function overArg(func, transform) {
 module.exports = overArg;
 
 },{}],224:[function(require,module,exports){
+/**
+ * A specialized version of `_.indexOf` which performs strict equality
+ * comparisons of values, i.e. `===`.
+ *
+ * @private
+ * @param {Array} array The array to inspect.
+ * @param {*} value The value to search for.
+ * @param {number} fromIndex The index to search from.
+ * @returns {number} Returns the index of the matched value, else `-1`.
+ */
+function strictIndexOf(array, value, fromIndex) {
+  var index = fromIndex - 1,
+      length = array.length;
+
+  while (++index < length) {
+    if (array[index] === value) {
+      return index;
+    }
+  }
+  return -1;
+}
+
+module.exports = strictIndexOf;
+
+},{}],225:[function(require,module,exports){
 var baseIndexOf = require('./_baseIndexOf'),
     isArrayLike = require('./isArrayLike'),
     isString = require('./isString'),
@@ -55661,7 +55841,7 @@ function includes(collection, value, fromIndex, guard) {
 
 module.exports = includes;
 
-},{"./_baseIndexOf":215,"./isArrayLike":227,"./isString":233,"./toInteger":237,"./values":239}],225:[function(require,module,exports){
+},{"./_baseIndexOf":215,"./isArrayLike":228,"./isString":234,"./toInteger":238,"./values":240}],226:[function(require,module,exports){
 var isArrayLikeObject = require('./isArrayLikeObject');
 
 /** `Object#toString` result references. */
@@ -55709,7 +55889,7 @@ function isArguments(value) {
 
 module.exports = isArguments;
 
-},{"./isArrayLikeObject":228}],226:[function(require,module,exports){
+},{"./isArrayLikeObject":229}],227:[function(require,module,exports){
 /**
  * Checks if `value` is classified as an `Array` object.
  *
@@ -55737,7 +55917,7 @@ var isArray = Array.isArray;
 
 module.exports = isArray;
 
-},{}],227:[function(require,module,exports){
+},{}],228:[function(require,module,exports){
 var isFunction = require('./isFunction'),
     isLength = require('./isLength');
 
@@ -55772,7 +55952,7 @@ function isArrayLike(value) {
 
 module.exports = isArrayLike;
 
-},{"./isFunction":229,"./isLength":230}],228:[function(require,module,exports){
+},{"./isFunction":230,"./isLength":231}],229:[function(require,module,exports){
 var isArrayLike = require('./isArrayLike'),
     isObjectLike = require('./isObjectLike');
 
@@ -55807,7 +55987,7 @@ function isArrayLikeObject(value) {
 
 module.exports = isArrayLikeObject;
 
-},{"./isArrayLike":227,"./isObjectLike":232}],229:[function(require,module,exports){
+},{"./isArrayLike":228,"./isObjectLike":233}],230:[function(require,module,exports){
 var isObject = require('./isObject');
 
 /** `Object#toString` result references. */
@@ -55850,7 +56030,7 @@ function isFunction(value) {
 
 module.exports = isFunction;
 
-},{"./isObject":231}],230:[function(require,module,exports){
+},{"./isObject":232}],231:[function(require,module,exports){
 /** Used as references for various `Number` constants. */
 var MAX_SAFE_INTEGER = 9007199254740991;
 
@@ -55887,7 +56067,7 @@ function isLength(value) {
 
 module.exports = isLength;
 
-},{}],231:[function(require,module,exports){
+},{}],232:[function(require,module,exports){
 /**
  * Checks if `value` is the
  * [language type](http://www.ecma-international.org/ecma-262/7.0/#sec-ecmascript-language-types)
@@ -55915,12 +56095,12 @@ module.exports = isLength;
  */
 function isObject(value) {
   var type = typeof value;
-  return !!value && (type == 'object' || type == 'function');
+  return value != null && (type == 'object' || type == 'function');
 }
 
 module.exports = isObject;
 
-},{}],232:[function(require,module,exports){
+},{}],233:[function(require,module,exports){
 /**
  * Checks if `value` is object-like. A value is object-like if it's not `null`
  * and has a `typeof` result of "object".
@@ -55946,12 +56126,12 @@ module.exports = isObject;
  * // => false
  */
 function isObjectLike(value) {
-  return !!value && typeof value == 'object';
+  return value != null && typeof value == 'object';
 }
 
 module.exports = isObjectLike;
 
-},{}],233:[function(require,module,exports){
+},{}],234:[function(require,module,exports){
 var isArray = require('./isArray'),
     isObjectLike = require('./isObjectLike');
 
@@ -55992,7 +56172,7 @@ function isString(value) {
 
 module.exports = isString;
 
-},{"./isArray":226,"./isObjectLike":232}],234:[function(require,module,exports){
+},{"./isArray":227,"./isObjectLike":233}],235:[function(require,module,exports){
 var isObjectLike = require('./isObjectLike');
 
 /** `Object#toString` result references. */
@@ -56032,7 +56212,7 @@ function isSymbol(value) {
 
 module.exports = isSymbol;
 
-},{"./isObjectLike":232}],235:[function(require,module,exports){
+},{"./isObjectLike":233}],236:[function(require,module,exports){
 var arrayLikeKeys = require('./_arrayLikeKeys'),
     baseKeys = require('./_baseKeys'),
     isArrayLike = require('./isArrayLike');
@@ -56071,7 +56251,7 @@ function keys(object) {
 
 module.exports = keys;
 
-},{"./_arrayLikeKeys":212,"./_baseKeys":217,"./isArrayLike":227}],236:[function(require,module,exports){
+},{"./_arrayLikeKeys":212,"./_baseKeys":217,"./isArrayLike":228}],237:[function(require,module,exports){
 var toNumber = require('./toNumber');
 
 /** Used as references for various `Number` constants. */
@@ -56115,7 +56295,7 @@ function toFinite(value) {
 
 module.exports = toFinite;
 
-},{"./toNumber":238}],237:[function(require,module,exports){
+},{"./toNumber":239}],238:[function(require,module,exports){
 var toFinite = require('./toFinite');
 
 /**
@@ -56153,7 +56333,7 @@ function toInteger(value) {
 
 module.exports = toInteger;
 
-},{"./toFinite":236}],238:[function(require,module,exports){
+},{"./toFinite":237}],239:[function(require,module,exports){
 var isObject = require('./isObject'),
     isSymbol = require('./isSymbol');
 
@@ -56221,7 +56401,7 @@ function toNumber(value) {
 
 module.exports = toNumber;
 
-},{"./isObject":231,"./isSymbol":234}],239:[function(require,module,exports){
+},{"./isObject":232,"./isSymbol":235}],240:[function(require,module,exports){
 var baseValues = require('./_baseValues'),
     keys = require('./keys');
 
@@ -56257,7 +56437,7 @@ function values(object) {
 
 module.exports = values;
 
-},{"./_baseValues":219,"./keys":235}],240:[function(require,module,exports){
+},{"./_baseValues":219,"./keys":236}],241:[function(require,module,exports){
 /**
  * Helpers.
  */
@@ -56384,7 +56564,7 @@ function plural(ms, n, name) {
   return Math.ceil(ms / n) + ' ' + name + 's';
 }
 
-},{}],241:[function(require,module,exports){
+},{}],242:[function(require,module,exports){
 module.exports = compile;
 
 var BaseFuncs = require("boolbase"),
@@ -56425,7 +56605,7 @@ function compile(parsed){
 		return pos <= b && pos % a === bMod;
 	};
 }
-},{"boolbase":78}],242:[function(require,module,exports){
+},{"boolbase":78}],243:[function(require,module,exports){
 var parse = require("./parse.js"),
     compile = require("./compile.js");
 
@@ -56435,7 +56615,7 @@ module.exports = function nthCheck(formula){
 
 module.exports.parse = parse;
 module.exports.compile = compile;
-},{"./compile.js":241,"./parse.js":243}],243:[function(require,module,exports){
+},{"./compile.js":242,"./parse.js":244}],244:[function(require,module,exports){
 module.exports = parse;
 
 //following http://www.w3.org/TR/css3-selectors/#nth-child-pseudo
@@ -56477,7 +56657,7 @@ function parse(formula){
 	}
 }
 
-},{}],244:[function(require,module,exports){
+},{}],245:[function(require,module,exports){
 'use strict';
 /* eslint-disable no-unused-vars */
 var hasOwnProperty = Object.prototype.hasOwnProperty;
@@ -56562,7 +56742,7 @@ module.exports = shouldUseNative() ? Object.assign : function (target, source) {
 	return to;
 };
 
-},{}],245:[function(require,module,exports){
+},{}],246:[function(require,module,exports){
 (function (process){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -56790,7 +56970,7 @@ var substr = 'ab'.substr(-1) === 'b'
 ;
 
 }).call(this,require('_process'))
-},{"_process":248}],246:[function(require,module,exports){
+},{"_process":249}],247:[function(require,module,exports){
 (function (global){
 
 /* **********************************************
@@ -57575,7 +57755,7 @@ Prism.languages.js = Prism.languages.javascript;
 })();
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],247:[function(require,module,exports){
+},{}],248:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -57622,7 +57802,7 @@ function nextTick(fn, arg1, arg2, arg3) {
 }
 
 }).call(this,require('_process'))
-},{"_process":248}],248:[function(require,module,exports){
+},{"_process":249}],249:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -57804,7 +57984,7 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],249:[function(require,module,exports){
+},{}],250:[function(require,module,exports){
 'use strict';
 var strictUriEncode = require('strict-uri-encode');
 
@@ -57872,19 +58052,19 @@ exports.stringify = function (obj) {
 	}).join('&') : '';
 };
 
-},{"strict-uri-encode":460}],250:[function(require,module,exports){
+},{"strict-uri-encode":461}],251:[function(require,module,exports){
 module.exports = require('react/lib/ReactPerf');
-},{"react/lib/ReactPerf":377}],251:[function(require,module,exports){
+},{"react/lib/ReactPerf":378}],252:[function(require,module,exports){
 'use strict';
 
 module.exports = require('react/lib/ReactDOM');
 
-},{"react/lib/ReactDOM":333}],252:[function(require,module,exports){
+},{"react/lib/ReactDOM":334}],253:[function(require,module,exports){
 'use strict';
 
 module.exports = require('react/lib/ReactDOMServer');
 
-},{"react/lib/ReactDOMServer":348}],253:[function(require,module,exports){
+},{"react/lib/ReactDOMServer":349}],254:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -58110,10 +58290,10 @@ var SelectEventPlugin = {
 
 module.exports = SelectEventPlugin;
 
-},{"fbjs/lib/ExecutionEnvironment":136,"fbjs/lib/keyOf":154,"fbjs/lib/shallowEqual":158,"react/lib/EventConstants":311,"react/lib/EventPropagators":315,"react/lib/ReactDOMComponentTree":337,"react/lib/ReactInputSelection":366,"react/lib/SyntheticEvent":400,"react/lib/isTextInputElement":432}],254:[function(require,module,exports){
+},{"fbjs/lib/ExecutionEnvironment":136,"fbjs/lib/keyOf":154,"fbjs/lib/shallowEqual":158,"react/lib/EventConstants":312,"react/lib/EventPropagators":316,"react/lib/ReactDOMComponentTree":338,"react/lib/ReactInputSelection":367,"react/lib/SyntheticEvent":401,"react/lib/isTextInputElement":433}],255:[function(require,module,exports){
 module.exports = require('./injector')
 
-},{"./injector":255}],255:[function(require,module,exports){
+},{"./injector":256}],256:[function(require,module,exports){
 //perform actual injection of the modified plugin version to React Event Registry
 module.exports = function(){
   var keyOf = require('fbjs/lib/keyOf');
@@ -58139,7 +58319,7 @@ module.exports = function(){
   });
 }
 
-},{"./ReactFrameAwareSelectEventPlugin":253,"fbjs/lib/keyOf":154,"react/lib/BeforeInputEventPlugin":297,"react/lib/ChangeEventPlugin":301,"react/lib/DefaultEventPluginOrder":308,"react/lib/EnterLeaveEventPlugin":310,"react/lib/EventPluginHub":312,"react/lib/EventPluginRegistry":313,"react/lib/SimpleEventPlugin":395}],256:[function(require,module,exports){
+},{"./ReactFrameAwareSelectEventPlugin":254,"fbjs/lib/keyOf":154,"react/lib/BeforeInputEventPlugin":298,"react/lib/ChangeEventPlugin":302,"react/lib/DefaultEventPluginOrder":309,"react/lib/EnterLeaveEventPlugin":311,"react/lib/EventPluginHub":313,"react/lib/EventPluginRegistry":314,"react/lib/SimpleEventPlugin":396}],257:[function(require,module,exports){
 var React = require('react');
 var ReactDOM = require('react-dom');
 var assign = require('object-assign');
@@ -58262,7 +58442,7 @@ var Frame = React.createClass({
 
 module.exports = Frame;
 
-},{"object-assign":244,"react":443,"react-dom":251}],257:[function(require,module,exports){
+},{"object-assign":245,"react":444,"react-dom":252}],258:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -58515,7 +58695,7 @@ Portal.defaultProps = {
 };
 module.exports = exports['default'];
 
-},{"react":443,"react-dom":251,"react/lib/CSSPropertyOperations":299,"react/lib/shallowCompare":439}],258:[function(require,module,exports){
+},{"react":444,"react-dom":252,"react/lib/CSSPropertyOperations":300,"react/lib/shallowCompare":440}],259:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -58604,7 +58784,7 @@ function mapAsync(array, work, callback) {
     });
   });
 }
-},{}],259:[function(require,module,exports){
+},{}],260:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -58634,7 +58814,7 @@ var History = {
 
 exports.default = History;
 module.exports = exports['default'];
-},{"./InternalPropTypes":263,"./routerWarning":292}],260:[function(require,module,exports){
+},{"./InternalPropTypes":264,"./routerWarning":293}],261:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -58663,7 +58843,7 @@ var IndexLink = _react2.default.createClass({
 
 exports.default = IndexLink;
 module.exports = exports['default'];
-},{"./Link":265,"react":443}],261:[function(require,module,exports){
+},{"./Link":266,"react":444}],262:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -58727,7 +58907,7 @@ var IndexRedirect = _react2.default.createClass({
 
 exports.default = IndexRedirect;
 module.exports = exports['default'];
-},{"./InternalPropTypes":263,"./Redirect":268,"./routerWarning":292,"invariant":193,"react":443}],262:[function(require,module,exports){
+},{"./InternalPropTypes":264,"./Redirect":269,"./routerWarning":293,"invariant":193,"react":444}],263:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -58788,7 +58968,7 @@ var IndexRoute = _react2.default.createClass({
 
 exports.default = IndexRoute;
 module.exports = exports['default'];
-},{"./InternalPropTypes":263,"./RouteUtils":271,"./routerWarning":292,"invariant":193,"react":443}],263:[function(require,module,exports){
+},{"./InternalPropTypes":264,"./RouteUtils":272,"./routerWarning":293,"invariant":193,"react":444}],264:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -58821,7 +59001,7 @@ var component = exports.component = oneOfType([func, string]);
 var components = exports.components = oneOfType([component, object]);
 var route = exports.route = oneOfType([object, element]);
 var routes = exports.routes = oneOfType([route, arrayOf(route)]);
-},{"react":443}],264:[function(require,module,exports){
+},{"react":444}],265:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -58890,7 +59070,7 @@ var Lifecycle = {
 
 exports.default = Lifecycle;
 module.exports = exports['default'];
-},{"./routerWarning":292,"invariant":193,"react":443}],265:[function(require,module,exports){
+},{"./routerWarning":293,"invariant":193,"react":444}],266:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -59067,7 +59247,7 @@ var Link = _react2.default.createClass({
 
 exports.default = Link;
 module.exports = exports['default'];
-},{"./PropTypes":267,"./routerWarning":292,"invariant":193,"react":443}],266:[function(require,module,exports){
+},{"./PropTypes":268,"./routerWarning":293,"invariant":193,"react":444}],267:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -59280,7 +59460,7 @@ function formatPattern(pattern, params) {
 
   return pathname.replace(/\/+/g, '/');
 }
-},{"invariant":193}],267:[function(require,module,exports){
+},{"invariant":193}],268:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -59382,7 +59562,7 @@ if ("production" !== 'production') {
 }
 
 exports.default = defaultExport;
-},{"./InternalPropTypes":263,"./deprecateObjectProperties":283,"./routerWarning":292,"react":443}],268:[function(require,module,exports){
+},{"./InternalPropTypes":264,"./deprecateObjectProperties":284,"./routerWarning":293,"react":444}],269:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -59485,7 +59665,7 @@ var Redirect = _react2.default.createClass({
 
 exports.default = Redirect;
 module.exports = exports['default'];
-},{"./InternalPropTypes":263,"./PatternUtils":266,"./RouteUtils":271,"invariant":193,"react":443}],269:[function(require,module,exports){
+},{"./InternalPropTypes":264,"./PatternUtils":267,"./RouteUtils":272,"invariant":193,"react":444}],270:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -59543,7 +59723,7 @@ var Route = _react2.default.createClass({
 
 exports.default = Route;
 module.exports = exports['default'];
-},{"./InternalPropTypes":263,"./RouteUtils":271,"invariant":193,"react":443}],270:[function(require,module,exports){
+},{"./InternalPropTypes":264,"./RouteUtils":272,"invariant":193,"react":444}],271:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -59589,7 +59769,7 @@ var RouteContext = {
 
 exports.default = RouteContext;
 module.exports = exports['default'];
-},{"./routerWarning":292,"react":443}],271:[function(require,module,exports){
+},{"./routerWarning":293,"react":444}],272:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -59683,7 +59863,7 @@ function createRoutes(routes) {
 
   return routes;
 }
-},{"react":443}],272:[function(require,module,exports){
+},{"react":444}],273:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -59908,7 +60088,7 @@ var Router = _react2.default.createClass({
 
 exports.default = Router;
 module.exports = exports['default'];
-},{"./InternalPropTypes":263,"./RouteUtils":271,"./RouterContext":273,"./RouterUtils":274,"./createTransitionManager":282,"./routerWarning":292,"history/lib/createHashHistory":171,"history/lib/useQueries":178,"invariant":193,"react":443}],273:[function(require,module,exports){
+},{"./InternalPropTypes":264,"./RouteUtils":272,"./RouterContext":274,"./RouterUtils":275,"./createTransitionManager":283,"./routerWarning":293,"history/lib/createHashHistory":171,"history/lib/useQueries":178,"invariant":193,"react":444}],274:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -60065,7 +60245,7 @@ var RouterContext = _react2.default.createClass({
 
 exports.default = RouterContext;
 module.exports = exports['default'];
-},{"./RouteUtils":271,"./deprecateObjectProperties":283,"./getRouteParams":285,"./routerWarning":292,"invariant":193,"react":443}],274:[function(require,module,exports){
+},{"./RouteUtils":272,"./deprecateObjectProperties":284,"./getRouteParams":286,"./routerWarning":293,"invariant":193,"react":444}],275:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -60098,7 +60278,7 @@ function createRoutingHistory(history, transitionManager) {
 
   return history;
 }
-},{"./deprecateObjectProperties":283}],275:[function(require,module,exports){
+},{"./deprecateObjectProperties":284}],276:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -60129,7 +60309,7 @@ var RoutingContext = _react2.default.createClass({
 
 exports.default = RoutingContext;
 module.exports = exports['default'];
-},{"./RouterContext":273,"./routerWarning":292,"react":443}],276:[function(require,module,exports){
+},{"./RouterContext":274,"./routerWarning":293,"react":444}],277:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -60252,7 +60432,7 @@ function runLeaveHooks(routes, prevState) {
     if (routes[i].onLeave) routes[i].onLeave.call(routes[i], prevState);
   }
 }
-},{"./AsyncUtils":258,"./routerWarning":292}],277:[function(require,module,exports){
+},{"./AsyncUtils":259,"./routerWarning":293}],278:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -60310,7 +60490,7 @@ exports.default = function () {
 };
 
 module.exports = exports['default'];
-},{"./RouterContext":273,"./routerWarning":292,"react":443}],278:[function(require,module,exports){
+},{"./RouterContext":274,"./routerWarning":293,"react":444}],279:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -60327,7 +60507,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 exports.default = (0, _createRouterHistory2.default)(_createBrowserHistory2.default);
 module.exports = exports['default'];
-},{"./createRouterHistory":281,"history/lib/createBrowserHistory":169}],279:[function(require,module,exports){
+},{"./createRouterHistory":282,"history/lib/createBrowserHistory":169}],280:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -60405,7 +60585,7 @@ function computeChangedRoutes(prevState, nextState) {
 
 exports.default = computeChangedRoutes;
 module.exports = exports['default'];
-},{"./PatternUtils":266}],280:[function(require,module,exports){
+},{"./PatternUtils":267}],281:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -60438,7 +60618,7 @@ function createMemoryHistory(options) {
   return history;
 }
 module.exports = exports['default'];
-},{"history/lib/createMemoryHistory":174,"history/lib/useBasename":177,"history/lib/useQueries":178}],281:[function(require,module,exports){
+},{"history/lib/createMemoryHistory":174,"history/lib/useBasename":177,"history/lib/useQueries":178}],282:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -60458,7 +60638,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 var canUseDOM = !!(typeof window !== 'undefined' && window.document && window.document.createElement);
 
 module.exports = exports['default'];
-},{"./useRouterHistory":293}],282:[function(require,module,exports){
+},{"./useRouterHistory":294}],283:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -60761,7 +60941,7 @@ function createTransitionManager(history, routes) {
 //export default useRoutes
 
 module.exports = exports['default'];
-},{"./TransitionUtils":276,"./computeChangedRoutes":279,"./getComponents":284,"./isActive":288,"./matchRoutes":291,"./routerWarning":292}],283:[function(require,module,exports){
+},{"./TransitionUtils":277,"./computeChangedRoutes":280,"./getComponents":285,"./isActive":289,"./matchRoutes":292,"./routerWarning":293}],284:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -60837,7 +61017,7 @@ if ("production" !== 'production') {
 }
 
 exports.default = deprecateObjectProperties;
-},{"./routerWarning":292}],284:[function(require,module,exports){
+},{"./routerWarning":293}],285:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -60884,7 +61064,7 @@ function getComponents(nextState, callback) {
 
 exports.default = getComponents;
 module.exports = exports['default'];
-},{"./AsyncUtils":258,"./makeStateWithLocation":289}],285:[function(require,module,exports){
+},{"./AsyncUtils":259,"./makeStateWithLocation":290}],286:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -60911,7 +61091,7 @@ function getRouteParams(route, params) {
 
 exports.default = getRouteParams;
 module.exports = exports['default'];
-},{"./PatternUtils":266}],286:[function(require,module,exports){
+},{"./PatternUtils":267}],287:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -60928,7 +61108,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 exports.default = (0, _createRouterHistory2.default)(_createHashHistory2.default);
 module.exports = exports['default'];
-},{"./createRouterHistory":281,"history/lib/createHashHistory":171}],287:[function(require,module,exports){
+},{"./createRouterHistory":282,"history/lib/createHashHistory":171}],288:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -61085,7 +61265,7 @@ exports.applyRouterMiddleware = _applyRouterMiddleware3.default;
 exports.browserHistory = _browserHistory3.default;
 exports.hashHistory = _hashHistory3.default;
 exports.createMemoryHistory = _createMemoryHistory3.default;
-},{"./History":259,"./IndexLink":260,"./IndexRedirect":261,"./IndexRoute":262,"./Lifecycle":264,"./Link":265,"./PatternUtils":266,"./PropTypes":267,"./Redirect":268,"./Route":269,"./RouteContext":270,"./RouteUtils":271,"./Router":272,"./RouterContext":273,"./RoutingContext":275,"./applyRouterMiddleware":277,"./browserHistory":278,"./createMemoryHistory":280,"./hashHistory":286,"./match":290,"./useRouterHistory":293,"./useRoutes":294,"./withRouter":295}],288:[function(require,module,exports){
+},{"./History":260,"./IndexLink":261,"./IndexRedirect":262,"./IndexRoute":263,"./Lifecycle":265,"./Link":266,"./PatternUtils":267,"./PropTypes":268,"./Redirect":269,"./Route":270,"./RouteContext":271,"./RouteUtils":272,"./Router":273,"./RouterContext":274,"./RoutingContext":276,"./applyRouterMiddleware":278,"./browserHistory":279,"./createMemoryHistory":281,"./hashHistory":287,"./match":291,"./useRouterHistory":294,"./useRoutes":295,"./withRouter":296}],289:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -61238,7 +61418,7 @@ function isActive(_ref, indexOnly, currentLocation, routes, params) {
   return queryIsActive(query, currentLocation.query);
 }
 module.exports = exports['default'];
-},{"./PatternUtils":266}],289:[function(require,module,exports){
+},{"./PatternUtils":267}],290:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -61288,7 +61468,7 @@ function makeStateWithLocation(state, location) {
   return _extends({}, state, location);
 }
 module.exports = exports['default'];
-},{"./deprecateObjectProperties":283,"./routerWarning":292}],290:[function(require,module,exports){
+},{"./deprecateObjectProperties":284,"./routerWarning":293}],291:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -61372,7 +61552,7 @@ function match(_ref, callback) {
 
 exports.default = match;
 module.exports = exports['default'];
-},{"./RouteUtils":271,"./RouterUtils":274,"./createMemoryHistory":280,"./createTransitionManager":282,"history/lib/Actions":163,"invariant":193}],291:[function(require,module,exports){
+},{"./RouteUtils":272,"./RouterUtils":275,"./createMemoryHistory":281,"./createTransitionManager":283,"history/lib/Actions":163,"invariant":193}],292:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -61624,7 +61804,7 @@ function matchRoutes(routes, location, callback, remainingPathname) {
   }, callback);
 }
 module.exports = exports['default'];
-},{"./AsyncUtils":258,"./PatternUtils":266,"./RouteUtils":271,"./makeStateWithLocation":289,"./routerWarning":292}],292:[function(require,module,exports){
+},{"./AsyncUtils":259,"./PatternUtils":267,"./RouteUtils":272,"./makeStateWithLocation":290,"./routerWarning":293}],293:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -61661,7 +61841,7 @@ function routerWarning(falseToWarn, message) {
 function _resetWarned() {
   warned = {};
 }
-},{"warning":469}],293:[function(require,module,exports){
+},{"warning":470}],294:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -61685,7 +61865,7 @@ function useRouterHistory(createHistory) {
   };
 }
 module.exports = exports['default'];
-},{"history/lib/useBasename":177,"history/lib/useQueries":178}],294:[function(require,module,exports){
+},{"history/lib/useBasename":177,"history/lib/useQueries":178}],295:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -61737,7 +61917,7 @@ function useRoutes(createHistory) {
 
 exports.default = useRoutes;
 module.exports = exports['default'];
-},{"./createTransitionManager":282,"./routerWarning":292,"history/lib/useQueries":178}],295:[function(require,module,exports){
+},{"./createTransitionManager":283,"./routerWarning":293,"history/lib/useQueries":178}],296:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -61802,7 +61982,7 @@ function withRouter(WrappedComponent, options) {
   return (0, _hoistNonReactStatics2.default)(WithRouter, WrappedComponent);
 }
 module.exports = exports['default'];
-},{"./PropTypes":267,"hoist-non-react-statics":180,"invariant":193,"react":443}],296:[function(require,module,exports){
+},{"./PropTypes":268,"hoist-non-react-statics":180,"invariant":193,"react":444}],297:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -61827,7 +62007,7 @@ var AutoFocusUtils = {
 };
 
 module.exports = AutoFocusUtils;
-},{"./ReactDOMComponentTree":337,"fbjs/lib/focusNode":144}],297:[function(require,module,exports){
+},{"./ReactDOMComponentTree":338,"fbjs/lib/focusNode":144}],298:[function(require,module,exports){
 /**
  * Copyright 2013-present Facebook, Inc.
  * All rights reserved.
@@ -62117,8 +62297,10 @@ function getNativeBeforeInputChars(topLevelType, nativeEvent) {
 function getFallbackBeforeInputChars(topLevelType, nativeEvent) {
   // If we are currently composing (IME) and using a fallback to do so,
   // try to extract the composed characters from the fallback object.
+  // If composition event is available, we extract a string only at
+  // compositionevent, otherwise extract it at fallback events.
   if (currentComposition) {
-    if (topLevelType === topLevelTypes.topCompositionEnd || isFallbackCompositionEnd(topLevelType, nativeEvent)) {
+    if (topLevelType === topLevelTypes.topCompositionEnd || !canUseCompositionEvent && isFallbackCompositionEnd(topLevelType, nativeEvent)) {
       var chars = currentComposition.getData();
       FallbackCompositionState.release(currentComposition);
       currentComposition = null;
@@ -62216,7 +62398,7 @@ var BeforeInputEventPlugin = {
 };
 
 module.exports = BeforeInputEventPlugin;
-},{"./EventConstants":311,"./EventPropagators":315,"./FallbackCompositionState":316,"./SyntheticCompositionEvent":398,"./SyntheticInputEvent":402,"fbjs/lib/ExecutionEnvironment":136,"fbjs/lib/keyOf":154}],298:[function(require,module,exports){
+},{"./EventConstants":312,"./EventPropagators":316,"./FallbackCompositionState":317,"./SyntheticCompositionEvent":399,"./SyntheticInputEvent":403,"fbjs/lib/ExecutionEnvironment":136,"fbjs/lib/keyOf":154}],299:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -62365,7 +62547,7 @@ var CSSProperty = {
 };
 
 module.exports = CSSProperty;
-},{}],299:[function(require,module,exports){
+},{}],300:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -62571,7 +62753,7 @@ var CSSPropertyOperations = {
 };
 
 module.exports = CSSPropertyOperations;
-},{"./CSSProperty":298,"./ReactInstrumentation":368,"./dangerousStyleValue":416,"fbjs/lib/ExecutionEnvironment":136,"fbjs/lib/camelizeStyleName":138,"fbjs/lib/hyphenateStyleName":149,"fbjs/lib/memoizeStringOnly":155,"fbjs/lib/warning":159}],300:[function(require,module,exports){
+},{"./CSSProperty":299,"./ReactInstrumentation":369,"./dangerousStyleValue":417,"fbjs/lib/ExecutionEnvironment":136,"fbjs/lib/camelizeStyleName":138,"fbjs/lib/hyphenateStyleName":149,"fbjs/lib/memoizeStringOnly":155,"fbjs/lib/warning":159}],301:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -62678,7 +62860,7 @@ _assign(CallbackQueue.prototype, {
 PooledClass.addPoolingTo(CallbackQueue);
 
 module.exports = CallbackQueue;
-},{"./PooledClass":320,"./reactProdInvariant":435,"fbjs/lib/invariant":150,"object-assign":244}],301:[function(require,module,exports){
+},{"./PooledClass":321,"./reactProdInvariant":436,"fbjs/lib/invariant":150,"object-assign":245}],302:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -62736,7 +62918,7 @@ function shouldUseChangeEvent(elem) {
 var doesChangeEventBubble = false;
 if (ExecutionEnvironment.canUseDOM) {
   // See `handleChange` comment below
-  doesChangeEventBubble = isEventSupported('change') && (!('documentMode' in document) || document.documentMode > 8);
+  doesChangeEventBubble = isEventSupported('change') && (!document.documentMode || document.documentMode > 8);
 }
 
 function manualDispatchChangeEvent(nativeEvent) {
@@ -62802,7 +62984,7 @@ if (ExecutionEnvironment.canUseDOM) {
   // deleting text, so we ignore its input events.
   // IE10+ fire input events to often, such when a placeholder
   // changes or when an input with a placeholder is focused.
-  isInputEventSupported = isEventSupported('input') && (!('documentMode' in document) || document.documentMode > 11);
+  isInputEventSupported = isEventSupported('input') && (!document.documentMode || document.documentMode > 11);
 }
 
 /**
@@ -63004,7 +63186,7 @@ var ChangeEventPlugin = {
 };
 
 module.exports = ChangeEventPlugin;
-},{"./EventConstants":311,"./EventPluginHub":312,"./EventPropagators":315,"./ReactDOMComponentTree":337,"./ReactUpdates":391,"./SyntheticEvent":400,"./getEventTarget":424,"./isEventSupported":431,"./isTextInputElement":432,"fbjs/lib/ExecutionEnvironment":136,"fbjs/lib/keyOf":154}],302:[function(require,module,exports){
+},{"./EventConstants":312,"./EventPluginHub":313,"./EventPropagators":316,"./ReactDOMComponentTree":338,"./ReactUpdates":392,"./SyntheticEvent":401,"./getEventTarget":425,"./isEventSupported":432,"./isTextInputElement":433,"fbjs/lib/ExecutionEnvironment":136,"fbjs/lib/keyOf":154}],303:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -63199,7 +63381,7 @@ var DOMChildrenOperations = {
 };
 
 module.exports = DOMChildrenOperations;
-},{"./DOMLazyTree":303,"./Danger":307,"./ReactDOMComponentTree":337,"./ReactInstrumentation":368,"./ReactMultiChildUpdateTypes":373,"./createMicrosoftUnsafeLocalFunction":415,"./setInnerHTML":437,"./setTextContent":438}],303:[function(require,module,exports){
+},{"./DOMLazyTree":304,"./Danger":308,"./ReactDOMComponentTree":338,"./ReactInstrumentation":369,"./ReactMultiChildUpdateTypes":374,"./createMicrosoftUnsafeLocalFunction":416,"./setInnerHTML":438,"./setTextContent":439}],304:[function(require,module,exports){
 /**
  * Copyright 2015-present, Facebook, Inc.
  * All rights reserved.
@@ -63318,7 +63500,7 @@ DOMLazyTree.queueHTML = queueHTML;
 DOMLazyTree.queueText = queueText;
 
 module.exports = DOMLazyTree;
-},{"./DOMNamespaces":304,"./createMicrosoftUnsafeLocalFunction":415,"./setInnerHTML":437,"./setTextContent":438}],304:[function(require,module,exports){
+},{"./DOMNamespaces":305,"./createMicrosoftUnsafeLocalFunction":416,"./setInnerHTML":438,"./setTextContent":439}],305:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -63339,7 +63521,7 @@ var DOMNamespaces = {
 };
 
 module.exports = DOMNamespaces;
-},{}],305:[function(require,module,exports){
+},{}],306:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -63546,7 +63728,7 @@ var DOMProperty = {
 };
 
 module.exports = DOMProperty;
-},{"./reactProdInvariant":435,"fbjs/lib/invariant":150}],306:[function(require,module,exports){
+},{"./reactProdInvariant":436,"fbjs/lib/invariant":150}],307:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -63768,7 +63950,7 @@ var DOMPropertyOperations = {
 };
 
 module.exports = DOMPropertyOperations;
-},{"./DOMProperty":305,"./ReactDOMComponentTree":337,"./ReactInstrumentation":368,"./quoteAttributeValueForBrowser":434,"fbjs/lib/warning":159}],307:[function(require,module,exports){
+},{"./DOMProperty":306,"./ReactDOMComponentTree":338,"./ReactInstrumentation":369,"./quoteAttributeValueForBrowser":435,"fbjs/lib/warning":159}],308:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -63817,7 +63999,7 @@ var Danger = {
 };
 
 module.exports = Danger;
-},{"./DOMLazyTree":303,"./reactProdInvariant":435,"fbjs/lib/ExecutionEnvironment":136,"fbjs/lib/createNodesFromMarkup":141,"fbjs/lib/emptyFunction":142,"fbjs/lib/invariant":150}],308:[function(require,module,exports){
+},{"./DOMLazyTree":304,"./reactProdInvariant":436,"fbjs/lib/ExecutionEnvironment":136,"fbjs/lib/createNodesFromMarkup":141,"fbjs/lib/emptyFunction":142,"fbjs/lib/invariant":150}],309:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -63845,7 +64027,7 @@ var keyOf = require('fbjs/lib/keyOf');
 var DefaultEventPluginOrder = [keyOf({ ResponderEventPlugin: null }), keyOf({ SimpleEventPlugin: null }), keyOf({ TapEventPlugin: null }), keyOf({ EnterLeaveEventPlugin: null }), keyOf({ ChangeEventPlugin: null }), keyOf({ SelectEventPlugin: null }), keyOf({ BeforeInputEventPlugin: null })];
 
 module.exports = DefaultEventPluginOrder;
-},{"fbjs/lib/keyOf":154}],309:[function(require,module,exports){
+},{"fbjs/lib/keyOf":154}],310:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -63896,7 +64078,7 @@ var DisabledInputUtils = {
 };
 
 module.exports = DisabledInputUtils;
-},{}],310:[function(require,module,exports){
+},{}],311:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -64002,7 +64184,7 @@ var EnterLeaveEventPlugin = {
 };
 
 module.exports = EnterLeaveEventPlugin;
-},{"./EventConstants":311,"./EventPropagators":315,"./ReactDOMComponentTree":337,"./SyntheticMouseEvent":404,"fbjs/lib/keyOf":154}],311:[function(require,module,exports){
+},{"./EventConstants":312,"./EventPropagators":316,"./ReactDOMComponentTree":338,"./SyntheticMouseEvent":405,"fbjs/lib/keyOf":154}],312:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -64100,7 +64282,7 @@ var EventConstants = {
 };
 
 module.exports = EventConstants;
-},{"fbjs/lib/keyMirror":153}],312:[function(require,module,exports){
+},{"fbjs/lib/keyMirror":153}],313:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -64352,7 +64534,7 @@ var EventPluginHub = {
 };
 
 module.exports = EventPluginHub;
-},{"./EventPluginRegistry":313,"./EventPluginUtils":314,"./ReactErrorUtils":359,"./accumulateInto":411,"./forEachAccumulated":420,"./reactProdInvariant":435,"fbjs/lib/invariant":150}],313:[function(require,module,exports){
+},{"./EventPluginRegistry":314,"./EventPluginUtils":315,"./ReactErrorUtils":360,"./accumulateInto":412,"./forEachAccumulated":421,"./reactProdInvariant":436,"fbjs/lib/invariant":150}],314:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -64600,7 +64782,7 @@ var EventPluginRegistry = {
 };
 
 module.exports = EventPluginRegistry;
-},{"./reactProdInvariant":435,"fbjs/lib/invariant":150}],314:[function(require,module,exports){
+},{"./reactProdInvariant":436,"fbjs/lib/invariant":150}],315:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -64830,7 +65012,7 @@ var EventPluginUtils = {
 };
 
 module.exports = EventPluginUtils;
-},{"./EventConstants":311,"./ReactErrorUtils":359,"./reactProdInvariant":435,"fbjs/lib/invariant":150,"fbjs/lib/warning":159}],315:[function(require,module,exports){
+},{"./EventConstants":312,"./ReactErrorUtils":360,"./reactProdInvariant":436,"fbjs/lib/invariant":150,"fbjs/lib/warning":159}],316:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -64968,7 +65150,7 @@ var EventPropagators = {
 };
 
 module.exports = EventPropagators;
-},{"./EventConstants":311,"./EventPluginHub":312,"./EventPluginUtils":314,"./accumulateInto":411,"./forEachAccumulated":420,"fbjs/lib/warning":159}],316:[function(require,module,exports){
+},{"./EventConstants":312,"./EventPluginHub":313,"./EventPluginUtils":315,"./accumulateInto":412,"./forEachAccumulated":421,"fbjs/lib/warning":159}],317:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -65064,7 +65246,7 @@ _assign(FallbackCompositionState.prototype, {
 PooledClass.addPoolingTo(FallbackCompositionState);
 
 module.exports = FallbackCompositionState;
-},{"./PooledClass":320,"./getTextContentAccessor":428,"object-assign":244}],317:[function(require,module,exports){
+},{"./PooledClass":321,"./getTextContentAccessor":429,"object-assign":245}],318:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -65099,6 +65281,8 @@ var HTMLDOMPropertyConfig = {
     allowFullScreen: HAS_BOOLEAN_VALUE,
     allowTransparency: 0,
     alt: 0,
+    // specifies target context for links with `preload` type
+    as: 0,
     async: HAS_BOOLEAN_VALUE,
     autoComplete: 0,
     // autoFocus is polyfilled/normalized by AutoFocusUtils
@@ -65179,6 +65363,7 @@ var HTMLDOMPropertyConfig = {
     optimum: 0,
     pattern: 0,
     placeholder: 0,
+    playsInline: HAS_BOOLEAN_VALUE,
     poster: 0,
     preload: 0,
     profile: 0,
@@ -65274,7 +65459,7 @@ var HTMLDOMPropertyConfig = {
 };
 
 module.exports = HTMLDOMPropertyConfig;
-},{"./DOMProperty":305}],318:[function(require,module,exports){
+},{"./DOMProperty":306}],319:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -65334,7 +65519,7 @@ var KeyEscapeUtils = {
 };
 
 module.exports = KeyEscapeUtils;
-},{}],319:[function(require,module,exports){
+},{}],320:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -65471,7 +65656,7 @@ var LinkedValueUtils = {
 };
 
 module.exports = LinkedValueUtils;
-},{"./ReactPropTypeLocations":379,"./ReactPropTypes":380,"./ReactPropTypesSecret":381,"./reactProdInvariant":435,"fbjs/lib/invariant":150,"fbjs/lib/warning":159}],320:[function(require,module,exports){
+},{"./ReactPropTypeLocations":380,"./ReactPropTypes":381,"./ReactPropTypesSecret":382,"./reactProdInvariant":436,"fbjs/lib/invariant":150,"fbjs/lib/warning":159}],321:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -65593,7 +65778,7 @@ var PooledClass = {
 };
 
 module.exports = PooledClass;
-},{"./reactProdInvariant":435,"fbjs/lib/invariant":150}],321:[function(require,module,exports){
+},{"./reactProdInvariant":436,"fbjs/lib/invariant":150}],322:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -65683,7 +65868,7 @@ var React = {
 };
 
 module.exports = React;
-},{"./ReactChildren":324,"./ReactClass":326,"./ReactComponent":327,"./ReactDOMFactories":340,"./ReactElement":356,"./ReactElementValidator":357,"./ReactPropTypes":380,"./ReactPureComponent":382,"./ReactVersion":392,"./onlyChild":433,"fbjs/lib/warning":159,"object-assign":244}],322:[function(require,module,exports){
+},{"./ReactChildren":325,"./ReactClass":327,"./ReactComponent":328,"./ReactDOMFactories":341,"./ReactElement":357,"./ReactElementValidator":358,"./ReactPropTypes":381,"./ReactPureComponent":383,"./ReactVersion":393,"./onlyChild":434,"fbjs/lib/warning":159,"object-assign":245}],323:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -65977,6 +66162,19 @@ var ReactBrowserEventEmitter = _assign({}, ReactEventEmitterMixin, {
   },
 
   /**
+   * Protect against document.createEvent() returning null
+   * Some popup blocker extensions appear to do this:
+   * https://github.com/facebook/react/issues/6887
+   */
+  supportsEventPageXY: function () {
+    if (!document.createEvent) {
+      return false;
+    }
+    var ev = document.createEvent('MouseEvent');
+    return ev != null && 'pageX' in ev;
+  },
+
+  /**
    * Listens to window scroll and resize events. We cache scroll values so that
    * application code can access them without triggering reflows.
    *
@@ -65989,7 +66187,7 @@ var ReactBrowserEventEmitter = _assign({}, ReactEventEmitterMixin, {
    */
   ensureScrollValueMonitoring: function () {
     if (hasEventPageXY === undefined) {
-      hasEventPageXY = document.createEvent && 'pageX' in document.createEvent('MouseEvent');
+      hasEventPageXY = ReactBrowserEventEmitter.supportsEventPageXY();
     }
     if (!hasEventPageXY && !isMonitoringScrollValue) {
       var refresh = ViewportMetrics.refreshScrollValues;
@@ -66001,7 +66199,7 @@ var ReactBrowserEventEmitter = _assign({}, ReactEventEmitterMixin, {
 });
 
 module.exports = ReactBrowserEventEmitter;
-},{"./EventConstants":311,"./EventPluginRegistry":313,"./ReactEventEmitterMixin":360,"./ViewportMetrics":410,"./getVendorPrefixedEventName":429,"./isEventSupported":431,"object-assign":244}],323:[function(require,module,exports){
+},{"./EventConstants":312,"./EventPluginRegistry":314,"./ReactEventEmitterMixin":361,"./ViewportMetrics":411,"./getVendorPrefixedEventName":430,"./isEventSupported":432,"object-assign":245}],324:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014-present, Facebook, Inc.
@@ -66158,7 +66356,7 @@ var ReactChildReconciler = {
 
 module.exports = ReactChildReconciler;
 }).call(this,require('_process'))
-},{"./KeyEscapeUtils":318,"./ReactComponentTreeHook":330,"./ReactReconciler":384,"./instantiateReactComponent":430,"./shouldUpdateReactComponent":440,"./traverseAllChildren":441,"_process":248,"fbjs/lib/warning":159}],324:[function(require,module,exports){
+},{"./KeyEscapeUtils":319,"./ReactComponentTreeHook":331,"./ReactReconciler":385,"./instantiateReactComponent":431,"./shouldUpdateReactComponent":441,"./traverseAllChildren":442,"_process":249,"fbjs/lib/warning":159}],325:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -66350,7 +66548,7 @@ var ReactChildren = {
 };
 
 module.exports = ReactChildren;
-},{"./PooledClass":320,"./ReactElement":356,"./traverseAllChildren":441,"fbjs/lib/emptyFunction":142}],325:[function(require,module,exports){
+},{"./PooledClass":321,"./ReactElement":357,"./traverseAllChildren":442,"fbjs/lib/emptyFunction":142}],326:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -66405,7 +66603,7 @@ var ReactChildrenMutationWarningHook = {
 };
 
 module.exports = ReactChildrenMutationWarningHook;
-},{"./ReactComponentTreeHook":330,"fbjs/lib/warning":159}],326:[function(require,module,exports){
+},{"./ReactComponentTreeHook":331,"fbjs/lib/warning":159}],327:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -67138,7 +67336,7 @@ var ReactClass = {
 };
 
 module.exports = ReactClass;
-},{"./ReactComponent":327,"./ReactElement":356,"./ReactNoopUpdateQueue":375,"./ReactPropTypeLocationNames":378,"./ReactPropTypeLocations":379,"./reactProdInvariant":435,"fbjs/lib/emptyObject":143,"fbjs/lib/invariant":150,"fbjs/lib/keyMirror":153,"fbjs/lib/keyOf":154,"fbjs/lib/warning":159,"object-assign":244}],327:[function(require,module,exports){
+},{"./ReactComponent":328,"./ReactElement":357,"./ReactNoopUpdateQueue":376,"./ReactPropTypeLocationNames":379,"./ReactPropTypeLocations":380,"./reactProdInvariant":436,"fbjs/lib/emptyObject":143,"fbjs/lib/invariant":150,"fbjs/lib/keyMirror":153,"fbjs/lib/keyOf":154,"fbjs/lib/warning":159,"object-assign":245}],328:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -67257,7 +67455,7 @@ if ("production" !== 'production') {
 }
 
 module.exports = ReactComponent;
-},{"./ReactNoopUpdateQueue":375,"./canDefineProperty":413,"./reactProdInvariant":435,"fbjs/lib/emptyObject":143,"fbjs/lib/invariant":150,"fbjs/lib/warning":159}],328:[function(require,module,exports){
+},{"./ReactNoopUpdateQueue":376,"./canDefineProperty":414,"./reactProdInvariant":436,"fbjs/lib/emptyObject":143,"fbjs/lib/invariant":150,"fbjs/lib/warning":159}],329:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -67288,7 +67486,7 @@ var ReactComponentBrowserEnvironment = {
 };
 
 module.exports = ReactComponentBrowserEnvironment;
-},{"./DOMChildrenOperations":302,"./ReactDOMIDOperations":342}],329:[function(require,module,exports){
+},{"./DOMChildrenOperations":303,"./ReactDOMIDOperations":343}],330:[function(require,module,exports){
 /**
  * Copyright 2014-present, Facebook, Inc.
  * All rights reserved.
@@ -67334,7 +67532,7 @@ var ReactComponentEnvironment = {
 };
 
 module.exports = ReactComponentEnvironment;
-},{"./reactProdInvariant":435,"fbjs/lib/invariant":150}],330:[function(require,module,exports){
+},{"./reactProdInvariant":436,"fbjs/lib/invariant":150}],331:[function(require,module,exports){
 /**
  * Copyright 2016-present, Facebook, Inc.
  * All rights reserved.
@@ -67677,7 +67875,7 @@ var ReactComponentTreeHook = {
 };
 
 module.exports = ReactComponentTreeHook;
-},{"./ReactCurrentOwner":332,"./reactProdInvariant":435,"fbjs/lib/invariant":150,"fbjs/lib/warning":159}],331:[function(require,module,exports){
+},{"./ReactCurrentOwner":333,"./reactProdInvariant":436,"fbjs/lib/invariant":150,"fbjs/lib/warning":159}],332:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -67732,34 +67930,29 @@ function warnIfInvalidElement(Component, element) {
   }
 }
 
-function invokeComponentDidMountWithTimer() {
-  var publicInstance = this._instance;
-  if (this._debugID !== 0) {
-    ReactInstrumentation.debugTool.onBeginLifeCycleTimer(this._debugID, 'componentDidMount');
-  }
-  publicInstance.componentDidMount();
-  if (this._debugID !== 0) {
-    ReactInstrumentation.debugTool.onEndLifeCycleTimer(this._debugID, 'componentDidMount');
-  }
-}
-
-function invokeComponentDidUpdateWithTimer(prevProps, prevState, prevContext) {
-  var publicInstance = this._instance;
-  if (this._debugID !== 0) {
-    ReactInstrumentation.debugTool.onBeginLifeCycleTimer(this._debugID, 'componentDidUpdate');
-  }
-  publicInstance.componentDidUpdate(prevProps, prevState, prevContext);
-  if (this._debugID !== 0) {
-    ReactInstrumentation.debugTool.onEndLifeCycleTimer(this._debugID, 'componentDidUpdate');
-  }
-}
-
 function shouldConstruct(Component) {
   return !!(Component.prototype && Component.prototype.isReactComponent);
 }
 
 function isPureComponent(Component) {
   return !!(Component.prototype && Component.prototype.isPureReactComponent);
+}
+
+// Separated into a function to contain deoptimizations caused by try/finally.
+function measureLifeCyclePerf(fn, debugID, timerType) {
+  if (debugID === 0) {
+    // Top-level wrappers (see ReactMount) and empty components (see
+    // ReactDOMEmptyComponent) are invisible to hooks and devtools.
+    // Both are implementation details that should go away in the future.
+    return fn();
+  }
+
+  ReactInstrumentation.debugTool.onBeginLifeCycleTimer(debugID, timerType);
+  try {
+    return fn();
+  } finally {
+    ReactInstrumentation.debugTool.onEndLifeCycleTimer(debugID, timerType);
+  }
 }
 
 /**
@@ -67853,6 +68046,8 @@ var ReactCompositeComponentMixin = {
    * @internal
    */
   mountComponent: function (transaction, hostParent, hostContainerInfo, context) {
+    var _this = this;
+
     this._context = context;
     this._mountOrder = nextMountID++;
     this._hostParent = hostParent;
@@ -67942,7 +68137,11 @@ var ReactCompositeComponentMixin = {
 
     if (inst.componentDidMount) {
       if ("production" !== 'production') {
-        transaction.getReactMountReady().enqueue(invokeComponentDidMountWithTimer, this);
+        transaction.getReactMountReady().enqueue(function () {
+          measureLifeCyclePerf(function () {
+            return inst.componentDidMount();
+          }, _this._debugID, 'componentDidMount');
+        });
       } else {
         transaction.getReactMountReady().enqueue(inst.componentDidMount, inst);
       }
@@ -67966,35 +68165,26 @@ var ReactCompositeComponentMixin = {
 
   _constructComponentWithoutOwner: function (doConstruct, publicProps, publicContext, updateQueue) {
     var Component = this._currentElement.type;
-    var instanceOrElement;
+
     if (doConstruct) {
       if ("production" !== 'production') {
-        if (this._debugID !== 0) {
-          ReactInstrumentation.debugTool.onBeginLifeCycleTimer(this._debugID, 'ctor');
-        }
-      }
-      instanceOrElement = new Component(publicProps, publicContext, updateQueue);
-      if ("production" !== 'production') {
-        if (this._debugID !== 0) {
-          ReactInstrumentation.debugTool.onEndLifeCycleTimer(this._debugID, 'ctor');
-        }
-      }
-    } else {
-      // This can still be an instance in case of factory components
-      // but we'll count this as time spent rendering as the more common case.
-      if ("production" !== 'production') {
-        if (this._debugID !== 0) {
-          ReactInstrumentation.debugTool.onBeginLifeCycleTimer(this._debugID, 'render');
-        }
-      }
-      instanceOrElement = Component(publicProps, publicContext, updateQueue);
-      if ("production" !== 'production') {
-        if (this._debugID !== 0) {
-          ReactInstrumentation.debugTool.onEndLifeCycleTimer(this._debugID, 'render');
-        }
+        return measureLifeCyclePerf(function () {
+          return new Component(publicProps, publicContext, updateQueue);
+        }, this._debugID, 'ctor');
+      } else {
+        return new Component(publicProps, publicContext, updateQueue);
       }
     }
-    return instanceOrElement;
+
+    // This can still be an instance in case of factory components
+    // but we'll count this as time spent rendering as the more common case.
+    if ("production" !== 'production') {
+      return measureLifeCyclePerf(function () {
+        return Component(publicProps, publicContext, updateQueue);
+      }, this._debugID, 'render');
+    } else {
+      return Component(publicProps, publicContext, updateQueue);
+    }
   },
 
   performInitialMountWithErrorHandling: function (renderedElement, hostParent, hostContainerInfo, transaction, context) {
@@ -68003,11 +68193,6 @@ var ReactCompositeComponentMixin = {
     try {
       markup = this.performInitialMount(renderedElement, hostParent, hostContainerInfo, transaction, context);
     } catch (e) {
-      if ("production" !== 'production') {
-        if (this._debugID !== 0) {
-          ReactInstrumentation.debugTool.onError();
-        }
-      }
       // Roll back to checkpoint, handle error (which may add items to the transaction), and take a new checkpoint
       transaction.rollback(checkpoint);
       this._instance.unstable_handleError(e);
@@ -68028,17 +68213,19 @@ var ReactCompositeComponentMixin = {
 
   performInitialMount: function (renderedElement, hostParent, hostContainerInfo, transaction, context) {
     var inst = this._instance;
+
+    var debugID = 0;
+    if ("production" !== 'production') {
+      debugID = this._debugID;
+    }
+
     if (inst.componentWillMount) {
       if ("production" !== 'production') {
-        if (this._debugID !== 0) {
-          ReactInstrumentation.debugTool.onBeginLifeCycleTimer(this._debugID, 'componentWillMount');
-        }
-      }
-      inst.componentWillMount();
-      if ("production" !== 'production') {
-        if (this._debugID !== 0) {
-          ReactInstrumentation.debugTool.onEndLifeCycleTimer(this._debugID, 'componentWillMount');
-        }
+        measureLifeCyclePerf(function () {
+          return inst.componentWillMount();
+        }, debugID, 'componentWillMount');
+      } else {
+        inst.componentWillMount();
       }
       // When mounting, calls to `setState` by `componentWillMount` will set
       // `this._pendingStateQueue` without triggering a re-render.
@@ -68058,15 +68245,12 @@ var ReactCompositeComponentMixin = {
     );
     this._renderedComponent = child;
 
-    var selfDebugID = 0;
-    if ("production" !== 'production') {
-      selfDebugID = this._debugID;
-    }
-    var markup = ReactReconciler.mountComponent(child, transaction, hostParent, hostContainerInfo, this._processChildContext(context), selfDebugID);
+    var markup = ReactReconciler.mountComponent(child, transaction, hostParent, hostContainerInfo, this._processChildContext(context), debugID);
 
     if ("production" !== 'production') {
-      if (this._debugID !== 0) {
-        ReactInstrumentation.debugTool.onSetChildren(this._debugID, child._debugID !== 0 ? [child._debugID] : []);
+      if (debugID !== 0) {
+        var childDebugIDs = child._debugID !== 0 ? [child._debugID] : [];
+        ReactInstrumentation.debugTool.onSetChildren(debugID, childDebugIDs);
       }
     }
 
@@ -68087,24 +68271,22 @@ var ReactCompositeComponentMixin = {
     if (!this._renderedComponent) {
       return;
     }
+
     var inst = this._instance;
 
     if (inst.componentWillUnmount && !inst._calledComponentWillUnmount) {
       inst._calledComponentWillUnmount = true;
-      if ("production" !== 'production') {
-        if (this._debugID !== 0) {
-          ReactInstrumentation.debugTool.onBeginLifeCycleTimer(this._debugID, 'componentWillUnmount');
-        }
-      }
+
       if (safely) {
         var name = this.getName() + '.componentWillUnmount()';
         ReactErrorUtils.invokeGuardedCallback(name, inst.componentWillUnmount.bind(inst));
       } else {
-        inst.componentWillUnmount();
-      }
-      if ("production" !== 'production') {
-        if (this._debugID !== 0) {
-          ReactInstrumentation.debugTool.onEndLifeCycleTimer(this._debugID, 'componentWillUnmount');
+        if ("production" !== 'production') {
+          measureLifeCyclePerf(function () {
+            return inst.componentWillUnmount();
+          }, this._debugID, 'componentWillUnmount');
+        } else {
+          inst.componentWillUnmount();
         }
       }
     }
@@ -68191,13 +68373,21 @@ var ReactCompositeComponentMixin = {
   _processChildContext: function (currentContext) {
     var Component = this._currentElement.type;
     var inst = this._instance;
-    if ("production" !== 'production') {
-      ReactInstrumentation.debugTool.onBeginProcessingChildContext();
+    var childContext;
+
+    if (inst.getChildContext) {
+      if ("production" !== 'production') {
+        ReactInstrumentation.debugTool.onBeginProcessingChildContext();
+        try {
+          childContext = inst.getChildContext();
+        } finally {
+          ReactInstrumentation.debugTool.onEndProcessingChildContext();
+        }
+      } else {
+        childContext = inst.getChildContext();
+      }
     }
-    var childContext = inst.getChildContext && inst.getChildContext();
-    if ("production" !== 'production') {
-      ReactInstrumentation.debugTool.onEndProcessingChildContext();
-    }
+
     if (childContext) {
       !(typeof Component.childContextTypes === 'object') ? "production" !== 'production' ? invariant(false, '%s.getChildContext(): childContextTypes must be defined in order to use getChildContext().', this.getName() || 'ReactCompositeComponent') : _prodInvariant('107', this.getName() || 'ReactCompositeComponent') : void 0;
       if ("production" !== 'production') {
@@ -68292,15 +68482,11 @@ var ReactCompositeComponentMixin = {
     // immediately reconciled instead of waiting for the next batch.
     if (willReceive && inst.componentWillReceiveProps) {
       if ("production" !== 'production') {
-        if (this._debugID !== 0) {
-          ReactInstrumentation.debugTool.onBeginLifeCycleTimer(this._debugID, 'componentWillReceiveProps');
-        }
-      }
-      inst.componentWillReceiveProps(nextProps, nextContext);
-      if ("production" !== 'production') {
-        if (this._debugID !== 0) {
-          ReactInstrumentation.debugTool.onEndLifeCycleTimer(this._debugID, 'componentWillReceiveProps');
-        }
+        measureLifeCyclePerf(function () {
+          return inst.componentWillReceiveProps(nextProps, nextContext);
+        }, this._debugID, 'componentWillReceiveProps');
+      } else {
+        inst.componentWillReceiveProps(nextProps, nextContext);
       }
     }
 
@@ -68310,15 +68496,11 @@ var ReactCompositeComponentMixin = {
     if (!this._pendingForceUpdate) {
       if (inst.shouldComponentUpdate) {
         if ("production" !== 'production') {
-          if (this._debugID !== 0) {
-            ReactInstrumentation.debugTool.onBeginLifeCycleTimer(this._debugID, 'shouldComponentUpdate');
-          }
-        }
-        shouldUpdate = inst.shouldComponentUpdate(nextProps, nextState, nextContext);
-        if ("production" !== 'production') {
-          if (this._debugID !== 0) {
-            ReactInstrumentation.debugTool.onEndLifeCycleTimer(this._debugID, 'shouldComponentUpdate');
-          }
+          shouldUpdate = measureLifeCyclePerf(function () {
+            return inst.shouldComponentUpdate(nextProps, nextState, nextContext);
+          }, this._debugID, 'shouldComponentUpdate');
+        } else {
+          shouldUpdate = inst.shouldComponentUpdate(nextProps, nextState, nextContext);
         }
       } else {
         if (this._compositeType === CompositeTypes.PureClass) {
@@ -68384,6 +68566,8 @@ var ReactCompositeComponentMixin = {
    * @private
    */
   _performComponentUpdate: function (nextElement, nextProps, nextState, nextContext, transaction, unmaskedContext) {
+    var _this2 = this;
+
     var inst = this._instance;
 
     var hasComponentDidUpdate = Boolean(inst.componentDidUpdate);
@@ -68398,15 +68582,11 @@ var ReactCompositeComponentMixin = {
 
     if (inst.componentWillUpdate) {
       if ("production" !== 'production') {
-        if (this._debugID !== 0) {
-          ReactInstrumentation.debugTool.onBeginLifeCycleTimer(this._debugID, 'componentWillUpdate');
-        }
-      }
-      inst.componentWillUpdate(nextProps, nextState, nextContext);
-      if ("production" !== 'production') {
-        if (this._debugID !== 0) {
-          ReactInstrumentation.debugTool.onEndLifeCycleTimer(this._debugID, 'componentWillUpdate');
-        }
+        measureLifeCyclePerf(function () {
+          return inst.componentWillUpdate(nextProps, nextState, nextContext);
+        }, this._debugID, 'componentWillUpdate');
+      } else {
+        inst.componentWillUpdate(nextProps, nextState, nextContext);
       }
     }
 
@@ -68420,7 +68600,9 @@ var ReactCompositeComponentMixin = {
 
     if (hasComponentDidUpdate) {
       if ("production" !== 'production') {
-        transaction.getReactMountReady().enqueue(invokeComponentDidUpdateWithTimer.bind(this, prevProps, prevState, prevContext), this);
+        transaction.getReactMountReady().enqueue(function () {
+          measureLifeCyclePerf(inst.componentDidUpdate.bind(inst, prevProps, prevState, prevContext), _this2._debugID, 'componentDidUpdate');
+        });
       } else {
         transaction.getReactMountReady().enqueue(inst.componentDidUpdate.bind(inst, prevProps, prevState, prevContext), inst);
       }
@@ -68437,6 +68619,12 @@ var ReactCompositeComponentMixin = {
     var prevComponentInstance = this._renderedComponent;
     var prevRenderedElement = prevComponentInstance._currentElement;
     var nextRenderedElement = this._renderValidatedComponent();
+
+    var debugID = 0;
+    if ("production" !== 'production') {
+      debugID = this._debugID;
+    }
+
     if (shouldUpdateReactComponent(prevRenderedElement, nextRenderedElement)) {
       ReactReconciler.receiveComponent(prevComponentInstance, nextRenderedElement, transaction, this._processChildContext(context));
     } else {
@@ -68449,15 +68637,12 @@ var ReactCompositeComponentMixin = {
       );
       this._renderedComponent = child;
 
-      var selfDebugID = 0;
-      if ("production" !== 'production') {
-        selfDebugID = this._debugID;
-      }
-      var nextMarkup = ReactReconciler.mountComponent(child, transaction, this._hostParent, this._hostContainerInfo, this._processChildContext(context), selfDebugID);
+      var nextMarkup = ReactReconciler.mountComponent(child, transaction, this._hostParent, this._hostContainerInfo, this._processChildContext(context), debugID);
 
       if ("production" !== 'production') {
-        if (this._debugID !== 0) {
-          ReactInstrumentation.debugTool.onSetChildren(this._debugID, child._debugID !== 0 ? [child._debugID] : []);
+        if (debugID !== 0) {
+          var childDebugIDs = child._debugID !== 0 ? [child._debugID] : [];
+          ReactInstrumentation.debugTool.onSetChildren(debugID, childDebugIDs);
         }
       }
 
@@ -68479,17 +68664,14 @@ var ReactCompositeComponentMixin = {
    */
   _renderValidatedComponentWithoutOwnerOrContext: function () {
     var inst = this._instance;
+    var renderedComponent;
 
     if ("production" !== 'production') {
-      if (this._debugID !== 0) {
-        ReactInstrumentation.debugTool.onBeginLifeCycleTimer(this._debugID, 'render');
-      }
-    }
-    var renderedComponent = inst.render();
-    if ("production" !== 'production') {
-      if (this._debugID !== 0) {
-        ReactInstrumentation.debugTool.onEndLifeCycleTimer(this._debugID, 'render');
-      }
+      renderedComponent = measureLifeCyclePerf(function () {
+        return inst.render();
+      }, this._debugID, 'render');
+    } else {
+      renderedComponent = inst.render();
     }
 
     if ("production" !== 'production') {
@@ -68540,7 +68722,7 @@ var ReactCompositeComponentMixin = {
     var publicComponentInstance = component.getPublicInstance();
     if ("production" !== 'production') {
       var componentName = component && component.getName ? component.getName() : 'a component';
-      "production" !== 'production' ? warning(publicComponentInstance != null, 'Stateless function components cannot be given refs ' + '(See ref "%s" in %s created by %s). ' + 'Attempts to access this ref will fail.', ref, componentName, this.getName()) : void 0;
+      "production" !== 'production' ? warning(publicComponentInstance != null || component._compositeType !== CompositeTypes.StatelessFunctional, 'Stateless function components cannot be given refs ' + '(See ref "%s" in %s created by %s). ' + 'Attempts to access this ref will fail.', ref, componentName, this.getName()) : void 0;
     }
     var refs = inst.refs === emptyObject ? inst.refs = {} : inst.refs;
     refs[ref] = publicComponentInstance;
@@ -68598,7 +68780,7 @@ var ReactCompositeComponent = {
 };
 
 module.exports = ReactCompositeComponent;
-},{"./ReactComponentEnvironment":329,"./ReactCurrentOwner":332,"./ReactElement":356,"./ReactErrorUtils":359,"./ReactInstanceMap":367,"./ReactInstrumentation":368,"./ReactNodeTypes":374,"./ReactPropTypeLocations":379,"./ReactReconciler":384,"./checkReactTypeSpec":414,"./reactProdInvariant":435,"./shouldUpdateReactComponent":440,"fbjs/lib/emptyObject":143,"fbjs/lib/invariant":150,"fbjs/lib/shallowEqual":158,"fbjs/lib/warning":159,"object-assign":244}],332:[function(require,module,exports){
+},{"./ReactComponentEnvironment":330,"./ReactCurrentOwner":333,"./ReactElement":357,"./ReactErrorUtils":360,"./ReactInstanceMap":368,"./ReactInstrumentation":369,"./ReactNodeTypes":375,"./ReactPropTypeLocations":380,"./ReactReconciler":385,"./checkReactTypeSpec":415,"./reactProdInvariant":436,"./shouldUpdateReactComponent":441,"fbjs/lib/emptyObject":143,"fbjs/lib/invariant":150,"fbjs/lib/shallowEqual":158,"fbjs/lib/warning":159,"object-assign":245}],333:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -68630,7 +68812,7 @@ var ReactCurrentOwner = {
 };
 
 module.exports = ReactCurrentOwner;
-},{}],333:[function(require,module,exports){
+},{}],334:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -68741,7 +68923,7 @@ if ("production" !== 'production') {
 }
 
 module.exports = ReactDOM;
-},{"./ReactDOMComponentTree":337,"./ReactDOMNullInputValuePropHook":344,"./ReactDOMUnknownPropertyHook":352,"./ReactDefaultInjection":355,"./ReactInstrumentation":368,"./ReactMount":371,"./ReactReconciler":384,"./ReactUpdates":391,"./ReactVersion":392,"./findDOMNode":418,"./getHostComponentFromComposite":425,"./renderSubtreeIntoContainer":436,"fbjs/lib/ExecutionEnvironment":136,"fbjs/lib/warning":159}],334:[function(require,module,exports){
+},{"./ReactDOMComponentTree":338,"./ReactDOMNullInputValuePropHook":345,"./ReactDOMUnknownPropertyHook":353,"./ReactDefaultInjection":356,"./ReactInstrumentation":369,"./ReactMount":372,"./ReactReconciler":385,"./ReactUpdates":392,"./ReactVersion":393,"./findDOMNode":419,"./getHostComponentFromComposite":426,"./renderSubtreeIntoContainer":437,"fbjs/lib/ExecutionEnvironment":136,"fbjs/lib/warning":159}],335:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -68766,7 +68948,7 @@ var ReactDOMButton = {
 };
 
 module.exports = ReactDOMButton;
-},{"./DisabledInputUtils":309}],335:[function(require,module,exports){
+},{"./DisabledInputUtils":310}],336:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -68964,9 +69146,9 @@ function optionPostMount() {
   ReactDOMOption.postMountWrapper(inst);
 }
 
-var setContentChildForInstrumentation = emptyFunction;
+var setAndValidateContentChildDev = emptyFunction;
 if ("production" !== 'production') {
-  setContentChildForInstrumentation = function (content) {
+  setAndValidateContentChildDev = function (content) {
     var hasExistingContent = this._contentDebugID != null;
     var debugID = this._debugID;
     // This ID represents the inlined child that has no backing instance:
@@ -68980,6 +69162,7 @@ if ("production" !== 'production') {
       return;
     }
 
+    validateDOMNesting(null, String(content), this, this._ancestorInfo);
     this._contentDebugID = contentDebugID;
     if (hasExistingContent) {
       ReactInstrumentation.debugTool.onBeforeUpdateComponent(contentDebugID, content);
@@ -69154,7 +69337,7 @@ function ReactDOMComponent(element) {
   this._flags = 0;
   if ("production" !== 'production') {
     this._ancestorInfo = null;
-    setContentChildForInstrumentation.call(this, null);
+    setAndValidateContentChildDev.call(this, null);
   }
 }
 
@@ -69254,7 +69437,7 @@ ReactDOMComponent.Mixin = {
       if (parentInfo) {
         // parentInfo should always be present except for the top-level
         // component when server rendering
-        validateDOMNesting(this._tag, this, parentInfo);
+        validateDOMNesting(this._tag, null, this, parentInfo);
       }
       this._ancestorInfo = validateDOMNesting.updatedAncestorInfo(parentInfo, this._tag, this);
     }
@@ -69423,7 +69606,7 @@ ReactDOMComponent.Mixin = {
         // TODO: Validate that text is allowed as a child of this node
         ret = escapeTextContentForBrowser(contentToUse);
         if ("production" !== 'production') {
-          setContentChildForInstrumentation.call(this, contentToUse);
+          setAndValidateContentChildDev.call(this, contentToUse);
         }
       } else if (childrenToUse != null) {
         var mountImages = this.mountChildren(childrenToUse, transaction, context);
@@ -69460,7 +69643,7 @@ ReactDOMComponent.Mixin = {
       if (contentToUse != null) {
         // TODO: Validate that text is allowed as a child of this node
         if ("production" !== 'production') {
-          setContentChildForInstrumentation.call(this, contentToUse);
+          setAndValidateContentChildDev.call(this, contentToUse);
         }
         DOMLazyTree.queueText(lazyTree, contentToUse);
       } else if (childrenToUse != null) {
@@ -69692,7 +69875,7 @@ ReactDOMComponent.Mixin = {
       if (lastContent !== nextContent) {
         this.updateTextContent('' + nextContent);
         if ("production" !== 'production') {
-          setContentChildForInstrumentation.call(this, nextContent);
+          setAndValidateContentChildDev.call(this, nextContent);
         }
       }
     } else if (nextHtml != null) {
@@ -69704,7 +69887,7 @@ ReactDOMComponent.Mixin = {
       }
     } else if (nextChildren != null) {
       if ("production" !== 'production') {
-        setContentChildForInstrumentation.call(this, null);
+        setAndValidateContentChildDev.call(this, null);
       }
 
       this.updateChildren(nextChildren, transaction, context);
@@ -69759,7 +69942,7 @@ ReactDOMComponent.Mixin = {
     this._wrapperState = null;
 
     if ("production" !== 'production') {
-      setContentChildForInstrumentation.call(this, null);
+      setAndValidateContentChildDev.call(this, null);
     }
   },
 
@@ -69772,7 +69955,7 @@ ReactDOMComponent.Mixin = {
 _assign(ReactDOMComponent.prototype, ReactDOMComponent.Mixin, ReactMultiChild.Mixin);
 
 module.exports = ReactDOMComponent;
-},{"./AutoFocusUtils":296,"./CSSPropertyOperations":299,"./DOMLazyTree":303,"./DOMNamespaces":304,"./DOMProperty":305,"./DOMPropertyOperations":306,"./EventConstants":311,"./EventPluginHub":312,"./EventPluginRegistry":313,"./ReactBrowserEventEmitter":322,"./ReactDOMButton":334,"./ReactDOMComponentFlags":336,"./ReactDOMComponentTree":337,"./ReactDOMInput":343,"./ReactDOMOption":345,"./ReactDOMSelect":346,"./ReactDOMTextarea":350,"./ReactInstrumentation":368,"./ReactMultiChild":372,"./ReactServerRenderingTransaction":388,"./escapeTextContentForBrowser":417,"./isEventSupported":431,"./reactProdInvariant":435,"./validateDOMNesting":442,"fbjs/lib/emptyFunction":142,"fbjs/lib/invariant":150,"fbjs/lib/keyOf":154,"fbjs/lib/shallowEqual":158,"fbjs/lib/warning":159,"object-assign":244}],336:[function(require,module,exports){
+},{"./AutoFocusUtils":297,"./CSSPropertyOperations":300,"./DOMLazyTree":304,"./DOMNamespaces":305,"./DOMProperty":306,"./DOMPropertyOperations":307,"./EventConstants":312,"./EventPluginHub":313,"./EventPluginRegistry":314,"./ReactBrowserEventEmitter":323,"./ReactDOMButton":335,"./ReactDOMComponentFlags":337,"./ReactDOMComponentTree":338,"./ReactDOMInput":344,"./ReactDOMOption":346,"./ReactDOMSelect":347,"./ReactDOMTextarea":351,"./ReactInstrumentation":369,"./ReactMultiChild":373,"./ReactServerRenderingTransaction":389,"./escapeTextContentForBrowser":418,"./isEventSupported":432,"./reactProdInvariant":436,"./validateDOMNesting":443,"fbjs/lib/emptyFunction":142,"fbjs/lib/invariant":150,"fbjs/lib/keyOf":154,"fbjs/lib/shallowEqual":158,"fbjs/lib/warning":159,"object-assign":245}],337:[function(require,module,exports){
 /**
  * Copyright 2015-present, Facebook, Inc.
  * All rights reserved.
@@ -69791,7 +69974,7 @@ var ReactDOMComponentFlags = {
 };
 
 module.exports = ReactDOMComponentFlags;
-},{}],337:[function(require,module,exports){
+},{}],338:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -69980,7 +70163,7 @@ var ReactDOMComponentTree = {
 };
 
 module.exports = ReactDOMComponentTree;
-},{"./DOMProperty":305,"./ReactDOMComponentFlags":336,"./reactProdInvariant":435,"fbjs/lib/invariant":150}],338:[function(require,module,exports){
+},{"./DOMProperty":306,"./ReactDOMComponentFlags":337,"./reactProdInvariant":436,"fbjs/lib/invariant":150}],339:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -70014,7 +70197,7 @@ function ReactDOMContainerInfo(topLevelWrapper, node) {
 }
 
 module.exports = ReactDOMContainerInfo;
-},{"./validateDOMNesting":442}],339:[function(require,module,exports){
+},{"./validateDOMNesting":443}],340:[function(require,module,exports){
 /**
  * Copyright 2014-present, Facebook, Inc.
  * All rights reserved.
@@ -70075,7 +70258,7 @@ _assign(ReactDOMEmptyComponent.prototype, {
 });
 
 module.exports = ReactDOMEmptyComponent;
-},{"./DOMLazyTree":303,"./ReactDOMComponentTree":337,"object-assign":244}],340:[function(require,module,exports){
+},{"./DOMLazyTree":304,"./ReactDOMComponentTree":338,"object-assign":245}],341:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -70246,7 +70429,7 @@ var ReactDOMFactories = {
 };
 
 module.exports = ReactDOMFactories;
-},{"./ReactElement":356,"./ReactElementValidator":357}],341:[function(require,module,exports){
+},{"./ReactElement":357,"./ReactElementValidator":358}],342:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -70265,7 +70448,7 @@ var ReactDOMFeatureFlags = {
 };
 
 module.exports = ReactDOMFeatureFlags;
-},{}],342:[function(require,module,exports){
+},{}],343:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -70300,7 +70483,7 @@ var ReactDOMIDOperations = {
 };
 
 module.exports = ReactDOMIDOperations;
-},{"./DOMChildrenOperations":302,"./ReactDOMComponentTree":337}],343:[function(require,module,exports){
+},{"./DOMChildrenOperations":303,"./ReactDOMComponentTree":338}],344:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -70342,7 +70525,7 @@ function forceUpdateIfMounted() {
 
 function isControlled(props) {
   var usesChecked = props.type === 'checkbox' || props.type === 'radio';
-  return usesChecked ? props.checked !== undefined : props.value !== undefined;
+  return usesChecked ? props.checked != null : props.value != null;
 }
 
 /**
@@ -70570,7 +70753,7 @@ function _handleChange(event) {
 }
 
 module.exports = ReactDOMInput;
-},{"./DOMPropertyOperations":306,"./DisabledInputUtils":309,"./LinkedValueUtils":319,"./ReactDOMComponentTree":337,"./ReactUpdates":391,"./reactProdInvariant":435,"fbjs/lib/invariant":150,"fbjs/lib/warning":159,"object-assign":244}],344:[function(require,module,exports){
+},{"./DOMPropertyOperations":307,"./DisabledInputUtils":310,"./LinkedValueUtils":320,"./ReactDOMComponentTree":338,"./ReactUpdates":392,"./reactProdInvariant":436,"fbjs/lib/invariant":150,"fbjs/lib/warning":159,"object-assign":245}],345:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -70614,7 +70797,7 @@ var ReactDOMNullInputValuePropHook = {
 };
 
 module.exports = ReactDOMNullInputValuePropHook;
-},{"./ReactComponentTreeHook":330,"fbjs/lib/warning":159}],345:[function(require,module,exports){
+},{"./ReactComponentTreeHook":331,"fbjs/lib/warning":159}],346:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -70738,7 +70921,7 @@ var ReactDOMOption = {
 };
 
 module.exports = ReactDOMOption;
-},{"./ReactChildren":324,"./ReactDOMComponentTree":337,"./ReactDOMSelect":346,"fbjs/lib/warning":159,"object-assign":244}],346:[function(require,module,exports){
+},{"./ReactChildren":325,"./ReactDOMComponentTree":338,"./ReactDOMSelect":347,"fbjs/lib/warning":159,"object-assign":245}],347:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -70940,7 +71123,7 @@ function _handleChange(event) {
 }
 
 module.exports = ReactDOMSelect;
-},{"./DisabledInputUtils":309,"./LinkedValueUtils":319,"./ReactDOMComponentTree":337,"./ReactUpdates":391,"fbjs/lib/warning":159,"object-assign":244}],347:[function(require,module,exports){
+},{"./DisabledInputUtils":310,"./LinkedValueUtils":320,"./ReactDOMComponentTree":338,"./ReactUpdates":392,"fbjs/lib/warning":159,"object-assign":245}],348:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -71153,7 +71336,7 @@ var ReactDOMSelection = {
 };
 
 module.exports = ReactDOMSelection;
-},{"./getNodeForCharacterOffset":427,"./getTextContentAccessor":428,"fbjs/lib/ExecutionEnvironment":136}],348:[function(require,module,exports){
+},{"./getNodeForCharacterOffset":428,"./getTextContentAccessor":429,"fbjs/lib/ExecutionEnvironment":136}],349:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -71180,7 +71363,7 @@ var ReactDOMServer = {
 };
 
 module.exports = ReactDOMServer;
-},{"./ReactDefaultInjection":355,"./ReactServerRendering":387,"./ReactVersion":392}],349:[function(require,module,exports){
+},{"./ReactDefaultInjection":356,"./ReactServerRendering":388,"./ReactVersion":393}],350:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -71256,7 +71439,7 @@ _assign(ReactDOMTextComponent.prototype, {
       if (parentInfo) {
         // parentInfo should always be present except for the top-level
         // component when server rendering
-        validateDOMNesting('#text', this, parentInfo);
+        validateDOMNesting(null, this._stringText, this, parentInfo);
       }
     }
 
@@ -71345,7 +71528,7 @@ _assign(ReactDOMTextComponent.prototype, {
 });
 
 module.exports = ReactDOMTextComponent;
-},{"./DOMChildrenOperations":302,"./DOMLazyTree":303,"./ReactDOMComponentTree":337,"./escapeTextContentForBrowser":417,"./reactProdInvariant":435,"./validateDOMNesting":442,"fbjs/lib/invariant":150,"object-assign":244}],350:[function(require,module,exports){
+},{"./DOMChildrenOperations":303,"./DOMLazyTree":304,"./ReactDOMComponentTree":338,"./escapeTextContentForBrowser":418,"./reactProdInvariant":436,"./validateDOMNesting":443,"fbjs/lib/invariant":150,"object-assign":245}],351:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -71501,7 +71684,7 @@ function _handleChange(event) {
 }
 
 module.exports = ReactDOMTextarea;
-},{"./DisabledInputUtils":309,"./LinkedValueUtils":319,"./ReactDOMComponentTree":337,"./ReactUpdates":391,"./reactProdInvariant":435,"fbjs/lib/invariant":150,"fbjs/lib/warning":159,"object-assign":244}],351:[function(require,module,exports){
+},{"./DisabledInputUtils":310,"./LinkedValueUtils":320,"./ReactDOMComponentTree":338,"./ReactUpdates":392,"./reactProdInvariant":436,"fbjs/lib/invariant":150,"fbjs/lib/warning":159,"object-assign":245}],352:[function(require,module,exports){
 /**
  * Copyright 2015-present, Facebook, Inc.
  * All rights reserved.
@@ -71638,7 +71821,7 @@ module.exports = {
   traverseTwoPhase: traverseTwoPhase,
   traverseEnterLeave: traverseEnterLeave
 };
-},{"./reactProdInvariant":435,"fbjs/lib/invariant":150}],352:[function(require,module,exports){
+},{"./reactProdInvariant":436,"fbjs/lib/invariant":150}],353:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -71751,7 +71934,7 @@ var ReactDOMUnknownPropertyHook = {
 };
 
 module.exports = ReactDOMUnknownPropertyHook;
-},{"./DOMProperty":305,"./EventPluginRegistry":313,"./ReactComponentTreeHook":330,"fbjs/lib/warning":159}],353:[function(require,module,exports){
+},{"./DOMProperty":306,"./EventPluginRegistry":314,"./ReactComponentTreeHook":331,"fbjs/lib/warning":159}],354:[function(require,module,exports){
 /**
  * Copyright 2016-present, Facebook, Inc.
  * All rights reserved.
@@ -71992,12 +72175,6 @@ var ReactDebugTool = {
     endLifeCycleTimer(debugID, timerType);
     emitEvent('onEndLifeCycleTimer', debugID, timerType);
   },
-  onError: function (debugID) {
-    if (currentTimerDebugID != null) {
-      endLifeCycleTimer(currentTimerDebugID, currentTimerType);
-    }
-    emitEvent('onError', debugID);
-  },
   onBeginProcessingChildContext: function () {
     emitEvent('onBeginProcessingChildContext');
   },
@@ -72059,7 +72236,7 @@ if (/[?&]react_perf\b/.test(url)) {
 }
 
 module.exports = ReactDebugTool;
-},{"./ReactChildrenMutationWarningHook":325,"./ReactComponentTreeHook":330,"./ReactHostOperationHistoryHook":364,"./ReactInvalidSetStateWarningHook":369,"fbjs/lib/ExecutionEnvironment":136,"fbjs/lib/performanceNow":157,"fbjs/lib/warning":159}],354:[function(require,module,exports){
+},{"./ReactChildrenMutationWarningHook":326,"./ReactComponentTreeHook":331,"./ReactHostOperationHistoryHook":365,"./ReactInvalidSetStateWarningHook":370,"fbjs/lib/ExecutionEnvironment":136,"fbjs/lib/performanceNow":157,"fbjs/lib/warning":159}],355:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -72128,7 +72305,7 @@ var ReactDefaultBatchingStrategy = {
 };
 
 module.exports = ReactDefaultBatchingStrategy;
-},{"./ReactUpdates":391,"./Transaction":409,"fbjs/lib/emptyFunction":142,"object-assign":244}],355:[function(require,module,exports){
+},{"./ReactUpdates":392,"./Transaction":410,"fbjs/lib/emptyFunction":142,"object-assign":245}],356:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -72213,7 +72390,7 @@ function inject() {
 module.exports = {
   inject: inject
 };
-},{"./BeforeInputEventPlugin":297,"./ChangeEventPlugin":301,"./DefaultEventPluginOrder":308,"./EnterLeaveEventPlugin":310,"./HTMLDOMPropertyConfig":317,"./ReactComponentBrowserEnvironment":328,"./ReactDOMComponent":335,"./ReactDOMComponentTree":337,"./ReactDOMEmptyComponent":339,"./ReactDOMTextComponent":349,"./ReactDOMTreeTraversal":351,"./ReactDefaultBatchingStrategy":354,"./ReactEventListener":361,"./ReactInjection":365,"./ReactReconcileTransaction":383,"./SVGDOMPropertyConfig":393,"./SelectEventPlugin":394,"./SimpleEventPlugin":395}],356:[function(require,module,exports){
+},{"./BeforeInputEventPlugin":298,"./ChangeEventPlugin":302,"./DefaultEventPluginOrder":309,"./EnterLeaveEventPlugin":311,"./HTMLDOMPropertyConfig":318,"./ReactComponentBrowserEnvironment":329,"./ReactDOMComponent":336,"./ReactDOMComponentTree":338,"./ReactDOMEmptyComponent":340,"./ReactDOMTextComponent":350,"./ReactDOMTreeTraversal":352,"./ReactDefaultBatchingStrategy":355,"./ReactEventListener":362,"./ReactInjection":366,"./ReactReconcileTransaction":384,"./SVGDOMPropertyConfig":394,"./SelectEventPlugin":395,"./SimpleEventPlugin":396}],357:[function(require,module,exports){
 /**
  * Copyright 2014-present, Facebook, Inc.
  * All rights reserved.
@@ -72406,14 +72583,6 @@ ReactElement.createElement = function (type, config, children) {
   var source = null;
 
   if (config != null) {
-    if ("production" !== 'production') {
-      "production" !== 'production' ? warning(
-      /* eslint-disable no-proto */
-      config.__proto__ == null || config.__proto__ === Object.prototype,
-      /* eslint-enable no-proto */
-      'React.createElement(...): Expected props argument to be a plain object. ' + 'Properties defined in its prototype chain will be ignored.') : void 0;
-    }
-
     if (hasValidRef(config)) {
       ref = config.ref;
     }
@@ -72514,14 +72683,6 @@ ReactElement.cloneElement = function (element, config, children) {
   var owner = element._owner;
 
   if (config != null) {
-    if ("production" !== 'production') {
-      "production" !== 'production' ? warning(
-      /* eslint-disable no-proto */
-      config.__proto__ == null || config.__proto__ === Object.prototype,
-      /* eslint-enable no-proto */
-      'React.cloneElement(...): Expected props argument to be a plain object. ' + 'Properties defined in its prototype chain will be ignored.') : void 0;
-    }
-
     if (hasValidRef(config)) {
       // Silently steal the ref from the parent.
       ref = config.ref;
@@ -72578,7 +72739,7 @@ ReactElement.isValidElement = function (object) {
 ReactElement.REACT_ELEMENT_TYPE = REACT_ELEMENT_TYPE;
 
 module.exports = ReactElement;
-},{"./ReactCurrentOwner":332,"./canDefineProperty":413,"fbjs/lib/warning":159,"object-assign":244}],357:[function(require,module,exports){
+},{"./ReactCurrentOwner":333,"./canDefineProperty":414,"fbjs/lib/warning":159,"object-assign":245}],358:[function(require,module,exports){
 /**
  * Copyright 2014-present, Facebook, Inc.
  * All rights reserved.
@@ -72807,7 +72968,7 @@ var ReactElementValidator = {
 };
 
 module.exports = ReactElementValidator;
-},{"./ReactComponentTreeHook":330,"./ReactCurrentOwner":332,"./ReactElement":356,"./ReactPropTypeLocations":379,"./canDefineProperty":413,"./checkReactTypeSpec":414,"./getIteratorFn":426,"fbjs/lib/warning":159}],358:[function(require,module,exports){
+},{"./ReactComponentTreeHook":331,"./ReactCurrentOwner":333,"./ReactElement":357,"./ReactPropTypeLocations":380,"./canDefineProperty":414,"./checkReactTypeSpec":415,"./getIteratorFn":427,"fbjs/lib/warning":159}],359:[function(require,module,exports){
 /**
  * Copyright 2014-present, Facebook, Inc.
  * All rights reserved.
@@ -72838,7 +72999,7 @@ var ReactEmptyComponent = {
 ReactEmptyComponent.injection = ReactEmptyComponentInjection;
 
 module.exports = ReactEmptyComponent;
-},{}],359:[function(require,module,exports){
+},{}],360:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -72915,7 +73076,7 @@ if ("production" !== 'production') {
 }
 
 module.exports = ReactErrorUtils;
-},{}],360:[function(require,module,exports){
+},{}],361:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -72949,7 +73110,7 @@ var ReactEventEmitterMixin = {
 };
 
 module.exports = ReactEventEmitterMixin;
-},{"./EventPluginHub":312}],361:[function(require,module,exports){
+},{"./EventPluginHub":313}],362:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -73107,7 +73268,7 @@ var ReactEventListener = {
 };
 
 module.exports = ReactEventListener;
-},{"./PooledClass":320,"./ReactDOMComponentTree":337,"./ReactUpdates":391,"./getEventTarget":424,"fbjs/lib/EventListener":135,"fbjs/lib/ExecutionEnvironment":136,"fbjs/lib/getUnboundedScrollPosition":147,"object-assign":244}],362:[function(require,module,exports){
+},{"./PooledClass":321,"./ReactDOMComponentTree":338,"./ReactUpdates":392,"./getEventTarget":425,"fbjs/lib/EventListener":135,"fbjs/lib/ExecutionEnvironment":136,"fbjs/lib/getUnboundedScrollPosition":147,"object-assign":245}],363:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -73130,7 +73291,7 @@ var ReactFeatureFlags = {
 };
 
 module.exports = ReactFeatureFlags;
-},{}],363:[function(require,module,exports){
+},{}],364:[function(require,module,exports){
 /**
  * Copyright 2014-present, Facebook, Inc.
  * All rights reserved.
@@ -73207,7 +73368,7 @@ var ReactHostComponent = {
 };
 
 module.exports = ReactHostComponent;
-},{"./reactProdInvariant":435,"fbjs/lib/invariant":150,"object-assign":244}],364:[function(require,module,exports){
+},{"./reactProdInvariant":436,"fbjs/lib/invariant":150,"object-assign":245}],365:[function(require,module,exports){
 /**
  * Copyright 2016-present, Facebook, Inc.
  * All rights reserved.
@@ -73245,7 +73406,7 @@ var ReactHostOperationHistoryHook = {
 };
 
 module.exports = ReactHostOperationHistoryHook;
-},{}],365:[function(require,module,exports){
+},{}],366:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -73282,7 +73443,7 @@ var ReactInjection = {
 };
 
 module.exports = ReactInjection;
-},{"./DOMProperty":305,"./EventPluginHub":312,"./EventPluginUtils":314,"./ReactBrowserEventEmitter":322,"./ReactClass":326,"./ReactComponentEnvironment":329,"./ReactEmptyComponent":358,"./ReactHostComponent":363,"./ReactUpdates":391}],366:[function(require,module,exports){
+},{"./DOMProperty":306,"./EventPluginHub":313,"./EventPluginUtils":315,"./ReactBrowserEventEmitter":323,"./ReactClass":327,"./ReactComponentEnvironment":330,"./ReactEmptyComponent":359,"./ReactHostComponent":364,"./ReactUpdates":392}],367:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -73407,7 +73568,7 @@ var ReactInputSelection = {
 };
 
 module.exports = ReactInputSelection;
-},{"./ReactDOMSelection":347,"fbjs/lib/containsNode":139,"fbjs/lib/focusNode":144,"fbjs/lib/getActiveElement":145}],367:[function(require,module,exports){
+},{"./ReactDOMSelection":348,"fbjs/lib/containsNode":139,"fbjs/lib/focusNode":144,"fbjs/lib/getActiveElement":145}],368:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -73456,7 +73617,7 @@ var ReactInstanceMap = {
 };
 
 module.exports = ReactInstanceMap;
-},{}],368:[function(require,module,exports){
+},{}],369:[function(require,module,exports){
 /**
  * Copyright 2016-present, Facebook, Inc.
  * All rights reserved.
@@ -73478,7 +73639,7 @@ if ("production" !== 'production') {
 }
 
 module.exports = { debugTool: debugTool };
-},{"./ReactDebugTool":353}],369:[function(require,module,exports){
+},{"./ReactDebugTool":354}],370:[function(require,module,exports){
 /**
  * Copyright 2016-present, Facebook, Inc.
  * All rights reserved.
@@ -73515,7 +73676,7 @@ var ReactInvalidSetStateWarningHook = {
 };
 
 module.exports = ReactInvalidSetStateWarningHook;
-},{"fbjs/lib/warning":159}],370:[function(require,module,exports){
+},{"fbjs/lib/warning":159}],371:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -73566,7 +73727,7 @@ var ReactMarkupChecksum = {
 };
 
 module.exports = ReactMarkupChecksum;
-},{"./adler32":412}],371:[function(require,module,exports){
+},{"./adler32":413}],372:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -74101,7 +74262,7 @@ var ReactMount = {
 };
 
 module.exports = ReactMount;
-},{"./DOMLazyTree":303,"./DOMProperty":305,"./ReactBrowserEventEmitter":322,"./ReactCurrentOwner":332,"./ReactDOMComponentTree":337,"./ReactDOMContainerInfo":338,"./ReactDOMFeatureFlags":341,"./ReactElement":356,"./ReactFeatureFlags":362,"./ReactInstanceMap":367,"./ReactInstrumentation":368,"./ReactMarkupChecksum":370,"./ReactReconciler":384,"./ReactUpdateQueue":390,"./ReactUpdates":391,"./instantiateReactComponent":430,"./reactProdInvariant":435,"./setInnerHTML":437,"./shouldUpdateReactComponent":440,"fbjs/lib/emptyObject":143,"fbjs/lib/invariant":150,"fbjs/lib/warning":159}],372:[function(require,module,exports){
+},{"./DOMLazyTree":304,"./DOMProperty":306,"./ReactBrowserEventEmitter":323,"./ReactCurrentOwner":333,"./ReactDOMComponentTree":338,"./ReactDOMContainerInfo":339,"./ReactDOMFeatureFlags":342,"./ReactElement":357,"./ReactFeatureFlags":363,"./ReactInstanceMap":368,"./ReactInstrumentation":369,"./ReactMarkupChecksum":371,"./ReactReconciler":385,"./ReactUpdateQueue":391,"./ReactUpdates":392,"./instantiateReactComponent":431,"./reactProdInvariant":436,"./setInnerHTML":438,"./shouldUpdateReactComponent":441,"fbjs/lib/emptyObject":143,"fbjs/lib/invariant":150,"fbjs/lib/warning":159}],373:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -74553,7 +74714,7 @@ var ReactMultiChild = {
 };
 
 module.exports = ReactMultiChild;
-},{"./ReactChildReconciler":323,"./ReactComponentEnvironment":329,"./ReactCurrentOwner":332,"./ReactInstanceMap":367,"./ReactInstrumentation":368,"./ReactMultiChildUpdateTypes":373,"./ReactReconciler":384,"./flattenChildren":419,"./reactProdInvariant":435,"fbjs/lib/emptyFunction":142,"fbjs/lib/invariant":150}],373:[function(require,module,exports){
+},{"./ReactChildReconciler":324,"./ReactComponentEnvironment":330,"./ReactCurrentOwner":333,"./ReactInstanceMap":368,"./ReactInstrumentation":369,"./ReactMultiChildUpdateTypes":374,"./ReactReconciler":385,"./flattenChildren":420,"./reactProdInvariant":436,"fbjs/lib/emptyFunction":142,"fbjs/lib/invariant":150}],374:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -74586,7 +74747,7 @@ var ReactMultiChildUpdateTypes = keyMirror({
 });
 
 module.exports = ReactMultiChildUpdateTypes;
-},{"fbjs/lib/keyMirror":153}],374:[function(require,module,exports){
+},{"fbjs/lib/keyMirror":153}],375:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -74627,7 +74788,7 @@ var ReactNodeTypes = {
 };
 
 module.exports = ReactNodeTypes;
-},{"./ReactElement":356,"./reactProdInvariant":435,"fbjs/lib/invariant":150}],375:[function(require,module,exports){
+},{"./ReactElement":357,"./reactProdInvariant":436,"fbjs/lib/invariant":150}],376:[function(require,module,exports){
 /**
  * Copyright 2015-present, Facebook, Inc.
  * All rights reserved.
@@ -74724,7 +74885,7 @@ var ReactNoopUpdateQueue = {
 };
 
 module.exports = ReactNoopUpdateQueue;
-},{"fbjs/lib/warning":159}],376:[function(require,module,exports){
+},{"fbjs/lib/warning":159}],377:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -74819,7 +74980,7 @@ var ReactOwner = {
 };
 
 module.exports = ReactOwner;
-},{"./reactProdInvariant":435,"fbjs/lib/invariant":150}],377:[function(require,module,exports){
+},{"./reactProdInvariant":436,"fbjs/lib/invariant":150}],378:[function(require,module,exports){
 /**
  * Copyright 2016-present, Facebook, Inc.
  * All rights reserved.
@@ -75314,7 +75475,7 @@ var ReactPerfAnalysis = {
 };
 
 module.exports = ReactPerfAnalysis;
-},{"./ReactDebugTool":353,"fbjs/lib/warning":159,"object-assign":244}],378:[function(require,module,exports){
+},{"./ReactDebugTool":354,"fbjs/lib/warning":159,"object-assign":245}],379:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -75339,7 +75500,7 @@ if ("production" !== 'production') {
 }
 
 module.exports = ReactPropTypeLocationNames;
-},{}],379:[function(require,module,exports){
+},{}],380:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -75362,7 +75523,7 @@ var ReactPropTypeLocations = keyMirror({
 });
 
 module.exports = ReactPropTypeLocations;
-},{"fbjs/lib/keyMirror":153}],380:[function(require,module,exports){
+},{"fbjs/lib/keyMirror":153}],381:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -75794,7 +75955,7 @@ function getClassName(propValue) {
 }
 
 module.exports = ReactPropTypes;
-},{"./ReactElement":356,"./ReactPropTypeLocationNames":378,"./ReactPropTypesSecret":381,"./getIteratorFn":426,"fbjs/lib/emptyFunction":142,"fbjs/lib/warning":159}],381:[function(require,module,exports){
+},{"./ReactElement":357,"./ReactPropTypeLocationNames":379,"./ReactPropTypesSecret":382,"./getIteratorFn":427,"fbjs/lib/emptyFunction":142,"fbjs/lib/warning":159}],382:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -75811,7 +75972,7 @@ module.exports = ReactPropTypes;
 var ReactPropTypesSecret = 'SECRET_DO_NOT_PASS_THIS_OR_YOU_WILL_BE_FIRED';
 
 module.exports = ReactPropTypesSecret;
-},{}],382:[function(require,module,exports){
+},{}],383:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -75854,7 +76015,7 @@ _assign(ReactPureComponent.prototype, ReactComponent.prototype);
 ReactPureComponent.prototype.isPureReactComponent = true;
 
 module.exports = ReactPureComponent;
-},{"./ReactComponent":327,"./ReactNoopUpdateQueue":375,"fbjs/lib/emptyObject":143,"object-assign":244}],383:[function(require,module,exports){
+},{"./ReactComponent":328,"./ReactNoopUpdateQueue":376,"fbjs/lib/emptyObject":143,"object-assign":245}],384:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -76033,7 +76194,7 @@ _assign(ReactReconcileTransaction.prototype, Transaction.Mixin, Mixin);
 PooledClass.addPoolingTo(ReactReconcileTransaction);
 
 module.exports = ReactReconcileTransaction;
-},{"./CallbackQueue":300,"./PooledClass":320,"./ReactBrowserEventEmitter":322,"./ReactInputSelection":366,"./ReactInstrumentation":368,"./ReactUpdateQueue":390,"./Transaction":409,"object-assign":244}],384:[function(require,module,exports){
+},{"./CallbackQueue":301,"./PooledClass":321,"./ReactBrowserEventEmitter":323,"./ReactInputSelection":367,"./ReactInstrumentation":369,"./ReactUpdateQueue":391,"./Transaction":410,"object-assign":245}],385:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -76202,7 +76363,7 @@ var ReactReconciler = {
 };
 
 module.exports = ReactReconciler;
-},{"./ReactInstrumentation":368,"./ReactRef":385,"fbjs/lib/warning":159}],385:[function(require,module,exports){
+},{"./ReactInstrumentation":369,"./ReactRef":386,"fbjs/lib/warning":159}],386:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -76283,7 +76444,7 @@ ReactRef.detachRefs = function (instance, element) {
 };
 
 module.exports = ReactRef;
-},{"./ReactOwner":376}],386:[function(require,module,exports){
+},{"./ReactOwner":377}],387:[function(require,module,exports){
 /**
  * Copyright 2014-present, Facebook, Inc.
  * All rights reserved.
@@ -76306,7 +76467,7 @@ var ReactServerBatchingStrategy = {
 };
 
 module.exports = ReactServerBatchingStrategy;
-},{}],387:[function(require,module,exports){
+},{}],388:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -76397,7 +76558,7 @@ module.exports = {
   renderToString: renderToString,
   renderToStaticMarkup: renderToStaticMarkup
 };
-},{"./ReactDOMContainerInfo":338,"./ReactDefaultBatchingStrategy":354,"./ReactElement":356,"./ReactInstrumentation":368,"./ReactMarkupChecksum":370,"./ReactReconciler":384,"./ReactServerBatchingStrategy":386,"./ReactServerRenderingTransaction":388,"./ReactUpdates":391,"./instantiateReactComponent":430,"./reactProdInvariant":435,"fbjs/lib/emptyObject":143,"fbjs/lib/invariant":150}],388:[function(require,module,exports){
+},{"./ReactDOMContainerInfo":339,"./ReactDefaultBatchingStrategy":355,"./ReactElement":357,"./ReactInstrumentation":369,"./ReactMarkupChecksum":371,"./ReactReconciler":385,"./ReactServerBatchingStrategy":387,"./ReactServerRenderingTransaction":389,"./ReactUpdates":392,"./instantiateReactComponent":431,"./reactProdInvariant":436,"fbjs/lib/emptyObject":143,"fbjs/lib/invariant":150}],389:[function(require,module,exports){
 /**
  * Copyright 2014-present, Facebook, Inc.
  * All rights reserved.
@@ -76488,7 +76649,7 @@ _assign(ReactServerRenderingTransaction.prototype, Transaction.Mixin, Mixin);
 PooledClass.addPoolingTo(ReactServerRenderingTransaction);
 
 module.exports = ReactServerRenderingTransaction;
-},{"./PooledClass":320,"./ReactInstrumentation":368,"./ReactServerUpdateQueue":389,"./Transaction":409,"object-assign":244}],389:[function(require,module,exports){
+},{"./PooledClass":321,"./ReactInstrumentation":369,"./ReactServerUpdateQueue":390,"./Transaction":410,"object-assign":245}],390:[function(require,module,exports){
 /**
  * Copyright 2015-present, Facebook, Inc.
  * All rights reserved.
@@ -76630,7 +76791,7 @@ var ReactServerUpdateQueue = function () {
 }();
 
 module.exports = ReactServerUpdateQueue;
-},{"./ReactUpdateQueue":390,"./Transaction":409,"fbjs/lib/warning":159}],390:[function(require,module,exports){
+},{"./ReactUpdateQueue":391,"./Transaction":410,"fbjs/lib/warning":159}],391:[function(require,module,exports){
 /**
  * Copyright 2015-present, Facebook, Inc.
  * All rights reserved.
@@ -76857,7 +77018,7 @@ var ReactUpdateQueue = {
 };
 
 module.exports = ReactUpdateQueue;
-},{"./ReactCurrentOwner":332,"./ReactInstanceMap":367,"./ReactInstrumentation":368,"./ReactUpdates":391,"./reactProdInvariant":435,"fbjs/lib/invariant":150,"fbjs/lib/warning":159}],391:[function(require,module,exports){
+},{"./ReactCurrentOwner":333,"./ReactInstanceMap":368,"./ReactInstrumentation":369,"./ReactUpdates":392,"./reactProdInvariant":436,"fbjs/lib/invariant":150,"fbjs/lib/warning":159}],392:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -77109,7 +77270,7 @@ var ReactUpdates = {
 };
 
 module.exports = ReactUpdates;
-},{"./CallbackQueue":300,"./PooledClass":320,"./ReactFeatureFlags":362,"./ReactReconciler":384,"./Transaction":409,"./reactProdInvariant":435,"fbjs/lib/invariant":150,"object-assign":244}],392:[function(require,module,exports){
+},{"./CallbackQueue":301,"./PooledClass":321,"./ReactFeatureFlags":363,"./ReactReconciler":385,"./Transaction":410,"./reactProdInvariant":436,"fbjs/lib/invariant":150,"object-assign":245}],393:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -77123,8 +77284,8 @@ module.exports = ReactUpdates;
 
 'use strict';
 
-module.exports = '15.3.1';
-},{}],393:[function(require,module,exports){
+module.exports = '15.3.2';
+},{}],394:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -77427,7 +77588,7 @@ Object.keys(ATTRS).forEach(function (key) {
 });
 
 module.exports = SVGDOMPropertyConfig;
-},{}],394:[function(require,module,exports){
+},{}],395:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -77463,7 +77624,7 @@ var eventTypes = {
       bubbled: keyOf({ onSelect: null }),
       captured: keyOf({ onSelectCapture: null })
     },
-    dependencies: [topLevelTypes.topBlur, topLevelTypes.topContextMenu, topLevelTypes.topFocus, topLevelTypes.topKeyDown, topLevelTypes.topMouseDown, topLevelTypes.topMouseUp, topLevelTypes.topSelectionChange]
+    dependencies: [topLevelTypes.topBlur, topLevelTypes.topContextMenu, topLevelTypes.topFocus, topLevelTypes.topKeyDown, topLevelTypes.topKeyUp, topLevelTypes.topMouseDown, topLevelTypes.topMouseUp, topLevelTypes.topSelectionChange]
   }
 };
 
@@ -77624,7 +77785,7 @@ var SelectEventPlugin = {
 };
 
 module.exports = SelectEventPlugin;
-},{"./EventConstants":311,"./EventPropagators":315,"./ReactDOMComponentTree":337,"./ReactInputSelection":366,"./SyntheticEvent":400,"./isTextInputElement":432,"fbjs/lib/ExecutionEnvironment":136,"fbjs/lib/getActiveElement":145,"fbjs/lib/keyOf":154,"fbjs/lib/shallowEqual":158}],395:[function(require,module,exports){
+},{"./EventConstants":312,"./EventPropagators":316,"./ReactDOMComponentTree":338,"./ReactInputSelection":367,"./SyntheticEvent":401,"./isTextInputElement":433,"fbjs/lib/ExecutionEnvironment":136,"fbjs/lib/getActiveElement":145,"fbjs/lib/keyOf":154,"fbjs/lib/shallowEqual":158}],396:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -78260,7 +78421,7 @@ var SimpleEventPlugin = {
 };
 
 module.exports = SimpleEventPlugin;
-},{"./EventConstants":311,"./EventPropagators":315,"./ReactDOMComponentTree":337,"./SyntheticAnimationEvent":396,"./SyntheticClipboardEvent":397,"./SyntheticDragEvent":399,"./SyntheticEvent":400,"./SyntheticFocusEvent":401,"./SyntheticKeyboardEvent":403,"./SyntheticMouseEvent":404,"./SyntheticTouchEvent":405,"./SyntheticTransitionEvent":406,"./SyntheticUIEvent":407,"./SyntheticWheelEvent":408,"./getEventCharCode":421,"./reactProdInvariant":435,"fbjs/lib/EventListener":135,"fbjs/lib/emptyFunction":142,"fbjs/lib/invariant":150,"fbjs/lib/keyOf":154}],396:[function(require,module,exports){
+},{"./EventConstants":312,"./EventPropagators":316,"./ReactDOMComponentTree":338,"./SyntheticAnimationEvent":397,"./SyntheticClipboardEvent":398,"./SyntheticDragEvent":400,"./SyntheticEvent":401,"./SyntheticFocusEvent":402,"./SyntheticKeyboardEvent":404,"./SyntheticMouseEvent":405,"./SyntheticTouchEvent":406,"./SyntheticTransitionEvent":407,"./SyntheticUIEvent":408,"./SyntheticWheelEvent":409,"./getEventCharCode":422,"./reactProdInvariant":436,"fbjs/lib/EventListener":135,"fbjs/lib/emptyFunction":142,"fbjs/lib/invariant":150,"fbjs/lib/keyOf":154}],397:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -78300,7 +78461,7 @@ function SyntheticAnimationEvent(dispatchConfig, dispatchMarker, nativeEvent, na
 SyntheticEvent.augmentClass(SyntheticAnimationEvent, AnimationEventInterface);
 
 module.exports = SyntheticAnimationEvent;
-},{"./SyntheticEvent":400}],397:[function(require,module,exports){
+},{"./SyntheticEvent":401}],398:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -78339,7 +78500,7 @@ function SyntheticClipboardEvent(dispatchConfig, dispatchMarker, nativeEvent, na
 SyntheticEvent.augmentClass(SyntheticClipboardEvent, ClipboardEventInterface);
 
 module.exports = SyntheticClipboardEvent;
-},{"./SyntheticEvent":400}],398:[function(require,module,exports){
+},{"./SyntheticEvent":401}],399:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -78376,7 +78537,7 @@ function SyntheticCompositionEvent(dispatchConfig, dispatchMarker, nativeEvent, 
 SyntheticEvent.augmentClass(SyntheticCompositionEvent, CompositionEventInterface);
 
 module.exports = SyntheticCompositionEvent;
-},{"./SyntheticEvent":400}],399:[function(require,module,exports){
+},{"./SyntheticEvent":401}],400:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -78413,7 +78574,7 @@ function SyntheticDragEvent(dispatchConfig, dispatchMarker, nativeEvent, nativeE
 SyntheticMouseEvent.augmentClass(SyntheticDragEvent, DragEventInterface);
 
 module.exports = SyntheticDragEvent;
-},{"./SyntheticMouseEvent":404}],400:[function(require,module,exports){
+},{"./SyntheticMouseEvent":405}],401:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -78529,7 +78690,8 @@ _assign(SyntheticEvent.prototype, {
 
     if (event.preventDefault) {
       event.preventDefault();
-    } else {
+    } else if (typeof event.returnValue !== 'unknown') {
+      // eslint-disable-line valid-typeof
       event.returnValue = false;
     }
     this.isDefaultPrevented = emptyFunction.thatReturnsTrue;
@@ -78681,7 +78843,7 @@ function getPooledWarningPropertyDefinition(propName, getVal) {
     "production" !== 'production' ? warning(warningCondition, 'This synthetic event is reused for performance reasons. If you\'re seeing this, ' + 'you\'re %s `%s` on a released/nullified synthetic event. %s. ' + 'If you must keep the original synthetic event around, use event.persist(). ' + 'See https://fb.me/react-event-pooling for more information.', action, propName, result) : void 0;
   }
 }
-},{"./PooledClass":320,"fbjs/lib/emptyFunction":142,"fbjs/lib/warning":159,"object-assign":244}],401:[function(require,module,exports){
+},{"./PooledClass":321,"fbjs/lib/emptyFunction":142,"fbjs/lib/warning":159,"object-assign":245}],402:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -78718,7 +78880,7 @@ function SyntheticFocusEvent(dispatchConfig, dispatchMarker, nativeEvent, native
 SyntheticUIEvent.augmentClass(SyntheticFocusEvent, FocusEventInterface);
 
 module.exports = SyntheticFocusEvent;
-},{"./SyntheticUIEvent":407}],402:[function(require,module,exports){
+},{"./SyntheticUIEvent":408}],403:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -78756,7 +78918,7 @@ function SyntheticInputEvent(dispatchConfig, dispatchMarker, nativeEvent, native
 SyntheticEvent.augmentClass(SyntheticInputEvent, InputEventInterface);
 
 module.exports = SyntheticInputEvent;
-},{"./SyntheticEvent":400}],403:[function(require,module,exports){
+},{"./SyntheticEvent":401}],404:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -78841,7 +79003,7 @@ function SyntheticKeyboardEvent(dispatchConfig, dispatchMarker, nativeEvent, nat
 SyntheticUIEvent.augmentClass(SyntheticKeyboardEvent, KeyboardEventInterface);
 
 module.exports = SyntheticKeyboardEvent;
-},{"./SyntheticUIEvent":407,"./getEventCharCode":421,"./getEventKey":422,"./getEventModifierState":423}],404:[function(require,module,exports){
+},{"./SyntheticUIEvent":408,"./getEventCharCode":422,"./getEventKey":423,"./getEventModifierState":424}],405:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -78914,7 +79076,7 @@ function SyntheticMouseEvent(dispatchConfig, dispatchMarker, nativeEvent, native
 SyntheticUIEvent.augmentClass(SyntheticMouseEvent, MouseEventInterface);
 
 module.exports = SyntheticMouseEvent;
-},{"./SyntheticUIEvent":407,"./ViewportMetrics":410,"./getEventModifierState":423}],405:[function(require,module,exports){
+},{"./SyntheticUIEvent":408,"./ViewportMetrics":411,"./getEventModifierState":424}],406:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -78960,7 +79122,7 @@ function SyntheticTouchEvent(dispatchConfig, dispatchMarker, nativeEvent, native
 SyntheticUIEvent.augmentClass(SyntheticTouchEvent, TouchEventInterface);
 
 module.exports = SyntheticTouchEvent;
-},{"./SyntheticUIEvent":407,"./getEventModifierState":423}],406:[function(require,module,exports){
+},{"./SyntheticUIEvent":408,"./getEventModifierState":424}],407:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -79000,7 +79162,7 @@ function SyntheticTransitionEvent(dispatchConfig, dispatchMarker, nativeEvent, n
 SyntheticEvent.augmentClass(SyntheticTransitionEvent, TransitionEventInterface);
 
 module.exports = SyntheticTransitionEvent;
-},{"./SyntheticEvent":400}],407:[function(require,module,exports){
+},{"./SyntheticEvent":401}],408:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -79060,7 +79222,7 @@ function SyntheticUIEvent(dispatchConfig, dispatchMarker, nativeEvent, nativeEve
 SyntheticEvent.augmentClass(SyntheticUIEvent, UIEventInterface);
 
 module.exports = SyntheticUIEvent;
-},{"./SyntheticEvent":400,"./getEventTarget":424}],408:[function(require,module,exports){
+},{"./SyntheticEvent":401,"./getEventTarget":425}],409:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -79115,7 +79277,7 @@ function SyntheticWheelEvent(dispatchConfig, dispatchMarker, nativeEvent, native
 SyntheticMouseEvent.augmentClass(SyntheticWheelEvent, WheelEventInterface);
 
 module.exports = SyntheticWheelEvent;
-},{"./SyntheticMouseEvent":404}],409:[function(require,module,exports){
+},{"./SyntheticMouseEvent":405}],410:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -79349,7 +79511,7 @@ var Transaction = {
 };
 
 module.exports = Transaction;
-},{"./reactProdInvariant":435,"fbjs/lib/invariant":150}],410:[function(require,module,exports){
+},{"./reactProdInvariant":436,"fbjs/lib/invariant":150}],411:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -79377,7 +79539,7 @@ var ViewportMetrics = {
 };
 
 module.exports = ViewportMetrics;
-},{}],411:[function(require,module,exports){
+},{}],412:[function(require,module,exports){
 /**
  * Copyright 2014-present, Facebook, Inc.
  * All rights reserved.
@@ -79436,7 +79598,7 @@ function accumulateInto(current, next) {
 }
 
 module.exports = accumulateInto;
-},{"./reactProdInvariant":435,"fbjs/lib/invariant":150}],412:[function(require,module,exports){
+},{"./reactProdInvariant":436,"fbjs/lib/invariant":150}],413:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -79481,7 +79643,7 @@ function adler32(data) {
 }
 
 module.exports = adler32;
-},{}],413:[function(require,module,exports){
+},{}],414:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -79506,7 +79668,7 @@ if ("production" !== 'production') {
 }
 
 module.exports = canDefineProperty;
-},{}],414:[function(require,module,exports){
+},{}],415:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-present, Facebook, Inc.
@@ -79596,7 +79758,7 @@ function checkReactTypeSpec(typeSpecs, values, location, componentName, element,
 
 module.exports = checkReactTypeSpec;
 }).call(this,require('_process'))
-},{"./ReactComponentTreeHook":330,"./ReactPropTypeLocationNames":378,"./ReactPropTypesSecret":381,"./reactProdInvariant":435,"_process":248,"fbjs/lib/invariant":150,"fbjs/lib/warning":159}],415:[function(require,module,exports){
+},{"./ReactComponentTreeHook":331,"./ReactPropTypeLocationNames":379,"./ReactPropTypesSecret":382,"./reactProdInvariant":436,"_process":249,"fbjs/lib/invariant":150,"fbjs/lib/warning":159}],416:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -79629,7 +79791,7 @@ var createMicrosoftUnsafeLocalFunction = function (func) {
 };
 
 module.exports = createMicrosoftUnsafeLocalFunction;
-},{}],416:[function(require,module,exports){
+},{}],417:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -79709,7 +79871,7 @@ function dangerousStyleValue(name, value, component) {
 }
 
 module.exports = dangerousStyleValue;
-},{"./CSSProperty":298,"fbjs/lib/warning":159}],417:[function(require,module,exports){
+},{"./CSSProperty":299,"fbjs/lib/warning":159}],418:[function(require,module,exports){
 /**
  * Copyright 2016-present, Facebook, Inc.
  * All rights reserved.
@@ -79833,7 +79995,7 @@ function escapeTextContentForBrowser(text) {
 }
 
 module.exports = escapeTextContentForBrowser;
-},{}],418:[function(require,module,exports){
+},{}],419:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -79894,7 +80056,7 @@ function findDOMNode(componentOrElement) {
 }
 
 module.exports = findDOMNode;
-},{"./ReactCurrentOwner":332,"./ReactDOMComponentTree":337,"./ReactInstanceMap":367,"./getHostComponentFromComposite":425,"./reactProdInvariant":435,"fbjs/lib/invariant":150,"fbjs/lib/warning":159}],419:[function(require,module,exports){
+},{"./ReactCurrentOwner":333,"./ReactDOMComponentTree":338,"./ReactInstanceMap":368,"./getHostComponentFromComposite":426,"./reactProdInvariant":436,"fbjs/lib/invariant":150,"fbjs/lib/warning":159}],420:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-present, Facebook, Inc.
@@ -79973,7 +80135,7 @@ function flattenChildren(children, selfDebugID) {
 
 module.exports = flattenChildren;
 }).call(this,require('_process'))
-},{"./KeyEscapeUtils":318,"./ReactComponentTreeHook":330,"./traverseAllChildren":441,"_process":248,"fbjs/lib/warning":159}],420:[function(require,module,exports){
+},{"./KeyEscapeUtils":319,"./ReactComponentTreeHook":331,"./traverseAllChildren":442,"_process":249,"fbjs/lib/warning":159}],421:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -80005,7 +80167,7 @@ function forEachAccumulated(arr, cb, scope) {
 }
 
 module.exports = forEachAccumulated;
-},{}],421:[function(require,module,exports){
+},{}],422:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -80056,7 +80218,7 @@ function getEventCharCode(nativeEvent) {
 }
 
 module.exports = getEventCharCode;
-},{}],422:[function(require,module,exports){
+},{}],423:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -80159,7 +80321,7 @@ function getEventKey(nativeEvent) {
 }
 
 module.exports = getEventKey;
-},{"./getEventCharCode":421}],423:[function(require,module,exports){
+},{"./getEventCharCode":422}],424:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -80203,7 +80365,7 @@ function getEventModifierState(nativeEvent) {
 }
 
 module.exports = getEventModifierState;
-},{}],424:[function(require,module,exports){
+},{}],425:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -80239,7 +80401,7 @@ function getEventTarget(nativeEvent) {
 }
 
 module.exports = getEventTarget;
-},{}],425:[function(require,module,exports){
+},{}],426:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -80270,7 +80432,7 @@ function getHostComponentFromComposite(inst) {
 }
 
 module.exports = getHostComponentFromComposite;
-},{"./ReactNodeTypes":374}],426:[function(require,module,exports){
+},{"./ReactNodeTypes":375}],427:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -80312,7 +80474,7 @@ function getIteratorFn(maybeIterable) {
 }
 
 module.exports = getIteratorFn;
-},{}],427:[function(require,module,exports){
+},{}],428:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -80387,7 +80549,7 @@ function getNodeForCharacterOffset(root, offset) {
 }
 
 module.exports = getNodeForCharacterOffset;
-},{}],428:[function(require,module,exports){
+},{}],429:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -80421,7 +80583,7 @@ function getTextContentAccessor() {
 }
 
 module.exports = getTextContentAccessor;
-},{"fbjs/lib/ExecutionEnvironment":136}],429:[function(require,module,exports){
+},{"fbjs/lib/ExecutionEnvironment":136}],430:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -80523,7 +80685,7 @@ function getVendorPrefixedEventName(eventName) {
 }
 
 module.exports = getVendorPrefixedEventName;
-},{"fbjs/lib/ExecutionEnvironment":136}],430:[function(require,module,exports){
+},{"fbjs/lib/ExecutionEnvironment":136}],431:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -80643,7 +80805,7 @@ function instantiateReactComponent(node, shouldHaveDebugID) {
 }
 
 module.exports = instantiateReactComponent;
-},{"./ReactCompositeComponent":331,"./ReactEmptyComponent":358,"./ReactHostComponent":363,"./reactProdInvariant":435,"fbjs/lib/invariant":150,"fbjs/lib/warning":159,"object-assign":244}],431:[function(require,module,exports){
+},{"./ReactCompositeComponent":332,"./ReactEmptyComponent":359,"./ReactHostComponent":364,"./reactProdInvariant":436,"fbjs/lib/invariant":150,"fbjs/lib/warning":159,"object-assign":245}],432:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -80704,7 +80866,7 @@ function isEventSupported(eventNameSuffix, capture) {
 }
 
 module.exports = isEventSupported;
-},{"fbjs/lib/ExecutionEnvironment":136}],432:[function(require,module,exports){
+},{"fbjs/lib/ExecutionEnvironment":136}],433:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -80756,7 +80918,7 @@ function isTextInputElement(elem) {
 }
 
 module.exports = isTextInputElement;
-},{}],433:[function(require,module,exports){
+},{}],434:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -80795,7 +80957,7 @@ function onlyChild(children) {
 }
 
 module.exports = onlyChild;
-},{"./ReactElement":356,"./reactProdInvariant":435,"fbjs/lib/invariant":150}],434:[function(require,module,exports){
+},{"./ReactElement":357,"./reactProdInvariant":436,"fbjs/lib/invariant":150}],435:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -80822,7 +80984,7 @@ function quoteAttributeValueForBrowser(value) {
 }
 
 module.exports = quoteAttributeValueForBrowser;
-},{"./escapeTextContentForBrowser":417}],435:[function(require,module,exports){
+},{"./escapeTextContentForBrowser":418}],436:[function(require,module,exports){
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -80862,7 +81024,7 @@ function reactProdInvariant(code) {
 }
 
 module.exports = reactProdInvariant;
-},{}],436:[function(require,module,exports){
+},{}],437:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -80879,7 +81041,7 @@ module.exports = reactProdInvariant;
 var ReactMount = require('./ReactMount');
 
 module.exports = ReactMount.renderSubtreeIntoContainer;
-},{"./ReactMount":371}],437:[function(require,module,exports){
+},{"./ReactMount":372}],438:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -80919,9 +81081,9 @@ var setInnerHTML = createMicrosoftUnsafeLocalFunction(function (node, html) {
   if (node.namespaceURI === DOMNamespaces.svg && !('innerHTML' in node)) {
     reusableSVGContainer = reusableSVGContainer || document.createElement('div');
     reusableSVGContainer.innerHTML = '<svg>' + html + '</svg>';
-    var newNodes = reusableSVGContainer.firstChild.childNodes;
-    for (var i = 0; i < newNodes.length; i++) {
-      node.appendChild(newNodes[i]);
+    var svgNode = reusableSVGContainer.firstChild;
+    while (svgNode.firstChild) {
+      node.appendChild(svgNode.firstChild);
     }
   } else {
     node.innerHTML = html;
@@ -80978,7 +81140,7 @@ if (ExecutionEnvironment.canUseDOM) {
 }
 
 module.exports = setInnerHTML;
-},{"./DOMNamespaces":304,"./createMicrosoftUnsafeLocalFunction":415,"fbjs/lib/ExecutionEnvironment":136}],438:[function(require,module,exports){
+},{"./DOMNamespaces":305,"./createMicrosoftUnsafeLocalFunction":416,"fbjs/lib/ExecutionEnvironment":136}],439:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -81027,7 +81189,7 @@ if (ExecutionEnvironment.canUseDOM) {
 }
 
 module.exports = setTextContent;
-},{"./escapeTextContentForBrowser":417,"./setInnerHTML":437,"fbjs/lib/ExecutionEnvironment":136}],439:[function(require,module,exports){
+},{"./escapeTextContentForBrowser":418,"./setInnerHTML":438,"fbjs/lib/ExecutionEnvironment":136}],440:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -81053,7 +81215,7 @@ function shallowCompare(instance, nextProps, nextState) {
 }
 
 module.exports = shallowCompare;
-},{"fbjs/lib/shallowEqual":158}],440:[function(require,module,exports){
+},{"fbjs/lib/shallowEqual":158}],441:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -81096,7 +81258,7 @@ function shouldUpdateReactComponent(prevElement, nextElement) {
 }
 
 module.exports = shouldUpdateReactComponent;
-},{}],441:[function(require,module,exports){
+},{}],442:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -81264,7 +81426,7 @@ function traverseAllChildren(children, callback, traverseContext) {
 }
 
 module.exports = traverseAllChildren;
-},{"./KeyEscapeUtils":318,"./ReactCurrentOwner":332,"./ReactElement":356,"./getIteratorFn":426,"./reactProdInvariant":435,"fbjs/lib/invariant":150,"fbjs/lib/warning":159}],442:[function(require,module,exports){
+},{"./KeyEscapeUtils":319,"./ReactCurrentOwner":333,"./ReactElement":357,"./getIteratorFn":427,"./reactProdInvariant":436,"fbjs/lib/invariant":150,"fbjs/lib/warning":159}],443:[function(require,module,exports){
 /**
  * Copyright 2015-present, Facebook, Inc.
  * All rights reserved.
@@ -81554,10 +81716,15 @@ if ("production" !== 'production') {
 
   var didWarn = {};
 
-  validateDOMNesting = function (childTag, childInstance, ancestorInfo) {
+  validateDOMNesting = function (childTag, childText, childInstance, ancestorInfo) {
     ancestorInfo = ancestorInfo || emptyAncestorInfo;
     var parentInfo = ancestorInfo.current;
     var parentTag = parentInfo && parentInfo.tag;
+
+    if (childText != null) {
+      "production" !== 'production' ? warning(childTag == null, 'validateDOMNesting: when childText is passed, childTag should be null') : void 0;
+      childTag = '#text';
+    }
 
     var invalidParent = isTagValidWithParent(childTag, parentTag) ? null : parentInfo;
     var invalidAncestor = invalidParent ? null : findInvalidAncestorForTag(childTag, ancestorInfo);
@@ -81606,7 +81773,15 @@ if ("production" !== 'production') {
       didWarn[warnKey] = true;
 
       var tagDisplayName = childTag;
-      if (childTag !== '#text') {
+      var whitespaceInfo = '';
+      if (childTag === '#text') {
+        if (/\S/.test(childText)) {
+          tagDisplayName = 'Text nodes';
+        } else {
+          tagDisplayName = 'Whitespace text nodes';
+          whitespaceInfo = ' Make sure you don\'t have any extra whitespace between tags on ' + 'each line of your source code.';
+        }
+      } else {
         tagDisplayName = '<' + childTag + '>';
       }
 
@@ -81615,7 +81790,7 @@ if ("production" !== 'production') {
         if (ancestorTag === 'table' && childTag === 'tr') {
           info += ' Add a <tbody> to your code to match the DOM tree generated by ' + 'the browser.';
         }
-        "production" !== 'production' ? warning(false, 'validateDOMNesting(...): %s cannot appear as a child of <%s>. ' + 'See %s.%s', tagDisplayName, ancestorTag, ownerInfo, info) : void 0;
+        "production" !== 'production' ? warning(false, 'validateDOMNesting(...): %s cannot appear as a child of <%s>.%s ' + 'See %s.%s', tagDisplayName, ancestorTag, whitespaceInfo, ownerInfo, info) : void 0;
       } else {
         "production" !== 'production' ? warning(false, 'validateDOMNesting(...): %s cannot appear as a descendant of ' + '<%s>. See %s.', tagDisplayName, ancestorTag, ownerInfo) : void 0;
       }
@@ -81634,15 +81809,15 @@ if ("production" !== 'production') {
 }
 
 module.exports = validateDOMNesting;
-},{"fbjs/lib/emptyFunction":142,"fbjs/lib/warning":159,"object-assign":244}],443:[function(require,module,exports){
+},{"fbjs/lib/emptyFunction":142,"fbjs/lib/warning":159,"object-assign":245}],444:[function(require,module,exports){
 'use strict';
 
 module.exports = require('./lib/React');
 
-},{"./lib/React":321}],444:[function(require,module,exports){
+},{"./lib/React":322}],445:[function(require,module,exports){
 module.exports = require("./lib/_stream_duplex.js")
 
-},{"./lib/_stream_duplex.js":445}],445:[function(require,module,exports){
+},{"./lib/_stream_duplex.js":446}],446:[function(require,module,exports){
 // a duplex stream is just a stream that is both readable and writable.
 // Since JS doesn't have multiple prototypal inheritance, this class
 // prototypally inherits from Readable, and then parasitically from
@@ -81718,7 +81893,7 @@ function forEach(xs, f) {
     f(xs[i], i);
   }
 }
-},{"./_stream_readable":447,"./_stream_writable":449,"core-util-is":94,"inherits":192,"process-nextick-args":247}],446:[function(require,module,exports){
+},{"./_stream_readable":448,"./_stream_writable":450,"core-util-is":94,"inherits":192,"process-nextick-args":248}],447:[function(require,module,exports){
 // a passthrough stream.
 // basically just the most minimal sort of Transform stream.
 // Every written chunk gets output as-is.
@@ -81745,7 +81920,7 @@ function PassThrough(options) {
 PassThrough.prototype._transform = function (chunk, encoding, cb) {
   cb(null, chunk);
 };
-},{"./_stream_transform":448,"core-util-is":94,"inherits":192}],447:[function(require,module,exports){
+},{"./_stream_transform":449,"core-util-is":94,"inherits":192}],448:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -82685,7 +82860,7 @@ function indexOf(xs, x) {
   return -1;
 }
 }).call(this,require('_process'))
-},{"./_stream_duplex":445,"./internal/streams/BufferList":450,"_process":248,"buffer":81,"buffer-shims":80,"core-util-is":94,"events":134,"inherits":192,"isarray":198,"process-nextick-args":247,"string_decoder/":461,"util":79}],448:[function(require,module,exports){
+},{"./_stream_duplex":446,"./internal/streams/BufferList":451,"_process":249,"buffer":81,"buffer-shims":80,"core-util-is":94,"events":134,"inherits":192,"isarray":198,"process-nextick-args":248,"string_decoder/":462,"util":79}],449:[function(require,module,exports){
 // a transform stream is a readable/writable stream where you do
 // something with the data.  Sometimes it's called a "filter",
 // but that's not a great name for it, since that implies a thing where
@@ -82866,7 +83041,7 @@ function done(stream, er) {
 
   return stream.push(null);
 }
-},{"./_stream_duplex":445,"core-util-is":94,"inherits":192}],449:[function(require,module,exports){
+},{"./_stream_duplex":446,"core-util-is":94,"inherits":192}],450:[function(require,module,exports){
 (function (process){
 // A bit simpler than readable streams.
 // Implement an async ._write(chunk, encoding, cb), and it'll handle all
@@ -83395,7 +83570,7 @@ function CorkedRequest(state) {
   };
 }
 }).call(this,require('_process'))
-},{"./_stream_duplex":445,"_process":248,"buffer":81,"buffer-shims":80,"core-util-is":94,"events":134,"inherits":192,"process-nextick-args":247,"util-deprecate":468}],450:[function(require,module,exports){
+},{"./_stream_duplex":446,"_process":249,"buffer":81,"buffer-shims":80,"core-util-is":94,"events":134,"inherits":192,"process-nextick-args":248,"util-deprecate":469}],451:[function(require,module,exports){
 'use strict';
 
 var Buffer = require('buffer').Buffer;
@@ -83460,10 +83635,10 @@ BufferList.prototype.concat = function (n) {
   }
   return ret;
 };
-},{"buffer":81,"buffer-shims":80}],451:[function(require,module,exports){
+},{"buffer":81,"buffer-shims":80}],452:[function(require,module,exports){
 module.exports = require("./lib/_stream_passthrough.js")
 
-},{"./lib/_stream_passthrough.js":446}],452:[function(require,module,exports){
+},{"./lib/_stream_passthrough.js":447}],453:[function(require,module,exports){
 (function (process){
 var Stream = (function (){
   try {
@@ -83483,13 +83658,13 @@ if (!process.browser && process.env.READABLE_STREAM === 'disable' && Stream) {
 }
 
 }).call(this,require('_process'))
-},{"./lib/_stream_duplex.js":445,"./lib/_stream_passthrough.js":446,"./lib/_stream_readable.js":447,"./lib/_stream_transform.js":448,"./lib/_stream_writable.js":449,"_process":248}],453:[function(require,module,exports){
+},{"./lib/_stream_duplex.js":446,"./lib/_stream_passthrough.js":447,"./lib/_stream_readable.js":448,"./lib/_stream_transform.js":449,"./lib/_stream_writable.js":450,"_process":249}],454:[function(require,module,exports){
 module.exports = require("./lib/_stream_transform.js")
 
-},{"./lib/_stream_transform.js":448}],454:[function(require,module,exports){
+},{"./lib/_stream_transform.js":449}],455:[function(require,module,exports){
 module.exports = require("./lib/_stream_writable.js")
 
-},{"./lib/_stream_writable.js":449}],455:[function(require,module,exports){
+},{"./lib/_stream_writable.js":450}],456:[function(require,module,exports){
 /**
  * cross-browser selected text bounding-client-rect.
  *
@@ -83524,7 +83699,7 @@ module.exports = function() {
   }
 };
 
-},{}],456:[function(require,module,exports){
+},{}],457:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -83741,7 +83916,7 @@ function normalizeReplacement(replacement) {
  */
 
 exports.default = AutoReplaceTextPlugin;
-},{"component-type":93,"escape-regex-string":132}],457:[function(require,module,exports){
+},{"component-type":93,"escape-regex-string":132}],458:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -83782,7 +83957,7 @@ function CollapseOnEscape() {
  */
 
 exports.default = CollapseOnEscape;
-},{"to-pascal-case":463}],458:[function(require,module,exports){
+},{"to-pascal-case":464}],459:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -83821,7 +83996,7 @@ function SoftBreak() {
  */
 
 exports.default = SoftBreak;
-},{}],459:[function(require,module,exports){
+},{}],460:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -83950,7 +84125,7 @@ Stream.prototype.pipe = function(dest, options) {
   return dest;
 };
 
-},{"events":134,"inherits":192,"readable-stream/duplex.js":444,"readable-stream/passthrough.js":451,"readable-stream/readable.js":452,"readable-stream/transform.js":453,"readable-stream/writable.js":454}],460:[function(require,module,exports){
+},{"events":134,"inherits":192,"readable-stream/duplex.js":445,"readable-stream/passthrough.js":452,"readable-stream/readable.js":453,"readable-stream/transform.js":454,"readable-stream/writable.js":455}],461:[function(require,module,exports){
 'use strict';
 module.exports = function (str) {
 	return encodeURIComponent(str).replace(/[!'()*]/g, function (c) {
@@ -83958,7 +84133,7 @@ module.exports = function (str) {
 	});
 };
 
-},{}],461:[function(require,module,exports){
+},{}],462:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -84181,7 +84356,7 @@ function base64DetectIncompleteChar(buffer) {
   this.charLength = this.charReceived ? 3 : 0;
 }
 
-},{"buffer":81}],462:[function(require,module,exports){
+},{"buffer":81}],463:[function(require,module,exports){
 
 /**
  * Export.
@@ -84250,7 +84425,7 @@ function uncamelize(string) {
   })
 }
 
-},{}],463:[function(require,module,exports){
+},{}],464:[function(require,module,exports){
 
 var space = require('to-space-case')
 
@@ -84273,7 +84448,7 @@ function toPascalCase(string) {
   })
 }
 
-},{"to-space-case":464}],464:[function(require,module,exports){
+},{"to-space-case":465}],465:[function(require,module,exports){
 
 var clean = require('to-no-case')
 
@@ -84296,7 +84471,7 @@ function toSpaceCase(string) {
   }).trim()
 }
 
-},{"to-no-case":462}],465:[function(require,module,exports){
+},{"to-no-case":463}],466:[function(require,module,exports){
 var toString = Object.prototype.toString
 
 module.exports = function(val){
@@ -84327,7 +84502,7 @@ module.exports = function(val){
   return typeof val
 }
 
-},{}],466:[function(require,module,exports){
+},{}],467:[function(require,module,exports){
 /**
  * UAParser.js v0.7.10
  * Lightweight JavaScript-based User-Agent string parser
@@ -85210,7 +85385,7 @@ module.exports = function(val){
 
 })(typeof window === 'object' ? window : this);
 
-},{}],467:[function(require,module,exports){
+},{}],468:[function(require,module,exports){
 /**
  * Export `uid`
  */
@@ -85229,7 +85404,7 @@ function uid(len) {
   return Math.random().toString(35).substr(2, len);
 }
 
-},{}],468:[function(require,module,exports){
+},{}],469:[function(require,module,exports){
 (function (global){
 
 /**
@@ -85300,6 +85475,6 @@ function config (name) {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],469:[function(require,module,exports){
+},{}],470:[function(require,module,exports){
 arguments[4][179][0].apply(exports,arguments)
-},{"dup":179}]},{},[63]);
+},{"dup":179}]},{},[18]);
