@@ -2647,7 +2647,7 @@ var Images = function (_React$Component) {
         isVoid: false,
         data: {}
       }).apply({
-        snapshot: false
+        save: false
       });
 
       _this.onChange(normalized);
@@ -5029,7 +5029,7 @@ module.exports={
 },{}],34:[function(require,module,exports){
 'use strict';
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 Object.defineProperty(exports, "__esModule", {
   value: true
@@ -5850,7 +5850,7 @@ exports.default = Content;
 },{"../constants/environment":40,"../constants/types":41,"../models/selection":51,"../serializers/base-64":56,"../utils/offset-key":74,"../utils/transfer":77,"./node":37,"debug":105,"get-window":163,"keycode":201,"lodash/includes":227,"react":446}],35:[function(require,module,exports){
 'use strict';
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 Object.defineProperty(exports, "__esModule", {
   value: true
@@ -6414,7 +6414,7 @@ exports.default = Editor;
 },{"../models/schema":50,"../models/state":52,"../plugins/core":55,"../utils/is-react-component":71,"./content":34,"debug":105,"react":446,"type-of":468}],36:[function(require,module,exports){
 'use strict';
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 Object.defineProperty(exports, "__esModule", {
   value: true
@@ -6751,7 +6751,7 @@ var Leaf = function (_React$Component) {
       // COMPAT: If the text is empty otherwise, it's because it's on the edge of
       // an inline void node, so we render a zero-width space so that the
       // selection can be inserted next to it still.
-      if (text == '') return _react2.default.createElement('span', { className: 'slate-zero-width-space' }, '​');
+      if (text == '') return _react2.default.createElement('span', { className: 'slate-zero-width-space' }, "\u200B");
 
       // COMPAT: Browsers will collapse trailing new lines at the end of blocks,
       // so we need to add an extra trailing new lines to prevent that.
@@ -6823,7 +6823,7 @@ exports.default = Leaf;
 },{"../utils/offset-key":74,"debug":105,"get-window":163,"react":446,"react-dom":254}],37:[function(require,module,exports){
 'use strict';
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 Object.defineProperty(exports, "__esModule", {
   value: true
@@ -7252,7 +7252,7 @@ exports.default = Node;
 },{"../constants/types":41,"../serializers/base-64":56,"../utils/scroll-to":75,"./leaf":36,"./void":39,"debug":105,"react":446,"react-dom":254}],38:[function(require,module,exports){
 'use strict';
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 Object.defineProperty(exports, "__esModule", {
   value: true
@@ -7401,7 +7401,7 @@ exports.default = Placeholder;
 },{"react":446}],39:[function(require,module,exports){
 'use strict';
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 Object.defineProperty(exports, "__esModule", {
   value: true
@@ -7838,7 +7838,7 @@ exports.default = {
 },{"./components/editor":35,"./components/placeholder":38,"./models/block":43,"./models/character":44,"./models/data":45,"./models/document":46,"./models/inline":47,"./models/mark":48,"./models/schema":50,"./models/selection":51,"./models/state":52,"./models/text":53,"./serializers/html":57,"./serializers/plain":58,"./serializers/raw":59,"./transforms":64,"./utils/find-dom-node":69}],43:[function(require,module,exports){
 'use strict';
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 Object.defineProperty(exports, "__esModule", {
   value: true
@@ -7995,7 +7995,7 @@ var Block = function (_ref) {
      */
 
     value: function create() {
-      var properties = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+      var properties = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
       if (properties instanceof Block) return properties;
       if (properties instanceof _inline2.default) return properties;
@@ -8020,7 +8020,7 @@ var Block = function (_ref) {
   }, {
     key: 'createList',
     value: function createList() {
-      var elements = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
+      var elements = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
 
       if (_immutable.List.isList(elements)) return elements;
       return new _immutable.List(elements.map(Block.create));
@@ -8047,7 +8047,7 @@ exports.default = Block;
 },{"../utils/uid":78,"./data":45,"./document":46,"./inline":47,"./node":49,"./text":53,"immutable":193}],44:[function(require,module,exports){
 'use strict';
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 Object.defineProperty(exports, "__esModule", {
   value: true
@@ -8136,7 +8136,7 @@ var Character = function (_CharacterRecord) {
      */
 
     value: function create() {
-      var properties = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+      var properties = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
       if (properties instanceof Character) return properties;
       properties.marks = _mark2.default.createSet(properties.marks);
@@ -8153,7 +8153,7 @@ var Character = function (_CharacterRecord) {
   }, {
     key: 'createList',
     value: function createList() {
-      var array = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
+      var array = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
 
       if (_immutable.List.isList(array)) return array;
       return new _immutable.List(array.map(Character.create));
@@ -8213,7 +8213,7 @@ var Data = {
    */
 
   create: function create() {
-    var properties = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+    var properties = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
     return _immutable.Map.isMap(properties) ? properties : new _immutable.Map(properties);
   }
@@ -8228,7 +8228,7 @@ exports.default = Data;
 },{"immutable":193}],46:[function(require,module,exports){
 'use strict';
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 Object.defineProperty(exports, "__esModule", {
   value: true
@@ -8372,7 +8372,7 @@ var Document = function (_ref) {
      */
 
     value: function create() {
-      var properties = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+      var properties = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
       if (properties instanceof Document) return properties;
 
@@ -8403,7 +8403,7 @@ exports.default = Document;
 },{"../utils/uid":78,"./block":43,"./inline":47,"./node":49,"immutable":193}],47:[function(require,module,exports){
 'use strict';
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 Object.defineProperty(exports, "__esModule", {
   value: true
@@ -8558,7 +8558,7 @@ var Inline = function (_ref) {
      */
 
     value: function create() {
-      var properties = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+      var properties = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
       if (properties instanceof _block2.default) return properties;
       if (properties instanceof Inline) return properties;
@@ -8583,7 +8583,7 @@ var Inline = function (_ref) {
   }, {
     key: 'createList',
     value: function createList() {
-      var elements = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
+      var elements = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
 
       if (_immutable.List.isList(elements)) return elements;
       return new _immutable.List(elements.map(Inline.create));
@@ -8610,7 +8610,7 @@ exports.default = Inline;
 },{"../utils/uid":78,"./block":43,"./data":45,"./document":46,"./node":49,"./text":53,"immutable":193}],48:[function(require,module,exports){
 'use strict';
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 Object.defineProperty(exports, "__esModule", {
   value: true
@@ -8716,7 +8716,7 @@ var Mark = function (_ref) {
      */
 
     value: function create() {
-      var properties = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+      var properties = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
       if (properties instanceof Mark) return properties;
       if (!properties.type) throw new Error('You must provide a `type` for the mark.');
@@ -8734,7 +8734,7 @@ var Mark = function (_ref) {
   }, {
     key: 'createSet',
     value: function createSet() {
-      var array = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
+      var array = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
 
       if (_immutable.Set.isSet(array)) return array;
       return new _immutable.Set(array.map(Mark.create));
@@ -9286,7 +9286,7 @@ var Node = {
    */
 
   getDepth: function getDepth(key) {
-    var startAt = arguments.length <= 1 || arguments[1] === undefined ? 1 : arguments[1];
+    var startAt = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
 
     this.assertDescendant(key);
     return this.hasChild(key) ? startAt : this.getHighestChild(key).getDepth(key, startAt + 1);
@@ -10101,7 +10101,7 @@ var Node = {
    */
 
   splitBlockAtRange: function splitBlockAtRange(range) {
-    var height = arguments.length <= 1 || arguments[1] === undefined ? 1 : arguments[1];
+    var height = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
     var startKey = range.startKey;
     var startOffset = range.startOffset;
 
@@ -10163,7 +10163,7 @@ exports.default = Node;
 },{"../utils/is-in-range":70,"../utils/memoize":72,"../utils/normalize":73,"../utils/uid":78,"./block":43,"./character":44,"./data":45,"./document":46,"./inline":47,"./mark":48,"./selection":51,"./text":53,"direction":112,"immutable":193,"lodash/includes":227}],50:[function(require,module,exports){
 'use strict';
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 Object.defineProperty(exports, "__esModule", {
   value: true
@@ -10438,7 +10438,7 @@ var Schema = function (_ref) {
      */
 
     value: function create() {
-      var properties = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+      var properties = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
       if (properties instanceof Schema) return properties;
       return new Schema(normalizeProperties(properties));
@@ -10571,7 +10571,7 @@ exports.default = Schema;
 },{"../utils/is-react-component":71,"../utils/memoize":72,"immutable":193,"lodash/includes":227,"react":446,"type-of":468}],51:[function(require,module,exports){
 'use strict';
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 Object.defineProperty(exports, "__esModule", {
   value: true
@@ -11058,7 +11058,7 @@ var Selection = function (_ref) {
   }, {
     key: 'moveToRangeOf',
     value: function moveToRangeOf(start) {
-      var end = arguments.length <= 1 || arguments[1] === undefined ? start : arguments[1];
+      var end = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : start;
 
       return this.merge({
         anchorKey: start.key,
@@ -11079,7 +11079,7 @@ var Selection = function (_ref) {
   }, {
     key: 'moveForward',
     value: function moveForward() {
-      var n = arguments.length <= 0 || arguments[0] === undefined ? 1 : arguments[0];
+      var n = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
 
       return this.merge({
         anchorOffset: this.anchorOffset + n,
@@ -11097,7 +11097,7 @@ var Selection = function (_ref) {
   }, {
     key: 'moveBackward',
     value: function moveBackward() {
-      var n = arguments.length <= 0 || arguments[0] === undefined ? 1 : arguments[0];
+      var n = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
 
       return this.merge({
         anchorOffset: this.anchorOffset - n,
@@ -11116,7 +11116,7 @@ var Selection = function (_ref) {
   }, {
     key: 'moveToOffsets',
     value: function moveToOffsets(anchor) {
-      var focus = arguments.length <= 1 || arguments[1] === undefined ? anchor : arguments[1];
+      var focus = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : anchor;
 
       var props = {};
       props.anchorOffset = anchor;
@@ -11139,7 +11139,7 @@ var Selection = function (_ref) {
   }, {
     key: 'extendForward',
     value: function extendForward() {
-      var n = arguments.length <= 0 || arguments[0] === undefined ? 1 : arguments[0];
+      var n = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
 
       return this.merge({
         focusOffset: this.focusOffset + n,
@@ -11157,7 +11157,7 @@ var Selection = function (_ref) {
   }, {
     key: 'extendBackward',
     value: function extendBackward() {
-      var n = arguments.length <= 0 || arguments[0] === undefined ? 1 : arguments[0];
+      var n = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
 
       return this.merge({
         focusOffset: this.focusOffset - n,
@@ -11308,7 +11308,7 @@ var Selection = function (_ref) {
      */
 
     value: function create() {
-      var properties = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+      var properties = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
       if (properties instanceof Selection) return properties;
       return new Selection(properties);
@@ -11364,7 +11364,7 @@ exports.default = Selection;
 },{"../utils/memoize":72,"immutable":193,"lodash/includes":227}],52:[function(require,module,exports){
 'use strict';
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 Object.defineProperty(exports, "__esModule", {
   value: true
@@ -11493,7 +11493,7 @@ var State = function (_ref) {
         rule.normalize(transform, document, value);
       }
 
-      return transform.apply({ snapshot: false });
+      return transform.apply({ save: false });
     }
 
     /**
@@ -11939,7 +11939,7 @@ var State = function (_ref) {
      */
 
     value: function create() {
-      var properties = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+      var properties = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
       if (properties instanceof State) return properties;
 
@@ -11967,7 +11967,7 @@ exports.default = State;
 },{"../utils/uid":78,"./document":46,"./mark":48,"./selection":51,"./transform":54,"immutable":193}],53:[function(require,module,exports){
 'use strict';
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 Object.defineProperty(exports, "__esModule", {
   value: true
@@ -12167,7 +12167,7 @@ var Text = function (_ref) {
   }, {
     key: 'getRanges',
     value: function getRanges() {
-      var decorators = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
+      var decorators = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
 
       var node = this;
       var list = new _immutable.List();
@@ -12390,7 +12390,7 @@ var Text = function (_ref) {
      */
 
     value: function create() {
-      var properties = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+      var properties = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
       if (properties instanceof Text) return properties;
       properties.key = properties.key || (0, _uid2.default)(4);
@@ -12408,7 +12408,7 @@ var Text = function (_ref) {
   }, {
     key: 'createList',
     value: function createList() {
-      var elements = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
+      var elements = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
 
       if (_immutable.List.isList(elements)) return elements;
       return new _immutable.List(elements.map(Text.create));
@@ -12516,7 +12516,7 @@ var Transform = function () {
      */
 
     value: function apply() {
-      var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+      var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
       var merge = options.merge;
       var save = options.save;
       var _options$isNative = options.isNative;
@@ -12706,6 +12706,8 @@ var _getWindow = require('get-window');
 
 var _getWindow2 = _interopRequireDefault(_getWindow);
 
+var _environment = require('../constants/environment');
+
 function _interopRequireDefault(obj) {
   return obj && obj.__esModule ? obj : { default: obj };
 }
@@ -12729,7 +12731,7 @@ var debug = (0, _debug2.default)('slate:core');
  */
 
 function Plugin() {
-  var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+  var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
   var placeholder = options.placeholder;
   var placeholderClassName = options.placeholderClassName;
   var placeholderStyle = options.placeholderStyle;
@@ -13026,6 +13028,8 @@ function Plugin() {
         return onKeyDownY(e, data, state);
       case 'z':
         return onKeyDownZ(e, data, state);
+      case 'k':
+        return onKeyDownK(e, data, state);
     }
   }
 
@@ -13227,6 +13231,26 @@ function Plugin() {
     debug('onKeyDownZ', { data: data });
 
     return state.transform()[data.isShift ? 'redo' : 'undo']().apply({ save: false });
+  }
+
+  /**
+   * On `k` key down, delete untill the end of the line (mac only)
+   *
+   * @param {Event} e
+   * @param {Object} data
+   * @param {State} state
+   * @return {State}
+   */
+
+  function onKeyDownK(e, data, state) {
+    if (!_environment.IS_MAC || !data.isCtrl) return;
+
+    debug('onKeyDownK', { data: data });
+
+    var startOffset = state.startOffset;
+    var startBlock = state.startBlock;
+
+    return state.transform().deleteForward(startBlock.text.length - startOffset).apply();
   }
 
   /**
@@ -13449,7 +13473,7 @@ function Plugin() {
 
 exports.default = Plugin;
 
-},{"../components/placeholder":38,"../models/character":44,"../serializers/base-64":56,"../utils/string":76,"debug":105,"get-window":163,"react":446}],56:[function(require,module,exports){
+},{"../components/placeholder":38,"../constants/environment":40,"../models/character":44,"../serializers/base-64":56,"../utils/string":76,"debug":105,"get-window":163,"react":446}],56:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -13688,7 +13712,7 @@ var Html =
 function Html() {
   var _this = this;
 
-  var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+  var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
   _classCallCheck(this, Html);
 
@@ -13725,7 +13749,7 @@ function Html() {
   };
 
   this.deserializeElements = function () {
-    var elements = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
+    var elements = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
 
     var nodes = [];
 
@@ -14181,7 +14205,7 @@ var Raw = {
    */
 
   deserializeBlock: function deserializeBlock(object) {
-    var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
     if (options.terse) object = Raw.untersifyBlock(object);
 
@@ -14221,7 +14245,7 @@ var Raw = {
    */
 
   deserializeInline: function deserializeInline(object) {
-    var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
     if (options.terse) object = Raw.untersifyInline(object);
 
@@ -14282,7 +14306,7 @@ var Raw = {
    */
 
   deserializeRange: function deserializeRange(object) {
-    var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
     if (options.terse) object = Raw.untersifyRange(object);
 
@@ -14305,7 +14329,7 @@ var Raw = {
    */
 
   deserializeState: function deserializeState(object) {
-    var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
     if (options.terse) object = Raw.untersifyState(object);
 
@@ -14323,7 +14347,7 @@ var Raw = {
    */
 
   deserializeText: function deserializeText(object) {
-    var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
     if (options.terse) object = Raw.untersifyText(object);
 
@@ -14356,7 +14380,7 @@ var Raw = {
    */
 
   serializeBlock: function serializeBlock(block) {
-    var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
     var object = {
       data: block.data.toJSON(),
@@ -14381,7 +14405,7 @@ var Raw = {
    */
 
   serializeDocument: function serializeDocument(document) {
-    var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
     var object = {
       kind: document.kind,
@@ -14402,7 +14426,7 @@ var Raw = {
    */
 
   serializeInline: function serializeInline(inline) {
-    var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
     var object = {
       data: inline.data.toJSON(),
@@ -14427,7 +14451,7 @@ var Raw = {
    */
 
   serializeMark: function serializeMark(mark) {
-    var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
     var object = {
       data: mark.data.toJSON(),
@@ -14472,7 +14496,7 @@ var Raw = {
    */
 
   serializeRange: function serializeRange(range) {
-    var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
     var object = {
       kind: range.kind,
@@ -14494,7 +14518,7 @@ var Raw = {
    */
 
   serializeState: function serializeState(state) {
-    var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
     var object = {
       document: Raw.serializeDocument(state.document, options),
@@ -14513,7 +14537,7 @@ var Raw = {
    */
 
   serializeText: function serializeText(text) {
-    var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
     var object = {
       key: text.key,
@@ -15236,7 +15260,7 @@ function _delete(transform) {
  */
 
 function deleteBackward(transform) {
-  var n = arguments.length <= 1 || arguments[1] === undefined ? 1 : arguments[1];
+  var n = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
   var state = transform.state;
   var document = state.document;
   var selection = state.selection;
@@ -15305,7 +15329,7 @@ function deleteBackward(transform) {
  */
 
 function deleteForward(transform) {
-  var n = arguments.length <= 1 || arguments[1] === undefined ? 1 : arguments[1];
+  var n = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
   var state = transform.state;
   var document = state.document;
   var selection = state.selection;
@@ -15541,7 +15565,7 @@ function setInline(transform, properties) {
  */
 
 function splitBlock(transform) {
-  var depth = arguments.length <= 1 || arguments[1] === undefined ? 1 : arguments[1];
+  var depth = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
   var state = transform.state;
   var _state4 = state;
   var document = _state4.document;
@@ -15571,7 +15595,7 @@ function splitBlock(transform) {
  */
 
 function splitInline(transform) {
-  var depth = arguments.length <= 1 || arguments[1] === undefined ? Infinity : arguments[1];
+  var depth = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : Infinity;
   var state = transform.state;
   var _state5 = state;
   var document = _state5.document;
@@ -15755,7 +15779,7 @@ function wrapInline(transform, properties) {
  */
 
 function wrapText(transform, prefix) {
-  var suffix = arguments.length <= 2 || arguments[2] === undefined ? prefix : arguments[2];
+  var suffix = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : prefix;
   var state = transform.state;
   var document = state.document;
   var selection = state.selection;
@@ -15951,7 +15975,7 @@ function deleteAtRange(transform, range) {
  */
 
 function deleteBackwardAtRange(transform, range) {
-  var n = arguments.length <= 2 || arguments[2] === undefined ? 1 : arguments[2];
+  var n = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 1;
   var state = transform.state;
   var document = state.document;
   var _range = range;
@@ -16017,7 +16041,7 @@ function deleteBackwardAtRange(transform, range) {
  */
 
 function deleteForwardAtRange(transform, range) {
-  var n = arguments.length <= 2 || arguments[2] === undefined ? 1 : arguments[2];
+  var n = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 1;
   var state = transform.state;
   var document = state.document;
   var _range2 = range;
@@ -16374,7 +16398,7 @@ function setInlineAtRange(transform, range, properties) {
  */
 
 function splitBlockAtRange(transform, range) {
-  var height = arguments.length <= 2 || arguments[2] === undefined ? 1 : arguments[2];
+  var height = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 1;
 
   if (range.isExpanded) {
     transform.deleteAtRange(range);
@@ -16414,7 +16438,7 @@ function splitBlockAtRange(transform, range) {
  */
 
 function splitInlineAtRange(transform, range) {
-  var height = arguments.length <= 2 || arguments[2] === undefined ? Infinity : arguments[2];
+  var height = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : Infinity;
 
   if (range.isExpanded) {
     transform.deleteAtRange(range);
@@ -16781,7 +16805,7 @@ function wrapInlineAtRange(transform, range, inline) {
  */
 
 function wrapTextAtRange(transform, range, prefix) {
-  var suffix = arguments.length <= 3 || arguments[3] === undefined ? prefix : arguments[3];
+  var suffix = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : prefix;
   var startKey = range.startKey;
   var endKey = range.endKey;
 
@@ -17331,7 +17355,7 @@ function redo(transform) {
  */
 
 function save(transform) {
-  var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+  var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
   var _options$merge = options.merge;
   var merge = _options$merge === undefined ? false : _options$merge;
   var state = transform.state;
@@ -18706,7 +18730,7 @@ function mark(value) {
  */
 
 function markProperties() {
-  var value = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+  var value = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
   var ret = {};
 
@@ -18744,7 +18768,7 @@ function markProperties() {
  */
 
 function nodeProperties() {
-  var value = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+  var value = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
   var ret = {};
 
@@ -18805,7 +18829,7 @@ function selection(value) {
  */
 
 function selectionProperties() {
-  var value = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+  var value = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
   var ret = {};
 
@@ -28702,7 +28726,8 @@ function is(x, y) {
   if (x === y) {
     // Steps 1-5, 7-10
     // Steps 6.b-6.e: +0 != -0
-    return x !== 0 || 1 / x === 1 / y;
+    // Added the nonzero y check to make Flow happy, but it is redundant
+    return x !== 0 || y !== 0 || 1 / x === 1 / y;
   } else {
     // Step 6.a: NaN == NaN
     return x !== x && y !== y;
@@ -56392,7 +56417,8 @@ var isObject = require('./isObject');
 
 /** `Object#toString` result references. */
 var funcTag = '[object Function]',
-    genTag = '[object GeneratorFunction]';
+    genTag = '[object GeneratorFunction]',
+    proxyTag = '[object Proxy]';
 
 /** Used for built-in method references. */
 var objectProto = Object.prototype;
@@ -56425,7 +56451,7 @@ function isFunction(value) {
   // The use of `Object#toString` avoids issues with the `typeof` operator
   // in Safari 8-9 which returns 'object' for typed array and other constructors.
   var tag = isObject(value) ? objectToString.call(value) : '';
-  return tag == funcTag || tag == genTag;
+  return tag == funcTag || tag == genTag || tag == proxyTag;
 }
 
 module.exports = isFunction;
@@ -58760,7 +58786,7 @@ var Frame = React.createClass({
   },
   getDefaultProps: function() {
     return {
-      initialContent: '<!DOCTYPE html><html><head></head><body><div></div></body></html>',
+      initialContent: '<!DOCTYPE html><html><head></head><body><div class="frame-root"></div></body></html>',
       contentDidMount: function() {},
       contentDidUpdate: function() {}
     };
@@ -58787,7 +58813,7 @@ var Frame = React.createClass({
     var doc = this.getDoc();
     if(doc && doc.readyState === 'complete') {
       var contents = React.createElement('div',
-        undefined,
+        {className: 'frame-content'},
         this.props.head,
         this.props.children
       );
