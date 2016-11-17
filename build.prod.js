@@ -5964,25 +5964,29 @@ var _initialiseProps = function _initialiseProps() {
     var schema = editor.getSchema();
     var decorators = document.getDescendantDecorators(key, schema);
     var node = document.getDescendant(key);
+    var block = document.getClosestBlock(node.key);
     var ranges = node.getRanges(decorators);
-    var range = ranges.get(index);
+    var lastText = block.getLastText();
 
     // Get the text information.
-    var isLast = index == ranges.size - 1;
-    var text = range.text,
-        marks = range.marks;
     var textContent = anchorNode.textContent;
 
     var lastChar = textContent.charAt(textContent.length - 1);
+    var isLastText = node == lastText;
+    var isLastRange = index == ranges.size - 1;
 
     // If we're dealing with the last leaf, and the DOM text ends in a new line,
     // we will have added another new line in <Leaf>'s render method to account
     // for browsers collapsing a single trailing new lines, so remove it.
-    if (isLast && lastChar == '\n') {
+    if (isLastText && isLastRange && lastChar == '\n') {
       textContent = textContent.slice(0, -1);
     }
 
     // If the text is no different, abort.
+    var range = ranges.get(index);
+    var text = range.text,
+        marks = range.marks;
+
     if (textContent == text) return;
 
     // Determine what the selection should be after changing the text.
@@ -7072,14 +7076,17 @@ var Leaf = function (_React$Component) {
 
   }, {
     key: 'renderText',
-    value: function renderText(_ref) {
-      var parent = _ref.parent,
-          text = _ref.text,
-          index = _ref.index,
-          ranges = _ref.ranges;
+    value: function renderText(props) {
+      var node = props.node,
+          state = props.state,
+          parent = props.parent,
+          text = props.text,
+          index = props.index,
+          ranges = props.ranges;
 
       // COMPAT: If the text is empty and it's the only child, we need to render a
       // <br/> to get the block to have the proper height.
+
       if (text == '' && parent.kind == 'block' && parent.text == '') return _react2.default.createElement('br', null);
 
       // COMPAT: If the text is empty otherwise, it's because it's on the edge of
@@ -7089,9 +7096,12 @@ var Leaf = function (_React$Component) {
 
       // COMPAT: Browsers will collapse trailing new lines at the end of blocks,
       // so we need to add an extra trailing new lines to prevent that.
+      var block = state.document.getClosestBlock(node.key);
+      var lastText = block.getLastText();
       var lastChar = text.charAt(text.length - 1);
-      var isLast = index == ranges.size - 1;
-      if (isLast && lastChar == '\n') return text + '\n';
+      var isLastText = node == lastText;
+      var isLastRange = index == ranges.size - 1;
+      if (isLastText && isLastRange && lastChar == '\n') return text + '\n';
 
       // Otherwise, just return the text.
       return text;
