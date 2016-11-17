@@ -2,7 +2,6 @@
 import { Editor, Raw } from '../..'
 import React from 'react'
 import initialState from './state.json'
-import keycode from 'keycode'
 
 /**
  * Define a schema.
@@ -116,9 +115,9 @@ class Tables extends React.Component {
 
     if (state.startBlock.type != 'table-cell') return
     switch (data.key) {
-      case 'backspace': return this.onBackspace(e, state)
-      case 'delete': return this.onDelete(e, state)
-      case 'enter': return this.onEnter(e, state)
+    case 'backspace': return this.onBackspace(e, state)
+    case 'delete': return this.onDelete(e, state)
+    case 'enter': return this.onEnter(e, state)
     }
   }
 

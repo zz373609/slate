@@ -15,6 +15,7 @@ import FocusBlur from './focus-blur'
 import HoveringMenu from './hovering-menu'
 import Iframes from './iframes'
 import Images from './images'
+import LargeDocument from './large-document'
 import Links from './links'
 import PasteHtml from './paste-html'
 import PlainText from './plain-text'
@@ -71,6 +72,7 @@ class App extends React.Component {
         {this.renderTab('Plain Text', 'plain-text')}
         {this.renderTab('Auto-markdown', 'auto-markdown')}
         {this.renderTab('Hovering Menu', 'hovering-menu')}
+        {this.renderTab('Large Document', 'large')}
         {this.renderTab('Links', 'links')}
         {this.renderTab('Images', 'images')}
         {this.renderTab('Embeds', 'embeds')}
@@ -135,6 +137,7 @@ const router = (
       <Route path="hovering-menu" component={HoveringMenu} />
       <Route path="iframes" component={Iframes} />
       <Route path="images" component={Images} />
+      <Route path="large" component={LargeDocument} />
       <Route path="links" component={Links} />
       <Route path="paste-html" component={PasteHtml} />
       <Route path="plain-text" component={PlainText} />

@@ -1,5 +1,5 @@
 
-import { Editor, Mark, Raw, Selection } from '../..'
+import { Editor, Mark, Raw } from '../..'
 import Prism from 'prismjs'
 import React from 'react'
 import initialState from './state.json'
@@ -12,7 +12,7 @@ import initialState from './state.json'
  */
 
 function CodeBlock(props) {
-  const { attributes, children, editor, node } = props
+  const { editor, node } = props
   const language = node.data.get('language')
 
   function onChange(e) {
@@ -154,8 +154,8 @@ class CodeHighlighting extends React.Component {
     if (startBlock.type != 'code') return
 
     let transform = state.transform()
-    if (state.isExpanded) transform = transform.delete()
-    transform = transform.insertText('\n')
+    if (state.isExpanded) transform.delete()
+    transform.insertText('\n')
 
     return transform.apply()
   }

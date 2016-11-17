@@ -1,10 +1,8 @@
 
-import { Editor, Mark, Raw } from '../..'
+import { Editor, Raw } from '../..'
 import React from 'react'
-import ReactDOM from 'react-dom'
 import initialState from './state.json'
 import isUrl from 'is-url'
-import { Map } from 'immutable'
 
 /**
  * Define a schema.
@@ -127,7 +125,7 @@ class Links extends React.Component {
     let transform = state.transform()
 
     if (this.hasLinks()) {
-      transform = transform.unwrapInline('link')
+      transform.unwrapInline('link')
     }
 
     return transform

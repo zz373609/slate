@@ -1,7 +1,6 @@
 
-import { Editor, Raw, Void } from '../..'
+import { Editor, Raw } from '../..'
 import React from 'react'
-import ReactDOM from 'react-dom'
 import initialState from './state.json'
 import isImage from 'is-image'
 import isUrl from 'is-url'
@@ -161,8 +160,8 @@ class Images extends React.Component {
 
   onDrop = (e, data, state, editor) => {
     switch (data.type) {
-      case 'files': return this.onDropOrPasteFiles(e, data, state, editor)
-      case 'node': return this.onDropNode(e, data, state)
+    case 'files': return this.onDropOrPasteFiles(e, data, state, editor)
+    case 'node': return this.onDropNode(e, data, state)
     }
   }
 
@@ -223,8 +222,8 @@ class Images extends React.Component {
 
   onPaste = (e, data, state, editor) => {
     switch (data.type) {
-      case 'files': return this.onDropOrPasteFiles(e, data, state, editor)
-      case 'text': return this.onPasteText(e, data, state)
+    case 'files': return this.onDropOrPasteFiles(e, data, state, editor)
+    case 'text': return this.onPasteText(e, data, state)
     }
   }
 

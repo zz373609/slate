@@ -50,17 +50,17 @@ class AutoMarkdown extends React.Component {
 
   getType = (chars) => {
     switch (chars) {
-      case '*':
-      case '-':
-      case '+': return 'list-item'
-      case '>': return 'block-quote'
-      case '#': return 'heading-one'
-      case '##': return 'heading-two'
-      case '###': return 'heading-three'
-      case '####': return 'heading-four'
-      case '#####': return 'heading-five'
-      case '######': return 'heading-six'
-      default: return null
+    case '*':
+    case '-':
+    case '+': return 'list-item'
+    case '>': return 'block-quote'
+    case '#': return 'heading-one'
+    case '##': return 'heading-two'
+    case '###': return 'heading-three'
+    case '####': return 'heading-four'
+    case '#####': return 'heading-five'
+    case '######': return 'heading-six'
+    default: return null
     }
   }
 
@@ -105,9 +105,9 @@ class AutoMarkdown extends React.Component {
 
   onKeyDown = (e, data, state) => {
     switch (data.key) {
-      case 'space': return this.onSpace(e, state)
-      case 'backspace': return this.onBackspace(e, state)
-      case 'enter': return this.onEnter(e, state)
+    case 'space': return this.onSpace(e, state)
+    case 'backspace': return this.onBackspace(e, state)
+    case 'enter': return this.onEnter(e, state)
     }
   }
 
@@ -122,8 +122,7 @@ class AutoMarkdown extends React.Component {
 
   onSpace = (e, state) => {
     if (state.isExpanded) return
-    let { selection } = state
-    const { startText, startBlock, startOffset } = state
+    const { startBlock, startOffset } = state
     const chars = startBlock.text.slice(0, startOffset).replace(/\s*/g, '')
     const type = this.getType(chars)
 
@@ -135,7 +134,7 @@ class AutoMarkdown extends React.Component {
       .transform()
       .setBlock(type)
 
-    if (type == 'list-item') transform = transform.wrapBlock('bulleted-list')
+    if (type == 'list-item') transform.wrapBlock('bulleted-list')
 
     state = transform
       .extendToStartOf(startBlock)
@@ -166,7 +165,7 @@ class AutoMarkdown extends React.Component {
       .transform()
       .setBlock('paragraph')
 
-    if (startBlock.type == 'list-item') transform = transform.unwrapBlock('bulleted-list')
+    if (startBlock.type == 'list-item') transform.unwrapBlock('bulleted-list')
 
     state = transform.apply()
     return state

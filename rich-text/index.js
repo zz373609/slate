@@ -1,5 +1,5 @@
 
-import { Editor, Mark, Raw } from '../..'
+import { Editor, Raw } from '../..'
 import React from 'react'
 import initialState from './state.json'
 
@@ -109,20 +109,20 @@ class RichText extends React.Component {
     let mark
 
     switch (data.key) {
-      case 'b':
-        mark = 'bold'
-        break
-      case 'i':
-        mark = 'italic'
-        break
-      case 'u':
-        mark = 'underlined'
-        break
-      case '`':
-        mark = 'code'
-        break
-      default:
-        return
+    case 'b':
+      mark = 'bold'
+      break
+    case 'i':
+      mark = 'italic'
+      break
+    case 'u':
+      mark = 'underlined'
+      break
+    case '`':
+      mark = 'code'
+      break
+    default:
+      return
     }
 
     state = state
@@ -172,14 +172,14 @@ class RichText extends React.Component {
       const isList = this.hasBlock('list-item')
 
       if (isList) {
-        transform = transform
+        transform
           .setBlock(isActive ? DEFAULT_NODE : type)
           .unwrapBlock('bulleted-list')
           .unwrapBlock('numbered-list')
       }
 
       else {
-        transform = transform
+        transform
           .setBlock(isActive ? DEFAULT_NODE : type)
       }
     }
@@ -192,16 +192,16 @@ class RichText extends React.Component {
       })
 
       if (isList && isType) {
-        transform = transform
+        transform
           .setBlock(DEFAULT_NODE)
           .unwrapBlock('bulleted-list')
           .unwrapBlock('numbered-list')
       } else if (isList) {
-        transform = transform
+        transform
           .unwrapBlock(type == 'bulleted-list' ? 'numbered-list' : 'bulleted-list')
           .wrapBlock(type)
       } else {
-        transform = transform
+        transform
           .setBlock('list-item')
           .wrapBlock(type)
       }
