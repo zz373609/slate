@@ -4564,7 +4564,7 @@ var RichText = function (_React$Component) {
       else {
           var _isList = _this.hasBlock('list-item');
           var isType = state.blocks.some(function (block) {
-            return !!document.getClosest(block, function (parent) {
+            return !!document.getClosest(block.key, function (parent) {
               return parent.type == type;
             });
           });
@@ -5026,8 +5026,8 @@ var Tables = function (_React$Component) {
       var startNode = document.getDescendant(startKey);
 
       if (selection.isAtStartOf(startNode)) {
-        var previous = document.getPreviousText(startNode);
-        var prevBlock = document.getClosestBlock(previous);
+        var previous = document.getPreviousText(startNode.key);
+        var prevBlock = document.getClosestBlock(previous.key);
 
         if (prevBlock.type == 'table-cell') {
           e.preventDefault();
@@ -6176,12 +6176,9 @@ var _initialiseProps = function _initialiseProps() {
 };
 
 function isNonEditable(event) {
-  var target = event.target,
-      currentTarget = event.currentTarget;
+  var target = event.target;
 
-  var nonEditable = target.closest('[contenteditable="false"]');
-  var isContained = currentTarget.contains(nonEditable);
-  return isContained;
+  return !target.isContentEditable;
 }
 
 /**
@@ -13830,12 +13827,13 @@ function Plugin() {
     if (state.isExpanded) return;
 
     var document = state.document,
+        startKey = state.startKey,
         startText = state.startText;
 
-    var hasVoidParent = document.hasVoidParent(startText.key);
+    var hasVoidParent = document.hasVoidParent(startKey);
 
     if (startText.text == '' || hasVoidParent) {
-      var previousText = document.getPreviousText(startText.key);
+      var previousText = document.getPreviousText(startKey);
       if (!previousText) return;
 
       debug('onKeyDownLeft', { data: data });
@@ -13864,12 +13862,13 @@ function Plugin() {
     if (state.isExpanded) return;
 
     var document = state.document,
+        startKey = state.startKey,
         startText = state.startText;
 
-    var hasVoidParent = document.hasVoidParent(startText);
+    var hasVoidParent = document.hasVoidParent(startKey);
 
     if (startText.text == '' || hasVoidParent) {
-      var nextText = document.getNextText(startText);
+      var nextText = document.getNextText(startKey);
       if (!nextText) return state;
 
       debug('onKeyDownRight', { data: data });
@@ -14817,6 +14816,7 @@ var _initialiseProps = function _initialiseProps() {
         var ret = rule.deserialize(element, next);
         if (!ret) continue;
         node = ret.kind == 'mark' ? _this.deserializeMark(ret) : ret;
+        break;
       }
     } catch (err) {
       _didIteratorError = true;
