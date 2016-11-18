@@ -4625,6 +4625,7 @@ var RichText = function (_React$Component) {
         'div',
         { className: 'editor' },
         _react2.default.createElement(_.Editor, {
+          spellCheck: true,
           placeholder: 'Enter some rich text...',
           schema: schema,
           state: _this.state.state,
@@ -5508,15 +5509,8 @@ var Content = function (_React$Component) {
    */
 
   /**
-   * While rendering, set the `isRendering` flag.
-   *
-   * @param {Object} props
-   * @param {Object} state
-   */
-
-  /**
-   * When finished rendering, move the `isRendering` flag on next tick and
-   * clean up the DOM's activeElement if neccessary.
+   * On update, if the state is blurred now, but was focused before, and the
+   * DOM still has a node inside the editor selected, we need to blur it.
    *
    * @param {Object} prevProps
    * @param {Object} prevState
@@ -5707,23 +5701,12 @@ var _initialiseProps = function _initialiseProps() {
     return props.className != _this2.props.className || props.schema != _this2.props.schema || props.spellCheck != _this2.props.spellCheck || props.state != _this2.props.state || props.style != _this2.props.style;
   };
 
-  this.componentWillUpdate = function (props, state) {
-    _this2.tmp.isRendering = true;
-  };
-
   this.componentDidUpdate = function (prevProps, prevState) {
-    setTimeout(function () {
-      _this2.tmp.isRendering = false;
-    }, 1);
-
-    // If the state is blurred now, but was focused before, and the DOM still
-    // has a node inside the editor selected, we need to blur it.
     if (_this2.props.state.isBlurred && prevProps.state.isFocused) {
       var el = _reactDom2.default.findDOMNode(_this2);
       var window = (0, _getWindow2.default)(el);
       var native = window.getSelection();
       if (!el.contains(native.anchorNode)) return;
-
       native.removeAllRanges();
       el.blur();
     }
@@ -5923,7 +5906,6 @@ var _initialiseProps = function _initialiseProps() {
   };
 
   this.onInput = function (e) {
-    if (_this2.tmp.isRendering) return;
     if (_this2.tmp.isComposing) return;
     if (_this2.props.state.isBlurred) return;
     if (isNonEditable(e)) return;
@@ -6046,7 +6028,6 @@ var _initialiseProps = function _initialiseProps() {
 
   this.onSelect = function (e) {
     if (_this2.props.readOnly) return;
-    if (_this2.tmp.isRendering) return;
     if (_this2.tmp.isCopying) return;
     if (_this2.tmp.isComposing) return;
     if (isNonEditable(e)) return;
@@ -6123,7 +6104,7 @@ var _initialiseProps = function _initialiseProps() {
 
     // COMPAT: In Firefox, spellchecking can remove entire wrapping elements
     // including inline ones like `<a>`, which is jarring for the user but also
-    // causes the DOM to get into an irreconilable state.
+    // causes the DOM to get into an irreconcilable state. (2016/09/01)
     var spellCheck = _environment.IS_FIREFOX ? false : _this2.props.spellCheck;
 
     return _react2.default.createElement('div', {
