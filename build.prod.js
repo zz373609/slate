@@ -1713,19 +1713,9 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
-var _reactDom = require('react-dom');
-
-var _reactDom2 = _interopRequireDefault(_reactDom);
-
 var _state = require('./state.json');
 
 var _state2 = _interopRequireDefault(_state);
-
-var _isUrl = require('is-url');
-
-var _isUrl2 = _interopRequireDefault(_isUrl);
-
-var _immutable = require('immutable');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -1913,7 +1903,7 @@ var FocusBlur = function (_React$Component) {
 
 exports.default = FocusBlur;
 
-},{"../..":46,"./state.json":15,"immutable":1217,"is-url":1223,"react":1484,"react-dom":1293}],15:[function(require,module,exports){
+},{"../..":46,"./state.json":15,"react":1484}],15:[function(require,module,exports){
 module.exports={
   "nodes": [
     {
@@ -2888,9 +2878,8 @@ var Images = function (_React$Component) {
           var reader = new FileReader();
 
           var _file$type$split = file.type.split('/'),
-              _file$type$split2 = _slicedToArray(_file$type$split, 2),
-              type = _file$type$split2[0],
-              ext = _file$type$split2[1];
+              _file$type$split2 = _slicedToArray(_file$type$split, 1),
+              type = _file$type$split2[0];
 
           if (type != 'image') return 'continue';
 
@@ -5509,7 +5498,7 @@ var Content = function (_React$Component) {
    *
    * @param {Object} props
    * @param {Object} state
-   * @return {Boolean} shouldUpdate
+   * @return {Boolean}
    */
 
   /**
@@ -5658,14 +5647,14 @@ var Content = function (_React$Component) {
     /**
      * Render the editor content.
      *
-     * @return {Element} element
+     * @return {Element}
      */
 
     /**
      * Render a `node`.
      *
      * @param {Node} node
-     * @return {Element} element
+     * @return {Element}
      */
 
   }]);
@@ -6187,6 +6176,8 @@ function isNonEditable(event) {
 
 /**
  * Export.
+ *
+ * @type {Component}
  */
 
 exports.default = Content;
@@ -6274,6 +6265,8 @@ function _inherits(subClass, superClass) {
 
 /**
  * Debug.
+ *
+ * @type {Function}
  */
 
 var debug = (0, _debug2.default)('slate:editor');
@@ -6302,7 +6295,9 @@ var Editor = function (_React$Component) {
    */
 
   /**
-   * Properties.
+   * Property types.
+   *
+   * @type {Object}
    */
 
   function Editor(props) {
@@ -6365,6 +6360,8 @@ var Editor = function (_React$Component) {
 
   /**
    * Default properties.
+   *
+   * @type {Object}
    */
 
   /**
@@ -6391,7 +6388,7 @@ var Editor = function (_React$Component) {
    * When the editor receives a new 'state'
    *
    * @param {State} state
-   * @return {State} newState
+   * @return {State}
    */
 
   /**
@@ -6662,6 +6659,7 @@ var _initialiseProps = function _initialiseProps() {
   };
 
   this.resolvePlugins = function (props) {
+    // eslint-disable-next-line no-unused-vars
     var onChange = props.onChange,
         plugins = props.plugins,
         editorPlugin = _objectWithoutProperties(props, ['onChange', 'plugins']);
@@ -6718,6 +6716,8 @@ try {
 
   /**
    * Export.
+   *
+   * @type {Component}
    */
 } catch (err) {
   _didIteratorError2 = true;
@@ -7160,6 +7160,8 @@ function findDeepestNode(element) {
 
 /**
  * Export.
+ *
+ * @type {Component}
  */
 
 exports.default = Leaf;
@@ -7213,9 +7215,9 @@ var _scrollTo = require('../utils/scroll-to');
 
 var _scrollTo2 = _interopRequireDefault(_scrollTo);
 
-var _warning = require('../utils/warning');
+var _warn = require('../utils/warn');
 
-var _warning2 = _interopRequireDefault(_warning);
+var _warn2 = _interopRequireDefault(_warn);
 
 function _interopRequireDefault(obj) {
   return obj && obj.__esModule ? obj : { default: obj };
@@ -7331,32 +7333,32 @@ var Node = function (_React$Component) {
   /**
    * Render.
    *
-   * @return {Element} element
+   * @return {Element}
    */
 
   /**
    * Render a `child` node.
    *
    * @param {Node} child
-   * @return {Element} element
+   * @return {Element}
    */
 
   /**
    * Render an element `node`.
    *
-   * @return {Element} element
+   * @return {Element}
    */
 
   /**
    * Render a text node.
    *
-   * @return {Element} element
+   * @return {Element}
    */
 
   /**
    * Render a single leaf node given a `range` and `offset`.
    *
-   * @param {List} ranges
+   * @param {List<Range>} ranges
    * @param {Range} range
    * @param {Number} index
    * @param {Number} offset
@@ -7420,7 +7422,7 @@ var _initialiseProps = function _initialiseProps() {
       if (!_isDev2.default || !_immutable2.default.is(nextProps.node, _this2.props.node)) {
         return true;
       } else {
-        (0, _warning2.default)('Encountered different references for identical node values in "shouldComponentUpdate". Check that you are preserving references for the following node:\n', nextProps.node);
+        (0, _warn2.default)('A new immutable Node instance was encountered with an identical structure to the previous instance. This is usually a mistake and can impact performance. Make sure to preserve immutable references when nothing has changed. The node in question was:', nextProps.node);
       }
     }
 
@@ -7614,7 +7616,7 @@ var _initialiseProps = function _initialiseProps() {
 
 exports.default = Node;
 
-},{"../constants/is-dev":44,"../constants/types":45,"../serializers/base-64":62,"../utils/scroll-to":84,"../utils/warning":87,"./leaf":39,"./void":42,"debug":116,"immutable":1217,"react":1484,"react-dom":1293}],41:[function(require,module,exports){
+},{"../constants/is-dev":44,"../constants/types":45,"../serializers/base-64":62,"../utils/scroll-to":84,"../utils/warn":87,"./leaf":39,"./void":42,"debug":116,"immutable":1217,"react":1484,"react-dom":1293}],41:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -7661,6 +7663,8 @@ function _inherits(subClass, superClass) {
 
 /**
  * Placeholder.
+ *
+ * @type {Component}
  */
 
 var Placeholder = function (_React$Component) {
@@ -7686,10 +7690,7 @@ var Placeholder = function (_React$Component) {
 
       if (node.text) return false;
       if (parent.nodes.size > 1) return false;
-
-      var isFirst = parent.nodes.first() === node;
-      if (isFirst) return true;
-
+      if (parent.nodes.first() === node) return true;
       return false;
     }, _this.render = function () {
       var isVisible = _this.isVisible();
@@ -7720,7 +7721,9 @@ var Placeholder = function (_React$Component) {
   }
 
   /**
-   * Properties.
+   * Property types.
+   *
+   * @type {Object}
    */
 
   /**
@@ -7743,7 +7746,7 @@ var Placeholder = function (_React$Component) {
    * If the placeholder is a string, and no `className` or `style` has been
    * passed, give it a default style of lowered opacity.
    *
-   * @return {Element} element
+   * @return {Element}
    */
 
   return Placeholder;
@@ -7751,6 +7754,8 @@ var Placeholder = function (_React$Component) {
 
 /**
  * Export.
+ *
+ * @type {Component}
  */
 
 Placeholder.propTypes = {
@@ -7920,6 +7925,8 @@ var Void = function (_React$Component) {
 
   /**
    * Property types.
+   *
+   * @type {Object}
    */
 
   /**
@@ -7954,6 +7961,8 @@ var Void = function (_React$Component) {
 
 /**
  * Export.
+ *
+ * @type {Component}
  */
 
 Void.propTypes = {
@@ -7993,6 +8002,8 @@ function _interopRequireDefault(obj) {
 
 /**
  * Export.
+ *
+ * @type {Object}
  */
 
 var IS_ANDROID = exports.IS_ANDROID = process.browser && _detectBrowser2.default.name == 'android';
@@ -8027,10 +8038,18 @@ exports.default = {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+
+/**
+ * Is in development?
+ *
+ * @type {Boolean}
+ */
+
 var IS_DEV = typeof process !== 'undefined' && process.env && process.env.NODE_ENV !== 'production';
 
 /**
- * True if running slate in development mode
+ * Export.
+ *
  * @type {Boolean}
  */
 
@@ -8057,6 +8076,8 @@ var TYPES = {
 
 /**
  * Export.
+ *
+ * @type {Object}
  */
 
 exports.default = TYPES;
@@ -8280,7 +8301,7 @@ function _inherits(subClass, superClass) {
   }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
 }
 /**
- * Prevent circuit.
+ * Prevent circular dependencies.
  */
 
 /**
@@ -8289,6 +8310,8 @@ function _inherits(subClass, superClass) {
 
 /**
  * Default properties.
+ *
+ * @type {Object}
  */
 
 var DEFAULTS = {
@@ -8301,6 +8324,8 @@ var DEFAULTS = {
 
 /**
  * Block.
+ *
+ * @type {Block}
  */
 
 var Block = function (_ref) {
@@ -8318,7 +8343,7 @@ var Block = function (_ref) {
     /**
      * Get the node's kind.
      *
-     * @return {String} kind
+     * @return {String}
      */
 
     get: function get() {
@@ -8328,7 +8353,7 @@ var Block = function (_ref) {
     /**
      * Is the node empty?
      *
-     * @return {Boolean} isEmpty
+     * @return {Boolean}
      */
 
   }, {
@@ -8340,7 +8365,7 @@ var Block = function (_ref) {
     /**
      * Get the length of the concatenated text of the node.
      *
-     * @return {Number} length
+     * @return {Number}
      */
 
   }, {
@@ -8352,7 +8377,7 @@ var Block = function (_ref) {
     /**
      * Get the concatenated text `string` of all child nodes.
      *
-     * @return {String} text
+     * @return {String}
      */
 
   }, {
@@ -8366,8 +8391,8 @@ var Block = function (_ref) {
     /**
      * Create a new `Block` with `properties`.
      *
-     * @param {Object} properties
-     * @return {Block} element
+     * @param {Object|Block} properties
+     * @return {Block}
      */
 
     value: function create() {
@@ -8393,8 +8418,8 @@ var Block = function (_ref) {
     /**
      * Create a list of `Blocks` from an array.
      *
-     * @param {Array} elements
-     * @return {List} list
+     * @param {Array<Object|Block>} elements
+     * @return {List<Block>}
      */
 
   }, {
@@ -8420,6 +8445,8 @@ for (var method in _node2.default) {
 
 /**
  * Export.
+ *
+ * @type {Block}
  */
 
 exports.default = Block;
@@ -8472,20 +8499,24 @@ function _inherits(subClass, superClass) {
 }
 
 /**
- * Record.
+ * Default properties.
+ *
+ * @type {Object}
  */
 
-var CharacterRecord = new _immutable.Record({
+var DEFAULTS = {
   marks: new _immutable.Set(),
   text: ''
-});
+};
 
 /**
  * Character.
+ *
+ * @type {Character}
  */
 
-var Character = function (_CharacterRecord) {
-  _inherits(Character, _CharacterRecord);
+var Character = function (_ref) {
+  _inherits(Character, _ref);
 
   function Character() {
     _classCallCheck(this, Character);
@@ -8499,7 +8530,7 @@ var Character = function (_CharacterRecord) {
     /**
      * Get the kind.
      *
-     * @return {String} kind
+     * @return {String}
      */
 
     get: function get() {
@@ -8511,8 +8542,8 @@ var Character = function (_CharacterRecord) {
     /**
      * Create a character record with `properties`.
      *
-     * @param {Object} properties
-     * @return {Character} character
+     * @param {Object|Character} properties
+     * @return {Character}
      */
 
     value: function create() {
@@ -8526,8 +8557,8 @@ var Character = function (_CharacterRecord) {
     /**
      * Create a characters list from an array of characters.
      *
-     * @param {Array} array
-     * @return {List} characters
+     * @param {Array<Object|Character>} array
+     * @return {List<Character>}
      */
 
   }, {
@@ -8543,8 +8574,8 @@ var Character = function (_CharacterRecord) {
      * Create a characters list from a `string` and optional `marks`.
      *
      * @param {String} string
-     * @param {Set} marks (optional)
-     * @return {List}
+     * @param {Set<Mark>} marks (optional)
+     * @return {List<Character>}
      */
 
   }, {
@@ -8559,10 +8590,12 @@ var Character = function (_CharacterRecord) {
   }]);
 
   return Character;
-}(CharacterRecord);
+}(new _immutable.Record(DEFAULTS));
 
 /**
  * Export.
+ *
+ * @type {Character}
  */
 
 exports.default = Character;
@@ -8581,6 +8614,8 @@ var _immutable = require('immutable');
  *
  * This isn't an immutable record, it's just a thin wrapper around `Map` so that
  * we can allow for more convenient creation.
+ *
+ * @type {Object}
  */
 
 var Data = {
@@ -8601,6 +8636,8 @@ var Data = {
 
 /**
  * Export.
+ *
+ * @type {Object}
  */
 
 exports.default = Data;
@@ -8662,7 +8699,7 @@ function _inherits(subClass, superClass) {
   }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
 }
 /**
- * Prevent circuit.
+ * Prevent circular dependencies.
  */
 
 /**
@@ -8670,7 +8707,9 @@ function _inherits(subClass, superClass) {
  */
 
 /**
- * Defaults.
+ * Default properties.
+ *
+ * @type {Object}
  */
 
 var DEFAULTS = {
@@ -8680,6 +8719,8 @@ var DEFAULTS = {
 
 /**
  * Document.
+ *
+ * @type {Document}
  */
 
 var Document = function (_ref) {
@@ -8697,7 +8738,7 @@ var Document = function (_ref) {
     /**
      * Get the node's kind.
      *
-     * @return {String} kind
+     * @return {String}
      */
 
     get: function get() {
@@ -8707,7 +8748,7 @@ var Document = function (_ref) {
     /**
      * Is the document empty?
      *
-     * @return {Boolean} isEmpty
+     * @return {Boolean}
      */
 
   }, {
@@ -8719,7 +8760,7 @@ var Document = function (_ref) {
     /**
      * Get the length of the concatenated text of the document.
      *
-     * @return {Number} length
+     * @return {Number}
      */
 
   }, {
@@ -8731,7 +8772,7 @@ var Document = function (_ref) {
     /**
      * Get the concatenated text `string` of all child nodes.
      *
-     * @return {String} text
+     * @return {String}
      */
 
   }, {
@@ -8745,8 +8786,8 @@ var Document = function (_ref) {
     /**
      * Create a new `Document` with `properties`.
      *
-     * @param {Objetc} properties
-     * @return {Document} document
+     * @param {Object|Document} properties
+     * @return {Document}
      */
 
     value: function create() {
@@ -8774,6 +8815,8 @@ for (var method in _node2.default) {
 
 /**
  * Export.
+ *
+ * @type {Document}
  */
 
 exports.default = Document;
@@ -8843,7 +8886,7 @@ function _inherits(subClass, superClass) {
   }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
 }
 /**
- * Prevent circuit.
+ * Prevent circular dependencies.
  */
 
 /**
@@ -8851,7 +8894,9 @@ function _inherits(subClass, superClass) {
  */
 
 /**
- * Record.
+ * Default properties.
+ *
+ * @type {Object}
  */
 
 var DEFAULTS = {
@@ -8864,6 +8909,8 @@ var DEFAULTS = {
 
 /**
  * Inline.
+ *
+ * @type {Inline}
  */
 
 var Inline = function (_ref) {
@@ -8881,7 +8928,7 @@ var Inline = function (_ref) {
     /**
      * Get the node's kind.
      *
-     * @return {String} kind
+     * @return {String}
      */
 
     get: function get() {
@@ -8891,7 +8938,7 @@ var Inline = function (_ref) {
     /**
      * Is the node empty?
      *
-     * @return {Boolean} isEmpty
+     * @return {Boolean}
      */
 
   }, {
@@ -8903,7 +8950,7 @@ var Inline = function (_ref) {
     /**
      * Get the length of the concatenated text of the node.
      *
-     * @return {Number} length
+     * @return {Number}
      */
 
   }, {
@@ -8915,7 +8962,7 @@ var Inline = function (_ref) {
     /**
      * Get the concatenated text `string` of all child nodes.
      *
-     * @return {String} text
+     * @return {String}
      */
 
   }, {
@@ -8929,8 +8976,8 @@ var Inline = function (_ref) {
     /**
      * Create a new `Inline` with `properties`.
      *
-     * @param {Object} properties
-     * @return {Inline} element
+     * @param {Object|Inline} properties
+     * @return {Inline}
      */
 
     value: function create() {
@@ -8956,8 +9003,8 @@ var Inline = function (_ref) {
     /**
      * Create a list of `Inlines` from an array.
      *
-     * @param {Array} elements
-     * @return {List} map
+     * @param {Array<Object|Inline>} elements
+     * @return {List<Inline>}
      */
 
   }, {
@@ -8983,6 +9030,8 @@ for (var method in _node2.default) {
 
 /**
  * Export.
+ *
+ * @type {Inline}
  */
 
 exports.default = Inline;
@@ -9039,7 +9088,9 @@ function _inherits(subClass, superClass) {
 }
 
 /**
- * Record.
+ * Default properties.
+ *
+ * @type {Object}
  */
 
 var DEFAULTS = {
@@ -9049,6 +9100,8 @@ var DEFAULTS = {
 
 /**
  * Mark.
+ *
+ * @type {Mark}
  */
 
 var Mark = function (_ref) {
@@ -9067,7 +9120,7 @@ var Mark = function (_ref) {
      * Get the component for the node from a `schema`.
      *
      * @param {Schema} schema
-     * @return {Component || Void}
+     * @return {Component|Void}
      */
 
     value: function getComponent(schema) {
@@ -9079,7 +9132,7 @@ var Mark = function (_ref) {
     /**
      * Get the kind.
      *
-     * @return {String} kind
+     * @return {String}
      */
 
     get: function get() {
@@ -9091,8 +9144,8 @@ var Mark = function (_ref) {
     /**
      * Create a new `Mark` with `properties`.
      *
-     * @param {Object} properties
-     * @return {Mark} mark
+     * @param {Object|Mark} properties
+     * @return {Mark}
      */
 
     value: function create() {
@@ -9107,8 +9160,8 @@ var Mark = function (_ref) {
     /**
      * Create a marks set from an array of marks.
      *
-     * @param {Array} array
-     * @return {Set} marks
+     * @param {Array<Object|Mark>} array
+     * @return {Set<Mark>}
      */
 
   }, {
@@ -9132,6 +9185,8 @@ var Mark = function (_ref) {
 
 /**
  * Export.
+ *
+ * @type {Mark}
  */
 
 exports.default = Mark;
@@ -9190,6 +9245,8 @@ function _interopRequireDefault(obj) {
  *
  * And interface that `Document`, `Block` and `Inline` all implement, to make
  * working with the recursive node tree easier.
+ *
+ * @type {Object}
  */
 
 var Node = {
@@ -9197,7 +9254,7 @@ var Node = {
   /**
    * Return a set of all keys in the node.
    *
-   * @return {Set<Node>} keys
+   * @return {Set<Node>}
    */
 
   getKeys: function getKeys() {
@@ -9213,7 +9270,7 @@ var Node = {
   /**
    * Get the concatenated text `string` of all child nodes.
    *
-   * @return {String} text
+   * @return {String}
    */
 
   getText: function getText() {
@@ -9225,7 +9282,7 @@ var Node = {
   /**
    * Assert that a node has a child by `key` and return it.
    *
-   * @param {String or Node} key
+   * @param {String} key
    * @return {Node}
    */
 
@@ -9243,7 +9300,7 @@ var Node = {
   /**
    * Assert that a node has a descendant by `key` and return it.
    *
-   * @param {String or Node} key
+   * @param {String} key
    * @return {Node}
    */
 
@@ -9256,6 +9313,24 @@ var Node = {
     }
 
     return descendant;
+  },
+
+  /**
+   * Assert that a node's tree has a node by `key` and return it.
+   *
+   * @param {String} key
+   * @return {Node}
+   */
+
+  assertNode: function assertNode(key) {
+    var node = this.getNode(key);
+
+    if (!node) {
+      key = _normalize2.default.key(key);
+      throw new Error('Could not find a node with key "' + key + '".');
+    }
+
+    return node;
   },
 
   /**
@@ -9278,8 +9353,8 @@ var Node = {
   /**
    * Concat children `nodes` on to the end of the node.
    *
-   * @param {List} nodes
-   * @return {Node} node
+   * @param {List<Node>} nodes
+   * @return {Node}
    */
 
   concatChildren: function concatChildren(nodes) {
@@ -9291,7 +9366,7 @@ var Node = {
    * Decorate all of the text nodes with a `decorator` function.
    *
    * @param {Function} decorator
-   * @return {Node} node
+   * @return {Node}
    */
 
   decorateTexts: function decorateTexts(decorator) {
@@ -9304,14 +9379,15 @@ var Node = {
    * Recursively find all descendant nodes by `iterator`. Breadth first.
    *
    * @param {Function} iterator
-   * @return {Node or Null} node
+   * @return {Node|Null}
    */
 
   findDescendant: function findDescendant(iterator) {
-    var found = this.nodes.find(iterator);
-    if (found) return found;
+    var childFound = this.nodes.find(iterator);
+    if (childFound) return childFound;
 
     var descendantFound = null;
+
     this.nodes.find(function (node) {
       if (node.kind != 'text') {
         descendantFound = node.findDescendant(iterator);
@@ -9328,7 +9404,7 @@ var Node = {
    * Recursively find all descendant nodes by `iterator`. Depth first.
    *
    * @param {Function} iterator
-   * @return {Node or Null} node
+   * @return {Node|Null}
    */
 
   findDescendantDeep: function findDescendantDeep(iterator) {
@@ -9351,28 +9427,29 @@ var Node = {
    */
 
   forEachDescendant: function forEachDescendant(iterator) {
-    var returned = void 0; // Returned value of iterator. False to break from loop
+    // If the iterator returns false it will break the loop.
+    var ret = void 0;
 
     this.nodes.forEach(function (child, i, nodes) {
       if (iterator(child, i, nodes) === false) {
-        returned = false;
+        ret = false;
         return false;
       }
 
       if (child.kind != 'text') {
-        returned = child.forEachDescendant(iterator);
-        return returned;
+        ret = child.forEachDescendant(iterator);
+        return ret;
       }
     });
 
-    return returned;
+    return ret;
   },
 
   /**
    * Recursively filter all descendant nodes with `iterator`.
    *
    * @param {Function} iterator
-   * @return {List} nodes
+   * @return {List<Node>}
    */
 
   filterDescendants: function filterDescendants(iterator) {
@@ -9390,7 +9467,7 @@ var Node = {
    * It is different from `filterDescendants` in regard of the order of results.
    *
    * @param {Function} iterator
-   * @return {List} nodes
+   * @return {List<Node>}
    */
 
   filterDescendantsDeep: function filterDescendantsDeep(iterator) {
@@ -9404,7 +9481,7 @@ var Node = {
   /**
    * Get the closest block nodes for each text node in the node.
    *
-   * @return {List} nodes
+   * @return {List<Node>}
    */
 
   getBlocks: function getBlocks() {
@@ -9419,7 +9496,7 @@ var Node = {
    * Get the closest block nodes for each text node in a `range`.
    *
    * @param {Selection} range
-   * @return {List} nodes
+   * @return {List<Node>}
    */
 
   getBlocksAtRange: function getBlocksAtRange(range) {
@@ -9434,7 +9511,7 @@ var Node = {
    * Get a list of the characters in a `range`.
    *
    * @param {Selection} range
-   * @return {List} characters
+   * @return {List<Node>} characters
    */
 
   getCharactersAtRange: function getCharactersAtRange(range) {
@@ -9449,9 +9526,9 @@ var Node = {
   /**
    * Get children between two child keys.
    *
-   * @param {String or Node} start
-   * @param {String or Node} end
-   * @return {Node} node
+   * @param {String} start
+   * @param {String} end
+   * @return {Node}
    */
 
   getChildrenBetween: function getChildrenBetween(start, end) {
@@ -9465,9 +9542,9 @@ var Node = {
   /**
    * Get children between two child keys, including the two children.
    *
-   * @param {String or Node} start
-   * @param {String or Node} end
-   * @return {Node} node
+   * @param {String} start
+   * @param {String} end
+   * @return {Node}
    */
 
   getChildrenBetweenIncluding: function getChildrenBetweenIncluding(start, end) {
@@ -9481,9 +9558,9 @@ var Node = {
   /**
    * Get closest parent of node by `key` that matches `iterator`.
    *
-   * @param {String or Node} key
+   * @param {String} key
    * @param {Function} iterator
-   * @return {Node or Null} node
+   * @return {Node|Null}
    */
 
   getClosest: function getClosest(key, iterator) {
@@ -9500,8 +9577,8 @@ var Node = {
   /**
    * Get the closest block parent of a `node`.
    *
-   * @param {String or Node} key
-   * @return {Node or Null} node
+   * @param {String} key
+   * @return {Node|Null}
    */
 
   getClosestBlock: function getClosestBlock(key) {
@@ -9513,8 +9590,8 @@ var Node = {
   /**
    * Get the closest inline parent of a `node`.
    *
-   * @param {String or Node} key
-   * @return {Node or Null} node
+   * @param {String} key
+   * @return {Node|Null}
    */
 
   getClosestInline: function getClosestInline(key) {
@@ -9526,8 +9603,8 @@ var Node = {
   /**
    * Get a child node by `key`.
    *
-   * @param {String or Node} key
-   * @return {Node or Null} node
+   * @param {String} key
+   * @return {Node|Null}
    */
 
   getChild: function getChild(key) {
@@ -9540,8 +9617,8 @@ var Node = {
   /**
    * Get the common ancestor of nodes `one` and `two` by keys.
    *
-   * @param {String or Node} one
-   * @param {String or Node} two
+   * @param {String} one
+   * @param {String} two
    * @return {Node}
    */
 
@@ -9567,7 +9644,7 @@ var Node = {
    * Get the component for the node from a `schema`.
    *
    * @param {Schema} schema
-   * @return {Component || Void}
+   * @return {Component|Void}
    */
 
   getComponent: function getComponent(schema) {
@@ -9615,7 +9692,7 @@ var Node = {
    * Get a descendant node by `key`.
    *
    * @param {String} key
-   * @return {Node or Null} node
+   * @return {Node|Null}
    */
 
   getDescendant: function getDescendant(key) {
@@ -9645,7 +9722,7 @@ var Node = {
    * Get a descendant by `path`.
    *
    * @param {Array} path
-   * @return {Node || Void}
+   * @return {Node|Null}
    */
 
   getDescendantAtPath: function getDescendantAtPath(path) {
@@ -9709,7 +9786,7 @@ var Node = {
   /**
    * Get the depth of a child node by `key`, with optional `startAt`.
    *
-   * @param {String or Node} key
+   * @param {String} key
    * @param {Number} startAt (optional)
    * @return {Number} depth
    */
@@ -9725,7 +9802,7 @@ var Node = {
    * Get a fragment of the node at a `range`.
    *
    * @param {Selection} range
-   * @return {List} nodes
+   * @return {List<Node>}
    */
 
   getFragmentAtRange: function getFragmentAtRange(range) {
@@ -9753,10 +9830,10 @@ var Node = {
     node = node.splitBlockAtRange(end, Infinity);
 
     // Get the start and end nodes.
-    var startNode = node.getNextSibling(node.getHighestChild(startKey));
-    var endNode = startKey == endKey ? node.getHighestChild(next) : node.getHighestChild(endKey);
+    var startNode = node.getNextSibling(node.getHighestChild(startKey).key);
+    var endNode = startKey == endKey ? node.getHighestChild(next.key) : node.getHighestChild(endKey);
 
-    nodes = node.getChildrenBetweenIncluding(startNode, endNode);
+    nodes = node.getChildrenBetweenIncluding(startNode.key, endNode.key);
 
     // Return a new document fragment.
     return _document2.default.create({ nodes: nodes });
@@ -9765,9 +9842,9 @@ var Node = {
   /**
    * Get the furthest parent of a node by `key` that matches an `iterator`.
    *
-   * @param {String or Node} key
+   * @param {String} key
    * @param {Function} iterator
-   * @return {Node or Null}
+   * @return {Node|Null}
    */
 
   getFurthest: function getFurthest(key, iterator) {
@@ -9784,8 +9861,8 @@ var Node = {
   /**
    * Get the furthest block parent of a node by `key`.
    *
-   * @param {String or Node} key
-   * @return {Node or Null} node
+   * @param {String} key
+   * @return {Node|Null}
    */
 
   getFurthestBlock: function getFurthestBlock(key) {
@@ -9797,8 +9874,8 @@ var Node = {
   /**
    * Get the furthest inline parent of a node by `key`.
    *
-   * @param {String or Node} key
-   * @return {Node or Null} node
+   * @param {String} key
+   * @return {Node|Null}
    */
 
   getFurthestInline: function getFurthestInline(key) {
@@ -9810,8 +9887,8 @@ var Node = {
   /**
    * Get the highest child ancestor of a node by `key`.
    *
-   * @param {String or Node} key
-   * @return {Node or Null} node
+   * @param {String} key
+   * @return {Node|Null}
    */
 
   getHighestChild: function getHighestChild(key) {
@@ -9826,8 +9903,8 @@ var Node = {
   /**
    * Get the highest parent of a node by `key` which has an only child.
    *
-   * @param {String or Node} key
-   * @return {Node or Null}
+   * @param {String} key
+   * @return {Node|Null}
    */
 
   getHighestOnlyChildParent: function getHighestOnlyChildParent(key) {
@@ -9845,7 +9922,7 @@ var Node = {
   /**
    * Get the furthest inline nodes for each text node in the node.
    *
-   * @return {List} nodes
+   * @return {List<Node>}
    */
 
   getInlines: function getInlines() {
@@ -9862,7 +9939,7 @@ var Node = {
    * Get the closest inline nodes for each text node in a `range`.
    *
    * @param {Selection} range
-   * @return {List} nodes
+   * @return {List<Node>}
    */
 
   getInlinesAtRange: function getInlinesAtRange(range) {
@@ -9879,7 +9956,7 @@ var Node = {
    * Get a set of the marks in a `range`.
    *
    * @param {Selection} range
-   * @return {Set} marks
+   * @return {Set<Mark>}
    */
 
   getMarksAtRange: function getMarksAtRange(range) {
@@ -9914,8 +9991,8 @@ var Node = {
   /**
    * Get the block node before a descendant text node by `key`.
    *
-   * @param {String or Node} key
-   * @return {Node or Null} node
+   * @param {String} key
+   * @return {Node|Null}
    */
 
   getNextBlock: function getNextBlock(key) {
@@ -9938,8 +10015,8 @@ var Node = {
   /**
    * Get the node after a descendant by `key`.
    *
-   * @param {String or Node} key
-   * @return {Node or Null} node
+   * @param {String} key
+   * @return {Node|Null}
    */
 
   getNextSibling: function getNextSibling(key) {
@@ -9959,8 +10036,8 @@ var Node = {
   /**
    * Get the text node after a descendant text node by `key`.
    *
-   * @param {String or Node} key
-   * @return {Node or Null} node
+   * @param {String} key
+   * @return {Node|Null}
    */
 
   getNextText: function getNextText(key) {
@@ -9971,10 +10048,22 @@ var Node = {
   },
 
   /**
+   * Get a node in the tree by `key`.
+   *
+   * @param {String} key
+   * @return {Node|Null}
+   */
+
+  getNode: function getNode(key) {
+    key = _normalize2.default.key(key);
+    return this.key == key ? this : this.getDescendant(key);
+  },
+
+  /**
    * Get the offset for a descendant text node by `key`.
    *
-   * @param {String or Node} key
-   * @return {Number} offset
+   * @param {String} key
+   * @return {Number}
    */
 
   getOffset: function getOffset(key) {
@@ -9996,7 +10085,7 @@ var Node = {
    * Get the offset from a `range`.
    *
    * @param {Selection} range
-   * @return {Number} offset
+   * @return {Number}
    */
 
   getOffsetAtRange: function getOffsetAtRange(range) {
@@ -10016,8 +10105,8 @@ var Node = {
   /**
    * Get the parent of a child node by `key`.
    *
-   * @param {String or Node} key
-   * @return {Node or Null} node
+   * @param {String} key
+   * @return {Node|Null}
    */
 
   getParent: function getParent(key) {
@@ -10040,7 +10129,7 @@ var Node = {
   /**
    * Get the path of a descendant node by `key`.
    *
-   * @param {String || Node} key
+   * @param {String|Node} key
    * @return {Array}
    */
 
@@ -10073,8 +10162,8 @@ var Node = {
   /**
    * Get the path of ancestors of a descendant node by `key`.
    *
-   * @param {String || Node} node
-   * @return {List<Node> or Null}
+   * @param {String|Node} key
+   * @return {List<Node>|Null}
    */
 
   getAncestors: function getAncestors(key) {
@@ -10100,8 +10189,8 @@ var Node = {
   /**
    * Get the node before a descendant node by `key`.
    *
-   * @param {String or Node} key
-   * @return {Node or Null} node
+   * @param {String} key
+   * @return {Node|Null}
    */
 
   getPreviousSibling: function getPreviousSibling(key) {
@@ -10121,8 +10210,8 @@ var Node = {
   /**
    * Get the text node before a descendant text node by `key`.
    *
-   * @param {String or Node} key
-   * @return {Node or Null} node
+   * @param {String} key
+   * @return {Node|Null}
    */
 
   getPreviousText: function getPreviousText(key) {
@@ -10135,8 +10224,8 @@ var Node = {
   /**
    * Get the block node before a descendant text node by `key`.
    *
-   * @param {String or Node} key
-   * @return {Node or Null} node
+   * @param {String} key
+   * @return {Node|Null}
    */
 
   getPreviousBlock: function getPreviousBlock(key) {
@@ -10160,7 +10249,7 @@ var Node = {
    * Get the descendent text node at an `offset`.
    *
    * @param {String} offset
-   * @return {Node or Null} node
+   * @return {Node|Null}
    */
 
   getTextAtOffset: function getTextAtOffset(offset) {
@@ -10174,7 +10263,7 @@ var Node = {
   /**
    * Get the direction of the node's text.
    *
-   * @return {String} direction
+   * @return {String}
    */
 
   getTextDirection: function getTextDirection() {
@@ -10186,21 +10275,14 @@ var Node = {
   /**
    * Recursively get all of the child text nodes in order of appearance.
    *
-   * @return {List} nodes
+   * @return {List<Node>}
    */
 
   getTexts: function getTexts() {
     return (0, _immutable.List)(this._getTexts());
   },
 
-  /**
-   * Recursively get all of the child text nodes in order of appearance.
-   *
-   * @return {Array} nodes
-   */
-
-  // This one is memoized
-
+  // This one is memoized for performance.
   _getTexts: function _getTexts() {
     return this.nodes.reduce(function (texts, node) {
       if (node.kind == 'text') {
@@ -10215,7 +10297,7 @@ var Node = {
   /**
    * Get the first child text node.
    *
-   * @return {Node || Null} node
+   * @return {Node|Null}
    */
 
   getFirstText: function getFirstText() {
@@ -10233,7 +10315,7 @@ var Node = {
   /**
    * Get the last child text node.
    *
-   * @return {Node} node
+   * @return {Node|Null}
    */
 
   getLastText: function getLastText() {
@@ -10252,7 +10334,7 @@ var Node = {
    * Get all of the text nodes in a `range`.
    *
    * @param {Selection} range
-   * @return {List} nodes
+   * @return {List<Node>}
    */
 
   getTextsAtRange: function getTextsAtRange(range) {
@@ -10272,8 +10354,8 @@ var Node = {
   /**
    * Check if a child node exists by `key`.
    *
-   * @param {String or Node} key
-   * @return {Boolean} exists
+   * @param {String} key
+   * @return {Boolean}
    */
 
   hasChild: function hasChild(key) {
@@ -10283,8 +10365,8 @@ var Node = {
   /**
    * Recursively check if a child node exists by `key`.
    *
-   * @param {String or Node} key
-   * @return {Boolean} exists
+   * @param {String} key
+   * @return {Boolean}
    */
 
   hasDescendant: function hasDescendant(key) {
@@ -10294,7 +10376,7 @@ var Node = {
   /**
    * Check if a node has a void parent by `key`.
    *
-   * @param {String or Node} key
+   * @param {String} key
    * @return {Boolean}
    */
 
@@ -10333,7 +10415,7 @@ var Node = {
    * Check if the inline nodes are split at a `range`.
    *
    * @param {Selection} range
-   * @return {Boolean} isSplit
+   * @return {Boolean}
    */
 
   isInlineSplitAtRange: function isInlineSplitAtRange(range) {
@@ -10399,7 +10481,7 @@ var Node = {
    * optimized to not return a new node if no changes are made.
    *
    * @param {Function} iterator
-   * @return {Node} node
+   * @return {Node}
    */
 
   mapChildren: function mapChildren(iterator) {
@@ -10420,7 +10502,7 @@ var Node = {
    * optimized to not return a new node if no changes are made.
    *
    * @param {Function} iterator
-   * @return {Node} node
+   * @return {Node}
    */
 
   mapDescendants: function mapDescendants(iterator) {
@@ -10444,7 +10526,7 @@ var Node = {
   /**
    * Regenerate the node's key.
    *
-   * @return {Node} node
+   * @return {Node}
    */
 
   regenerateKey: function regenerateKey() {
@@ -10454,8 +10536,8 @@ var Node = {
   /**
    * Remove a `node` from the children node map.
    *
-   * @param {String or Node} key
-   * @return {Node} node
+   * @param {String} key
+   * @return {Node}
    */
 
   removeDescendant: function removeDescendant(key) {
@@ -10618,7 +10700,7 @@ var Node = {
    * Set a new value for a child node by `key`.
    *
    * @param {Node} node
-   * @return {Node} node
+   * @return {Node}
    */
 
   updateDescendant: function updateDescendant(node) {
@@ -10644,7 +10726,7 @@ var Node = {
    * Validate the node against a `schema`.
    *
    * @param {Schema} schema
-   * @return {Object || Void}
+   * @return {Object|Null}
    */
 
   validate: function validate(schema) {
@@ -10660,6 +10742,8 @@ var Node = {
 
 /**
  * Export.
+ *
+ * @type {Object}
  */
 
 exports.default = Node;
@@ -10717,6 +10801,8 @@ function _inherits(subClass, superClass) {
 
 /**
  * Default properties.
+ *
+ * @type {Object}
  */
 
 var DEFAULTS = {
@@ -10726,6 +10812,8 @@ var DEFAULTS = {
 
 /**
  * Range.
+ *
+ * @type {Range}
  */
 
 var Range = function (_ref) {
@@ -10743,7 +10831,7 @@ var Range = function (_ref) {
     /**
      * Return range as a list of characters
      *
-     * @return {List<Character>} characters
+     * @return {List<Character>}
      */
 
     value: function getCharacters() {
@@ -10762,7 +10850,7 @@ var Range = function (_ref) {
     /**
      * Get the node's kind.
      *
-     * @return {String} kind
+     * @return {String}
      */
 
     get: function get() {
@@ -10774,7 +10862,7 @@ var Range = function (_ref) {
     /**
      * Create a new `Range` with `properties`.
      *
-     * @param {Object} properties
+     * @param {Object|Range} properties
      * @return {Range}
      */
 
@@ -10793,6 +10881,8 @@ var Range = function (_ref) {
 
 /**
  * Export.
+ *
+ * @type {Range}
  */
 
 exports.default = Range;
@@ -10865,7 +10955,7 @@ var DEFAULTS = {
 /**
  * Schema.
  *
- * @type {Record}
+ * @type {Schema}
  */
 
 var Schema = function (_ref) {
@@ -10888,7 +10978,7 @@ var Schema = function (_ref) {
      * much better performance.
      *
      * @param {Mixed} object
-     * @return {Component || Void}
+     * @return {Component|Void}
      */
 
     value: function __getComponent(object) {
@@ -10931,7 +11021,7 @@ var Schema = function (_ref) {
      * much better performance.
      *
      * @param {Mixed} object
-     * @return {Object || Void}
+     * @return {Object|Void}
      */
 
   }, {
@@ -10960,7 +11050,7 @@ var Schema = function (_ref) {
     /**
      * Get the kind.
      *
-     * @return {String} kind
+     * @return {String}
      */
 
     get: function get() {
@@ -10970,7 +11060,7 @@ var Schema = function (_ref) {
     /**
      * Return true if one rule can normalize the document
      *
-     * @return {Boolean} isNormalization
+     * @return {Boolean}
      */
 
   }, {
@@ -10986,7 +11076,7 @@ var Schema = function (_ref) {
     /**
      * Return true if one rule can decorate text nodes
      *
-     * @return {Boolean} hasDecorators
+     * @return {Boolean}
      */
 
   }, {
@@ -11004,8 +11094,8 @@ var Schema = function (_ref) {
     /**
      * Create a new `Schema` with `properties`.
      *
-     * @param {Object} properties
-     * @return {Schema} mark
+     * @param {Object|Schema} properties
+     * @return {Schema}
      */
 
     value: function create() {
@@ -11110,7 +11200,7 @@ function normalizeMarks(marks) {
 /**
  * Normalize a mark `render` property.
  *
- * @param {Component || Function || Object || String} render
+ * @param {Component|Function|Object|String} render
  * @return {Component}
  */
 
@@ -11134,7 +11224,7 @@ function normalizeMarkComponent(render) {
 /**
  * Export.
  *
- * @type {Record}
+ * @type {Schema}
  */
 
 exports.default = Schema;
@@ -11188,9 +11278,9 @@ var _getLeafText = require('../utils/get-leaf-text');
 
 var _getLeafText2 = _interopRequireDefault(_getLeafText);
 
-var _warning = require('../utils/warning');
+var _warn = require('../utils/warn');
 
-var _warning2 = _interopRequireDefault(_warning);
+var _warn2 = _interopRequireDefault(_warn);
 
 var _immutable = require('immutable');
 
@@ -11218,12 +11308,16 @@ function _inherits(subClass, superClass) {
 
 /**
  * Start-end-and-edge convenience methods to auto-generate.
+ *
+ * @type {Array}
  */
 
 var EDGE_METHODS = ['has%AtStartOf', 'has%AtEndOf', 'has%Between', 'has%In'];
 
 /**
  * Default properties.
+ *
+ * @type {Object}
  */
 
 var DEFAULTS = {
@@ -11238,6 +11332,8 @@ var DEFAULTS = {
 
 /**
  * Selection.
+ *
+ * @type {Selection}
  */
 
 var Selection = function (_ref) {
@@ -11378,7 +11474,7 @@ var Selection = function (_ref) {
      * Check whether the selection is at the start of a `node`.
      *
      * @param {Node} node
-     * @return {Boolean} isAtStart
+     * @return {Boolean}
      */
 
   }, {
@@ -11398,7 +11494,7 @@ var Selection = function (_ref) {
      * Check whether the selection is at the end of a `node`.
      *
      * @param {Node} node
-     * @return {Boolean} isAtEnd
+     * @return {Boolean}
      */
 
   }, {
@@ -11418,7 +11514,7 @@ var Selection = function (_ref) {
      * and focus nodes of the selection always refer to leaf text nodes.
      *
      * @param {Node} node
-     * @return {Selection} selection
+     * @return {Selection}
      */
 
   }, {
@@ -11450,7 +11546,7 @@ var Selection = function (_ref) {
 
       // If the anchor node isn't a text node, match it to one.
       if (anchorNode.kind != 'text') {
-        (0, _warning2.default)('Selection anchor is on a non text node, matching to leaf');
+        (0, _warn2.default)('The selection anchor was set to a Node that is not a Text node. This should not happen and can degrade performance. The node in question was:', anchorNode);
         var anchorText = anchorNode.getTextAtOffset(anchorOffset);
         var offset = anchorNode.getOffset(anchorText);
         anchorOffset = anchorOffset - offset;
@@ -11459,7 +11555,7 @@ var Selection = function (_ref) {
 
       // If the focus node isn't a text node, match it to one.
       if (focusNode.kind != 'text') {
-        (0, _warning2.default)('Selection focus is on a non text node, matching to leaf');
+        (0, _warn2.default)('The selection focus was set to a Node that is not a Text node. This should not happen and can degrade performance. The node in question was:', focusNode);
         var focusText = focusNode.getTextAtOffset(focusOffset);
         var _offset = focusNode.getOffset(focusText);
         focusOffset = focusOffset - _offset;
@@ -11488,7 +11584,7 @@ var Selection = function (_ref) {
     /**
      * Focus the selection.
      *
-     * @return {Selection} selection
+     * @return {Selection}
      */
 
   }, {
@@ -11502,7 +11598,7 @@ var Selection = function (_ref) {
     /**
      * Blur the selection.
      *
-     * @return {Selection} selection
+     * @return {Selection}
      */
 
   }, {
@@ -11516,7 +11612,7 @@ var Selection = function (_ref) {
     /**
      * Move the focus point to the anchor point.
      *
-     * @return {Selection} selection
+     * @return {Selection}
      */
 
   }, {
@@ -11532,7 +11628,7 @@ var Selection = function (_ref) {
     /**
      * Move the anchor point to the focus point.
      *
-     * @return {Selection} selection
+     * @return {Selection}
      */
 
   }, {
@@ -11548,7 +11644,7 @@ var Selection = function (_ref) {
     /**
      * Move the end point to the start point.
      *
-     * @return {Selection} selection
+     * @return {Selection}
      */
 
   }, {
@@ -11566,7 +11662,7 @@ var Selection = function (_ref) {
     /**
      * Move the end point to the start point.
      *
-     * @return {Selection} selection
+     * @return {Selection}
      */
 
   }, {
@@ -11585,7 +11681,7 @@ var Selection = function (_ref) {
      * Move to the start of a `node`.
      *
      * @param {Node} node
-     * @return {Selection} selection
+     * @return {Selection}
      */
 
   }, {
@@ -11605,7 +11701,7 @@ var Selection = function (_ref) {
     /**
      * Move to the end of a `node`.
      *
-     * @return {Selection} selection
+     * @return {Selection}
      */
 
   }, {
@@ -11628,7 +11724,7 @@ var Selection = function (_ref) {
      * @param {Node} start
      * @param {Node} end (optional)
      * @param {Document} document
-     * @return {Selection} selection
+     * @return {Selection}
      */
 
   }, {
@@ -11652,7 +11748,7 @@ var Selection = function (_ref) {
      * Move the selection forward `n` characters.
      *
      * @param {Number} n (optional)
-     * @return {Selection} selection
+     * @return {Selection}
      */
 
   }, {
@@ -11670,7 +11766,7 @@ var Selection = function (_ref) {
      * Move the selection backward `n` characters.
      *
      * @param {Number} n (optional)
-     * @return {Selection} selection
+     * @return {Selection}
      */
 
   }, {
@@ -11689,7 +11785,7 @@ var Selection = function (_ref) {
      *
      * @param {Number} anchor
      * @param {Number} focus (optional)
-     * @return {Selection} selection
+     * @return {Selection}
      */
 
   }, {
@@ -11712,7 +11808,7 @@ var Selection = function (_ref) {
      * Extend the focus point forward `n` characters.
      *
      * @param {Number} n (optional)
-     * @return {Selection} selection
+     * @return {Selection}
      */
 
   }, {
@@ -11730,7 +11826,7 @@ var Selection = function (_ref) {
      * Extend the focus point backward `n` characters.
      *
      * @param {Number} n (optional)
-     * @return {Selection} selection
+     * @return {Selection}
      */
 
   }, {
@@ -11748,7 +11844,7 @@ var Selection = function (_ref) {
      * Extend the start point forward `n` characters.
      *
      * @param {Number} n (optional)
-     * @return {Selection} selection
+     * @return {Selection}
      */
 
   }, {
@@ -11763,7 +11859,7 @@ var Selection = function (_ref) {
      * Extend the end point forward `n` characters.
      *
      * @param {Number} n (optional)
-     * @return {Selection} selection
+     * @return {Selection}
      */
 
   }, {
@@ -11778,7 +11874,7 @@ var Selection = function (_ref) {
      * Move the start key, while preserving the direction
      *
      * @param {String} key
-     * @return {Selection} selection
+     * @return {Selection}
      */
 
   }, {
@@ -11793,7 +11889,7 @@ var Selection = function (_ref) {
      * Move the end key, while preserving the direction
      *
      * @param {String} key
-     * @return {Selection} selection
+     * @return {Selection}
      */
 
   }, {
@@ -11808,7 +11904,7 @@ var Selection = function (_ref) {
      * Extend the focus point to the start of a `node`.
      *
      * @param {Node} node
-     * @return {Selection} selection
+     * @return {Selection}
      */
 
   }, {
@@ -11825,7 +11921,7 @@ var Selection = function (_ref) {
      * Extend the focus point to the end of a `node`.
      *
      * @param {Node} node
-     * @return {Selection} selection
+     * @return {Selection}
      */
 
   }, {
@@ -11841,7 +11937,7 @@ var Selection = function (_ref) {
     /**
      * Unset the selection
      *
-     * @return {Selection} selection
+     * @return {Selection}
      */
 
   }, {
@@ -11862,7 +11958,7 @@ var Selection = function (_ref) {
     /**
      * Get the kind.
      *
-     * @return {String} kind
+     * @return {String}
      */
 
     get: function get() {
@@ -11872,7 +11968,7 @@ var Selection = function (_ref) {
     /**
      * Get whether the selection is blurred.
      *
-     * @return {Boolean} isBlurred
+     * @return {Boolean}
      */
 
   }, {
@@ -11884,7 +11980,7 @@ var Selection = function (_ref) {
     /**
      * Get whether the selection is collapsed.
      *
-     * @return {Boolean} isCollapsed
+     * @return {Boolean}
      */
 
   }, {
@@ -11896,7 +11992,7 @@ var Selection = function (_ref) {
     /**
      * Get whether the selection is expanded.
      *
-     * @return {Boolean} isExpanded
+     * @return {Boolean}
      */
 
   }, {
@@ -11908,7 +12004,7 @@ var Selection = function (_ref) {
     /**
      * Get whether the selection is forward.
      *
-     * @return {Boolean} isForward
+     * @return {Boolean}
      */
 
   }, {
@@ -11932,7 +12028,7 @@ var Selection = function (_ref) {
     /**
      * Get the start key.
      *
-     * @return {String} startKey
+     * @return {String}
      */
 
   }, {
@@ -11961,8 +12057,8 @@ var Selection = function (_ref) {
     /**
      * Create a new `Selection` with `properties`.
      *
-     * @param {Object} properties
-     * @return {Selection} selection
+     * @param {Object|Selection} properties
+     * @return {Selection}
      */
 
     value: function create() {
@@ -12007,11 +12103,13 @@ EDGE_METHODS.forEach(function (pattern) {
 
 /**
  * Export.
+ *
+ * @type {Selection}
  */
 
 exports.default = Selection;
 
-},{"../utils/get-leaf-text":77,"../utils/warning":87,"immutable":1217}],57:[function(require,module,exports){
+},{"../utils/get-leaf-text":77,"../utils/warn":87,"immutable":1217}],57:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -12043,6 +12141,10 @@ var _createClass = function () {
 var _document = require('./document');
 
 var _document2 = _interopRequireDefault(_document);
+
+var _core = require('../schemas/core');
+
+var _core2 = _interopRequireDefault(_core);
 
 var _selection = require('./selection');
 
@@ -12078,6 +12180,8 @@ function _inherits(subClass, superClass) {
 
 /**
  * History.
+ *
+ * @type {History}
  */
 
 var History = new _immutable.Record({
@@ -12087,6 +12191,8 @@ var History = new _immutable.Record({
 
 /**
  * Default properties.
+ *
+ * @type {Object}
  */
 
 var DEFAULTS = {
@@ -12098,6 +12204,8 @@ var DEFAULTS = {
 
 /**
  * State.
+ *
+ * @type {State}
  */
 
 var State = function (_ref) {
@@ -12116,7 +12224,7 @@ var State = function (_ref) {
      * Return a new `Transform` with the current state as a starting point.
      *
      * @param {Object} properties
-     * @return {Transform} transform
+     * @return {Transform}
      */
 
     value: function transform() {
@@ -12133,7 +12241,7 @@ var State = function (_ref) {
     /**
      * Get the kind.
      *
-     * @return {String} kind
+     * @return {String}
      */
 
     get: function get() {
@@ -12143,7 +12251,7 @@ var State = function (_ref) {
     /**
      * Are there undoable events?
      *
-     * @return {Boolean} hasUndos
+     * @return {Boolean}
      */
 
   }, {
@@ -12155,7 +12263,7 @@ var State = function (_ref) {
     /**
      * Are there redoable events?
      *
-     * @return {Boolean} hasRedos
+     * @return {Boolean}
      */
 
   }, {
@@ -12167,7 +12275,7 @@ var State = function (_ref) {
     /**
      * Is the current selection blurred?
      *
-     * @return {Boolean} isBlurred
+     * @return {Boolean}
      */
 
   }, {
@@ -12179,7 +12287,7 @@ var State = function (_ref) {
     /**
      * Is the current selection focused?
      *
-     * @return {Boolean} isFocused
+     * @return {Boolean}
      */
 
   }, {
@@ -12191,7 +12299,7 @@ var State = function (_ref) {
     /**
      * Is the current selection collapsed?
      *
-     * @return {Boolean} isCollapsed
+     * @return {Boolean}
      */
 
   }, {
@@ -12203,7 +12311,7 @@ var State = function (_ref) {
     /**
      * Is the current selection expanded?
      *
-     * @return {Boolean} isExpanded
+     * @return {Boolean}
      */
 
   }, {
@@ -12227,7 +12335,7 @@ var State = function (_ref) {
     /**
      * Is the current selection forward?
      *
-     * @return {Boolean} isForward
+     * @return {Boolean}
      */
 
   }, {
@@ -12239,7 +12347,7 @@ var State = function (_ref) {
     /**
      * Get the current start key.
      *
-     * @return {String} startKey
+     * @return {String}
      */
 
   }, {
@@ -12251,7 +12359,7 @@ var State = function (_ref) {
     /**
      * Get the current end key.
      *
-     * @return {String} endKey
+     * @return {String}
      */
 
   }, {
@@ -12263,7 +12371,7 @@ var State = function (_ref) {
     /**
      * Get the current start offset.
      *
-     * @return {String} startOffset
+     * @return {String}
      */
 
   }, {
@@ -12275,7 +12383,7 @@ var State = function (_ref) {
     /**
      * Get the current end offset.
      *
-     * @return {String} endOffset
+     * @return {String}
      */
 
   }, {
@@ -12287,7 +12395,7 @@ var State = function (_ref) {
     /**
      * Get the current anchor key.
      *
-     * @return {String} anchorKey
+     * @return {String}
      */
 
   }, {
@@ -12299,7 +12407,7 @@ var State = function (_ref) {
     /**
      * Get the current focus key.
      *
-     * @return {String} focusKey
+     * @return {String}
      */
 
   }, {
@@ -12311,7 +12419,7 @@ var State = function (_ref) {
     /**
      * Get the current anchor offset.
      *
-     * @return {String} anchorOffset
+     * @return {String}
      */
 
   }, {
@@ -12323,7 +12431,7 @@ var State = function (_ref) {
     /**
      * Get the current focus offset.
      *
-     * @return {String} focusOffset
+     * @return {String}
      */
 
   }, {
@@ -12335,7 +12443,7 @@ var State = function (_ref) {
     /**
      * Get the current start text node's closest block parent.
      *
-     * @return {Block} block
+     * @return {Block}
      */
 
   }, {
@@ -12347,7 +12455,7 @@ var State = function (_ref) {
     /**
      * Get the current end text node's closest block parent.
      *
-     * @return {Block} block
+     * @return {Block}
      */
 
   }, {
@@ -12359,7 +12467,7 @@ var State = function (_ref) {
     /**
      * Get the current anchor text node's closest block parent.
      *
-     * @return {Block} block
+     * @return {Block}
      */
 
   }, {
@@ -12371,7 +12479,7 @@ var State = function (_ref) {
     /**
      * Get the current focus text node's closest block parent.
      *
-     * @return {Block} block
+     * @return {Block}
      */
 
   }, {
@@ -12383,7 +12491,7 @@ var State = function (_ref) {
     /**
      * Get the current start text node's closest inline parent.
      *
-     * @return {Inline} inline
+     * @return {Inline}
      */
 
   }, {
@@ -12395,7 +12503,7 @@ var State = function (_ref) {
     /**
      * Get the current end text node's closest inline parent.
      *
-     * @return {Inline} inline
+     * @return {Inline}
      */
 
   }, {
@@ -12407,7 +12515,7 @@ var State = function (_ref) {
     /**
      * Get the current anchor text node's closest inline parent.
      *
-     * @return {Inline} inline
+     * @return {Inline}
      */
 
   }, {
@@ -12419,7 +12527,7 @@ var State = function (_ref) {
     /**
      * Get the current focus text node's closest inline parent.
      *
-     * @return {Inline} inline
+     * @return {Inline}
      */
 
   }, {
@@ -12431,7 +12539,7 @@ var State = function (_ref) {
     /**
      * Get the current start text node.
      *
-     * @return {Text} text
+     * @return {Text}
      */
 
   }, {
@@ -12443,7 +12551,7 @@ var State = function (_ref) {
     /**
      * Get the current end node.
      *
-     * @return {Text} text
+     * @return {Text}
      */
 
   }, {
@@ -12455,7 +12563,7 @@ var State = function (_ref) {
     /**
      * Get the current anchor node.
      *
-     * @return {Text} text
+     * @return {Text}
      */
 
   }, {
@@ -12467,7 +12575,7 @@ var State = function (_ref) {
     /**
      * Get the current focus node.
      *
-     * @return {Text} text
+     * @return {Text}
      */
 
   }, {
@@ -12479,7 +12587,7 @@ var State = function (_ref) {
     /**
      * Get the characters in the current selection.
      *
-     * @return {List} characters
+     * @return {List<Character>}
      */
 
   }, {
@@ -12491,7 +12599,7 @@ var State = function (_ref) {
     /**
      * Get the marks of the current selection.
      *
-     * @return {Set} marks
+     * @return {Set<Mark>}
      */
 
   }, {
@@ -12503,7 +12611,7 @@ var State = function (_ref) {
     /**
      * Get the block nodes in the current selection.
      *
-     * @return {List} nodes
+     * @return {List<Block>}
      */
 
   }, {
@@ -12515,7 +12623,7 @@ var State = function (_ref) {
     /**
      * Get the fragment of the current selection.
      *
-     * @return {List} nodes
+     * @return {Document}
      */
 
   }, {
@@ -12527,7 +12635,7 @@ var State = function (_ref) {
     /**
      * Get the inline nodes in the current selection.
      *
-     * @return {List} nodes
+     * @return {List<Inline>}
      */
 
   }, {
@@ -12539,7 +12647,7 @@ var State = function (_ref) {
     /**
      * Get the text nodes in the current selection.
      *
-     * @return {List} nodes
+     * @return {List<Text>}
      */
 
   }, {
@@ -12553,8 +12661,8 @@ var State = function (_ref) {
     /**
      * Create a new `State` with `properties`.
      *
-     * @param {Object} properties
-     * @return {State} state
+     * @param {Object|State} properties
+     * @return {State}
      */
 
     value: function create() {
@@ -12571,7 +12679,7 @@ var State = function (_ref) {
       }
 
       var state = new State({ document: document, selection: selection });
-      return state.transform({ normalized: false }).normalize().apply({ save: false });
+      return state.transform({ normalized: false }).normalize(_core2.default).apply({ save: false });
     }
   }]);
 
@@ -12584,7 +12692,7 @@ var State = function (_ref) {
 
 exports.default = State;
 
-},{"./document":50,"./selection":56,"./transform":59,"immutable":1217}],58:[function(require,module,exports){
+},{"../schemas/core":61,"./document":50,"./selection":56,"./transform":59,"immutable":1217}],58:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -12649,6 +12757,8 @@ function _inherits(subClass, superClass) {
 
 /**
  * Default properties.
+ *
+ * @type {Object}
  */
 
 var DEFAULTS = {
@@ -12658,6 +12768,8 @@ var DEFAULTS = {
 
 /**
  * Text.
+ *
+ * @type {Text}
  */
 
 var Text = function (_ref) {
@@ -12700,7 +12812,7 @@ var Text = function (_ref) {
      * Derive a set of decorated characters with `decorators`.
      *
      * @param {Array} decorators
-     * @return {List}
+     * @return {List<Character>}
      */
 
   }, {
@@ -12757,7 +12869,7 @@ var Text = function (_ref) {
      * Get the marks on the text at `index`.
      *
      * @param {Number} index
-     * @return {Set}
+     * @return {Set<Mark>}
      */
 
   }, {
@@ -12774,8 +12886,8 @@ var Text = function (_ref) {
     /**
      * Derive the ranges for a list of `characters`.
      *
-     * @param {Array || Void} decorators (optional)
-     * @return {List}
+     * @param {Array|Void} decorators (optional)
+     * @return {List<Range>}
      */
 
   }, {
@@ -12945,7 +13057,7 @@ var Text = function (_ref) {
      * Validate the text node against a `schema`.
      *
      * @param {Schema} schema
-     * @return {Object || Void}
+     * @return {Object|Void}
      */
 
   }, {
@@ -12959,7 +13071,7 @@ var Text = function (_ref) {
     /**
      * Get the node's kind.
      *
-     * @return {String} kind
+     * @return {String}
      */
 
     get: function get() {
@@ -12969,7 +13081,7 @@ var Text = function (_ref) {
     /**
      * Is the node empty?
      *
-     * @return {Boolean} isEmpty
+     * @return {Boolean}
      */
 
   }, {
@@ -12981,7 +13093,7 @@ var Text = function (_ref) {
     /**
      * Get the length of the concatenated text of the node.
      *
-     * @return {Number} length
+     * @return {Number}
      */
 
   }, {
@@ -12993,7 +13105,7 @@ var Text = function (_ref) {
     /**
      * Get the concatenated text of the node.
      *
-     * @return {String} text
+     * @return {String}
      */
 
   }, {
@@ -13009,7 +13121,7 @@ var Text = function (_ref) {
     /**
      * Create a new `Text` with `properties`.
      *
-     * @param {Object} properties
+     * @param {Object|Text} properties
      * @return {Text}
      */
 
@@ -13041,7 +13153,7 @@ var Text = function (_ref) {
     /**
      * Create a new `Text` from a list of ranges
      *
-     * @param {List<Range> | Array<Range>} ranges
+     * @param {List<Range>|Array<Range>} ranges
      * @return {Text}
      */
 
@@ -13060,7 +13172,7 @@ var Text = function (_ref) {
      * Create a list of `Texts` from an array.
      *
      * @param {Array} elements
-     * @return {List} map
+     * @return {List<Text>}
      */
 
   }, {
@@ -13084,6 +13196,8 @@ var Text = function (_ref) {
 
 /**
  * Export.
+ *
+ * @type {Text}
  */
 
 exports.default = Text;
@@ -13143,8 +13257,8 @@ var Transform = function () {
    * Constructor.
    *
    * @param {Object} properties
-   *   @param {State} properties.state
-   *   @param {Boolean} properties.normalized
+   *   @property {State} properties.state
+   *   @property {Boolean} properties.normalized
    */
 
   function Transform(properties) {
@@ -13162,7 +13276,7 @@ var Transform = function () {
   /**
    * Get the kind.
    *
-   * @return {String} kind
+   * @return {String}
    */
 
   _createClass(Transform, [{
@@ -13175,7 +13289,7 @@ var Transform = function () {
      *   @property {Boolean} isNative
      *   @property {Boolean} merge
      *   @property {Boolean} save
-     * @return {State} state
+     * @return {State}
      */
 
     value: function apply() {
@@ -13425,7 +13539,7 @@ function Plugin() {
 
     if (prevState && state.document == prevState.document) return state;
 
-    var newState = state.transform().normalizeWith(schema).apply({ save: false });
+    var newState = state.transform().normalize(schema).apply({ save: false });
 
     return newState;
   }
@@ -13457,11 +13571,9 @@ function Plugin() {
     var nextChar = startOffset === initialChars.size ? null : initialChars.get(startOffset);
     var char = _character2.default.create({
       text: e.data,
-      marks: prevChar && prevChar.marks ||
-      // When cursor is at start of a range of marks, without
-      // preceding text, the native behavior is to insert inside the
-      // range of marks.
-      !prevChar && nextChar && nextChar.marks
+      // When cursor is at start of a range of marks, without preceding text,
+      // the native behavior is to insert inside the range of marks.
+      marks: prevChar && prevChar.marks || nextChar && nextChar.marks || []
     });
 
     var chars = initialChars.insert(startOffset, char);
@@ -14015,14 +14127,10 @@ function Plugin() {
     debug('onSelect', { data: data, selection: selection.toJS() });
 
     return state.transform().moveTo(selection)
-    // Since the document has not changed, We only normalize the selection
-    // This is done in transform.apply
+    // Since the document has not changed, we only need to normalize the
+    // selection and this is done automatically in `transform.apply()`.
     .apply();
   }
-
-  /**
-   * Extend core schema with rendering
-   */
 
   /**
    * A default schema rule to render block nodes.
@@ -14060,12 +14168,20 @@ function Plugin() {
     }
   };
 
+  /**
+   * Add default rendering rules to the schema.
+   *
+   * @type {Object}
+   */
+
   var schema = {
     rules: [BLOCK_RENDER_RULE, INLINE_RENDER_RULE]
   };
 
   /**
    * Return the core plugin.
+   *
+   * @type {Object}
    */
 
   return {
@@ -14084,6 +14200,8 @@ function Plugin() {
 
 /**
  * Export.
+ *
+ * @type {Object}
  */
 
 exports.default = Plugin;
@@ -14135,16 +14253,8 @@ function _interopRequireDefault(obj) {
   return obj && obj.__esModule ? obj : { default: obj };
 }
 
-/*
- * This module contains the default schema to normalize documents
- */
-
-function isInlineVoid(node) {
-  return node.kind == 'inline' && node.isVoid;
-}
-
 /**
- * A default schema rule to only allow block nodes in documents.
+ * Only allow block nodes in documents.
  *
  * @type {Object}
  */
@@ -14169,7 +14279,7 @@ var DOCUMENT_CHILDREN_RULE = {
 };
 
 /**
- * A default schema rule to only allow block, inline and text nodes in blocks.
+ * Only allow block, inline and text nodes in blocks.
  *
  * @type {Object}
  */
@@ -14194,7 +14304,7 @@ var BLOCK_CHILDREN_RULE = {
 };
 
 /**
- * A default schema rule to have at least one text node in blocks/inlines
+ * Ensure that block and inline nodes have at least one text child.
  *
  * @type {Object}
  */
@@ -14209,12 +14319,13 @@ var MIN_TEXT_RULE = {
     return nodes.size === 0 ? true : null;
   },
   normalize: function normalize(transform, node) {
-    return transform.insertNodeByKey(node.key, 0, _text2.default.create(), { normalize: false });
+    var text = _text2.default.create();
+    return transform.insertNodeByKey(node.key, 0, text, { normalize: false });
   }
 };
 
 /**
- * A default schema rule to only allow inline and text nodes in inlines.
+ * Only allow inline and text nodes in inlines.
  *
  * @type {Object}
  */
@@ -14239,12 +14350,12 @@ var INLINE_CHILDREN_RULE = {
 };
 
 /**
- * A default schema rule to ensure that inline nodes are not empty.
+ * Ensure that inline nodes are never empty.
  *
- * This rule is applied to all blocks, because when they contain an
- * empty inline, we need to remove the inline from that parent
- * block. If `validate` was to be memoized, it should be against the
- * parent node, not the inline themselves.
+ * This rule is applied to all blocks, because when they contain an empty
+ * inline, we need to remove the inline from that parent block. If `validate`
+ * was to be memoized, it should be against the parent node, not the inline
+ * themselves.
  *
  * @type {Object}
  */
@@ -14270,7 +14381,7 @@ var INLINE_NO_EMPTY = {
 };
 
 /**
- * A default schema rule to ensure that void nodes contain a single space of content.
+ * Ensure that void nodes contain a single space of content.
  *
  * @type {Object}
  */
@@ -14292,7 +14403,7 @@ var VOID_TEXT_RULE = {
 };
 
 /**
- * A default schema rule to ensure that inline void nodes are surrounded with text nodes
+ * Ensure that inline void nodes are surrounded with text nodes.
  *
  * @type {Object}
  */
@@ -14371,7 +14482,7 @@ var NO_ADJACENT_TEXT_RULE = {
   },
   normalize: function normalize(transform, node, pairs) {
     return pairs
-    // We reverse the list since we want to handle 3 consecutive text nodes
+    // We reverse the list since we want to handle 3 consecutive text nodes.
     .reverse().reduce(function (t, pair) {
       var _pair = _slicedToArray(pair, 2),
           first = _pair[0],
@@ -14404,26 +14515,26 @@ var NO_EMPTY_TEXT_RULE = {
         return;
       }
 
-      // Empty text nodes are only allowed near inline void node
+      // Empty text nodes are only allowed near inline void node.
       var next = nodes.get(i + 1);
       var prev = i > 0 ? nodes.get(i - 1) : null;
 
-      // If last one and previous is an inline void, we need to preserve it
+      // If last one and previous is an inline void, we need to preserve it.
       if (!next && isInlineVoid(prev)) {
         return;
       }
 
-      // If first one and next one is an inline, we preserve it
+      // If first one and next one is an inline, we preserve it.
       if (!prev && isInlineVoid(next)) {
         return;
       }
 
-      // If surrounded by inline void, we preserve it
+      // If surrounded by inline void, we preserve it.
       if (next && prev && isInlineVoid(next) && isInlineVoid(prev)) {
         return;
       }
 
-      // Otherwise we remove it
+      // Otherwise we remove it.
       return true;
     });
 
@@ -14437,16 +14548,33 @@ var NO_EMPTY_TEXT_RULE = {
 };
 
 /**
- * The default schema.
+ * Test if a `node` is an inline void node.
  *
- * @type {Object}
+ * @param {Node} node
+ * @return {Boolean}
  */
 
-var schema = _schema2.default.create({
+function isInlineVoid(node) {
+  return node.kind == 'inline' && node.isVoid;
+}
+
+/**
+ * The core schema.
+ *
+ * @type {Schema}
+ */
+
+var SCHEMA = _schema2.default.create({
   rules: [DOCUMENT_CHILDREN_RULE, BLOCK_CHILDREN_RULE, INLINE_CHILDREN_RULE, VOID_TEXT_RULE, MIN_TEXT_RULE, INLINE_NO_EMPTY, INLINE_VOID_TEXTS_AROUND_RULE, NO_ADJACENT_TEXT_RULE, NO_EMPTY_TEXT_RULE]
 });
 
-exports.default = schema;
+/**
+ * Export.
+ *
+ * @type {Schema}
+ */
+
+exports.default = SCHEMA;
 
 },{"../models/schema":55,"../models/text":58,"immutable":1217}],62:[function(require,module,exports){
 'use strict';
@@ -14467,7 +14595,7 @@ function _interopRequireDefault(obj) {
  * Encode a JSON `object` as base-64 `string`.
  *
  * @param {Object} object
- * @return {String} encoded
+ * @return {String}
  */
 
 function encode(object) {
@@ -14480,7 +14608,7 @@ function encode(object) {
  * Decode a base-64 `string` to a JSON `object`.
  *
  * @param {String} string
- * @return {Object} object
+ * @return {Object}
  */
 
 function decode(string) {
@@ -14493,7 +14621,7 @@ function decode(string) {
  * Deserialize a State `string`.
  *
  * @param {String} string
- * @return {State} state
+ * @return {State}
  */
 
 function deserialize(string) {
@@ -14506,7 +14634,7 @@ function deserialize(string) {
  * Deserialize a Node `string`.
  *
  * @param {String} string
- * @return {Node} node
+ * @return {Node}
  */
 
 function deserializeNode(string) {
@@ -14519,7 +14647,7 @@ function deserializeNode(string) {
  * Serialize a `state`.
  *
  * @param {State} state
- * @return {String} encoded
+ * @return {String}
  */
 
 function serialize(state) {
@@ -14532,7 +14660,7 @@ function serialize(state) {
  * Serialize a `node`.
  *
  * @param {Node} node
- * @return {String} encoded
+ * @return {String}
  */
 
 function serializeNode(node) {
@@ -14543,6 +14671,8 @@ function serializeNode(node) {
 
 /**
  * Export.
+ *
+ * @type {Object}
  */
 
 exports.default = {
@@ -14603,6 +14733,8 @@ function _classCallCheck(instance, Constructor) {
 
 /**
  * String.
+ *
+ * @type {String}
  */
 
 var String = new _immutable.Record({
@@ -14657,7 +14789,6 @@ var Html =
  *
  * @param {Object} options
  *   @property {Array} rules
- * @return {Html} serializer
  */
 
 function Html() {
@@ -14674,28 +14805,28 @@ function Html() {
  * Deserialize pasted HTML.
  *
  * @param {String} html
- * @return {State} state
+ * @return {State}
  */
 
 /**
  * Deserialize an array of Cheerio `elements`.
  *
  * @param {Array} elements
- * @return {Array} nodes
+ * @return {Array}
  */
 
 /**
  * Deserialize a Cheerio `element`.
  *
  * @param {Object} element
- * @return {Mixed} node
+ * @return {Any}
  */
 
 /**
  * Deserialize a `mark` object.
  *
  * @param {Object} mark
- * @return {Array} nodes
+ * @return {Array}
  */
 
 /**
@@ -14704,7 +14835,7 @@ function Html() {
  * @param {State} state
  * @param {Object} options
  *   @property {Boolean} render
- * @return {String|Array} html
+ * @return {String|Array}
  */
 
 /**
@@ -14999,6 +15130,8 @@ function addKey(element) {
 
 /**
  * Export.
+ *
+ * @type {Html}
  */
 
 exports.default = Html;
@@ -15087,6 +15220,8 @@ function serialize(state) {
 
 /**
  * Export.
+ *
+ * @type {Object}
  */
 
 exports.default = {
@@ -15227,7 +15362,7 @@ var Raw = {
    *
    * @param {Object} object
    * @param {Object} options (optional)
-   * @return {Mark} mark
+   * @return {Mark}
    */
 
   deserializeMark: function deserializeMark(object, options) {
@@ -15239,7 +15374,7 @@ var Raw = {
    *
    * @param {Object} object
    * @param {Object} options (optional)
-   * @return {Text}
+   * @return {Node}
    */
 
   deserializeNode: function deserializeNode(object, options) {
@@ -15264,7 +15399,7 @@ var Raw = {
    *
    * @param {Object} object
    * @param {Object} options (optional)
-   * @return {List}
+   * @return {List<Character>}
    */
 
   deserializeRange: function deserializeRange(object) {
@@ -15422,7 +15557,7 @@ var Raw = {
    *
    * @param {Mark} mark
    * @param {Object} options (optional)
-   * @return {Object} Object
+   * @return {Object}
    */
 
   serializeMark: function serializeMark(mark) {
@@ -15442,7 +15577,7 @@ var Raw = {
    *
    * @param {Node} node
    * @param {Object} options (optional)
-   * @return {Object} object
+   * @return {Object}
    */
 
   serializeNode: function serializeNode(node, options) {
@@ -15745,6 +15880,8 @@ var Raw = {
 
 /**
  * Export.
+ *
+ * @type {Object}
  */
 
 exports.default = Raw;
@@ -15772,9 +15909,9 @@ var _debug = require('debug');
 
 var _debug2 = _interopRequireDefault(_debug);
 
-var _warning = require('../utils/warning');
+var _warn = require('../utils/warn');
 
-var _warning2 = _interopRequireDefault(_warning);
+var _warn2 = _interopRequireDefault(_warn);
 
 function _interopRequireDefault(obj) {
   return obj && obj.__esModule ? obj : { default: obj };
@@ -16185,12 +16322,15 @@ function setNode(state, operation) {
 
   var node = document.assertPath(path);
 
-  // Deprecate using setNode for updating children, or keys
+  // Deprecate the ability to overwite a node's children.
   if (properties.nodes && properties.nodes != node.nodes) {
-    (0, _warning2.default)('Updating Node.nodes through setNode is not allowed. Use appropriate insertion and removal functions.');
+    (0, _warn2.default)('Updating a Node\'s `nodes` property via `setNode()` is not allowed. Use the appropriate insertion and removal operations instead. The opeartion in question was:', operation);
     delete properties.nodes;
-  } else if (properties.key && properties.key != node.key) {
-    (0, _warning2.default)('Updating Node.key through setNode is not allowed. You should not have to update keys yourself.');
+  }
+
+  // Deprecate the ability to change a node's key.
+  if (properties.key && properties.key != node.key) {
+    (0, _warn2.default)('Updating a Node\'s `key` property via `setNode()` is not allowed. There should be no reason to do this. The opeartion in question was:', operation);
     delete properties.key;
   }
 
@@ -16308,7 +16448,7 @@ function splitNode(state, operation) {
   }
 }
 
-},{"../utils/warning":87,"debug":116}],67:[function(require,module,exports){
+},{"../utils/warn":87,"debug":116}],67:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -16456,7 +16596,7 @@ function deleteForward(transform) {
  * Insert a `block` at the current selection.
  *
  * @param {Transform} transform
- * @param {String || Object || Block} block
+ * @param {String|Object|Block} block
  * @return {Transform}
  */
 
@@ -16533,7 +16673,7 @@ function insertFragment(transform, fragment) {
  * Insert a `inline` at the current selection.
  *
  * @param {Transform} transform
- * @param {String || Object || Block} inline
+ * @param {String|Object|Block} inline
  * @return {Transform}
  */
 
@@ -16577,7 +16717,7 @@ function insertInline(transform, inline) {
  *
  * @param {Transform} transform
  * @param {String} text
- * @param {Set} marks (optional)
+ * @param {Set<Mark>} marks (optional)
  * @return {Transform}
  */
 
@@ -16654,11 +16794,26 @@ function splitBlock(transform) {
   state = transform.state;
   document = state.document;
 
-  var startKey = selection.startKey;
+  var startKey = selection.startKey,
+      startOffset = selection.startOffset;
 
-  var startNode = document.getDescendant(startKey);
-  var nextNode = document.getNextText(startNode.key);
-  var after = selection.collapseToStartOf(nextNode);
+  var startText = document.getNode(startKey);
+  var startBlock = document.getClosestBlock(startKey);
+  var startInline = startBlock.getFurthestInline(startKey);
+  var nextText = document.getNextText(startText.key);
+  var after = void 0;
+
+  // If the selection is at the start of the highest inline child inside the
+  // block, the starting text node won't need to be split.
+  if (startOffset == 0 && startBlock.text != '' && (!startInline || startInline.getOffset(startText.key) == 0)) {
+    after = selection.collapseToStartOf(startText);
+  }
+
+  // Otherwise, we'll need to move the selection forward one to account for the
+  // text node that was split.
+  else {
+      after = selection.collapseToStartOf(nextText);
+    }
 
   return transform.moveTo(after);
 }
@@ -16774,7 +16929,7 @@ function toggleMark(transform, mark) {
  * Unwrap the current selection from a block parent with `properties`.
  *
  * @param {Transform} transform
- * @param {Object or String} properties
+ * @param {Object|String} properties
  * @return {Transform}
  */
 
@@ -16789,7 +16944,7 @@ function unwrapBlock(transform, properties) {
  * Unwrap the current selection from an inline parent with `properties`.
  *
  * @param {Transform} transform
- * @param {Object or String} properties
+ * @param {Object|String} properties
  * @return {Transform}
  */
 
@@ -16805,7 +16960,7 @@ function unwrapInline(transform, properties) {
  * `properties`.
  *
  * @param {Transform} transform
- * @param {Object or String} properties
+ * @param {Object|String} properties
  * @return {Transform}
  */
 
@@ -16820,7 +16975,7 @@ function wrapBlock(transform, properties) {
  * Wrap the current selection in new inline nodes with `properties`.
  *
  * @param {Transform} transform
- * @param {Object or String} properties
+ * @param {Object|String} properties
  * @return {Transform}
  */
 
@@ -16924,11 +17079,15 @@ exports.wrapBlockAtRange = wrapBlockAtRange;
 exports.wrapInlineAtRange = wrapInlineAtRange;
 exports.wrapTextAtRange = wrapTextAtRange;
 
-var _immutable = require('immutable');
-
 var _normalize = require('../utils/normalize');
 
 var _normalize2 = _interopRequireDefault(_normalize);
+
+var _core = require('../schemas/core');
+
+var _core2 = _interopRequireDefault(_core);
+
+var _immutable = require('immutable');
 
 function _interopRequireDefault(obj) {
   return obj && obj.__esModule ? obj : { default: obj };
@@ -16941,18 +17100,14 @@ function _interopRequireDefault(obj) {
  * @param {Selection} range
  * @param {Mixed} mark
  * @param {Object} options
- *   @param {Boolean} normalize
+ *   @property {Boolean} normalize
  * @return {Transform}
  */
-
-/* eslint no-console: 0 */
 
 function addMarkAtRange(transform, range, mark) {
   var options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
 
-  if (range.isCollapsed) {
-    return transform;
-  }
+  if (range.isCollapsed) return transform;
 
   var _options$normalize = options.normalize,
       normalize = _options$normalize === undefined ? true : _options$normalize;
@@ -16987,16 +17142,16 @@ function addMarkAtRange(transform, range, mark) {
  * @param {Transform} transform
  * @param {Selection} range
  * @param {Object} options
- *   @param {Boolean} normalize
+ *   @property {Boolean} normalize
  * @return {Transform}
  */
+
+/* eslint no-console: 0 */
 
 function deleteAtRange(transform, range) {
   var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 
-  if (range.isCollapsed) {
-    return transform;
-  }
+  if (range.isCollapsed) return transform;
 
   var _options$normalize2 = options.normalize,
       normalize = _options$normalize2 === undefined ? true : _options$normalize2;
@@ -17060,10 +17215,8 @@ function deleteAtRange(transform, range) {
   }
 
   if (normalize) {
-    transform.normalizeNodeByKey(ancestor.key);
+    transform.normalizeNodeByKey(ancestor.key, _core2.default);
   }
-
-  transform.normalizeDocument();
 
   return transform;
 }
@@ -17075,7 +17228,7 @@ function deleteAtRange(transform, range) {
  * @param {Selection} range
  * @param {Number} n (optional)
  * @param {Object} options
- *   @param {Boolean} normalize
+ *   @property {Boolean} normalize
  * @return {Transform}
  */
 
@@ -17145,7 +17298,7 @@ function deleteBackwardAtRange(transform, range) {
  * @param {Selection} range
  * @param {Number} n (optional)
  * @param {Object} options
- *   @param {Boolean} normalize
+ *   @property {Boolean} normalize
  * @return {Transform}
  */
 
@@ -17212,9 +17365,9 @@ function deleteForwardAtRange(transform, range) {
  *
  * @param {Transform} transform
  * @param {Selection} range
- * @param {Block or String or Object} block
+ * @param {Block|String|Object} block
  * @param {Object} options
- *   @param {Boolean} normalize
+ *   @property {Boolean} normalize
  * @return {Transform}
  */
 
@@ -17257,7 +17410,7 @@ function insertBlockAtRange(transform, range, block) {
   }
 
   if (normalize) {
-    transform.normalizeNodeByKey(parent.key);
+    transform.normalizeNodeByKey(parent.key, _core2.default);
   }
 
   return transform;
@@ -17270,7 +17423,7 @@ function insertBlockAtRange(transform, range, block) {
  * @param {Selection} range
  * @param {Document} fragment
  * @param {Object} options
- *   @param {Boolean} normalize
+ *   @property {Boolean} normalize
  * @return {Transform}
  */
 
@@ -17368,7 +17521,7 @@ function insertFragmentAtRange(transform, range, fragment) {
   }
 
   if (normalize) {
-    transform.normalizeNodeByKey(parent.key);
+    transform.normalizeNodeByKey(parent.key, _core2.default);
   }
 
   return transform;
@@ -17379,9 +17532,9 @@ function insertFragmentAtRange(transform, range, fragment) {
  *
  * @param {Transform} transform
  * @param {Selection} range
- * @param {Inline or String or Object} inline
+ * @param {Inline|String|Object} inline
  * @param {Object} options
- *   @param {Boolean} normalize
+ *   @property {Boolean} normalize
  * @return {Transform}
  */
 
@@ -17415,7 +17568,7 @@ function insertInlineAtRange(transform, range, inline) {
   transform.insertNodeByKey(parent.key, index + 1, inline, { normalize: false });
 
   if (normalize) {
-    transform.normalizeNodeByKey(parent.key);
+    transform.normalizeNodeByKey(parent.key, _core2.default);
   }
 
   return transform;
@@ -17427,9 +17580,9 @@ function insertInlineAtRange(transform, range, inline) {
  * @param {Transform} transform
  * @param {Selection} range
  * @param {String} text
- * @param {Set} marks (optional)
+ * @param {Set<Mark>} marks (optional)
  * @param {Object} options
- *   @param {Boolean} normalize
+ *   @property {Boolean} normalize
  * @return {Transform}
  */
 
@@ -17451,7 +17604,7 @@ function insertTextAtRange(transform, range, text, marks) {
     transform.deleteAtRange(range, { normalize: false });
   }
 
-  // Unless specified, don't normalize if only inserting text
+  // PERF: Unless specified, don't normalize if only inserting text.
   if (normalize !== undefined) {
     normalize = range.isExpanded;
   }
@@ -17464,21 +17617,19 @@ function insertTextAtRange(transform, range, text, marks) {
  *
  * @param {Transform} transform
  * @param {Selection} range
- * @param {Mark or String} mark (optional)
+ * @param {Mark|String} mark (optional)
  * @param {Object} options
- *   @param {Boolean} normalize
+ *   @property {Boolean} normalize
  * @return {Transform}
  */
 
 function removeMarkAtRange(transform, range, mark) {
   var options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
+
+  if (range.isCollapsed) return transform;
+
   var _options$normalize8 = options.normalize,
       normalize = _options$normalize8 === undefined ? true : _options$normalize8;
-
-  if (range.isCollapsed) {
-    return transform;
-  }
-
   var state = transform.state;
   var document = state.document;
 
@@ -17509,9 +17660,9 @@ function removeMarkAtRange(transform, range, mark) {
  *
  * @param {Transform} transform
  * @param {Selection} range
- * @param {Object || String} properties
+ * @param {Object|String} properties
  * @param {Object} options
- *   @param {Boolean} normalize
+ *   @property {Boolean} normalize
  * @return {Transform}
  */
 
@@ -17536,9 +17687,9 @@ function setBlockAtRange(transform, range, properties) {
  *
  * @param {Transform} transform
  * @param {Selection} range
- * @param {Object || String} properties
+ * @param {Object|String} properties
  * @param {Object} options
- *   @param {Boolean} normalize
+ *   @property {Boolean} normalize
  * @return {Transform}
  */
 
@@ -17565,7 +17716,7 @@ function setInlineAtRange(transform, range, properties) {
  * @param {Selection} range
  * @param {Number} height (optional)
  * @param {Object} options
- *   @param {Boolean} normalize
+ *   @property {Boolean} normalize
  * @return {Transform}
  */
 
@@ -17598,9 +17749,7 @@ function splitBlockAtRange(transform, range) {
     h++;
   }
 
-  transform.splitNodeByKey(node.key, offset, { normalize: normalize });
-
-  return transform;
+  return transform.splitNodeByKey(node.key, offset, { normalize: normalize });
 }
 
 /**
@@ -17610,7 +17759,7 @@ function splitBlockAtRange(transform, range) {
  * @param {Selection} range
  * @param {Number} height (optional)
  * @param {Object} options
- *   @param {Boolean} normalize
+ *   @property {Boolean} normalize
  * @return {Transform}
  */
 
@@ -17654,21 +17803,19 @@ function splitInlineAtRange(transform, range) {
  * @param {Selection} range
  * @param {Mixed} mark
  * @param {Object} options
- *   @param {Boolean} normalize
+ *   @property {Boolean} normalize
  * @return {Transform}
  */
 
 function toggleMarkAtRange(transform, range, mark) {
   var options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
-  var _options$normalize13 = options.normalize,
-      normalize = _options$normalize13 === undefined ? true : _options$normalize13;
 
-  if (range.isCollapsed) {
-    return transform;
-  }
+  if (range.isCollapsed) return transform;
 
   mark = _normalize2.default.mark(mark);
 
+  var _options$normalize13 = options.normalize,
+      normalize = _options$normalize13 === undefined ? true : _options$normalize13;
   var state = transform.state;
   var document = state.document;
 
@@ -17691,19 +17838,19 @@ function toggleMarkAtRange(transform, range, mark) {
  *
  * @param {Transform} transform
  * @param {Selection} range
- * @param {String or Object} properties
+ * @param {String|Object} properties
  * @param {Object} options
- *   @param {Boolean} normalize
+ *   @property {Boolean} normalize
  * @return {Transform}
  */
 
 function unwrapBlockAtRange(transform, range, properties) {
   var options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
-  var _options$normalize14 = options.normalize,
-      normalize = _options$normalize14 === undefined ? true : _options$normalize14;
 
   properties = _normalize2.default.nodeProperties(properties);
 
+  var _options$normalize14 = options.normalize,
+      normalize = _options$normalize14 === undefined ? true : _options$normalize14;
   var state = transform.state;
   var _state3 = state,
       document = _state3.document;
@@ -17772,7 +17919,7 @@ function unwrapBlockAtRange(transform, range, properties) {
 
   // TODO: optmize to only normalize the right block
   if (normalize) {
-    transform.normalizeDocument();
+    transform.normalizeDocument(_core2.default);
   }
 
   return transform;
@@ -17783,9 +17930,9 @@ function unwrapBlockAtRange(transform, range, properties) {
  *
  * @param {Transform} transform
  * @param {Selection} range
- * @param {String or Object} properties
+ * @param {String|Object} properties
  * @param {Object} options
- *   @param {Boolean} normalize
+ *   @property {Boolean} normalize
  * @return {Transform}
  */
 
@@ -17823,7 +17970,7 @@ function unwrapInlineAtRange(transform, range, properties) {
 
   // TODO: optmize to only normalize the right block
   if (normalize) {
-    transform.normalizeDocument();
+    transform.normalizeDocument(_core2.default);
   }
 
   return transform;
@@ -17834,9 +17981,9 @@ function unwrapInlineAtRange(transform, range, properties) {
  *
  * @param {Transform} transform
  * @param {Selection} range
- * @param {Block || Object || String} block
+ * @param {Block|Object|String} block
  * @param {Object} options
- *   @param {Boolean} normalize
+ *   @property {Boolean} normalize
  * @return {Transform}
  */
 
@@ -17902,7 +18049,7 @@ function wrapBlockAtRange(transform, range, block) {
   });
 
   if (normalize) {
-    transform.normalizeNodeByKey(parent.key);
+    transform.normalizeNodeByKey(parent.key, _core2.default);
   }
 
   return transform;
@@ -17913,9 +18060,9 @@ function wrapBlockAtRange(transform, range, block) {
  *
  * @param {Transform} transform
  * @param {Selection} range
- * @param {Inline || Object || String} inline
+ * @param {Inline|Object|String} inline
  * @param {Object} options
- *   @param {Boolean} normalize
+ *   @property {Boolean} normalize
  * @return {Transform}
  */
 
@@ -17984,7 +18131,7 @@ function wrapInlineAtRange(transform, range, inline) {
       });
 
       if (normalize) {
-        transform.normalizeNodeByKey(startBlock.key);
+        transform.normalizeNodeByKey(startBlock.key, _core2.default);
       }
     })();
   } else {
@@ -18014,7 +18161,7 @@ function wrapInlineAtRange(transform, range, inline) {
       });
 
       if (normalize) {
-        transform.normalizeNodeByKey(startBlock.key).normalizeNodeByKey(endBlock.key);
+        transform.normalizeNodeByKey(startBlock.key, _core2.default).normalizeNodeByKey(endBlock.key, _core2.default);
       }
 
       blocks.slice(1, -1).forEach(function (block) {
@@ -18026,7 +18173,7 @@ function wrapInlineAtRange(transform, range, inline) {
         });
 
         if (normalize) {
-          transform.normalizeNodeByKey(block.key);
+          transform.normalizeNodeByKey(block.key, _core2.default);
         }
       });
     })();
@@ -18043,7 +18190,7 @@ function wrapInlineAtRange(transform, range, inline) {
  * @param {String} prefix
  * @param {String} suffix (optional)
  * @param {Object} options
- *   @param {Boolean} normalize
+ *   @property {Boolean} normalize
  * @return {Transform}
  */
 
@@ -18062,13 +18209,10 @@ function wrapTextAtRange(transform, range, prefix) {
     end = end.moveForward(prefix.length);
   }
 
-  transform.insertTextAtRange(start, prefix, [], { normalize: normalize });
-  transform.insertTextAtRange(end, suffix, [], { normalize: normalize });
-
-  return transform;
+  return transform.insertTextAtRange(start, prefix, [], { normalize: normalize }).insertTextAtRange(end, suffix, [], { normalize: normalize });
 }
 
-},{"../utils/normalize":82,"immutable":1217}],69:[function(require,module,exports){
+},{"../schemas/core":61,"../utils/normalize":82,"immutable":1217}],69:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -18093,6 +18237,10 @@ var _normalize = require('../utils/normalize');
 
 var _normalize2 = _interopRequireDefault(_normalize);
 
+var _core = require('../schemas/core');
+
+var _core2 = _interopRequireDefault(_core);
+
 function _interopRequireDefault(obj) {
   return obj && obj.__esModule ? obj : { default: obj };
 }
@@ -18112,19 +18260,20 @@ function _interopRequireDefault(obj) {
 
 function addMarkByKey(transform, key, offset, length, mark) {
   var options = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : {};
-  var _options$normalize = options.normalize,
-      normalize = _options$normalize === undefined ? true : _options$normalize;
 
   mark = _normalize2.default.mark(mark);
+  var _options$normalize = options.normalize,
+      normalize = _options$normalize === undefined ? true : _options$normalize;
   var state = transform.state;
   var document = state.document;
 
   var path = document.getPath(key);
 
   transform.addMarkOperation(path, offset, length, mark);
+
   if (normalize) {
     var parent = document.getParent(key);
-    transform.normalizeNodeByKey(parent.key);
+    transform.normalizeNodeByKey(parent.key, _core2.default);
   }
 
   return transform;
@@ -18152,8 +18301,9 @@ function insertNodeByKey(transform, key, index, node) {
   var path = document.getPath(key);
 
   transform.insertNodeOperation(path, index, node);
+
   if (normalize) {
-    transform.normalizeNodeByKey(key);
+    transform.normalizeNodeByKey(key, _core2.default);
   }
 
   return transform;
@@ -18166,7 +18316,7 @@ function insertNodeByKey(transform, key, index, node) {
  * @param {String} key
  * @param {Number} offset
  * @param {String} text
- * @param {Set} marks (optional)
+ * @param {Set<Mark>} marks (optional)
  * @param {Object} options
  *   @param {Boolean} normalize
  * @return {Transform}
@@ -18182,9 +18332,10 @@ function insertTextByKey(transform, key, offset, text, marks) {
   var path = document.getPath(key);
 
   transform.insertTextOperation(path, offset, text, marks);
+
   if (normalize) {
     var parent = document.getParent(key);
-    transform.normalizeNodeByKey(parent.key);
+    transform.normalizeNodeByKey(parent.key, _core2.default);
   }
 
   return transform;
@@ -18216,9 +18367,9 @@ function joinNodeByKey(transform, key, withKey) {
   if (normalize) {
     var parent = document.getCommonAncestor(key, withKey);
     if (parent) {
-      transform.normalizeNodeByKey(parent.key);
+      transform.normalizeNodeByKey(parent.key, _core2.default);
     } else {
-      transform.normalizeDocument();
+      transform.normalizeDocument(_core2.default);
     }
   }
 
@@ -18252,7 +18403,7 @@ function moveNodeByKey(transform, key, newKey, newIndex) {
 
   if (normalize) {
     var parent = document.key == newKey ? document : document.getCommonAncestor(key, newKey);
-    transform.normalizeNodeByKey(parent.key);
+    transform.normalizeNodeByKey(parent.key, _core2.default);
   }
 
   return transform;
@@ -18273,19 +18424,20 @@ function moveNodeByKey(transform, key, newKey, newIndex) {
 
 function removeMarkByKey(transform, key, offset, length, mark) {
   var options = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : {};
-  var _options$normalize6 = options.normalize,
-      normalize = _options$normalize6 === undefined ? true : _options$normalize6;
 
   mark = _normalize2.default.mark(mark);
+  var _options$normalize6 = options.normalize,
+      normalize = _options$normalize6 === undefined ? true : _options$normalize6;
   var state = transform.state;
   var document = state.document;
 
   var path = document.getPath(key);
 
   transform.removeMarkOperation(path, offset, length, mark);
+
   if (normalize) {
     var parent = document.getParent(key);
-    transform.normalizeNodeByKey(parent.key);
+    transform.normalizeNodeByKey(parent.key, _core2.default);
   }
 
   return transform;
@@ -18315,9 +18467,9 @@ function removeNodeByKey(transform, key) {
   if (normalize) {
     var parent = document.getParent(key);
     if (parent) {
-      transform.normalizeNodeByKey(parent.key);
+      transform.normalizeNodeByKey(parent.key, _core2.default);
     } else {
-      transform.normalizeDocument();
+      transform.normalizeDocument(_core2.default);
     }
   }
 
@@ -18346,9 +18498,10 @@ function removeTextByKey(transform, key, offset, length) {
   var path = document.getPath(key);
 
   transform.removeTextOperation(path, offset, length);
+
   if (normalize) {
     var parent = document.getParent(key);
-    transform.normalizeParentsByKey(parent.key);
+    transform.normalizeParentsByKey(parent.key, _core2.default);
   }
 
   return transform;
@@ -18369,11 +18522,12 @@ function removeTextByKey(transform, key, offset, length) {
 
 function setMarkByKey(transform, key, offset, length, mark, properties) {
   var options = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : {};
-  var _options$normalize9 = options.normalize,
-      normalize = _options$normalize9 === undefined ? true : _options$normalize9;
 
   mark = _normalize2.default.mark(mark);
   properties = _normalize2.default.markProperties(properties);
+  var _options$normalize9 = options.normalize,
+      normalize = _options$normalize9 === undefined ? true : _options$normalize9;
+
   var newMark = mark.merge(properties);
   var state = transform.state;
   var document = state.document;
@@ -18381,9 +18535,10 @@ function setMarkByKey(transform, key, offset, length, mark, properties) {
   var path = document.getPath(key);
 
   transform.setMarkOperation(path, offset, length, mark, newMark);
+
   if (normalize) {
     var parent = document.getParent(key);
-    transform.normalizeNodeByKey(parent.key);
+    transform.normalizeNodeByKey(parent.key, _core2.default);
   }
 
   return transform;
@@ -18394,7 +18549,7 @@ function setMarkByKey(transform, key, offset, length, mark, properties) {
  *
  * @param {Transform} transform
  * @param {String} key
- * @param {Object || String} properties
+ * @param {Object|String} properties
  * @param {Object} options
  *   @param {Boolean} normalize
  * @return {Transform}
@@ -18402,10 +18557,10 @@ function setMarkByKey(transform, key, offset, length, mark, properties) {
 
 function setNodeByKey(transform, key, properties) {
   var options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
-  var _options$normalize10 = options.normalize,
-      normalize = _options$normalize10 === undefined ? true : _options$normalize10;
 
   properties = _normalize2.default.nodeProperties(properties);
+  var _options$normalize10 = options.normalize,
+      normalize = _options$normalize10 === undefined ? true : _options$normalize10;
   var state = transform.state;
   var document = state.document;
 
@@ -18416,9 +18571,9 @@ function setNodeByKey(transform, key, properties) {
   if (normalize) {
     var parent = document.getParent(key);
     if (parent) {
-      transform.normalizeNodeByKey(parent.key);
+      transform.normalizeNodeByKey(parent.key, _core2.default);
     } else {
-      transform.normalizeDocument();
+      transform.normalizeDocument(_core2.default);
     }
   }
 
@@ -18450,9 +18605,9 @@ function splitNodeByKey(transform, key, offset) {
   if (normalize) {
     var parent = document.getParent(key);
     if (parent) {
-      transform.normalizeNodeByKey(parent.key);
+      transform.normalizeNodeByKey(parent.key, _core2.default);
     } else {
-      transform.normalizeDocument();
+      transform.normalizeDocument(_core2.default);
     }
   }
 
@@ -18464,7 +18619,7 @@ function splitNodeByKey(transform, key, offset) {
  *
  * @param {Transform} transform
  * @param {String} key
- * @param {Object or String} properties
+ * @param {Object|String} properties
  * @param {Object} options
  *   @param {Boolean} normalize
  * @return {Transform}
@@ -18485,7 +18640,7 @@ function unwrapInlineByKey(transform, key, properties, options) {
  *
  * @param {Transform} transform
  * @param {String} key
- * @param {Object or String} properties
+ * @param {Object|String} properties
  * @param {Object} options
  *   @param {Boolean} normalize
  * @return {Transform}
@@ -18506,7 +18661,7 @@ function unwrapBlockByKey(transform, key, properties, options) {
  *
  * @param {Transform} transform
  * @param {String} key The node to wrap
- * @param {Block || Object || String} block The wrapping block (its children are discarded)
+ * @param {Block|Object|String} block The wrapping block (its children are discarded)
  * @param {Object} options
  *   @param {Boolean} normalize
  * @return {Transform}
@@ -18525,7 +18680,7 @@ function wrapBlockByKey(transform, key, block, options) {
   return transform.insertNodeByKey(parent.key, index, block, { normalize: false }).moveNodeByKey(node.key, block.key, 0, options);
 }
 
-},{"../utils/normalize":82}],70:[function(require,module,exports){
+},{"../schemas/core":61,"../utils/normalize":82}],70:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -18706,9 +18861,6 @@ exports.default = {
    */
 
   normalize: _normalize.normalize,
-  normalizeWith: _normalize.normalizeWith,
-  normalizeNodeWith: _normalize.normalizeNodeWith,
-  normalizeParentsWith: _normalize.normalizeParentsWith,
   normalizeDocument: _normalize.normalizeDocument,
   normalizeSelection: _normalize.normalizeSelection,
   normalizeNodeByKey: _normalize.normalizeNodeByKey,
@@ -18737,181 +18889,114 @@ exports.default = {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.normalizeNodeWith = normalizeNodeWith;
-exports.normalizeParentsWith = normalizeParentsWith;
-exports.normalizeWith = normalizeWith;
 exports.normalize = normalize;
 exports.normalizeDocument = normalizeDocument;
 exports.normalizeNodeByKey = normalizeNodeByKey;
 exports.normalizeParentsByKey = normalizeParentsByKey;
 exports.normalizeSelection = normalizeSelection;
 
-var _warning = require('../utils/warning');
-
-var _warning2 = _interopRequireDefault(_warning);
-
-var _schema = require('../plugins/schema');
-
-var _schema2 = _interopRequireDefault(_schema);
-
 var _normalize = require('../utils/normalize');
 
 var _normalize2 = _interopRequireDefault(_normalize);
+
+var _schema = require('../models/schema');
+
+var _schema2 = _interopRequireDefault(_schema);
+
+var _warn = require('../utils/warn');
+
+var _warn2 = _interopRequireDefault(_warn);
 
 function _interopRequireDefault(obj) {
   return obj && obj.__esModule ? obj : { default: obj };
 }
 
-// Maximum recursive calls for normalization
-var MAX_CALLS = 50;
-
 /**
- * Normalize a node (itself and its children) using a schema.
+ * Normalize the document and selection with a `schema`.
  *
- * @param  {Transform} transform
- * @param  {Schema} schema
- * @param  {Node} node
+ * @param {Transform} transform
+ * @param {Schema} schema
  * @return {Transform}
  */
 
-function normalizeNodeWith(transform, schema, node) {
-  // For performance considerations, we will check if the transform was changed
-  var opCount = transform.operations.length;
-
-  // Iterate over its children
-  normalizeChildrenWith(transform, schema, node);
-
-  var hasChanged = transform.operations.length != opCount;
-  if (hasChanged) {
-    // Refresh the node reference
-    node = refreshNode(transform, node);
-  }
-
-  // Now normalize the node itself if it still exist
-  if (node) {
-    normalizeNodeOnly(transform, schema, node);
-  }
-
-  return transform;
+function normalize(transform, schema) {
+  return transform.normalizeDocument(schema).normalizeSelection(schema);
 }
 
 /**
- * Normalize a node its parents using a schema.
+ * Normalize the document with a `schema`.
  *
- * @param  {Transform} transform
- * @param  {Schema} schema
- * @param  {Node} node
+ * @param {Transform} transform
+ * @param {Schema} schema
  * @return {Transform}
  */
 
-function normalizeParentsWith(transform, schema, node) {
-  normalizeNodeOnly(transform, schema, node);
-
-  // Normalize went back up to the document
-  if (node.kind == 'document') {
-    return transform;
-  }
-
-  // We search for the new parent
-  node = refreshNode(transform, node);
-  if (!node) {
-    return transform;
-  }
-
+function normalizeDocument(transform, schema) {
   var state = transform.state;
   var document = state.document;
 
-  var parent = document.getParent(node.key);
-
-  return normalizeParentsWith(transform, schema, parent);
+  return transform.normalizeNodeByKey(document.key, schema);
 }
 
 /**
- * Normalize state using a schema.
+ * Normalize a `node` and its children with a `schema`.
  *
- * @param  {Transform} transform
- * @param  {Schema} schema
- * @return {Transform} transform
+ * @param {Transform} transform
+ * @param {Node|String} key
+ * @param {Schema} schema
+ * @return {Transform}
  */
 
-function normalizeWith(transform, schema) {
-  var state = transform.state;
-  var document = state.document;
+function normalizeNodeByKey(transform, key, schema) {
+  assertSchema(schema);
+  key = _normalize2.default.key(key);
 
+  // If the schema has no validation rules, there's nothing to normalize.
   if (!schema.hasValidators) {
-    // Schema has no normalization rules
     return transform;
   }
 
-  return transform.normalizeNodeWith(schema, document);
-}
+  var state = transform.state;
+  var document = state.document;
 
-/**
- * Normalize the state using the core schema.
- *
- * @param  {Transform} transform
- * @return {Transform} transform
- */
+  var node = document.assertNode(key);
 
-function normalize(transform) {
-  transform.normalizeDocument().normalizeSelection();
+  normalizeNodeWith(transform, node, schema);
   return transform;
 }
 
 /**
- * Normalize only the document
+ * Normalize a `node` and its parents with a `schema`.
  *
- * @param  {Transform} transform
- * @return {Transform} transform
+ * @param {Transform} transform
+ * @param {Node|String} key
+ * @param {Schema} schema
+ * @return {Transform}
  */
 
-function normalizeDocument(transform) {
-  return transform.normalizeWith(_schema2.default);
-}
-
-/**
- * Normalize a node and its children using core schema
- *
- * @param  {Transform} transform
- * @param  {Node or String} key
- * @return {Transform} transform
- */
-
-function normalizeNodeByKey(transform, key) {
+function normalizeParentsByKey(transform, key, schema) {
+  assertSchema(schema);
   key = _normalize2.default.key(key);
+
+  // If the schema has no validation rules, there's nothing to normalize.
+  if (!schema.hasValidators) {
+    return transform;
+  }
+
   var state = transform.state;
   var document = state.document;
 
-  var node = document.key == key ? document : document.assertDescendant(key);
+  var node = document.assertNode(key);
 
-  transform.normalizeNodeWith(_schema2.default, node);
-  return transform;
-}
-
-/**
- * Normalize a node and its parent using core schema
- *
- * @param  {Transform} transform
- * @param  {Node or String} key
- * @return {Transform} transform
- */
-
-function normalizeParentsByKey(transform, key) {
-  key = _normalize2.default.key(key);
-  var state = transform.state;
-  var document = state.document;
-
-  var node = document.key == key ? document : document.assertDescendant(key);
-
-  transform.normalizeParentsWith(_schema2.default, node);
+  normalizeParentsWith(transform, node, schema);
   return transform;
 }
 
 /**
  * Normalize only the selection.
  *
- * @param  {Transform} transform
- * @return {Transform} transform
+ * @param {Transform} transform
+ * @return {Transform}
  */
 
 function normalizeSelection(transform) {
@@ -18922,9 +19007,11 @@ function normalizeSelection(transform) {
 
   selection = selection.normalize(document);
 
-  // If the selection is nulled (not normal)
+  // If the selection is unset, or the anchor or focus key in the selection are
+  // pointing to nodes that no longer exist, warn and reset the selection.
   if (selection.isUnset || !document.hasDescendant(selection.anchorKey) || !document.hasDescendant(selection.focusKey)) {
-    (0, _warning2.default)('Selection was invalid and reset to start of the document');
+    (0, _warn2.default)('The selection was invalid and was reset to start of the document. The selection in question was:', selection);
+
     var firstText = document.getFirstText();
     selection = selection.merge({
       anchorKey: firstText.key,
@@ -18941,90 +19028,164 @@ function normalizeSelection(transform) {
 }
 
 /**
- * Refresh a reference to a node that have been modified in a transform.
- * @param  {Transform} transform
- * @param  {Node} node
- * @return {Node} newNode
+ * Normalize a `node` and its children with a `schema`.
+ *
+ * @param {Transform} transform
+ * @param {Node} node
+ * @param {Schema} schema
+ * @return {Transform}
  */
 
-function refreshNode(transform, node) {
-  var state = transform.state;
-  var document = state.document;
+function normalizeNodeWith(transform, node, schema) {
+  // For performance considerations, we will check if the transform was changed.
+  var opCount = transform.operations.length;
 
-  if (node.kind == 'document') {
-    return document;
+  // Iterate over its children.
+  normalizeChildrenWith(transform, node, schema);
+
+  // Re-find the node reference if necessary.
+  if (transform.operations.length != opCount) {
+    node = refindNode(transform, node);
   }
 
-  return document.getDescendant(node.key);
+  // Now normalize the node itself if it still exists.
+  if (node) {
+    normalizeNodeOnly(transform, node, schema);
+  }
+
+  return transform;
 }
 
 /**
- * Normalize all children of a node
- * @param  {Transform} transform
- * @param  {Schema} schema
- * @param  {Node} node
- * @return {Transform} transform
+ * Normalize a `node` and its parents with a `schema`.
+ *
+ * @param {Transform} transform
+ * @param {Node} node
+ * @param {Schema} schema
+ * @return {Transform}
  */
 
-function normalizeChildrenWith(transform, schema, node) {
-  if (node.kind == 'text') {
+function normalizeParentsWith(transform, node, schema) {
+  normalizeNodeOnly(transform, node, schema);
+
+  // Normalize went back up to the very top of the document.
+  if (node.kind == 'document') {
     return transform;
   }
 
-  return node.nodes.reduce(function (t, child) {
-    return t.normalizeNodeWith(schema, child);
-  }, transform);
+  // Re-find the node first.
+  node = refindNode(transform, node);
+
+  if (!node) {
+    return transform;
+  }
+
+  var state = transform.state;
+  var document = state.document;
+
+  var parent = document.getParent(node.key);
+
+  return normalizeParentsWith(transform, parent, schema);
 }
 
 /**
- * Normalize a node, but not its children
+ * Re-find a reference to a node that may have been modified or removed
+ * entirely by a transform.
  *
- * @param  {Transform} transform
- * @param  {Schema} schema
- * @param  {Node} node
- * @return {Transform} transform
+ * @param {Transform} transform
+ * @param {Node} node
+ * @return {Node}
  */
 
-function normalizeNodeOnly(transform, schema, node) {
-  var recursiveCount = 0;
+function refindNode(transform, node) {
+  var state = transform.state;
+  var document = state.document;
 
-  // Auxiliary function, called recursively, with a maximum calls safety net.
-  function _recur(_transform, _node) {
-    // _node.validate should be memoized
-    var failure = _node.validate(schema);
+  return node.kind == 'document' ? document : document.getDescendant(node.key);
+}
 
-    // Node is valid?
-    if (!failure) {
-      return _transform;
-    }
+/**
+ * Normalize the children of a `node` with a `schema`.
+ *
+ * @param {Transform} transform
+ * @param {Node} node
+ * @param {Schema} schema
+ * @return {Transform}
+ */
+
+function normalizeChildrenWith(transform, node, schema) {
+  if (node.kind == 'text') return transform;
+
+  node.nodes.forEach(function (child) {
+    normalizeNodeWith(transform, child, schema);
+  });
+
+  return transform;
+}
+
+/**
+ * Normalize a `node` with a `schema`, but not its children.
+ *
+ * @param {Transform} transform
+ * @param {Node} node
+ * @param {Schema} schema
+ * @return {Transform}
+ */
+
+function normalizeNodeOnly(transform, node, schema) {
+  var max = schema.rules.length;
+  var iterations = 0;
+
+  function iterate(t, n) {
+    var failure = n.validate(schema);
+    if (!failure) return t;
 
     var value = failure.value,
         rule = failure.rule;
 
-    // Normalize and get the new state
+    // Rule the `normalize` function for the rule with the invalid value.
 
-    rule.normalize(_transform, _node, value);
+    rule.normalize(t, n, value);
 
-    // Search for the updated node in the new state
-    var newNode = refreshNode(_transform, _node);
+    // Re-find the node reference, in case it was updated. If the node no longer
+    // exists, we're done for this branch.
+    n = refindNode(t, n);
+    if (!n) return t;
 
-    // Node no longer exist, go back to normalize parents
-    if (!newNode) {
-      return _transform;
+    // Increment the iterations counter, and check to make sure that we haven't
+    // exceeded the max. Without this check, it's easy for the `validate` or
+    // `normalize` function of a schema rule to be written incorrectly and for
+    // an infinite invalid loop to occur.
+    iterations++;
+
+    if (iterations > max) {
+      throw new Error('A schema rule could not be validated after sufficient iterations. This is usually due to a `rule.validate` or `rule.normalize` function of a schema being incorrectly written, causing an infinite loop.');
     }
 
-    recursiveCount++;
-    if (recursiveCount > MAX_CALLS) {
-      throw new Error('Unexpected number of successive normalizations. Aborting.');
-    }
-
-    return _recur(_transform, newNode);
+    // Otherwise, iterate again.
+    return iterate(t, n);
   }
 
-  return _recur(transform, node);
+  return iterate(transform, node);
 }
 
-},{"../plugins/schema":61,"../utils/normalize":82,"../utils/warning":87}],72:[function(require,module,exports){
+/**
+ * Assert that a `schema` exists.
+ *
+ * @param {Schema} schema
+ */
+
+function assertSchema(schema) {
+  if (schema instanceof _schema2.default) return;
+
+  if (schema == null) {
+    throw new Error('You must pass a `schema` object.');
+  } else {
+    throw new Error('You passed an invalid `schema` object: ' + schema + '.');
+  }
+}
+
+},{"../models/schema":55,"../utils/normalize":82,"../utils/warn":87}],72:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -19225,8 +19386,8 @@ function collapseToAnchor(transform) {
 }
 
 /**
- * Move the anchor point to the
- *  focus point.
+ * Move the start point to the end point.
+ *
  * @param {Transform} transform
  * @return {Transform}
  */
@@ -19240,8 +19401,8 @@ function collapseToEnd(transform) {
 }
 
 /**
- * Move the anchor point to the
- *  focus point.
+ * Move the anchor point to the focus point.
+ *
  * @param {Transform} transform
  * @return {Transform}
  */
@@ -19255,7 +19416,7 @@ function collapseToFocus(transform) {
 }
 
 /**
- * Move the focus point to the anchor point.
+ * Move the end point to the start point.
  *
  * @param {Transform} transform
  * @return {Transform}
@@ -19609,8 +19770,7 @@ function moveTo(transform, properties) {
 
 function moveToOffsets(transform, anchor, fokus) {
   var state = transform.state;
-  var document = state.document,
-      selection = state.selection;
+  var selection = state.selection;
 
   var sel = selection.moveToOffsets(anchor, fokus);
   return transform.setSelectionOperation(sel);
@@ -19746,7 +19906,7 @@ function insertNodeOperation(transform, path, index, node) {
  * @param {Array} path
  * @param {Number} offset
  * @param {String} text
- * @param {Set} marks (optional)
+ * @param {Set<Mark>} marks (optional)
  * @return {Transform}
  */
 
@@ -19827,8 +19987,6 @@ function joinNodeOperation(transform, path, withPath) {
  */
 
 function moveNodeOperation(transform, path, newPath, newIndex) {
-  var state = transform.state;
-
   var parentPath = path.slice(0, -1);
   var parentIndex = path[path.length - 1];
   var inversePath = newPath.slice().concat([newIndex]);
@@ -20006,7 +20164,7 @@ function setMarkOperation(transform, path, offset, length, mark, newMark) {
  *
  * @param {Transform} transform
  * @param {Array} path
- * @param {Object || String} properties
+ * @param {Object} properties
  * @return {Transform}
  */
 
@@ -20153,7 +20311,7 @@ Object.defineProperty(exports, "__esModule", {
  * Find the DOM node for a `node`.
  *
  * @param {Node} node
- * @return {Element} el
+ * @return {Element}
  */
 
 function findDOMNode(node) {
@@ -20168,6 +20326,8 @@ function findDOMNode(node) {
 
 /**
  * Export.
+ *
+ * @type {Function}
  */
 
 exports.default = findDOMNode;
@@ -20219,6 +20379,8 @@ function setKeyGenerator(func) {
 
 /**
  * Export.
+ *
+ * @type {Object}
  */
 
 exports.default = generateKey;
@@ -20235,7 +20397,7 @@ Object.defineProperty(exports, "__esModule", {
  * Get leaf text for a node
  *
  * @param {Node} node
- * @return {Text} text
+ * @return {Text}
  */
 
 function getLeafText(node) {
@@ -20267,7 +20429,7 @@ Object.defineProperty(exports, "__esModule", {
  * @param {Number} index
  * @param {Text} text
  * @param {Selection} range
- * @return {Set} characters
+ * @return {Boolean}
  */
 
 function isInRange(index, text, range) {
@@ -20342,14 +20504,20 @@ function _interopRequireDefault(obj) {
 }
 
 /**
- * This module serves to memoize methods on immutable instances.
+ * GLOBAL: True if memoization should is enabled. Only effective in DEV mode.
+ *
+ * @type {Boolean}
  */
 
-// Global: True if memoization should is enabled. Only effective in DEV mode
 var ENABLED = true;
 
-// Global: Changing this cache key will clear all previous cached
-// results. Only effective in DEV mode
+/**
+ * GLOBAL: Changing this cache key will clear all previous cached results.
+ * Only effective in DEV mode.
+ *
+ * @type {Number}
+ */
+
 var CACHE_KEY = 0;
 
 /**
@@ -20373,6 +20541,8 @@ var UNDEFINED = {};
 
 /**
  * Default value for unset keys in native Maps
+ *
+ * @type {Undefined}
  */
 
 var UNSET = undefined;
@@ -20452,9 +20622,9 @@ function memoize(object, properties) {
 /**
  * Set a value at a key path in a tree of Map, creating Maps on the go.
  *
- * @param{Map} map
- * @param{Array} keys
- * @param{Any} value
+ * @param {Map} map
+ * @param {Array} keys
+ * @param {Any} value
  * @return {Map}
  */
 
@@ -20473,17 +20643,16 @@ function setIn(map, keys, value) {
 
       childMap = parentMap.get(key);
 
+      // If the path was not created yet...
       if (childMap === UNSET) {
-        // This path was not created yet
         childMap = new _es6Map2.default();
         parentMap.set(key, childMap);
       }
 
       parentMap = childMap;
     }
-    // The whole map path was created
 
-    // Set the value to the bottom most map
+    // The whole path has been created, so set the value to the bottom most map.
   } catch (err) {
     _didIteratorError2 = true;
     _iteratorError2 = err;
@@ -20506,12 +20675,13 @@ function setIn(map, keys, value) {
 
 /**
  * Get a value at a key path in a tree of Map.
- * If not set, returns UNSET.
- * If the set value is undefined, returns UNDEFINED
  *
- * @param{Map} map
- * @param{Array} keys
- * @return {Any | UNSET | UNDEFINED}
+ * If not set, returns UNSET.
+ * If the set value is undefined, returns UNDEFINED.
+ *
+ * @param {Map} map
+ * @param {Array} keys
+ * @return {Any|UNSET|UNDEFINED}
  */
 
 function getIn(map, keys) {
@@ -20525,10 +20695,11 @@ function getIn(map, keys) {
       var key = _step3.value;
 
       childMap = map.get(key);
+
       if (childMap === UNSET) {
-        // Not found
         return UNSET;
       }
+
       map = childMap;
     }
   } catch (err) {
@@ -20551,6 +20722,7 @@ function getIn(map, keys) {
 
 /**
  * In DEV mode, clears the previously memoized values, globally.
+ *
  * @return {Void}
  */
 
@@ -20563,6 +20735,7 @@ function __clear() {
 
 /**
  * In DEV mode, enable or disable the use of memoize values, globally.
+ *
  * @param {Boolean} enabled
  * @return {Void}
  */
@@ -20573,6 +20746,8 @@ function __enable(enabled) {
 
 /**
  * Export.
+ *
+ * @type {Object}
  */
 
 exports.default = memoize;
@@ -20589,13 +20764,15 @@ Object.defineProperty(exports, "__esModule", {
 /**
  * Noop.
  *
- * @return {Undefined}
+ * @return {Void}
  */
 
 function noop() {}
 
 /**
  * Export.
+ *
+ * @type {Function}
  */
 
 exports.default = noop;
@@ -20635,9 +20812,9 @@ var _text = require('../models/text');
 
 var _text2 = _interopRequireDefault(_text);
 
-var _warning = require('./warning');
+var _warn = require('./warn');
 
-var _warning2 = _interopRequireDefault(_warning);
+var _warn2 = _interopRequireDefault(_warn);
 
 var _typeOf = require('type-of');
 
@@ -20650,7 +20827,7 @@ function _interopRequireDefault(obj) {
 /**
  * Normalize a block argument `value`.
  *
- * @param {Block || String || Object} value
+ * @param {Block|String|Object} value
  * @return {Block}
  */
 
@@ -20670,7 +20847,7 @@ function block(value) {
 /**
  * Normalize an inline argument `value`.
  *
- * @param {Inline || String || Object} value
+ * @param {Inline|String|Object} value
  * @return {Inline}
  */
 
@@ -20690,14 +20867,14 @@ function inline(value) {
 /**
  * Normalize a key argument `value`.
  *
- * @param {String || Node} value
+ * @param {String|Node} value
  * @return {String}
  */
 
 function key(value) {
   if ((0, _typeOf2.default)(value) == 'string') return value;
 
-  (0, _warning2.default)('Deprecation: Passing a node instead of a key to a method accepting a key can reduce performances');
+  (0, _warn2.default)('An object was passed to a Node method instead of a `key` string. This was previously supported, but is being deprecated because it can have a negative impact on performance. The object in question was:', value);
   if (value instanceof _block2.default) return value.key;
   if (value instanceof _document2.default) return value.key;
   if (value instanceof _inline2.default) return value.key;
@@ -20709,7 +20886,7 @@ function key(value) {
 /**
  * Normalize a mark argument `value`.
  *
- * @param {Mark || String || Object} value
+ * @param {Mark|String|Object} value
  * @return {Mark}
  */
 
@@ -20729,7 +20906,7 @@ function mark(value) {
 /**
  * Normalize a mark properties argument `value`.
  *
- * @param {String || Object || Mark} value
+ * @param {String|Object|Mark} value
  * @return {Object}
  */
 
@@ -20763,7 +20940,7 @@ function markProperties() {
 /**
  * Normalize a node properties argument `value`.
  *
- * @param {String || Object || Node} value
+ * @param {String|Object|Node} value
  * @return {Object}
  */
 
@@ -20798,7 +20975,7 @@ function nodeProperties() {
 /**
  * Normalize a selection argument `value`.
  *
- * @param {Selection || Object} value
+ * @param {Selection|Object} value
  * @return {Selection}
  */
 
@@ -20817,7 +20994,7 @@ function selection(value) {
 /**
  * Normalize a selection properties argument `value`.
  *
- * @param {Object || Selection} value
+ * @param {Object|Selection} value
  * @return {Object}
  */
 
@@ -20861,7 +21038,7 @@ exports.default = {
   selectionProperties: selectionProperties
 };
 
-},{"../models/block":47,"../models/data":49,"../models/document":50,"../models/inline":51,"../models/mark":52,"../models/selection":56,"../models/text":58,"./warning":87,"type-of":1506}],83:[function(require,module,exports){
+},{"../models/block":47,"../models/data":49,"../models/document":50,"../models/inline":51,"../models/mark":52,"../models/selection":56,"../models/text":58,"./warn":87,"type-of":1506}],83:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -20896,22 +21073,33 @@ var _slicedToArray = function () {
 
 /**
  * Offset key parser regex.
+ *
+ * @type {RegExp}
  */
 
 var PARSER = /^(\w+)(?:-(\d+))?$/;
 
 /**
  * Offset key attribute name.
+ *
+ * @type {String}
  */
 
 var ATTRIBUTE = 'data-offset-key';
+
+/**
+ * Offset key attribute selector.
+ *
+ * @type {String}
+ */
+
 var SELECTOR = '[' + ATTRIBUTE + ']';
 
 /**
  * Find the start and end bounds from an `offsetKey` and `ranges`.
  *
  * @param {Number} index
- * @param {List} ranges
+ * @param {List<Range>} ranges
  * @return {Object}
  */
 
@@ -20992,7 +21180,7 @@ function findKey(element, offset) {
  * Find the selection point from an `offsetKey` and `ranges`.
  *
  * @param {Object} offsetKey
- * @param {List} ranges
+ * @param {List<Range>} ranges
  * @return {Object}
  */
 
@@ -21035,7 +21223,8 @@ function parse(string) {
   var _matches = _slicedToArray(matches, 3),
       original = _matches[0],
       key = _matches[1],
-      index = _matches[2];
+      index = _matches[2]; // eslint-disable-line no-unused-vars
+
 
   return {
     key: key,
@@ -21058,6 +21247,8 @@ function stringify(object) {
 
 /**
  * Export.
+ *
+ * @type {Object}
  */
 
 exports.default = {
@@ -21205,7 +21396,7 @@ function isSurrogate(code) {
  * Is a character a word character? Needs the `remaining` characters too.
  *
  * @param {String} char
- * @param {String || Void} remaining
+ * @param {String|Void} remaining
  * @return {Boolean}
  */
 
@@ -21275,23 +21466,6 @@ function getCharOffsetForward(text, offset) {
 }
 
 /**
- * Get the length of a `string`.
- *
- * @param {String} string
- * @return {Number}
- */
-
-function getLength(string) {
-  var length = 0;
-
-  for (var i = 0, char = string.charAt(i); i < string.length; i += getCharLength(char)) {
-    length++;
-  }
-
-  return length;
-}
-
-/**
  * Get the offset to the end of the first word in `text`.
  *
  * @param {String} text
@@ -21352,6 +21526,8 @@ function getWordOffsetForward(text, offset) {
 
 /**
  * Export.
+ *
+ * @type {Object}
  */
 
 exports.default = {
@@ -21489,7 +21665,7 @@ var Transfer = function () {
     /**
      * Get the Files content of the data transfer.
      *
-     * @return {Array || Void}
+     * @return {Array|Void}
      */
 
   }, {
@@ -21541,7 +21717,8 @@ var Transfer = function () {
 
         var _matches = _slicedToArray(matches, 2),
             full = _matches[0],
-            attribute = _matches[1];
+            attribute = _matches[1]; // eslint-disable-line no-unused-vars
+
 
         encoded = attribute;
       }
@@ -21557,7 +21734,7 @@ var Transfer = function () {
     /**
      * Get the HTML content of the data transfer.
      *
-     * @return {String || Void}
+     * @return {String|Void}
      */
 
   }, {
@@ -21577,7 +21754,7 @@ var Transfer = function () {
     /**
      * Get the Slate node content of the data transfer.
      *
-     * @return {Node || Void}
+     * @return {Node|Void}
      */
 
   }, {
@@ -21599,7 +21776,7 @@ var Transfer = function () {
     /**
      * Get the text content of the data transfer.
      *
-     * @return {String || Void}
+     * @return {String|Void}
      */
 
   }, {
@@ -21699,6 +21876,8 @@ var Transfer = function () {
 
 /**
  * Export.
+ *
+ * @type {Transfer}
  */
 
 exports.default = Transfer;
@@ -21709,7 +21888,6 @@ exports.default = Transfer;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.default = warning;
 
 var _isDev = require('../constants/is-dev');
 
@@ -21721,10 +21899,12 @@ function _interopRequireDefault(obj) {
 
 /**
  * Log a development warning.
+ *
  * @param {String} message
+ * @param {Any} ...args
  */
 
-function warning(message) {
+function warn(message) {
   if (!_isDev2.default) {
     return;
   }
@@ -21732,22 +21912,30 @@ function warning(message) {
   if (typeof console !== 'undefined') {
     var _console;
 
-    for (var _len = arguments.length, more = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-      more[_key - 1] = arguments[_key];
+    for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+      args[_key - 1] = arguments[_key];
     }
 
-    (_console = console).error.apply(_console, ['Warning: ' + message].concat(more)); // eslint-disable-line no-console
+    (_console = console).warn.apply(_console, ['Warning: ' + message].concat(args)); // eslint-disable-line no-console
   }
 
   try {
-    // --- Welcome to debugging Slate ---
+    // --- Welcome to debugging Slate! ---
     // This error was thrown as a convenience so that you can use this stack
     // to find the callsite that caused this warning to fire.
     throw new Error(message);
   } catch (x) {
-    // This error is only for debugging
+    // This error is only for debugging.
   }
 }
+
+/**
+ * Export.
+ *
+ * @type {Function}
+ */
+
+exports.default = warn;
 
 },{"../constants/is-dev":44}],88:[function(require,module,exports){
 'use strict'
