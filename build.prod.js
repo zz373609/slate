@@ -6292,7 +6292,10 @@ var Editor = function (_React$Component) {
     _this.state = {};
     _this.state.plugins = _this.resolvePlugins(props);
     _this.state.schema = _this.resolveSchema(_this.state.plugins);
-    _this.state.state = _this.onBeforeChange(props.state);
+
+    var state = _this.onBeforeChange(props.state);
+    _this.cacheState(state);
+    _this.state.state = state;
 
     // Mix in the event handlers.
     var _iteratorNormalCompletion = true;
@@ -6343,6 +6346,13 @@ var Editor = function (_React$Component) {
    * Default properties.
    *
    * @type {Object}
+   */
+
+  /**
+   * Cache a `state` in memory to be able to compare against it later, for
+   * things like `onDocumentChange`.
+   *
+   * @param {State} state
    */
 
   /**
@@ -6459,9 +6469,14 @@ var _initialiseProps = function _initialiseProps() {
       _this2.setState({ schema: _schema });
     }
 
-    _this2.setState({
-      state: _this2.onBeforeChange(props.state)
-    });
+    var state = _this2.onBeforeChange(props.state);
+    _this2.cacheState(state);
+    _this2.setState({ state: state });
+  };
+
+  this.cacheState = function (state) {
+    _this2.tmp.document = state.document;
+    _this2.tmp.selection = state.selection;
   };
 
   this.blur = function () {
@@ -6553,13 +6568,13 @@ var _initialiseProps = function _initialiseProps() {
 
     if (state.document != _this2.tmp.document) {
       _this2.props.onDocumentChange(state.document, state);
-      _this2.tmp.document = state.document;
     }
 
     if (state.selection != _this2.tmp.selection) {
       _this2.props.onSelectionChange(state.selection, state);
-      _this2.tmp.selection = state.selection;
     }
+
+    _this2.cacheState(state);
   };
 
   this.onEvent = function (name) {
@@ -7398,13 +7413,14 @@ var _initialiseProps = function _initialiseProps() {
       return true;
     }
 
-    // If the node has changed, update.
+    // If the node has changed, update. PERF: There are certain cases where the
+    // node instance will have changed, but it's properties will be exactly the
+    // same (copy-paste, delete backwards, etc.) in which case this will not
+    // catch a potentially avoidable re-render. But those cases are rare enough
+    // that they aren't really a drag on performance, so for simplicity we just
+    // let them through.
     if (nextProps.node != _this2.props.node) {
-      if (!_isDev2.default || !_immutable2.default.is(nextProps.node, _this2.props.node)) {
-        return true;
-      } else {
-        (0, _warn2.default)('A new immutable Node instance was encountered with an identical structure to the previous instance. This is usually a mistake and can impact performance. Make sure to preserve immutable references when nothing has changed. The node in question was:', nextProps.node);
-      }
+      return true;
     }
 
     var nextHasEdgeIn = nextProps.state.selection.hasEdgeIn(nextProps.node);
