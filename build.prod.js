@@ -5730,9 +5730,10 @@ var _initialiseProps = function _initialiseProps() {
   };
 
   this.isInContentEditable = function (event) {
+    var element = _this2.element;
     var target = event.target;
 
-    return target.isContentEditable && target === _this2.element;
+    return target.isContentEditable && (target === element || target.closest('[contenteditable]') == element);
   };
 
   this.onBeforeInput = function (e) {
@@ -20100,16 +20101,20 @@ function removeTextOperation(transform, path, offset, length) {
   var ranges = node.getRanges();
   var inverse = [];
 
+  // Loop the ranges of text in the node, creating inverse insert operations for
+  // each of the ranges that overlap with the remove operation. This is
+  // necessary because insert's can only have a single set of marks associated
+  // with them, but removes can remove many.
   ranges.reduce(function (start, range) {
     var text = range.text,
         marks = range.marks;
 
     var end = start + text.length;
-    if (start > offset + length) return;
-    if (end <= offset) return;
+    if (start > offset + length) return end;
+    if (end <= offset) return end;
 
     var endOffset = Math.min(end, offset + length);
-    var string = text.slice(offset, endOffset);
+    var string = text.slice(offset - start, endOffset - start);
 
     inverse.push({
       type: 'insert_text',
