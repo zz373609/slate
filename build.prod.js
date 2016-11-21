@@ -5545,6 +5545,21 @@ var Content = function (_React$Component) {
     }
 
     /**
+     * The React ref method to set the root content element locally.
+     *
+     * @param {Element} n
+     */
+
+    /**
+     * Check if an `event` is being fired from within the contenteditable element.
+     * This will return false for edits happening in non-contenteditable children,
+     * such as void nodes and other nested Slate editors.
+     *
+     * @param {Event} event
+     * @return {Boolean}
+     */
+
+    /**
      * On before input, bubble up.
      *
      * @param {Event} e
@@ -5657,11 +5672,9 @@ var Content = function (_React$Component) {
 }(_react2.default.Component);
 
 /**
- * Check if an `event` is being fired from inside a non-contentediable child
- * element, in which case we'll want to ignore it.
+ * Export.
  *
- * @param {Event} event
- * @return {Boolean}
+ * @type {Component}
  */
 
 Content.propTypes = {
@@ -5712,9 +5725,19 @@ var _initialiseProps = function _initialiseProps() {
     }
   };
 
+  this.ref = function (element) {
+    _this2.element = element;
+  };
+
+  this.isInContentEditable = function (event) {
+    var target = event.target;
+
+    return target.isContentEditable && target === _this2.element;
+  };
+
   this.onBeforeInput = function (e) {
     if (_this2.props.readOnly) return;
-    if (isNonEditable(e)) return;
+    if (!_this2.isInContentEditable(e)) return;
 
     var data = {};
 
@@ -5725,7 +5748,7 @@ var _initialiseProps = function _initialiseProps() {
   this.onBlur = function (e) {
     if (_this2.props.readOnly) return;
     if (_this2.tmp.isCopying) return;
-    if (isNonEditable(e)) return;
+    if (!_this2.isInContentEditable(e)) return;
 
     var data = {};
 
@@ -5739,7 +5762,7 @@ var _initialiseProps = function _initialiseProps() {
   };
 
   this.onCompositionStart = function (e) {
-    if (isNonEditable(e)) return;
+    if (!_this2.isInContentEditable(e)) return;
 
     _this2.tmp.isComposing = true;
     _this2.tmp.compositions++;
@@ -5748,7 +5771,7 @@ var _initialiseProps = function _initialiseProps() {
   };
 
   this.onCompositionEnd = function (e) {
-    if (isNonEditable(e)) return;
+    if (!_this2.isInContentEditable(e)) return;
 
     _this2.forces++;
     var count = _this2.tmp.compositions;
@@ -5765,7 +5788,7 @@ var _initialiseProps = function _initialiseProps() {
   };
 
   this.onCopy = function (e) {
-    if (isNonEditable(e)) return;
+    if (!_this2.isInContentEditable(e)) return;
     var window = (0, _getWindow2.default)(e.target);
 
     _this2.tmp.isCopying = true;
@@ -5785,7 +5808,7 @@ var _initialiseProps = function _initialiseProps() {
 
   this.onCut = function (e) {
     if (_this2.props.readOnly) return;
-    if (isNonEditable(e)) return;
+    if (!_this2.isInContentEditable(e)) return;
     var window = (0, _getWindow2.default)(e.target);
 
     _this2.tmp.isCopying = true;
@@ -5804,7 +5827,7 @@ var _initialiseProps = function _initialiseProps() {
   };
 
   this.onDragEnd = function (e) {
-    if (isNonEditable(e)) return;
+    if (!_this2.isInContentEditable(e)) return;
 
     _this2.tmp.isDragging = false;
     _this2.tmp.isInternalDrag = null;
@@ -5813,7 +5836,7 @@ var _initialiseProps = function _initialiseProps() {
   };
 
   this.onDragOver = function (e) {
-    if (isNonEditable(e)) return;
+    if (!_this2.isInContentEditable(e)) return;
 
     var dataTransfer = e.nativeEvent.dataTransfer;
 
@@ -5832,7 +5855,7 @@ var _initialiseProps = function _initialiseProps() {
   };
 
   this.onDragStart = function (e) {
-    if (isNonEditable(e)) return;
+    if (!_this2.isInContentEditable(e)) return;
 
     _this2.tmp.isDragging = true;
     _this2.tmp.isInternalDrag = true;
@@ -5854,7 +5877,7 @@ var _initialiseProps = function _initialiseProps() {
 
   this.onDrop = function (e) {
     if (_this2.props.readOnly) return;
-    if (isNonEditable(e)) return;
+    if (!_this2.isInContentEditable(e)) return;
 
     e.preventDefault();
 
@@ -5908,7 +5931,7 @@ var _initialiseProps = function _initialiseProps() {
   this.onInput = function (e) {
     if (_this2.tmp.isComposing) return;
     if (_this2.props.state.isBlurred) return;
-    if (isNonEditable(e)) return;
+    if (!_this2.isInContentEditable(e)) return;
     debug('onInput');
 
     var window = (0, _getWindow2.default)(e.target);
@@ -5978,7 +6001,7 @@ var _initialiseProps = function _initialiseProps() {
 
   this.onKeyDown = function (e) {
     if (_this2.props.readOnly) return;
-    if (isNonEditable(e)) return;
+    if (!_this2.isInContentEditable(e)) return;
 
     var key = (0, _keycode2.default)(e.which);
     var data = {};
@@ -6016,7 +6039,7 @@ var _initialiseProps = function _initialiseProps() {
 
   this.onPaste = function (e) {
     if (_this2.props.readOnly) return;
-    if (isNonEditable(e)) return;
+    if (!_this2.isInContentEditable(e)) return;
 
     e.preventDefault();
     var transfer = new _transfer2.default(e.clipboardData);
@@ -6030,7 +6053,7 @@ var _initialiseProps = function _initialiseProps() {
     if (_this2.props.readOnly) return;
     if (_this2.tmp.isCopying) return;
     if (_this2.tmp.isComposing) return;
-    if (isNonEditable(e)) return;
+    if (!_this2.isInContentEditable(e)) return;
 
     var window = (0, _getWindow2.default)(e.target);
     var state = _this2.props.state;
@@ -6109,6 +6132,7 @@ var _initialiseProps = function _initialiseProps() {
 
     return _react2.default.createElement('div', {
       key: _this2.forces,
+      ref: _this2.ref,
       contentEditable: !readOnly,
       suppressContentEditableWarning: true,
       className: className,
@@ -6148,18 +6172,6 @@ var _initialiseProps = function _initialiseProps() {
     });
   };
 };
-
-function isNonEditable(event) {
-  var target = event.target;
-
-  return !target.isContentEditable;
-}
-
-/**
- * Export.
- *
- * @type {Component}
- */
 
 exports.default = Content;
 
@@ -21771,6 +21783,26 @@ var Transfer = function () {
     }
 
     /**
+     * Get the rich text content of the data transfer.
+     *
+     * @return {String|Void}
+     */
+
+  }, {
+    key: 'getRichText',
+    value: function getRichText() {
+      if ('richtext' in this.cache) return this.cache.richtext;
+
+      var richtext = void 0;
+      var string = this.data.getData('text/rtf');
+
+      if (string != '') richtext = string;
+
+      this.cache.richtext = richtext;
+      return richtext;
+    }
+
+    /**
      * Get the text content of the data transfer.
      *
      * @return {String|Void}
@@ -21801,6 +21833,14 @@ var Transfer = function () {
     value: function getType() {
       if (this.hasFragment()) return 'fragment';
       if (this.hasNode()) return 'node';
+
+      // COMPAT: Microsoft Word adds an image of the selected text to the data.
+      // Since files are preferred over HTML or text, this would cause the type to
+      // be considered `files`. But it also adds rich text data so we can check
+      // for that and properly set the type to `html` or `text`. (2016/11/21)
+      if (this.hasRichText() && this.hasHtml()) return 'html';
+      if (this.hasRichText() && this.hasText()) return 'text';
+
       if (this.hasFiles()) return 'files';
       if (this.hasHtml()) return 'html';
       if (this.hasText()) return 'text';
@@ -21829,6 +21869,18 @@ var Transfer = function () {
     key: 'hasHtml',
     value: function hasHtml() {
       return this.getHtml() != null;
+    }
+
+    /**
+     * Check whether the data transfer has rich text content.
+     *
+     * @return {Boolean}
+     */
+
+  }, {
+    key: 'hasRichText',
+    value: function hasRichText() {
+      return this.getRichText() != null;
     }
 
     /**
@@ -27782,7 +27834,11 @@ function useColors() {
  */
 
 exports.formatters.j = function(v) {
-  return JSON.stringify(v);
+  try {
+    return JSON.stringify(v);
+  } catch (err) {
+    return '[UnexpectedJSONParseError]: ' + err.message;
+  }
 };
 
 
@@ -27869,15 +27925,13 @@ function save(namespaces) {
 function load() {
   var r;
   try {
-    r = exports.storage.debug;
+    return exports.storage.debug;
   } catch(e) {}
 
   // If debug isn't set in LS, and we're in Electron, try to load $DEBUG
-  if ('env' in (typeof process === 'undefined' ? {} : process)) {
-    r = process.env.DEBUG;
+  if (typeof process !== 'undefined' && 'env' in process) {
+    return process.env.DEBUG;
   }
-  
-  return r;
 }
 
 /**
