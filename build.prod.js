@@ -16095,20 +16095,19 @@ function joinNode(state, operation) {
   var first = document.assertPath(withPath);
   var second = document.assertPath(path);
 
-  // Update doc
   document = document.joinNode(first, second, { deep: deep });
 
-  // Update selection if we merged two texts together
+  // If the operation is deep, or the nodes are text nodes, it means we will be
+  // merging two text nodes together, so we need to update the selection.
   if (deep || second.kind == 'text') {
-    var firstText = deep ? first.getLastText() : first;
-    var secondText = deep ? second.getFirstText() : second;
-
     var _selection2 = selection,
         anchorKey = _selection2.anchorKey,
         anchorOffset = _selection2.anchorOffset,
         focusKey = _selection2.focusKey,
         focusOffset = _selection2.focusOffset;
-    // The final key is the `first` key
+
+    var firstText = first.kind == 'text' ? first : first.getLastText();
+    var secondText = second.kind == 'text' ? second : second.getFirstText();
 
     if (anchorKey == secondText.key) {
       selection = selection.merge({
@@ -16116,6 +16115,7 @@ function joinNode(state, operation) {
         anchorOffset: anchorOffset + firstText.characters.size
       });
     }
+
     if (focusKey == secondText.key) {
       selection = selection.merge({
         focusKey: firstText.key,
@@ -16649,29 +16649,32 @@ function insertFragment(transform, fragment) {
 
   if (!fragment.length) return transform;
 
+  var _state3 = state,
+      startText = _state3.startText,
+      endText = _state3.endText;
+
   var lastText = fragment.getLastText();
   var lastInline = fragment.getClosestInline(lastText.key);
-  var beforeTexts = document.getTexts();
-  var appending = selection.hasEdgeAtEndOf(document.getDescendant(selection.endKey));
+  var keys = document.getTexts().map(function (text) {
+    return text.key;
+  });
+  var isAppending = selection.hasEdgeAtEndOf(endText) || selection.hasEdgeAtStartOf(startText);
 
   transform.unsetSelection();
   transform.insertFragmentAtRange(selection, fragment);
   state = transform.state;
   document = state.document;
 
-  var keys = beforeTexts.map(function (text) {
-    return text.key;
-  });
-  var news = document.getTexts().filter(function (n) {
+  var newTexts = document.getTexts().filter(function (n) {
     return !keys.includes(n.key);
   });
-  var text = appending ? news.last() : news.takeLast(2).first();
+  var newText = isAppending ? newTexts.last() : newTexts.takeLast(2).first();
   var after = void 0;
 
-  if (text && lastInline) {
-    after = selection.collapseToEndOf(text);
-  } else if (text) {
-    after = selection.collapseToStartOf(text).moveForward(lastText.length);
+  if (newText && lastInline) {
+    after = selection.collapseToEndOf(newText);
+  } else if (newText) {
+    after = selection.collapseToStartOf(newText).moveForward(lastText.length);
   } else {
     after = selection.collapseToStart().moveForward(lastText.length);
   }
@@ -16689,10 +16692,10 @@ function insertFragment(transform, fragment) {
 
 function insertInline(transform, inline) {
   var state = transform.state;
-  var _state3 = state,
-      document = _state3.document,
-      selection = _state3.selection,
-      startText = _state3.startText;
+  var _state4 = state,
+      document = _state4.document,
+      selection = _state4.selection,
+      startText = _state4.startText;
 
   var after = void 0;
 
@@ -16794,9 +16797,9 @@ function setInline(transform, properties) {
 function splitBlock(transform) {
   var depth = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
   var state = transform.state;
-  var _state4 = state,
-      document = _state4.document,
-      selection = _state4.selection;
+  var _state5 = state,
+      document = _state5.document,
+      selection = _state5.selection;
 
   transform.unsetSelection();
   transform.splitBlockAtRange(selection, depth);
@@ -16839,9 +16842,9 @@ function splitBlock(transform) {
 function splitInline(transform) {
   var depth = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : Infinity;
   var state = transform.state;
-  var _state5 = state,
-      document = _state5.document,
-      selection = _state5.selection;
+  var _state6 = state,
+      document = _state6.document,
+      selection = _state6.selection;
 
   // If the selection is expanded, remove it first.
 
@@ -16991,9 +16994,9 @@ function wrapBlock(transform, properties) {
 
 function wrapInline(transform, properties) {
   var state = transform.state;
-  var _state6 = state,
-      document = _state6.document,
-      selection = _state6.selection;
+  var _state7 = state,
+      document = _state7.document,
+      selection = _state7.selection;
 
   var after = void 0;
 
@@ -17442,19 +17445,27 @@ function insertFragmentAtRange(transform, range, fragment) {
   var _options$normalize6 = options.normalize,
       normalize = _options$normalize6 === undefined ? true : _options$normalize6;
 
+  // If the range is expanded, delete it first.
+
   if (range.isExpanded) {
     transform.deleteAtRange(range, { normalize: false });
     range = range.collapseToStart();
   }
 
+  // If the fragment is empty, there's nothing to do after deleting.
   if (!fragment.length) {
     return transform;
   }
 
+  // Regenerate the keys for all of the fragments nodes, so that they're
+  // guaranteed not to collide with the existing keys in the document. Otherwise
+  // they will be rengerated automatically and we won't have an easy way to
+  // reference them.
   fragment = fragment.mapDescendants(function (child) {
     return child.regenerateKey();
   });
 
+  // Calculate a few things...
   var _range4 = range,
       startKey = _range4.startKey,
       startOffset = _range4.startOffset;
@@ -17465,6 +17476,7 @@ function insertFragmentAtRange(transform, range, fragment) {
   var startText = document.getDescendant(startKey);
   var startBlock = document.getClosestBlock(startText.key);
   var startChild = startBlock.getHighestChild(startText.key);
+  var isAtStart = range.isAtStartOf(startBlock);
   var parent = document.getParent(startBlock.key);
   var index = parent.nodes.indexOf(startBlock);
   var offset = startChild == startText ? startOffset : startChild.getOffset(startText.key) + startOffset;
@@ -17473,6 +17485,8 @@ function insertFragmentAtRange(transform, range, fragment) {
   var firstBlock = blocks.first();
   var lastBlock = blocks.last();
 
+  // If the first and last block aren't the same, we need to insert all of the
+  // nodes after the fragment's first block at the index.
   if (firstBlock != lastBlock) {
     (function () {
       var lonelyParent = fragment.getFurthest(firstBlock.key, function (p) {
@@ -17489,19 +17503,24 @@ function insertFragmentAtRange(transform, range, fragment) {
     })();
   }
 
+  // Check if we need to split the node.
   if (startOffset != 0) {
     transform.splitNodeByKey(startChild.key, offset, { normalize: false });
   }
 
+  // Update our variables with the new state.
   state = transform.state;
   document = state.document;
   startText = document.getDescendant(startKey);
   startBlock = document.getClosestBlock(startKey);
   startChild = startBlock.getHighestChild(startText.key);
 
+  // If the first and last block aren't the same, we need to move any of the
+  // starting block's children after the split into the last block of the
+  // fragment, which has already been inserted.
   if (firstBlock != lastBlock) {
     (function () {
-      var nextChild = startBlock.getNextSibling(startChild.key);
+      var nextChild = isAtStart ? startChild : startBlock.getNextSibling(startChild.key);
       var nextNodes = nextChild ? startBlock.nodes.skipUntil(function (n) {
         return n.key == nextChild.key;
       }) : (0, _immutable.List)();
@@ -17514,22 +17533,29 @@ function insertFragmentAtRange(transform, range, fragment) {
     })();
   }
 
+  // If the starting block is empty, we replace it entirely with the first block
+  // of the fragment, since this leads to a more expected behavior for the user.
   if (startBlock.isEmpty) {
     transform.removeNodeByKey(startBlock.key, { normalize: false });
     transform.insertNodeByKey(parent.key, index, firstBlock, { normalize: false });
-  } else {
-    (function () {
-      var inlineChild = startBlock.getHighestChild(startText.key);
-      var inlineIndex = startBlock.nodes.indexOf(inlineChild);
-
-      firstBlock.nodes.forEach(function (inline, i) {
-        var o = startOffset == 0 ? 0 : 1;
-        var newIndex = inlineIndex + i + o;
-        transform.insertNodeByKey(startBlock.key, newIndex, inline, { normalize: false });
-      });
-    })();
   }
 
+  // Otherwise, we maintain the starting block, and insert all of the first
+  // block's inline nodes into it at the split point.
+  else {
+      (function () {
+        var inlineChild = startBlock.getHighestChild(startText.key);
+        var inlineIndex = startBlock.nodes.indexOf(inlineChild);
+
+        firstBlock.nodes.forEach(function (inline, i) {
+          var o = startOffset == 0 ? 0 : 1;
+          var newIndex = inlineIndex + i + o;
+          transform.insertNodeByKey(startBlock.key, newIndex, inline, { normalize: false });
+        });
+      })();
+    }
+
+  // Normalize if requested.
   if (normalize) {
     transform.normalizeNodeByKey(parent.key, _core2.default);
   }
