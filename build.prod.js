@@ -9633,6 +9633,9 @@ var Node = {
    */
 
   getCommonAncestor: function getCommonAncestor(one, two) {
+    if (one == this.key) return this;
+    if (two == this.key) return this;
+
     this.assertDescendant(one);
     this.assertDescendant(two);
     var ancestors = new _immutable.List();
@@ -10384,6 +10387,17 @@ var Node = {
   },
 
   /**
+   * Recursively check if a node exists by `key`.
+   *
+   * @param {String} key
+   * @return {Boolean}
+   */
+
+  hasNode: function hasNode(key) {
+    return !!this.getNode(key);
+  },
+
+  /**
    * Check if a node has a void parent by `key`.
    *
    * @param {String} key
@@ -10748,7 +10762,7 @@ var Node = {
  * Memoize read methods.
  */
 
-(0, _memoize2.default)(Node, ['getText', 'getAncestors', 'getBlocks', 'getBlocksAtRange', 'getCharactersAtRange', 'getChild', 'getClosestBlock', 'getClosestInline', 'getComponent', 'getDecorators', 'getDepth', '_getDescendant', 'getDescendantAtPath', 'getDescendantDecorators', 'getFirstText', 'getFragmentAtRange', 'getFurthestBlock', 'getFurthestInline', 'getHighestChild', 'getHighestOnlyChildParent', 'getInlinesAtRange', 'getLastText', 'getMarksAtRange', 'getNextBlock', 'getNextSibling', 'getNextText', 'getOffset', 'getOffsetAtRange', 'getParent', 'getPreviousBlock', 'getPreviousSibling', 'getPreviousText', 'getTextAtOffset', 'getTextDirection', '_getTexts', 'getTextsAtRange', 'hasVoidParent', 'isInlineSplitAtRange', 'validate']);
+(0, _memoize2.default)(Node, ['getText', 'getAncestors', 'getBlocks', 'getBlocksAtRange', 'getCharactersAtRange', 'getChild', 'getClosestBlock', 'getClosestInline', 'getComponent', 'getDecorators', 'getDepth', '_getDescendant', 'getDescendantAtPath', 'getDescendantDecorators', 'getFirstText', 'getFragmentAtRange', 'getFurthestBlock', 'getFurthestInline', 'getHighestChild', 'getHighestOnlyChildParent', 'getInlinesAtRange', 'getLastText', 'getMarksAtRange', 'getNextBlock', 'getNextSibling', 'getNextText', 'getNode', 'getOffset', 'getOffsetAtRange', 'getParent', 'getPreviousBlock', 'getPreviousSibling', 'getPreviousText', 'getTextAtOffset', 'getTextDirection', '_getTexts', 'getTextsAtRange', 'hasVoidParent', 'isInlineSplitAtRange', 'validate']);
 
 /**
  * Export.
@@ -12024,6 +12038,18 @@ var Selection = function (_ref) {
     }
 
     /**
+     * Check whether the selection's keys are set.
+     *
+     * @return {Boolean}
+     */
+
+  }, {
+    key: 'isSet',
+    get: function get() {
+      return this.anchorKey != null && this.focusKey != null;
+    }
+
+    /**
      * Check whether the selection's keys are not set.
      *
      * @return {Boolean}
@@ -12032,7 +12058,7 @@ var Selection = function (_ref) {
   }, {
     key: 'isUnset',
     get: function get() {
-      return this.anchorKey == null || this.focusKey == null;
+      return !this.isSet;
     }
 
     /**
@@ -12689,6 +12715,7 @@ var State = function (_ref) {
       }
 
       var state = new State({ document: document, selection: selection });
+
       return state.transform({ normalized: false }).normalize(_core2.default).apply({ save: false });
     }
   }]);
@@ -12894,6 +12921,19 @@ var Text = function (_ref) {
     }
 
     /**
+     * Get a node by `key`, to parallel other nodes.
+     *
+     * @param {String} key
+     * @return {Node|Null}
+     */
+
+  }, {
+    key: 'getNode',
+    value: function getNode(key) {
+      return this.key == key ? this : null;
+    }
+
+    /**
      * Derive the ranges for a list of `characters`.
      *
      * @param {Array|Void} decorators (optional)
@@ -12951,6 +12991,19 @@ var Text = function (_ref) {
 
       // Return the ranges.
       return ranges;
+    }
+
+    /**
+     * Check if the node has a node by `key`, to parallel other nodes.
+     *
+     * @param {String} key
+     * @return {Boolean}
+     */
+
+  }, {
+    key: 'hasNode',
+    value: function hasNode(key) {
+      return !!this.getNode(key);
     }
 
     /**
@@ -13363,7 +13416,8 @@ Object.keys(_transforms2.default).forEach(function (type) {
     }
 
     debug(type, { args: args });
-    return _transforms2.default[type].apply(_transforms2.default, [this].concat(args));
+    _transforms2.default[type].apply(_transforms2.default, [this].concat(args));
+    return this;
   };
 });
 
@@ -14264,6 +14318,14 @@ function _interopRequireDefault(obj) {
 }
 
 /**
+ * Options object with normalize set to `false`.
+ *
+ * @type {Object}
+ */
+
+var OPTS = { normalize: false };
+
+/**
  * Only allow block nodes in documents.
  *
  * @type {Object}
@@ -14274,17 +14336,15 @@ var DOCUMENT_CHILDREN_RULE = {
     return node.kind == 'document';
   },
   validate: function validate(document) {
-    var nodes = document.nodes;
-
-    var invalids = nodes.filter(function (n) {
+    var invalids = document.nodes.filter(function (n) {
       return n.kind != 'block';
     });
     return invalids.size ? invalids : null;
   },
   normalize: function normalize(transform, document, invalids) {
-    return invalids.reduce(function (t, n) {
-      return t.removeNodeByKey(n.key, { normalize: false });
-    }, transform);
+    invalids.forEach(function (node) {
+      transform.removeNodeByKey(node.key, OPTS);
+    });
   }
 };
 
@@ -14299,17 +14359,16 @@ var BLOCK_CHILDREN_RULE = {
     return node.kind == 'block';
   },
   validate: function validate(block) {
-    var nodes = block.nodes;
-
-    var invalids = nodes.filter(function (n) {
+    var invalids = block.nodes.filter(function (n) {
       return n.kind != 'block' && n.kind != 'inline' && n.kind != 'text';
     });
+
     return invalids.size ? invalids : null;
   },
   normalize: function normalize(transform, block, invalids) {
-    return invalids.reduce(function (t, n) {
-      return t.removeNodeByKey(n.key, { normalize: false });
-    }, transform);
+    invalids.forEach(function (node) {
+      transform.removeNodeByKey(node.key, OPTS);
+    });
   }
 };
 
@@ -14324,13 +14383,11 @@ var MIN_TEXT_RULE = {
     return object.kind == 'block' || object.kind == 'inline';
   },
   validate: function validate(node) {
-    var nodes = node.nodes;
-
-    return nodes.size === 0 ? true : null;
+    return node.nodes.size == 0;
   },
   normalize: function normalize(transform, node) {
     var text = _text2.default.create();
-    return transform.insertNodeByKey(node.key, 0, text, { normalize: false });
+    transform.insertNodeByKey(node.key, 0, text, OPTS);
   }
 };
 
@@ -14345,17 +14402,15 @@ var INLINE_CHILDREN_RULE = {
     return object.kind == 'inline';
   },
   validate: function validate(inline) {
-    var nodes = inline.nodes;
-
-    var invalids = nodes.filter(function (n) {
+    var invalids = inline.nodes.filter(function (n) {
       return n.kind != 'inline' && n.kind != 'text';
     });
     return invalids.size ? invalids : null;
   },
   normalize: function normalize(transform, inline, invalids) {
-    return invalids.reduce(function (t, n) {
-      return t.removeNodeByKey(n.key, { normalize: false });
-    }, transform);
+    invalids.forEach(function (node) {
+      transform.removeNodeByKey(node.key, OPTS);
+    });
   }
 };
 
@@ -14375,23 +14430,27 @@ var INLINE_NO_EMPTY = {
     return object.kind == 'block';
   },
   validate: function validate(block) {
-    return block.nodes.some(function (child) {
-      return child.kind == 'inline' && child.text == '';
+    var invalids = block.nodes.filter(function (n) {
+      return n.kind == 'inline' && n.text == '';
     });
+    return invalids.size ? invalids : null;
   },
-  normalize: function normalize(transform, block) {
-    return block.nodes.reduce(function (tr, child, index) {
-      if (child.kind == 'inline' && child.text == '') {
-        return transform.removeNodeByKey(child.key, { normalize: false }).insertNodeByKey(block.key, index, _text2.default.createFromString(''), { normalize: false });
-      } else {
-        return tr;
-      }
-    }, transform);
+  normalize: function normalize(transform, block, invalids) {
+    // If all of the block's nodes are invalid, insert an empty text node so
+    // that the selection will be preserved when they are all removed.
+    if (block.nodes.size == invalids.size) {
+      var text = _text2.default.create();
+      transform.insertNodeByKey(block.key, 1, text, OPTS);
+    }
+
+    invalids.forEach(function (node) {
+      transform.removeNodeByKey(node.key, OPTS);
+    });
   }
 };
 
 /**
- * Ensure that void nodes contain a single space of content.
+ * Ensure that void nodes contain a text node with a single space of text.
  *
  * @type {Object}
  */
@@ -14404,16 +14463,20 @@ var VOID_TEXT_RULE = {
     return node.text !== ' ' || node.nodes.size !== 1;
   },
   normalize: function normalize(transform, node, result) {
-    node.nodes.reduce(function (t, child) {
-      return t.removeNodeByKey(child.key, { normalize: false });
-    }, transform);
+    var text = _text2.default.createFromString(' ');
+    var index = node.nodes.size;
 
-    return transform.insertNodeByKey(node.key, 0, _text2.default.createFromString(' '), { normalize: false });
+    transform.insertNodeByKey(node.key, index, text, OPTS);
+
+    node.nodes.forEach(function (child) {
+      transform.removeNodeByKey(child.key, OPTS);
+    });
   }
 };
 
 /**
- * Ensure that inline void nodes are surrounded with text nodes.
+ * Ensure that inline void nodes are surrounded by text nodes, by adding extra
+ * blank text nodes if necessary.
  *
  * @type {Object}
  */
@@ -14423,46 +14486,43 @@ var INLINE_VOID_TEXTS_AROUND_RULE = {
     return object.kind == 'block' || object.kind == 'inline';
   },
   validate: function validate(block) {
-    var invalids = block.nodes.reduce(function (accu, child, index) {
-      if (child.kind === 'block' || !child.isVoid) {
-        return accu;
+    var invalids = block.nodes.reduce(function (list, child, index) {
+      if (child.kind == 'block') return list;
+      if (!child.isVoid) return list;
+
+      var prev = index > 0 ? block.nodes.get(index - 1) : null;
+      var next = block.nodes.get(index + 1);
+      var insertBefore = !prev;
+      var insertAfter = !next || isInlineVoid(next);
+
+      if (insertAfter || insertBefore) {
+        list = list.push({ insertAfter: insertAfter, insertBefore: insertBefore, index: index });
       }
 
-      var prevNode = index > 0 ? block.nodes.get(index - 1) : null;
-      var nextNode = block.nodes.get(index + 1);
-
-      var prev = !prevNode;
-      var next = !nextNode || isInlineVoid(nextNode);
-
-      if (next || prev) {
-        return accu.push({ next: next, prev: prev, index: index });
-      } else {
-        return accu;
-      }
+      return list;
     }, new _immutable.List());
 
-    return !invalids.isEmpty() ? invalids : null;
+    return invalids.size ? invalids : null;
   },
   normalize: function normalize(transform, block, invalids) {
-    // Shift for every text node inserted previously
+    // Shift for every text node inserted previously.
     var shift = 0;
 
-    return invalids.reduce(function (t, _ref) {
+    invalids.forEach(function (_ref) {
       var index = _ref.index,
-          next = _ref.next,
-          prev = _ref.prev;
+          insertAfter = _ref.insertAfter,
+          insertBefore = _ref.insertBefore;
 
-      if (prev) {
-        t = t.insertNodeByKey(block.key, shift + index, _text2.default.create(), { normalize: false });
-        shift = shift + 1;
-      }
-      if (next) {
-        t = t.insertNodeByKey(block.key, shift + index + 1, _text2.default.create(), { normalize: false });
-        shift = shift + 1;
+      if (insertBefore) {
+        transform.insertNodeByKey(block.key, shift + index, _text2.default.create(), OPTS);
+        shift++;
       }
 
-      return t;
-    }, transform);
+      if (insertAfter) {
+        transform.insertNodeByKey(block.key, shift + index + 1, _text2.default.create(), OPTS);
+        shift++;
+      }
+    });
   }
 };
 
@@ -14477,34 +14537,30 @@ var NO_ADJACENT_TEXT_RULE = {
     return object.kind == 'block' || object.kind == 'inline';
   },
   validate: function validate(node) {
-    var nodes = node.nodes;
-
-    var invalids = nodes.map(function (child, i) {
-      var next = nodes.get(i + 1);
-      if (child.kind !== 'text' || !next || next.kind !== 'text') {
-        return;
-      }
-
+    var invalids = node.nodes.map(function (child, i) {
+      var next = node.nodes.get(i + 1);
+      if (child.kind != 'text') return;
+      if (!next || next.kind != 'text') return;
       return [child, next];
     }).filter(Boolean);
 
     return invalids.size ? invalids : null;
   },
   normalize: function normalize(transform, node, pairs) {
-    return pairs
-    // We reverse the list since we want to handle 3 consecutive text nodes.
-    .reverse().reduce(function (t, pair) {
+    // We reverse the list to handle consecutive joins, since the earlier nodes
+    // will always exist after each join.
+    pairs.reverse().forEach(function (pair) {
       var _pair = _slicedToArray(pair, 2),
           first = _pair[0],
           second = _pair[1];
 
-      return t.joinNodeByKey(second.key, first.key, { normalize: false });
-    }, transform);
+      return transform.joinNodeByKey(second.key, first.key, OPTS);
+    });
   }
 };
 
 /**
- * Prevent extra empty text nodes.
+ * Prevent extra empty text nodes, except when adjacent to inline void nodes.
  *
  * @type {Object}
  */
@@ -14516,44 +14572,34 @@ var NO_EMPTY_TEXT_RULE = {
   validate: function validate(node) {
     var nodes = node.nodes;
 
-    if (nodes.size <= 1) {
-      return;
-    }
+    if (nodes.size <= 1) return;
 
     var invalids = nodes.filter(function (desc, i) {
-      if (desc.kind != 'text' || desc.length > 0) {
-        return;
-      }
+      if (desc.kind != 'text') return;
+      if (desc.length > 0) return;
 
-      // Empty text nodes are only allowed near inline void node.
-      var next = nodes.get(i + 1);
       var prev = i > 0 ? nodes.get(i - 1) : null;
+      var next = nodes.get(i + 1);
 
-      // If last one and previous is an inline void, we need to preserve it.
-      if (!next && isInlineVoid(prev)) {
-        return;
-      }
+      // If it's the first node, and the next is a void, preserve it.
+      if (!prev && isInlineVoid(next)) return;
 
-      // If first one and next one is an inline, we preserve it.
-      if (!prev && isInlineVoid(next)) {
-        return;
-      }
+      // It it's the last node, and the previous is a void, preserve it.
+      if (!next && isInlineVoid(prev)) return;
 
-      // If surrounded by inline void, we preserve it.
-      if (next && prev && isInlineVoid(next) && isInlineVoid(prev)) {
-        return;
-      }
+      // If it's surrounded by voids, preserve it.
+      if (next && prev && isInlineVoid(next) && isInlineVoid(prev)) return;
 
-      // Otherwise we remove it.
+      // Otherwise, remove it.
       return true;
     });
 
     return invalids.size ? invalids : null;
   },
   normalize: function normalize(transform, node, invalids) {
-    return invalids.reduce(function (t, text) {
-      return t.removeNodeByKey(text.key, { normalize: false });
-    }, transform);
+    invalids.forEach(function (text) {
+      transform.removeNodeByKey(text.key, OPTS);
+    });
   }
 };
 
@@ -15965,7 +16011,6 @@ var OPERATIONS = {
  *
  * @param {Transform} transform
  * @param {Object} operation
- * @return {Transform}
  */
 
 function applyOperation(transform, operation) {
@@ -15980,11 +16025,8 @@ function applyOperation(transform, operation) {
   }
 
   debug(type, operation);
-
   transform.state = fn(state, operation);
   transform.operations = operations.concat([operation]);
-
-  return transform;
 }
 
 /**
@@ -16202,51 +16244,49 @@ function removeNode(state, operation) {
       startKey = _selection3.startKey,
       endKey = _selection3.endKey;
 
-  // Preserve previous document
-
-  var prevDocument = document;
-
-  // Update the document
   var node = document.assertPath(path);
+
+  // If the selection is set, check to see if it needs to be updated.
+  if (selection.isSet) {
+    var hasStartNode = node.hasNode(startKey);
+    var hasEndNode = node.hasNode(endKey);
+
+    // If one of the selection's nodes is being removed, we need to update it.
+    if (hasStartNode) {
+      var prev = document.getPreviousText(startKey);
+      var next = document.getNextText(startKey);
+
+      if (prev) {
+        selection = selection.moveStartTo(prev.key, prev.length);
+      } else if (next) {
+        selection = selection.moveStartTo(next.key, 0);
+      } else {
+        selection = selection.unset();
+      }
+    }
+
+    if (hasEndNode) {
+      var _prev = document.getPreviousText(endKey);
+      var _next = document.getNextText(endKey);
+
+      if (_prev) {
+        selection = selection.moveEndTo(_prev.key, _prev.length);
+      } else if (_next) {
+        selection = selection.moveEndTo(_next.key, 0);
+      } else {
+        selection = selection.unset();
+      }
+    }
+  }
+
+  // Remove the node from the document.
   var parent = document.getParent(node.key);
   var index = parent.nodes.indexOf(node);
   var isParent = document == parent;
   parent = parent.removeNode(index);
   document = isParent ? parent : document.updateDescendant(parent);
 
-  function getRemoved(key) {
-    if (key === node.key) return node;
-    if (node.kind == 'text') return null;
-    return node.getDescendant(key);
-  }
-
-  // Update the selection, if one of the anchor/focus has been removed
-  var startDesc = startKey ? getRemoved(startKey) : null;
-  var endDesc = endKey ? getRemoved(endKey) : null;
-
-  if (startDesc) {
-    var prevText = prevDocument.getTexts().takeUntil(function (text) {
-      return text.key == startKey;
-    }).filter(function (text) {
-      return !getRemoved(text.key);
-    }).last();
-    selection = !prevText ? selection.unset() : selection.moveStartTo(prevText.key, prevText.length);
-  }
-  if (endDesc) {
-    // The whole selection is inside the node, we collapse to the previous text node
-    if (startKey == endKey) {
-      selection = selection.collapseToStart();
-    } else {
-      var nextText = prevDocument.getTexts().skipUntil(function (text) {
-        return text.key == startKey;
-      }).slice(1).filter(function (text) {
-        return !getRemoved(text.key);
-      }).first();
-
-      selection = !nextText ? selection.unset() : selection.moveEndTo(nextText.key, 0);
-    }
-  }
-
+  // Update the document and selection.
   state = state.merge({ document: document, selection: selection });
   return state;
 }
@@ -16263,6 +16303,8 @@ function removeText(state, operation) {
   var path = operation.path,
       offset = operation.offset,
       length = operation.length;
+
+  var rangeOffset = offset + length;
   var _state8 = state,
       document = _state8.document,
       selection = _state8.selection;
@@ -16274,12 +16316,6 @@ function removeText(state, operation) {
 
   var node = document.assertPath(path);
 
-  var rangeOffset = offset + length;
-
-  // Update the document
-  node = node.removeText(offset, length);
-  document = document.updateDescendant(node);
-
   // Update the selection
   if (startKey == node.key && startOffset >= rangeOffset) {
     selection = selection.moveStartOffset(-length);
@@ -16288,6 +16324,8 @@ function removeText(state, operation) {
     selection = selection.moveEndOffset(-length);
   }
 
+  node = node.removeText(offset, length);
+  document = document.updateDescendant(node);
   state = state.merge({ document: document, selection: selection });
   return state;
 }
@@ -16497,77 +16535,47 @@ function _interopRequireDefault(obj) {
  *
  * @param {Transform} transform
  * @param {Mark} mark
- * @return {Transform}
  */
 
 function addMark(transform, mark) {
   mark = _normalize2.default.mark(mark);
-
   var state = transform.state;
   var document = state.document,
       selection = state.selection;
 
   if (selection.isExpanded) {
-    return transform.addMarkAtRange(selection, mark);
-  } else if (selection.marks) {
-    var marks = selection.marks.add(mark);
-    var sel = selection.merge({ marks: marks });
-    return transform.moveTo(sel);
-  } else {
-    var _marks = document.getMarksAtRange(selection).add(mark);
-    var _sel = selection.merge({ marks: _marks });
-    return transform.moveTo(_sel);
+    transform.addMarkAtRange(selection, mark);
+    return;
   }
+
+  if (selection.marks) {
+    var _marks = selection.marks.add(mark);
+    var _sel = selection.merge({ marks: _marks });
+    transform.moveTo(_sel);
+    return;
+  }
+
+  var marks = document.getMarksAtRange(selection).add(mark);
+  var sel = selection.merge({ marks: marks });
+  transform.moveTo(sel);
 }
 
 /**
  * Delete at the current selection.
  *
  * @param {Transform} transform
- * @return {Transform}
  */
 
 function _delete(transform) {
   var state = transform.state;
-  var document = state.document,
-      selection = state.selection;
+  var selection = state.selection;
 
-  var after = void 0;
+  if (selection.isCollapsed) return;
 
-  if (selection.isCollapsed) return transform;
-
-  var startText = state.startText;
-  var startKey = selection.startKey,
-      startOffset = selection.startOffset,
-      endKey = selection.endKey,
-      endOffset = selection.endOffset;
-
-  var block = document.getClosestBlock(startText.key);
-  var highest = block.getHighestChild(startText.key);
-  var previous = block.getPreviousSibling(highest.key);
-  var next = block.getNextSibling(highest.key);
-
-  if (previous && startOffset == 0 && (endKey != startKey || endOffset == startText.length)) {
-    if (previous.kind == 'text') {
-      if (next && next.kind == 'text') {
-        after = selection.merge({
-          anchorKey: previous.key,
-          anchorOffset: previous.length,
-          focusKey: previous.key,
-          focusOffset: previous.length
-        });
-      } else {
-        after = selection.collapseToEndOf(previous);
-      }
-    } else {
-      var last = previous.getLastText();
-      after = selection.collapseToEndOf(last);
-    }
-  } else {
-    after = selection.collapseToStart();
-  }
-
-  return transform.unsetSelection().deleteAtRange(selection).moveTo(after);
+  transform.snapshotSelection().deleteAtRange(selection)
+  // Ensure that the selection is collapsed to the start, because in certain
+  // cases when deleting across inline nodes this isn't guaranteed.
+  .collapseToStart().snapshotSelection();
 }
 
 /**
@@ -16575,7 +16583,6 @@ function _delete(transform) {
  *
  * @param {Transform} transform
  * @param {Number} n (optional)
- * @return {Transform}
  */
 
 function deleteBackward(transform) {
@@ -16583,7 +16590,7 @@ function deleteBackward(transform) {
   var state = transform.state;
   var selection = state.selection;
 
-  return transform.deleteBackwardAtRange(selection, n).collapseToEnd();
+  transform.deleteBackwardAtRange(selection, n);
 }
 
 /**
@@ -16591,7 +16598,6 @@ function deleteBackward(transform) {
  *
  * @param {Transform} transform
  * @param {Number} n (optional)
- * @return {Transform}
  */
 
 function deleteForward(transform) {
@@ -16599,7 +16605,7 @@ function deleteForward(transform) {
   var state = transform.state;
   var selection = state.selection;
 
-  return transform.deleteForwardAtRange(selection, n).collapseToEnd();
+  transform.deleteForwardAtRange(selection, n);
 }
 
 /**
@@ -16607,30 +16613,18 @@ function deleteForward(transform) {
  *
  * @param {Transform} transform
  * @param {String|Object|Block} block
- * @return {Transform}
  */
 
 function insertBlock(transform, block) {
+  block = _normalize2.default.block(block);
   var state = transform.state;
-  var _state = state,
-      document = _state.document,
-      selection = _state.selection;
+  var selection = state.selection;
 
-  var keys = document.getTexts().map(function (text) {
-    return text.key;
-  });
-
-  transform.unsetSelection();
   transform.insertBlockAtRange(selection, block);
-  state = transform.state;
-  document = state.document;
 
-  var text = document.getTexts().find(function (n) {
-    return !keys.includes(n.key);
-  });
-  var after = selection.collapseToEndOf(text);
-
-  return transform.moveTo(after);
+  // If the node was successfully inserted, update the selection.
+  var node = transform.state.document.getNode(block.key);
+  if (node) transform.collapseToEndOf(node);
 }
 
 /**
@@ -16638,20 +16632,19 @@ function insertBlock(transform, block) {
  *
  * @param {Transform} transform
  * @param {Document} fragment
- * @return {Transform}
  */
 
 function insertFragment(transform, fragment) {
   var state = transform.state;
+  var _state = state,
+      document = _state.document,
+      selection = _state.selection;
+
+  if (!fragment.length) return;
+
   var _state2 = state,
-      document = _state2.document,
-      selection = _state2.selection;
-
-  if (!fragment.length) return transform;
-
-  var _state3 = state,
-      startText = _state3.startText,
-      endText = _state3.endText;
+      startText = _state2.startText,
+      endText = _state2.endText;
 
   var lastText = fragment.getLastText();
   var lastInline = fragment.getClosestInline(lastText.key);
@@ -16679,7 +16672,7 @@ function insertFragment(transform, fragment) {
     after = selection.collapseToStart().moveForward(lastText.length);
   }
 
-  return transform.moveTo(after);
+  transform.moveTo(after);
 }
 
 /**
@@ -16687,42 +16680,18 @@ function insertFragment(transform, fragment) {
  *
  * @param {Transform} transform
  * @param {String|Object|Block} inline
- * @return {Transform}
  */
 
 function insertInline(transform, inline) {
+  inline = _normalize2.default.inline(inline);
   var state = transform.state;
-  var _state4 = state,
-      document = _state4.document,
-      selection = _state4.selection,
-      startText = _state4.startText;
+  var selection = state.selection;
 
-  var after = void 0;
-
-  var hasVoid = document.hasVoidParent(startText.key);
-  var keys = document.getTexts().map(function (text) {
-    return text.key;
-  });
-
-  transform.unsetSelection();
   transform.insertInlineAtRange(selection, inline);
-  state = transform.state;
-  document = state.document;
 
-  if (hasVoid) {
-    after = selection;
-  } else {
-    var text = document.getTexts().find(function (n) {
-      if (keys.includes(n.key)) return false;
-      var parent = document.getParent(n.key);
-      if (parent.kind != 'inline') return false;
-      return true;
-    });
-
-    after = selection.collapseToEndOf(text);
-  }
-
-  return transform.moveTo(after);
+  // If the node was successfully inserted, update the selection.
+  var node = transform.state.document.getNode(inline.key);
+  if (node) transform.collapseToEndOf(node);
 }
 
 /**
@@ -16731,29 +16700,21 @@ function insertInline(transform, inline) {
  * @param {Transform} transform
  * @param {String} text
  * @param {Set<Mark>} marks (optional)
- * @return {Transform}
  */
 
 function insertText(transform, text, marks) {
   var state = transform.state;
   var document = state.document,
       selection = state.selection;
-  var startKey = selection.startKey;
-
-  var isVoid = document.hasVoidParent(startKey);
-  var after = void 0;
-
-  if (isVoid) {
-    after = selection;
-  } else if (selection.isExpanded) {
-    after = selection.collapseToStart().moveForward(text.length);
-  } else {
-    after = selection.moveForward(text.length);
-  }
 
   marks = marks || selection.marks;
+  transform.insertTextAtRange(selection, text, marks);
 
-  return transform.unsetSelection().insertTextAtRange(selection, text, marks).moveTo(after);
+  // If the text was successfully inserted, and the selection had marks on it,
+  // unset the selection's marks.
+  if (selection.marks && document != transform.state.document) {
+    transform.unsetMarks();
+  }
 }
 
 /**
@@ -16761,14 +16722,13 @@ function insertText(transform, text, marks) {
  *
  * @param {Transform} transform
  * @param {Object} properties
- * @return {Transform}
  */
 
 function setBlock(transform, properties) {
   var state = transform.state;
   var selection = state.selection;
 
-  return transform.setBlockAtRange(selection, properties);
+  transform.setBlockAtRange(selection, properties);
 }
 
 /**
@@ -16776,14 +16736,13 @@ function setBlock(transform, properties) {
  *
  * @param {Transform} transform
  * @param {Object} properties
- * @return {Transform}
  */
 
 function setInline(transform, properties) {
   var state = transform.state;
   var selection = state.selection;
 
-  return transform.setInlineAtRange(selection, properties);
+  transform.setInlineAtRange(selection, properties);
 }
 
 /**
@@ -16791,44 +16750,14 @@ function setInline(transform, properties) {
  *
  * @param {Transform} transform
  * @param {Number} depth (optional)
- * @return {Transform}
  */
 
 function splitBlock(transform) {
   var depth = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
   var state = transform.state;
-  var _state5 = state,
-      document = _state5.document,
-      selection = _state5.selection;
+  var selection = state.selection;
 
-  transform.unsetSelection();
-  transform.splitBlockAtRange(selection, depth);
-
-  state = transform.state;
-  document = state.document;
-
-  var startKey = selection.startKey,
-      startOffset = selection.startOffset;
-
-  var startText = document.getNode(startKey);
-  var startBlock = document.getClosestBlock(startKey);
-  var startInline = startBlock.getFurthestInline(startKey);
-  var nextText = document.getNextText(startText.key);
-  var after = void 0;
-
-  // If the selection is at the start of the highest inline child inside the
-  // block, the starting text node won't need to be split.
-  if (startOffset == 0 && startBlock.text != '' && (!startInline || startInline.getOffset(startText.key) == 0)) {
-    after = selection.collapseToStartOf(startText);
-  }
-
-  // Otherwise, we'll need to move the selection forward one to account for the
-  // text node that was split.
-  else {
-      after = selection.collapseToStartOf(nextText);
-    }
-
-  return transform.moveTo(after);
+  transform.snapshotSelection().splitBlockAtRange(selection, depth).collapseToEnd().snapshotSelection();
 }
 
 /**
@@ -16836,53 +16765,14 @@ function splitBlock(transform) {
  *
  * @param {Transform} transform
  * @param {Number} depth (optional)
- * @return {Transform}
  */
 
 function splitInline(transform) {
   var depth = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : Infinity;
   var state = transform.state;
-  var _state6 = state,
-      document = _state6.document,
-      selection = _state6.selection;
+  var selection = state.selection;
 
-  // If the selection is expanded, remove it first.
-
-  if (selection.isExpanded) {
-    transform.delete();
-    state = transform.state;
-    document = state.document;
-    selection = state.selection;
-  }
-
-  var after = selection;
-  var _selection = selection,
-      startKey = _selection.startKey,
-      startOffset = _selection.startOffset;
-
-  var startNode = document.assertDescendant(startKey);
-  var furthestInline = document.getFurthestInline(startKey);
-  var offset = furthestInline.getOffset(startNode.key);
-
-  // If the selection is at the start of end of the furthest inline, there isn't
-  // anything to split, so abort.
-  if (offset + startOffset == 0 || offset + startNode.length == startOffset) {
-    return transform;
-  }
-
-  transform.unsetSelection();
-  transform.splitInlineAtRange(selection, depth);
-  state = transform.state;
-  document = state.document;
-  var closestInline = document.getClosestInline(startKey);
-
-  if (closestInline) {
-    startNode = document.getDescendant(startKey);
-    var nextNode = document.getNextText(startNode.key);
-    after = selection.collapseToStartOf(nextNode);
-  }
-
-  return transform.moveTo(after);
+  transform.snapshotSelection().splitInlineAtRange(selection, depth).snapshotSelection();
 }
 
 /**
@@ -16890,27 +16780,29 @@ function splitInline(transform) {
  *
  * @param {Transform} transform
  * @param {Mark} mark
- * @return {Transform}
  */
 
 function removeMark(transform, mark) {
   mark = _normalize2.default.mark(mark);
-
   var state = transform.state;
   var document = state.document,
       selection = state.selection;
 
   if (selection.isExpanded) {
-    return transform.removeMarkAtRange(selection, mark);
-  } else if (selection.marks) {
-    var marks = selection.marks.remove(mark);
-    var sel = selection.merge({ marks: marks });
-    return transform.moveTo(sel);
-  } else {
-    var _marks2 = document.getMarksAtRange(selection).remove(mark);
-    var _sel2 = selection.merge({ marks: _marks2 });
-    return transform.moveTo(_sel2);
+    transform.removeMarkAtRange(selection, mark);
+    return;
   }
+
+  if (selection.marks) {
+    var _marks2 = selection.marks.remove(mark);
+    var _sel2 = selection.merge({ marks: _marks2 });
+    transform.moveTo(_sel2);
+    return;
+  }
+
+  var marks = document.getMarksAtRange(selection).remove(mark);
+  var sel = selection.merge({ marks: marks });
+  transform.moveTo(sel);
 }
 
 /**
@@ -16919,12 +16811,10 @@ function removeMark(transform, mark) {
  *
  * @param {Transform} transform
  * @param {Mark} mark
- * @return {Transform}
  */
 
 function toggleMark(transform, mark) {
   mark = _normalize2.default.mark(mark);
-
   var state = transform.state;
 
   var exists = state.marks.some(function (m) {
@@ -16932,9 +16822,9 @@ function toggleMark(transform, mark) {
   });
 
   if (exists) {
-    return transform.removeMark(mark);
+    transform.removeMark(mark);
   } else {
-    return transform.addMark(mark);
+    transform.addMark(mark);
   }
 }
 
@@ -16943,14 +16833,13 @@ function toggleMark(transform, mark) {
  *
  * @param {Transform} transform
  * @param {Object|String} properties
- * @return {Transform}
  */
 
 function unwrapBlock(transform, properties) {
   var state = transform.state;
   var selection = state.selection;
 
-  return transform.unwrapBlockAtRange(selection, properties);
+  transform.unwrapBlockAtRange(selection, properties);
 }
 
 /**
@@ -16958,14 +16847,13 @@ function unwrapBlock(transform, properties) {
  *
  * @param {Transform} transform
  * @param {Object|String} properties
- * @return {Transform}
  */
 
 function unwrapInline(transform, properties) {
   var state = transform.state;
   var selection = state.selection;
 
-  return transform.unwrapInlineAtRange(selection, properties);
+  transform.unwrapInlineAtRange(selection, properties);
 }
 
 /**
@@ -16974,14 +16862,13 @@ function unwrapInline(transform, properties) {
  *
  * @param {Transform} transform
  * @param {Object|String} properties
- * @return {Transform}
  */
 
 function wrapBlock(transform, properties) {
   var state = transform.state;
   var selection = state.selection;
 
-  return transform.wrapBlockAtRange(selection, properties);
+  transform.wrapBlockAtRange(selection, properties);
 }
 
 /**
@@ -16989,14 +16876,13 @@ function wrapBlock(transform, properties) {
  *
  * @param {Transform} transform
  * @param {Object|String} properties
- * @return {Transform}
  */
 
 function wrapInline(transform, properties) {
   var state = transform.state;
-  var _state7 = state,
-      document = _state7.document,
-      selection = _state7.selection;
+  var _state3 = state,
+      document = _state3.document,
+      selection = _state3.selection;
 
   var after = void 0;
 
@@ -17030,7 +16916,7 @@ function wrapInline(transform, properties) {
   }
 
   after = after.normalize(document);
-  return transform.moveTo(after);
+  transform.moveTo(after);
 }
 
 /**
@@ -17039,31 +16925,23 @@ function wrapInline(transform, properties) {
  * @param {Transform} transform
  * @param {String} prefix
  * @param {String} suffix
- * @return {Transform}
  */
 
 function wrapText(transform, prefix) {
   var suffix = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : prefix;
   var state = transform.state;
   var selection = state.selection;
-  var anchorOffset = selection.anchorOffset,
-      anchorKey = selection.anchorKey,
-      focusOffset = selection.focusOffset,
-      focusKey = selection.focusKey,
-      isBackward = selection.isBackward;
 
-  var after = void 0;
+  transform.wrapTextAtRange(selection, prefix, suffix);
 
-  if (anchorKey == focusKey) {
-    after = selection.moveForward(prefix.length);
-  } else {
-    after = selection.merge({
-      anchorOffset: isBackward ? anchorOffset : anchorOffset + prefix.length,
-      focusOffset: isBackward ? focusOffset + prefix.length : focusOffset
-    });
+  // Adding the suffix will have pushed the end of the selection further on, so
+  // we need to move it back to account for this.
+  transform.moveEndOffset(0 - suffix.length);
+
+  // If the selection was collapsed, it will have moved the start offset too.
+  if (selection.isCollapsed) {
+    transform.moveStartOffset(0 - prefix.length);
   }
-
-  return transform.unsetSelection().wrapTextAtRange(selection, prefix, suffix).moveTo(after);
 }
 
 },{"../utils/normalize":82}],68:[function(require,module,exports){
@@ -17107,6 +16985,16 @@ function _interopRequireDefault(obj) {
 }
 
 /**
+ * An options object with normalize set to `false`.
+ *
+ * @type {Object}
+ */
+
+var OPTS = {
+  normalize: false
+};
+
+/**
  * Add a new `mark` to the characters at `range`.
  *
  * @param {Transform} transform
@@ -17114,13 +17002,14 @@ function _interopRequireDefault(obj) {
  * @param {Mixed} mark
  * @param {Object} options
  *   @property {Boolean} normalize
- * @return {Transform}
  */
+
+/* eslint no-console: 0 */
 
 function addMarkAtRange(transform, range, mark) {
   var options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
 
-  if (range.isCollapsed) return transform;
+  if (range.isCollapsed) return;
 
   var _options$normalize = options.normalize,
       normalize = _options$normalize === undefined ? true : _options$normalize;
@@ -17145,8 +17034,6 @@ function addMarkAtRange(transform, range, mark) {
 
     transform.addMarkByKey(key, index, length, mark, { normalize: normalize });
   });
-
-  return transform;
 }
 
 /**
@@ -17156,15 +17043,12 @@ function addMarkAtRange(transform, range, mark) {
  * @param {Selection} range
  * @param {Object} options
  *   @property {Boolean} normalize
- * @return {Transform}
  */
-
-/* eslint no-console: 0 */
 
 function deleteAtRange(transform, range) {
   var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 
-  if (range.isCollapsed) return transform;
+  if (range.isCollapsed) return;
 
   var _options$normalize2 = options.normalize,
       normalize = _options$normalize2 === undefined ? true : _options$normalize2;
@@ -17176,7 +17060,8 @@ function deleteAtRange(transform, range) {
   if (startKey == endKey) {
     var index = startOffset;
     var length = endOffset - startOffset;
-    return transform.removeTextByKey(startKey, index, length, { normalize: normalize });
+    transform.removeTextByKey(startKey, index, length, { normalize: normalize });
+    return;
   }
 
   var state = transform.state;
@@ -17191,8 +17076,8 @@ function deleteAtRange(transform, range) {
   var startOff = (startChild.kind == 'text' ? 0 : startChild.getOffset(startKey)) + startOffset;
   var endOff = (endChild.kind == 'text' ? 0 : endChild.getOffset(endKey)) + endOffset;
 
-  transform.splitNodeByKey(startChild.key, startOff, { normalize: false });
-  transform.splitNodeByKey(endChild.key, endOff, { normalize: false });
+  transform.splitNodeByKey(startChild.key, startOff, OPTS);
+  transform.splitNodeByKey(endChild.key, endOff, OPTS);
 
   state = transform.state;
   document = state.document;
@@ -17210,7 +17095,7 @@ function deleteAtRange(transform, range) {
   if (middles.size) {
     // remove first nodes directly so the document is not normalized
     middles.forEach(function (child) {
-      transform.removeNodeByKey(child.key, { normalize: false });
+      transform.removeNodeByKey(child.key, OPTS);
     });
   }
 
@@ -17218,20 +17103,18 @@ function deleteAtRange(transform, range) {
     endBlock.nodes.forEach(function (child, i) {
       var newKey = startBlock.key;
       var newIndex = startBlock.nodes.size + i;
-      transform.moveNodeByKey(child.key, newKey, newIndex, { normalize: false });
+      transform.moveNodeByKey(child.key, newKey, newIndex, OPTS);
     });
 
     var lonely = document.getFurthest(endBlock.key, function (p) {
       return p.nodes.size == 1;
     }) || endBlock;
-    transform.removeNodeByKey(lonely.key, { normalize: false });
+    transform.removeNodeByKey(lonely.key, OPTS);
   }
 
   if (normalize) {
     transform.normalizeNodeByKey(ancestor.key, _core2.default);
   }
-
-  return transform;
 }
 
 /**
@@ -17242,7 +17125,6 @@ function deleteAtRange(transform, range) {
  * @param {Number} n (optional)
  * @param {Object} options
  *   @property {Boolean} normalize
- * @return {Transform}
  */
 
 function deleteBackwardAtRange(transform, range) {
@@ -17257,21 +17139,24 @@ function deleteBackwardAtRange(transform, range) {
       focusOffset = _range.focusOffset;
 
   if (range.isExpanded) {
-    return transform.deleteAtRange(range, { normalize: normalize });
+    transform.deleteAtRange(range, { normalize: normalize });
+    return;
   }
 
   var block = document.getClosestBlock(startKey);
   if (block && block.isVoid) {
-    return transform.removeNodeByKey(block.key, { normalize: normalize });
+    transform.removeNodeByKey(block.key, { normalize: normalize });
+    return;
   }
 
   var inline = document.getClosestInline(startKey);
   if (inline && inline.isVoid) {
-    return transform.removeNodeByKey(inline.key, { normalize: normalize });
+    transform.removeNodeByKey(inline.key, { normalize: normalize });
+    return;
   }
 
   if (range.isAtStartOf(document)) {
-    return transform;
+    return;
   }
 
   var text = document.getDescendant(startKey);
@@ -17281,11 +17166,13 @@ function deleteBackwardAtRange(transform, range) {
     var prevInline = document.getClosestInline(prev.key);
 
     if (prevBlock && prevBlock.isVoid) {
-      return transform.removeNodeByKey(prevBlock.key, { normalize: normalize });
+      transform.removeNodeByKey(prevBlock.key, { normalize: normalize });
+      return;
     }
 
     if (prevInline && prevInline.isVoid) {
-      return transform.removeNodeByKey(prevInline.key, { normalize: normalize });
+      transform.removeNodeByKey(prevInline.key, { normalize: normalize });
+      return;
     }
 
     range = range.merge({
@@ -17293,7 +17180,8 @@ function deleteBackwardAtRange(transform, range) {
       anchorOffset: prev.length
     });
 
-    return transform.deleteAtRange(range, { normalize: normalize });
+    transform.deleteAtRange(range, { normalize: normalize });
+    return;
   }
 
   range = range.merge({
@@ -17301,7 +17189,7 @@ function deleteBackwardAtRange(transform, range) {
     isBackward: true
   });
 
-  return transform.deleteAtRange(range, { normalize: normalize });
+  transform.deleteAtRange(range, { normalize: normalize });
 }
 
 /**
@@ -17312,7 +17200,6 @@ function deleteBackwardAtRange(transform, range) {
  * @param {Number} n (optional)
  * @param {Object} options
  *   @property {Boolean} normalize
- * @return {Transform}
  */
 
 function deleteForwardAtRange(transform, range) {
@@ -17327,21 +17214,24 @@ function deleteForwardAtRange(transform, range) {
       focusOffset = _range2.focusOffset;
 
   if (range.isExpanded) {
-    return transform.deleteAtRange(range, { normalize: normalize });
+    transform.deleteAtRange(range, { normalize: normalize });
+    return;
   }
 
   var block = document.getClosestBlock(startKey);
   if (block && block.isVoid) {
-    return transform.removeNodeByKey(block.key, { normalize: normalize });
+    transform.removeNodeByKey(block.key, { normalize: normalize });
+    return;
   }
 
   var inline = document.getClosestInline(startKey);
   if (inline && inline.isVoid) {
-    return transform.removeNodeByKey(inline.key, { normalize: normalize });
+    transform.removeNodeByKey(inline.key, { normalize: normalize });
+    return;
   }
 
   if (range.isAtEndOf(document)) {
-    return transform;
+    return;
   }
 
   var text = document.getDescendant(startKey);
@@ -17351,11 +17241,13 @@ function deleteForwardAtRange(transform, range) {
     var nextInline = document.getClosestInline(next.key);
 
     if (nextBlock && nextBlock.isVoid) {
-      return transform.removeNodeByKey(nextBlock.key, { normalize: normalize });
+      transform.removeNodeByKey(nextBlock.key, { normalize: normalize });
+      return;
     }
 
     if (nextInline && nextInline.isVoid) {
-      return transform.removeNodeByKey(nextInline.key, { normalize: normalize });
+      transform.removeNodeByKey(nextInline.key, { normalize: normalize });
+      return;
     }
 
     range = range.merge({
@@ -17363,14 +17255,15 @@ function deleteForwardAtRange(transform, range) {
       focusOffset: 0
     });
 
-    return transform.deleteAtRange(range, { normalize: normalize });
+    transform.deleteAtRange(range, { normalize: normalize });
+    return;
   }
 
   range = range.merge({
     focusOffset: focusOffset + n
   });
 
-  return transform.deleteAtRange(range, { normalize: normalize });
+  transform.deleteAtRange(range, { normalize: normalize });
 }
 
 /**
@@ -17381,7 +17274,6 @@ function deleteForwardAtRange(transform, range) {
  * @param {Block|String|Object} block
  * @param {Object} options
  *   @property {Boolean} normalize
- * @return {Transform}
  */
 
 function insertBlockAtRange(transform, range, block) {
@@ -17425,8 +17317,6 @@ function insertBlockAtRange(transform, range, block) {
   if (normalize) {
     transform.normalizeNodeByKey(parent.key, _core2.default);
   }
-
-  return transform;
 }
 
 /**
@@ -17437,7 +17327,6 @@ function insertBlockAtRange(transform, range, block) {
  * @param {Document} fragment
  * @param {Object} options
  *   @property {Boolean} normalize
- * @return {Transform}
  */
 
 function insertFragmentAtRange(transform, range, fragment) {
@@ -17448,14 +17337,12 @@ function insertFragmentAtRange(transform, range, fragment) {
   // If the range is expanded, delete it first.
 
   if (range.isExpanded) {
-    transform.deleteAtRange(range, { normalize: false });
+    transform.deleteAtRange(range, OPTS);
     range = range.collapseToStart();
   }
 
   // If the fragment is empty, there's nothing to do after deleting.
-  if (!fragment.length) {
-    return transform;
-  }
+  if (!fragment.length) return;
 
   // Regenerate the keys for all of the fragments nodes, so that they're
   // guaranteed not to collide with the existing keys in the document. Otherwise
@@ -17498,14 +17385,14 @@ function insertFragmentAtRange(transform, range, fragment) {
 
       fragment.nodes.forEach(function (node, i) {
         var newIndex = startIndex + i + 1;
-        transform.insertNodeByKey(parent.key, newIndex, node, { normalize: false });
+        transform.insertNodeByKey(parent.key, newIndex, node, OPTS);
       });
     })();
   }
 
   // Check if we need to split the node.
   if (startOffset != 0) {
-    transform.splitNodeByKey(startChild.key, offset, { normalize: false });
+    transform.splitNodeByKey(startChild.key, offset, OPTS);
   }
 
   // Update our variables with the new state.
@@ -17528,7 +17415,7 @@ function insertFragmentAtRange(transform, range, fragment) {
 
       nextNodes.forEach(function (node, i) {
         var newIndex = lastIndex + i;
-        transform.moveNodeByKey(node.key, lastBlock.key, newIndex, { normalize: false });
+        transform.moveNodeByKey(node.key, lastBlock.key, newIndex, OPTS);
       });
     })();
   }
@@ -17536,8 +17423,8 @@ function insertFragmentAtRange(transform, range, fragment) {
   // If the starting block is empty, we replace it entirely with the first block
   // of the fragment, since this leads to a more expected behavior for the user.
   if (startBlock.isEmpty) {
-    transform.removeNodeByKey(startBlock.key, { normalize: false });
-    transform.insertNodeByKey(parent.key, index, firstBlock, { normalize: false });
+    transform.removeNodeByKey(startBlock.key, OPTS);
+    transform.insertNodeByKey(parent.key, index, firstBlock, OPTS);
   }
 
   // Otherwise, we maintain the starting block, and insert all of the first
@@ -17550,7 +17437,7 @@ function insertFragmentAtRange(transform, range, fragment) {
         firstBlock.nodes.forEach(function (inline, i) {
           var o = startOffset == 0 ? 0 : 1;
           var newIndex = inlineIndex + i + o;
-          transform.insertNodeByKey(startBlock.key, newIndex, inline, { normalize: false });
+          transform.insertNodeByKey(startBlock.key, newIndex, inline, OPTS);
         });
       })();
     }
@@ -17559,8 +17446,6 @@ function insertFragmentAtRange(transform, range, fragment) {
   if (normalize) {
     transform.normalizeNodeByKey(parent.key, _core2.default);
   }
-
-  return transform;
 }
 
 /**
@@ -17571,7 +17456,6 @@ function insertFragmentAtRange(transform, range, fragment) {
  * @param {Inline|String|Object} inline
  * @param {Object} options
  *   @property {Boolean} normalize
- * @return {Transform}
  */
 
 function insertInlineAtRange(transform, range, inline) {
@@ -17582,7 +17466,7 @@ function insertInlineAtRange(transform, range, inline) {
   inline = _normalize2.default.inline(inline);
 
   if (range.isExpanded) {
-    transform.deleteAtRange(range, { normalize: false });
+    transform.deleteAtRange(range, OPTS);
     range = range.collapseToStart();
   }
 
@@ -17596,18 +17480,14 @@ function insertInlineAtRange(transform, range, inline) {
   var startText = document.assertDescendant(startKey);
   var index = parent.nodes.indexOf(startText);
 
-  if (parent.isVoid) {
-    return transform;
-  }
+  if (parent.isVoid) return;
 
-  transform.splitNodeByKey(startKey, startOffset, { normalize: false });
-  transform.insertNodeByKey(parent.key, index + 1, inline, { normalize: false });
+  transform.splitNodeByKey(startKey, startOffset, OPTS);
+  transform.insertNodeByKey(parent.key, index + 1, inline, OPTS);
 
   if (normalize) {
     transform.normalizeNodeByKey(parent.key, _core2.default);
   }
-
-  return transform;
 }
 
 /**
@@ -17619,7 +17499,6 @@ function insertInlineAtRange(transform, range, inline) {
  * @param {Set<Mark>} marks (optional)
  * @param {Object} options
  *   @property {Boolean} normalize
- * @return {Transform}
  */
 
 function insertTextAtRange(transform, range, text, marks) {
@@ -17632,12 +17511,10 @@ function insertTextAtRange(transform, range, text, marks) {
 
   var parent = document.getParent(startKey);
 
-  if (parent.isVoid) {
-    return transform;
-  }
+  if (parent.isVoid) return;
 
   if (range.isExpanded) {
-    transform.deleteAtRange(range, { normalize: false });
+    transform.deleteAtRange(range, OPTS);
   }
 
   // PERF: Unless specified, don't normalize if only inserting text.
@@ -17645,7 +17522,7 @@ function insertTextAtRange(transform, range, text, marks) {
     normalize = range.isExpanded;
   }
 
-  return transform.insertTextByKey(startKey, startOffset, text, marks, { normalize: normalize });
+  transform.insertTextByKey(startKey, startOffset, text, marks, { normalize: normalize });
 }
 
 /**
@@ -17656,13 +17533,12 @@ function insertTextAtRange(transform, range, text, marks) {
  * @param {Mark|String} mark (optional)
  * @param {Object} options
  *   @property {Boolean} normalize
- * @return {Transform}
  */
 
 function removeMarkAtRange(transform, range, mark) {
   var options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
 
-  if (range.isCollapsed) return transform;
+  if (range.isCollapsed) return;
 
   var _options$normalize8 = options.normalize,
       normalize = _options$normalize8 === undefined ? true : _options$normalize8;
@@ -17687,8 +17563,6 @@ function removeMarkAtRange(transform, range, mark) {
 
     transform.removeMarkByKey(key, index, length, mark, { normalize: normalize });
   });
-
-  return transform;
 }
 
 /**
@@ -17699,7 +17573,6 @@ function removeMarkAtRange(transform, range, mark) {
  * @param {Object|String} properties
  * @param {Object} options
  *   @property {Boolean} normalize
- * @return {Transform}
  */
 
 function setBlockAtRange(transform, range, properties) {
@@ -17714,8 +17587,6 @@ function setBlockAtRange(transform, range, properties) {
   blocks.forEach(function (block) {
     transform.setNodeByKey(block.key, properties, { normalize: normalize });
   });
-
-  return transform;
 }
 
 /**
@@ -17726,7 +17597,6 @@ function setBlockAtRange(transform, range, properties) {
  * @param {Object|String} properties
  * @param {Object} options
  *   @property {Boolean} normalize
- * @return {Transform}
  */
 
 function setInlineAtRange(transform, range, properties) {
@@ -17741,8 +17611,6 @@ function setInlineAtRange(transform, range, properties) {
   inlines.forEach(function (inline) {
     transform.setNodeByKey(inline.key, properties, { normalize: normalize });
   });
-
-  return transform;
 }
 
 /**
@@ -17753,7 +17621,6 @@ function setInlineAtRange(transform, range, properties) {
  * @param {Number} height (optional)
  * @param {Object} options
  *   @property {Boolean} normalize
- * @return {Transform}
  */
 
 function splitBlockAtRange(transform, range) {
@@ -17785,7 +17652,7 @@ function splitBlockAtRange(transform, range) {
     h++;
   }
 
-  return transform.splitNodeByKey(node.key, offset, { normalize: normalize });
+  transform.splitNodeByKey(node.key, offset, { normalize: normalize });
 }
 
 /**
@@ -17796,7 +17663,6 @@ function splitBlockAtRange(transform, range) {
  * @param {Number} height (optional)
  * @param {Object} options
  *   @property {Boolean} normalize
- * @return {Transform}
  */
 
 function splitInlineAtRange(transform, range) {
@@ -17828,7 +17694,7 @@ function splitInlineAtRange(transform, range) {
     h++;
   }
 
-  return transform.splitNodeByKey(node.key, offset, { normalize: normalize });
+  transform.splitNodeByKey(node.key, offset, { normalize: normalize });
 }
 
 /**
@@ -17840,13 +17706,12 @@ function splitInlineAtRange(transform, range) {
  * @param {Mixed} mark
  * @param {Object} options
  *   @property {Boolean} normalize
- * @return {Transform}
  */
 
 function toggleMarkAtRange(transform, range, mark) {
   var options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
 
-  if (range.isCollapsed) return transform;
+  if (range.isCollapsed) return;
 
   mark = _normalize2.default.mark(mark);
 
@@ -17865,8 +17730,6 @@ function toggleMarkAtRange(transform, range, mark) {
   } else {
     transform.addMarkAtRange(range, mark, { normalize: normalize });
   }
-
-  return transform;
 }
 
 /**
@@ -17877,7 +17740,6 @@ function toggleMarkAtRange(transform, range, mark) {
  * @param {String|Object} properties
  * @param {Object} options
  *   @property {Boolean} normalize
- * @return {Transform}
  */
 
 function unwrapBlockAtRange(transform, range, properties) {
@@ -17921,35 +17783,35 @@ function unwrapBlockAtRange(transform, range, properties) {
 
     if (first == firstMatch && last == lastMatch) {
       block.nodes.forEach(function (child, i) {
-        transform.moveNodeByKey(child.key, parent.key, index + i, { normalize: false });
+        transform.moveNodeByKey(child.key, parent.key, index + i, OPTS);
       });
 
-      transform.removeNodeByKey(block.key, { normalize: false });
+      transform.removeNodeByKey(block.key, OPTS);
     } else if (last == lastMatch) {
       block.nodes.skipUntil(function (n) {
         return n == firstMatch;
       }).forEach(function (child, i) {
-        transform.moveNodeByKey(child.key, parent.key, index + 1 + i, { normalize: false });
+        transform.moveNodeByKey(child.key, parent.key, index + 1 + i, OPTS);
       });
     } else if (first == firstMatch) {
       block.nodes.takeUntil(function (n) {
         return n == lastMatch;
       }).push(lastMatch).forEach(function (child, i) {
-        transform.moveNodeByKey(child.key, parent.key, index + i, { normalize: false });
+        transform.moveNodeByKey(child.key, parent.key, index + i, OPTS);
       });
     } else {
       var offset = block.getOffset(firstMatch.key);
 
-      transform.splitNodeByKey(block.key, offset, { normalize: false });
+      transform.splitNodeByKey(block.key, offset, OPTS);
       state = transform.state;
       document = state.document;
       var extra = document.getPreviousSibling(firstMatch.key);
 
       children.forEach(function (child, i) {
-        transform.moveNodeByKey(child.key, parent.key, index + 1 + i, { normalize: false });
+        transform.moveNodeByKey(child.key, parent.key, index + 1 + i, OPTS);
       });
 
-      transform.removeNodeByKey(extra.key, { normalize: false });
+      transform.removeNodeByKey(extra.key, OPTS);
     }
   });
 
@@ -17957,8 +17819,6 @@ function unwrapBlockAtRange(transform, range, properties) {
   if (normalize) {
     transform.normalizeDocument(_core2.default);
   }
-
-  return transform;
 }
 
 /**
@@ -17969,7 +17829,6 @@ function unwrapBlockAtRange(transform, range, properties) {
  * @param {String|Object} properties
  * @param {Object} options
  *   @property {Boolean} normalize
- * @return {Transform}
  */
 
 function unwrapInlineAtRange(transform, range, properties) {
@@ -18000,7 +17859,7 @@ function unwrapInlineAtRange(transform, range, properties) {
     var index = parent.nodes.indexOf(inline);
 
     inline.nodes.forEach(function (child, i) {
-      transform.moveNodeByKey(child.key, parent.key, index + i, { normalize: false });
+      transform.moveNodeByKey(child.key, parent.key, index + i, OPTS);
     });
   });
 
@@ -18008,8 +17867,6 @@ function unwrapInlineAtRange(transform, range, properties) {
   if (normalize) {
     transform.normalizeDocument(_core2.default);
   }
-
-  return transform;
 }
 
 /**
@@ -18020,7 +17877,6 @@ function unwrapInlineAtRange(transform, range, properties) {
  * @param {Block|Object|String} block
  * @param {Object} options
  *   @property {Boolean} normalize
- * @return {Transform}
  */
 
 function wrapBlockAtRange(transform, range, block) {
@@ -18077,18 +17933,16 @@ function wrapBlockAtRange(transform, range, block) {
   }
 
   // inject the new block node into the parent
-  transform.insertNodeByKey(parent.key, index, block, { normalize: false });
+  transform.insertNodeByKey(parent.key, index, block, OPTS);
 
   // move the sibling nodes into the new block node
   siblings.forEach(function (node, i) {
-    transform.moveNodeByKey(node.key, block.key, i, { normalize: false });
+    transform.moveNodeByKey(node.key, block.key, i, OPTS);
   });
 
   if (normalize) {
     transform.normalizeNodeByKey(parent.key, _core2.default);
   }
-
-  return transform;
 }
 
 /**
@@ -18099,13 +17953,12 @@ function wrapBlockAtRange(transform, range, block) {
  * @param {Inline|Object|String} inline
  * @param {Object} options
  *   @property {Boolean} normalize
- * @return {Transform}
  */
 
 function wrapInlineAtRange(transform, range, inline) {
   var options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
 
-  if (range.isCollapsed) return transform;
+  if (range.isCollapsed) return;
 
   inline = _normalize2.default.inline(inline);
   inline = inline.merge({ nodes: inline.nodes.clear() });
@@ -18135,11 +17988,11 @@ function wrapInlineAtRange(transform, range, inline) {
   if (startBlock == endBlock) {
     (function () {
       if (endOff != endChild.length) {
-        transform.splitNodeByKey(endChild.key, endOff, { normalize: false });
+        transform.splitNodeByKey(endChild.key, endOff, OPTS);
       }
 
       if (startOff != 0) {
-        transform.splitNodeByKey(startChild.key, startOff, { normalize: false });
+        transform.splitNodeByKey(startChild.key, startOff, OPTS);
       }
 
       state = transform.state;
@@ -18160,10 +18013,10 @@ function wrapInlineAtRange(transform, range, inline) {
 
       var node = inline.regenerateKey();
 
-      transform.insertNodeByKey(startBlock.key, startInnerIndex, node, { normalize: false });
+      transform.insertNodeByKey(startBlock.key, startInnerIndex, node, OPTS);
 
       inlines.forEach(function (child, i) {
-        transform.moveNodeByKey(child.key, node.key, i, { normalize: false });
+        transform.moveNodeByKey(child.key, node.key, i, OPTS);
       });
 
       if (normalize) {
@@ -18172,8 +18025,8 @@ function wrapInlineAtRange(transform, range, inline) {
     })();
   } else {
     (function () {
-      transform.splitNodeByKey(startChild.key, startOff, { normalize: false });
-      transform.splitNodeByKey(endChild.key, endOff, { normalize: false });
+      transform.splitNodeByKey(startChild.key, startOff, OPTS);
+      transform.splitNodeByKey(endChild.key, endOff, OPTS);
 
       state = transform.state;
       document = state.document;
@@ -18185,15 +18038,15 @@ function wrapInlineAtRange(transform, range, inline) {
       var startNode = inline.regenerateKey();
       var endNode = inline.regenerateKey();
 
-      transform.insertNodeByKey(startBlock.key, startIndex - 1, startNode, { normalize: false });
-      transform.insertNodeByKey(endBlock.key, endIndex, endNode, { normalize: false });
+      transform.insertNodeByKey(startBlock.key, startIndex - 1, startNode, OPTS);
+      transform.insertNodeByKey(endBlock.key, endIndex, endNode, OPTS);
 
       startInlines.forEach(function (child, i) {
-        transform.moveNodeByKey(child.key, startNode.key, i, { normalize: false });
+        transform.moveNodeByKey(child.key, startNode.key, i, OPTS);
       });
 
       endInlines.forEach(function (child, i) {
-        transform.moveNodeByKey(child.key, endNode.key, i, { normalize: false });
+        transform.moveNodeByKey(child.key, endNode.key, i, OPTS);
       });
 
       if (normalize) {
@@ -18202,10 +18055,10 @@ function wrapInlineAtRange(transform, range, inline) {
 
       blocks.slice(1, -1).forEach(function (block) {
         var node = inline.regenerateKey();
-        transform.insertNodeByKey(block.key, 0, node, { normalize: false });
+        transform.insertNodeByKey(block.key, 0, node, OPTS);
 
         block.nodes.forEach(function (child, i) {
-          transform.moveNodeByKey(child.key, node.key, i, { normalize: false });
+          transform.moveNodeByKey(child.key, node.key, i, OPTS);
         });
 
         if (normalize) {
@@ -18214,8 +18067,6 @@ function wrapInlineAtRange(transform, range, inline) {
       });
     })();
   }
-
-  return transform;
 }
 
 /**
@@ -18227,7 +18078,6 @@ function wrapInlineAtRange(transform, range, inline) {
  * @param {String} suffix (optional)
  * @param {Object} options
  *   @property {Boolean} normalize
- * @return {Transform}
  */
 
 function wrapTextAtRange(transform, range, prefix) {
@@ -18245,7 +18095,8 @@ function wrapTextAtRange(transform, range, prefix) {
     end = end.moveForward(prefix.length);
   }
 
-  return transform.insertTextAtRange(start, prefix, [], { normalize: normalize }).insertTextAtRange(end, suffix, [], { normalize: normalize });
+  transform.insertTextAtRange(start, prefix, [], { normalize: normalize });
+  transform.insertTextAtRange(end, suffix, [], { normalize: normalize });
 }
 
 },{"../schemas/core":61,"../utils/normalize":82,"immutable":1217}],69:[function(require,module,exports){
@@ -18290,8 +18141,7 @@ function _interopRequireDefault(obj) {
  * @param {Number} length
  * @param {Mixed} mark
  * @param {Object} options
- *   @param {Boolean} normalize
- * @return {Transform}
+ *   @property {Boolean} normalize
  */
 
 function addMarkByKey(transform, key, offset, length, mark) {
@@ -18311,8 +18161,6 @@ function addMarkByKey(transform, key, offset, length, mark) {
     var parent = document.getParent(key);
     transform.normalizeNodeByKey(parent.key, _core2.default);
   }
-
-  return transform;
 }
 
 /**
@@ -18323,8 +18171,7 @@ function addMarkByKey(transform, key, offset, length, mark) {
  * @param {Number} index
  * @param {Node} node
  * @param {Object} options
- *   @param {Boolean} normalize
- * @return {Transform}
+ *   @property {Boolean} normalize
  */
 
 function insertNodeByKey(transform, key, index, node) {
@@ -18341,8 +18188,6 @@ function insertNodeByKey(transform, key, index, node) {
   if (normalize) {
     transform.normalizeNodeByKey(key, _core2.default);
   }
-
-  return transform;
 }
 
 /**
@@ -18354,8 +18199,7 @@ function insertNodeByKey(transform, key, index, node) {
  * @param {String} text
  * @param {Set<Mark>} marks (optional)
  * @param {Object} options
- *   @param {Boolean} normalize
- * @return {Transform}
+ *   @property {Boolean} normalize
  */
 
 function insertTextByKey(transform, key, offset, text, marks) {
@@ -18373,8 +18217,6 @@ function insertTextByKey(transform, key, offset, text, marks) {
     var parent = document.getParent(key);
     transform.normalizeNodeByKey(parent.key, _core2.default);
   }
-
-  return transform;
 }
 
 /**
@@ -18384,8 +18226,7 @@ function insertTextByKey(transform, key, offset, text, marks) {
  * @param {String} key
  * @param {String} withKey
  * @param {Object} options
- *   @param {Boolean} normalize
- * @return {Transform}
+ *   @property {Boolean} normalize
  */
 
 function joinNodeByKey(transform, key, withKey) {
@@ -18402,14 +18243,8 @@ function joinNodeByKey(transform, key, withKey) {
 
   if (normalize) {
     var parent = document.getCommonAncestor(key, withKey);
-    if (parent) {
-      transform.normalizeNodeByKey(parent.key, _core2.default);
-    } else {
-      transform.normalizeDocument(_core2.default);
-    }
+    transform.normalizeNodeByKey(parent.key, _core2.default);
   }
-
-  return transform;
 }
 
 /**
@@ -18421,8 +18256,7 @@ function joinNodeByKey(transform, key, withKey) {
  * @param {String} newKey
  * @param {Number} index
  * @param {Object} options
- *   @param {Boolean} normalize
- * @return {Transform}
+ *   @property {Boolean} normalize
  */
 
 function moveNodeByKey(transform, key, newKey, newIndex) {
@@ -18438,11 +18272,9 @@ function moveNodeByKey(transform, key, newKey, newIndex) {
   transform.moveNodeOperation(path, newPath, newIndex);
 
   if (normalize) {
-    var parent = document.key == newKey ? document : document.getCommonAncestor(key, newKey);
+    var parent = document.getCommonAncestor(key, newKey);
     transform.normalizeNodeByKey(parent.key, _core2.default);
   }
-
-  return transform;
 }
 
 /**
@@ -18454,8 +18286,7 @@ function moveNodeByKey(transform, key, newKey, newIndex) {
  * @param {Number} length
  * @param {Mark} mark
  * @param {Object} options
- *   @param {Boolean} normalize
- * @return {Transform}
+ *   @property {Boolean} normalize
  */
 
 function removeMarkByKey(transform, key, offset, length, mark) {
@@ -18475,8 +18306,6 @@ function removeMarkByKey(transform, key, offset, length, mark) {
     var parent = document.getParent(key);
     transform.normalizeNodeByKey(parent.key, _core2.default);
   }
-
-  return transform;
 }
 
 /**
@@ -18485,8 +18314,7 @@ function removeMarkByKey(transform, key, offset, length, mark) {
  * @param {Transform} transform
  * @param {String} key
  * @param {Object} options
- *   @param {Boolean} normalize
- * @return {Transform}
+ *   @property {Boolean} normalize
  */
 
 function removeNodeByKey(transform, key) {
@@ -18502,14 +18330,8 @@ function removeNodeByKey(transform, key) {
 
   if (normalize) {
     var parent = document.getParent(key);
-    if (parent) {
-      transform.normalizeNodeByKey(parent.key, _core2.default);
-    } else {
-      transform.normalizeDocument(_core2.default);
-    }
+    transform.normalizeNodeByKey(parent.key, _core2.default);
   }
-
-  return transform;
 }
 
 /**
@@ -18520,8 +18342,7 @@ function removeNodeByKey(transform, key) {
  * @param {Number} offset
  * @param {Number} length
  * @param {Object} options
- *   @param {Boolean} normalize
- * @return {Transform}
+ *   @property {Boolean} normalize
  */
 
 function removeTextByKey(transform, key, offset, length) {
@@ -18536,11 +18357,9 @@ function removeTextByKey(transform, key, offset, length) {
   transform.removeTextOperation(path, offset, length);
 
   if (normalize) {
-    var parent = document.getParent(key);
-    transform.normalizeParentsByKey(parent.key, _core2.default);
+    var block = document.getClosestBlock(key);
+    transform.normalizeNodeByKey(block.key, _core2.default);
   }
-
-  return transform;
 }
 
 /**
@@ -18552,8 +18371,7 @@ function removeTextByKey(transform, key, offset, length) {
  * @param {Number} length
  * @param {Mark} mark
  * @param {Object} options
- *   @param {Boolean} normalize
- * @return {Transform}
+ *   @property {Boolean} normalize
  */
 
 function setMarkByKey(transform, key, offset, length, mark, properties) {
@@ -18576,8 +18394,6 @@ function setMarkByKey(transform, key, offset, length, mark, properties) {
     var parent = document.getParent(key);
     transform.normalizeNodeByKey(parent.key, _core2.default);
   }
-
-  return transform;
 }
 
 /**
@@ -18587,8 +18403,7 @@ function setMarkByKey(transform, key, offset, length, mark, properties) {
  * @param {String} key
  * @param {Object|String} properties
  * @param {Object} options
- *   @param {Boolean} normalize
- * @return {Transform}
+ *   @property {Boolean} normalize
  */
 
 function setNodeByKey(transform, key, properties) {
@@ -18606,14 +18421,8 @@ function setNodeByKey(transform, key, properties) {
 
   if (normalize) {
     var parent = document.getParent(key);
-    if (parent) {
-      transform.normalizeNodeByKey(parent.key, _core2.default);
-    } else {
-      transform.normalizeDocument(_core2.default);
-    }
+    transform.normalizeNodeByKey(parent.key, _core2.default);
   }
-
-  return transform;
 }
 
 /**
@@ -18623,8 +18432,7 @@ function setNodeByKey(transform, key, properties) {
  * @param {String} key
  * @param {Number} offset
  * @param {Object} options
- *   @param {Boolean} normalize
- * @return {Transform}
+ *   @property {Boolean} normalize
  */
 
 function splitNodeByKey(transform, key, offset) {
@@ -18640,14 +18448,8 @@ function splitNodeByKey(transform, key, offset) {
 
   if (normalize) {
     var parent = document.getParent(key);
-    if (parent) {
-      transform.normalizeNodeByKey(parent.key, _core2.default);
-    } else {
-      transform.normalizeDocument(_core2.default);
-    }
+    transform.normalizeNodeByKey(parent.key, _core2.default);
   }
-
-  return transform;
 }
 
 /**
@@ -18657,8 +18459,7 @@ function splitNodeByKey(transform, key, offset) {
  * @param {String} key
  * @param {Object|String} properties
  * @param {Object} options
- *   @param {Boolean} normalize
- * @return {Transform}
+ *   @property {Boolean} normalize
  */
 
 function unwrapInlineByKey(transform, key, properties, options) {
@@ -18667,8 +18468,10 @@ function unwrapInlineByKey(transform, key, properties, options) {
       selection = state.selection;
 
   var node = document.assertDescendant(key);
-  var range = selection.moveToRangeOf(node.getFirstText(), node.getLastText());
-  return transform.unwrapInlineAtRange(range, properties, options);
+  var first = node.getFirstText();
+  var last = node.getLastText();
+  var range = selection.moveToRangeOf(first, last);
+  transform.unwrapInlineAtRange(range, properties, options);
 }
 
 /**
@@ -18678,8 +18481,7 @@ function unwrapInlineByKey(transform, key, properties, options) {
  * @param {String} key
  * @param {Object|String} properties
  * @param {Object} options
- *   @param {Boolean} normalize
- * @return {Transform}
+ *   @property {Boolean} normalize
  */
 
 function unwrapBlockByKey(transform, key, properties, options) {
@@ -18688,8 +18490,10 @@ function unwrapBlockByKey(transform, key, properties, options) {
       selection = state.selection;
 
   var node = document.assertDescendant(key);
-  var range = selection.moveToRangeOf(node.getFirstText(), node.getLastText());
-  return transform.unwrapBlockAtRange(range, properties, options);
+  var first = node.getFirstText();
+  var last = node.getLastText();
+  var range = selection.moveToRangeOf(first, last);
+  transform.unwrapBlockAtRange(range, properties, options);
 }
 
 /**
@@ -18699,8 +18503,7 @@ function unwrapBlockByKey(transform, key, properties, options) {
  * @param {String} key The node to wrap
  * @param {Block|Object|String} block The wrapping block (its children are discarded)
  * @param {Object} options
- *   @param {Boolean} normalize
- * @return {Transform}
+ *   @property {Boolean} normalize
  */
 
 function wrapBlockByKey(transform, key, block, options) {
@@ -18713,7 +18516,8 @@ function wrapBlockByKey(transform, key, block, options) {
   var parent = document.getParent(node.key);
   var index = parent.nodes.indexOf(node);
 
-  return transform.insertNodeByKey(parent.key, index, block, { normalize: false }).moveNodeByKey(node.key, block.key, 0, options);
+  transform.insertNodeByKey(parent.key, index, block, { normalize: false });
+  transform.moveNodeByKey(node.key, block.key, 0, options);
 }
 
 },{"../schemas/core":61,"../utils/normalize":82}],70:[function(require,module,exports){
@@ -18879,10 +18683,14 @@ exports.default = {
   focus: _onSelection.focus,
   moveBackward: _onSelection.moveBackward,
   moveForward: _onSelection.moveForward,
+  moveEndOffset: _onSelection.moveEndOffset,
+  moveStartOffset: _onSelection.moveStartOffset,
   moveTo: _onSelection.moveTo,
   moveToOffsets: _onSelection.moveToOffsets,
   moveToRangeOf: _onSelection.moveToRangeOf,
+  unsetMarks: _onSelection.unsetMarks,
   unsetSelection: _onSelection.unsetSelection,
+  snapshotSelection: _onSelection.snapshotSelection,
 
   /**
    * History.
@@ -18899,8 +18707,7 @@ exports.default = {
   normalize: _normalize.normalize,
   normalizeDocument: _normalize.normalizeDocument,
   normalizeSelection: _normalize.normalizeSelection,
-  normalizeNodeByKey: _normalize.normalizeNodeByKey,
-  normalizeParentsByKey: _normalize.normalizeParentsByKey
+  normalizeNodeByKey: _normalize.normalizeNodeByKey
 };
 
 /**
@@ -18928,7 +18735,6 @@ Object.defineProperty(exports, "__esModule", {
 exports.normalize = normalize;
 exports.normalizeDocument = normalizeDocument;
 exports.normalizeNodeByKey = normalizeNodeByKey;
-exports.normalizeParentsByKey = normalizeParentsByKey;
 exports.normalizeSelection = normalizeSelection;
 
 var _normalize = require('../utils/normalize');
@@ -18952,11 +18758,11 @@ function _interopRequireDefault(obj) {
  *
  * @param {Transform} transform
  * @param {Schema} schema
- * @return {Transform}
  */
 
 function normalize(transform, schema) {
-  return transform.normalizeDocument(schema).normalizeSelection(schema);
+  transform.normalizeDocument(schema);
+  transform.normalizeSelection(schema);
 }
 
 /**
@@ -18964,14 +18770,13 @@ function normalize(transform, schema) {
  *
  * @param {Transform} transform
  * @param {Schema} schema
- * @return {Transform}
  */
 
 function normalizeDocument(transform, schema) {
   var state = transform.state;
   var document = state.document;
 
-  return transform.normalizeNodeByKey(document.key, schema);
+  transform.normalizeNodeByKey(document.key, schema);
 }
 
 /**
@@ -18980,59 +18785,27 @@ function normalizeDocument(transform, schema) {
  * @param {Transform} transform
  * @param {Node|String} key
  * @param {Schema} schema
- * @return {Transform}
  */
 
 function normalizeNodeByKey(transform, key, schema) {
   assertSchema(schema);
-  key = _normalize2.default.key(key);
 
   // If the schema has no validation rules, there's nothing to normalize.
-  if (!schema.hasValidators) {
-    return transform;
-  }
+  if (!schema.hasValidators) return;
 
+  key = _normalize2.default.key(key);
   var state = transform.state;
   var document = state.document;
 
   var node = document.assertNode(key);
 
-  normalizeNodeWith(transform, node, schema);
-  return transform;
+  normalizeNodeAndChildren(transform, node, schema);
 }
 
 /**
- * Normalize a `node` and its parents with a `schema`.
+ * Normalize the selection.
  *
  * @param {Transform} transform
- * @param {Node|String} key
- * @param {Schema} schema
- * @return {Transform}
- */
-
-function normalizeParentsByKey(transform, key, schema) {
-  assertSchema(schema);
-  key = _normalize2.default.key(key);
-
-  // If the schema has no validation rules, there's nothing to normalize.
-  if (!schema.hasValidators) {
-    return transform;
-  }
-
-  var state = transform.state;
-  var document = state.document;
-
-  var node = document.assertNode(key);
-
-  normalizeParentsWith(transform, node, schema);
-  return transform;
-}
-
-/**
- * Normalize only the selection.
- *
- * @param {Transform} transform
- * @return {Transform}
  */
 
 function normalizeSelection(transform) {
@@ -19060,7 +18833,6 @@ function normalizeSelection(transform) {
 
   state = state.merge({ selection: selection });
   transform.state = state;
-  return transform;
 }
 
 /**
@@ -19069,59 +18841,29 @@ function normalizeSelection(transform) {
  * @param {Transform} transform
  * @param {Node} node
  * @param {Schema} schema
- * @return {Transform}
  */
 
-function normalizeNodeWith(transform, node, schema) {
-  // For performance considerations, we will check if the transform was changed.
-  var opCount = transform.operations.length;
+function normalizeNodeAndChildren(transform, node, schema) {
+  // For performance considerations, we will check if the transform has actually
+  // added operations to the queue.
+  var count = transform.operations.length;
 
   // Iterate over its children.
-  normalizeChildrenWith(transform, node, schema);
+  if (node.kind != 'text') {
+    node.nodes.forEach(function (child) {
+      normalizeNodeAndChildren(transform, child, schema);
+    });
+  }
 
   // Re-find the node reference if necessary.
-  if (transform.operations.length != opCount) {
+  if (transform.operations.length != count) {
     node = refindNode(transform, node);
   }
 
   // Now normalize the node itself if it still exists.
   if (node) {
-    normalizeNodeOnly(transform, node, schema);
+    normalizeNode(transform, node, schema);
   }
-
-  return transform;
-}
-
-/**
- * Normalize a `node` and its parents with a `schema`.
- *
- * @param {Transform} transform
- * @param {Node} node
- * @param {Schema} schema
- * @return {Transform}
- */
-
-function normalizeParentsWith(transform, node, schema) {
-  normalizeNodeOnly(transform, node, schema);
-
-  // Normalize went back up to the very top of the document.
-  if (node.kind == 'document') {
-    return transform;
-  }
-
-  // Re-find the node first.
-  node = refindNode(transform, node);
-
-  if (!node) {
-    return transform;
-  }
-
-  var state = transform.state;
-  var document = state.document;
-
-  var parent = document.getParent(node.key);
-
-  return normalizeParentsWith(transform, parent, schema);
 }
 
 /**
@@ -19141,52 +18883,31 @@ function refindNode(transform, node) {
 }
 
 /**
- * Normalize the children of a `node` with a `schema`.
- *
- * @param {Transform} transform
- * @param {Node} node
- * @param {Schema} schema
- * @return {Transform}
- */
-
-function normalizeChildrenWith(transform, node, schema) {
-  if (node.kind == 'text') return transform;
-
-  node.nodes.forEach(function (child) {
-    normalizeNodeWith(transform, child, schema);
-  });
-
-  return transform;
-}
-
-/**
  * Normalize a `node` with a `schema`, but not its children.
  *
  * @param {Transform} transform
  * @param {Node} node
  * @param {Schema} schema
- * @return {Transform}
  */
 
-function normalizeNodeOnly(transform, node, schema) {
+function normalizeNode(transform, node, schema) {
   var max = schema.rules.length;
   var iterations = 0;
 
   function iterate(t, n) {
     var failure = n.validate(schema);
-    if (!failure) return t;
+    if (!failure) return;
 
+    // Run the `normalize` function for the rule with the invalid value.
     var value = failure.value,
         rule = failure.rule;
-
-    // Rule the `normalize` function for the rule with the invalid value.
 
     rule.normalize(t, n, value);
 
     // Re-find the node reference, in case it was updated. If the node no longer
     // exists, we're done for this branch.
     n = refindNode(t, n);
-    if (!n) return t;
+    if (!n) return;
 
     // Increment the iterations counter, and check to make sure that we haven't
     // exceeded the max. Without this check, it's easy for the `validate` or
@@ -19199,10 +18920,10 @@ function normalizeNodeOnly(transform, node, schema) {
     }
 
     // Otherwise, iterate again.
-    return iterate(t, n);
+    iterate(t, n);
   }
 
-  return iterate(transform, node);
+  iterate(transform, node);
 }
 
 /**
@@ -19212,9 +18933,9 @@ function normalizeNodeOnly(transform, node, schema) {
  */
 
 function assertSchema(schema) {
-  if (schema instanceof _schema2.default) return;
-
-  if (schema == null) {
+  if (schema instanceof _schema2.default) {
+    return;
+  } else if (schema == null) {
     throw new Error('You must pass a `schema` object.');
   } else {
     throw new Error('You passed an invalid `schema` object: ' + schema + '.');
@@ -19235,7 +18956,6 @@ exports.undo = undo;
  * Redo to the next state in the history.
  *
  * @param {Transform} transform
- * @return {Transform}
  */
 
 function redo(transform) {
@@ -19249,7 +18969,7 @@ function redo(transform) {
   // If there's no next snapshot, abort.
 
   var next = redos.peek();
-  if (!next) return transform;
+  if (!next) return;
 
   // Shift the next state into the undo stack.
   redos = redos.pop();
@@ -19267,7 +18987,6 @@ function redo(transform) {
 
   // Update the transform.
   transform.state = state;
-  return transform;
 }
 
 /**
@@ -19275,7 +18994,6 @@ function redo(transform) {
  *
  * @param {Transform} transform
  * @param {Object} options
- * @return {Transform}
  */
 
 function save(transform) {
@@ -19292,7 +19010,7 @@ function save(transform) {
 
   // If there are no operations, abort.
 
-  if (!operations.length) return transform;
+  if (!operations.length) return;
 
   // Create a new save point or merge the operations into the previous one.
   if (merge) {
@@ -19314,14 +19032,12 @@ function save(transform) {
 
   // Update the transform.
   transform.state = state;
-  return transform;
 }
 
 /**
  * Undo the previous operations in the history.
  *
  * @param {Transform} transform
- * @return {Transform}
  */
 
 function undo(transform) {
@@ -19335,7 +19051,7 @@ function undo(transform) {
   // If there's no previous snapshot, abort.
 
   var previous = undos.peek();
-  if (!previous) return transform;
+  if (!previous) return;
 
   // Shift the previous operations into the redo stack.
   undos = undos.pop();
@@ -19355,7 +19071,6 @@ function undo(transform) {
 
   // Update the transform.
   transform.state = state;
-  return transform;
 }
 
 },{}],73:[function(require,module,exports){
@@ -19389,13 +19104,16 @@ exports.moveForward = moveForward;
 exports.moveTo = moveTo;
 exports.moveToOffsets = moveToOffsets;
 exports.moveToRangeOf = moveToRangeOf;
+exports.moveStartOffset = moveStartOffset;
+exports.moveEndOffset = moveEndOffset;
+exports.unsetMarks = unsetMarks;
+exports.snapshotSelection = snapshotSelection;
 exports.unsetSelection = unsetSelection;
 
 /**
  * Blur the selection.
  *
  * @param {Transform} transform
- * @return {Transform}
  */
 
 function blur(transform) {
@@ -19403,14 +19121,13 @@ function blur(transform) {
   var selection = state.selection;
 
   var sel = selection.blur();
-  return transform.setSelectionOperation(sel);
+  transform.setSelectionOperation(sel);
 }
 
 /**
  * Move the focus point to the anchor point.
  *
  * @param {Transform} transform
- * @return {Transform}
  */
 
 function collapseToAnchor(transform) {
@@ -19418,14 +19135,13 @@ function collapseToAnchor(transform) {
   var selection = state.selection;
 
   var sel = selection.collapseToAnchor();
-  return transform.setSelectionOperation(sel);
+  transform.setSelectionOperation(sel);
 }
 
 /**
  * Move the start point to the end point.
  *
  * @param {Transform} transform
- * @return {Transform}
  */
 
 function collapseToEnd(transform) {
@@ -19433,14 +19149,13 @@ function collapseToEnd(transform) {
   var selection = state.selection;
 
   var sel = selection.collapseToEnd();
-  return transform.setSelectionOperation(sel);
+  transform.setSelectionOperation(sel);
 }
 
 /**
  * Move the anchor point to the focus point.
  *
  * @param {Transform} transform
- * @return {Transform}
  */
 
 function collapseToFocus(transform) {
@@ -19448,14 +19163,13 @@ function collapseToFocus(transform) {
   var selection = state.selection;
 
   var sel = selection.collapseToFocus();
-  return transform.setSelectionOperation(sel);
+  transform.setSelectionOperation(sel);
 }
 
 /**
  * Move the end point to the start point.
  *
  * @param {Transform} transform
- * @return {Transform}
  */
 
 function collapseToStart(transform) {
@@ -19463,7 +19177,7 @@ function collapseToStart(transform) {
   var selection = state.selection;
 
   var sel = selection.collapseToStart();
-  return transform.setSelectionOperation(sel);
+  transform.setSelectionOperation(sel);
 }
 
 /**
@@ -19471,7 +19185,6 @@ function collapseToStart(transform) {
  *
  * @param {Transform} transform
  * @param {Node} node
- * @return {Transform}
  */
 
 function collapseToEndOf(transform, node) {
@@ -19479,14 +19192,13 @@ function collapseToEndOf(transform, node) {
   var selection = state.selection;
 
   var sel = selection.collapseToEndOf(node);
-  return transform.setSelectionOperation(sel);
+  transform.setSelectionOperation(sel);
 }
 
 /**
  * Move the selection to the end of the next block.
  *
  * @param {Transform} tansform
- * @return {Transform}
  */
 
 function collapseToEndOfNextBlock(transform) {
@@ -19497,17 +19209,16 @@ function collapseToEndOfNextBlock(transform) {
   var blocks = document.getBlocksAtRange(selection);
   var last = blocks.last();
   var next = document.getNextBlock(last);
-  if (!next) return transform;
+  if (!next) return;
 
   var sel = selection.collapseToEndOf(next);
-  return transform.setSelectionOperation(sel);
+  transform.setSelectionOperation(sel);
 }
 
 /**
  * Move the selection to the end of the next text.
  *
  * @param {Transform} tansform
- * @return {Transform}
  */
 
 function collapseToEndOfNextText(transform) {
@@ -19518,17 +19229,16 @@ function collapseToEndOfNextText(transform) {
   var texts = document.getTextsAtRange(selection);
   var last = texts.last();
   var next = document.getNextText(last);
-  if (!next) return transform;
+  if (!next) return;
 
   var sel = selection.collapseToEndOf(next);
-  return transform.setSelectionOperation(sel);
+  transform.setSelectionOperation(sel);
 }
 
 /**
  * Move the selection to the end of the previous block.
  *
  * @param {Transform} tansform
- * @return {Transform}
  */
 
 function collapseToEndOfPreviousBlock(transform) {
@@ -19539,17 +19249,16 @@ function collapseToEndOfPreviousBlock(transform) {
   var blocks = document.getBlocksAtRange(selection);
   var first = blocks.first();
   var previous = document.getPreviousBlock(first);
-  if (!previous) return transform;
+  if (!previous) return;
 
   var sel = selection.collapseToEndOf(previous);
-  return transform.setSelectionOperation(sel);
+  transform.setSelectionOperation(sel);
 }
 
 /**
  * Move the selection to the end of the previous text.
  *
  * @param {Transform} tansform
- * @return {Transform}
  */
 
 function collapseToEndOfPreviousText(transform) {
@@ -19560,10 +19269,10 @@ function collapseToEndOfPreviousText(transform) {
   var texts = document.getTextsAtRange(selection);
   var first = texts.first();
   var previous = document.getPreviousText(first);
-  if (!previous) return transform;
+  if (!previous) return;
 
   var sel = selection.collapseToEndOf(previous);
-  return transform.setSelectionOperation(sel);
+  transform.setSelectionOperation(sel);
 }
 
 /**
@@ -19571,7 +19280,6 @@ function collapseToEndOfPreviousText(transform) {
  *
  * @param {Transform} transform
  * @param {Node} node
- * @return {Transform}
  */
 
 function collapseToStartOf(transform, node) {
@@ -19579,14 +19287,13 @@ function collapseToStartOf(transform, node) {
   var selection = state.selection;
 
   var sel = selection.collapseToStartOf(node);
-  return transform.setSelectionOperation(sel);
+  transform.setSelectionOperation(sel);
 }
 
 /**
  * Move the selection to the start of the next block.
  *
  * @param {Transform} tansform
- * @return {Transform}
  */
 
 function collapseToStartOfNextBlock(transform) {
@@ -19597,17 +19304,16 @@ function collapseToStartOfNextBlock(transform) {
   var blocks = document.getBlocksAtRange(selection);
   var last = blocks.last();
   var next = document.getNextBlock(last);
-  if (!next) return transform;
+  if (!next) return;
 
   var sel = selection.collapseToStartOf(next);
-  return transform.setSelectionOperation(sel);
+  transform.setSelectionOperation(sel);
 }
 
 /**
  * Move the selection to the start of the next text.
  *
  * @param {Transform} tansform
- * @return {Transform}
  */
 
 function collapseToStartOfNextText(transform) {
@@ -19618,17 +19324,16 @@ function collapseToStartOfNextText(transform) {
   var texts = document.getTextsAtRange(selection);
   var last = texts.last();
   var next = document.getNextText(last);
-  if (!next) return transform;
+  if (!next) return;
 
   var sel = selection.collapseToStartOf(next);
-  return transform.setSelectionOperation(sel);
+  transform.setSelectionOperation(sel);
 }
 
 /**
  * Move the selection to the start of the previous block.
  *
  * @param {Transform} tansform
- * @return {Transform}
  */
 
 function collapseToStartOfPreviousBlock(transform) {
@@ -19639,17 +19344,16 @@ function collapseToStartOfPreviousBlock(transform) {
   var blocks = document.getBlocksAtRange(selection);
   var first = blocks.first();
   var previous = document.getPreviousBlock(first);
-  if (!previous) return transform;
+  if (!previous) return;
 
   var sel = selection.collapseToStartOf(previous);
-  return transform.setSelectionOperation(sel);
+  transform.setSelectionOperation(sel);
 }
 
 /**
  * Move the selection to the start of the previous text.
  *
  * @param {Transform} tansform
- * @return {Transform}
  */
 
 function collapseToStartOfPreviousText(transform) {
@@ -19660,10 +19364,10 @@ function collapseToStartOfPreviousText(transform) {
   var texts = document.getTextsAtRange(selection);
   var first = texts.first();
   var previous = document.getPreviousText(first);
-  if (!previous) return transform;
+  if (!previous) return;
 
   var sel = selection.collapseToStartOf(previous);
-  return transform.setSelectionOperation(sel);
+  transform.setSelectionOperation(sel);
 }
 
 /**
@@ -19671,7 +19375,6 @@ function collapseToStartOfPreviousText(transform) {
  *
  * @param {Transform} transform
  * @param {Number} n (optional)
- * @return {Transform}
  */
 
 function extendBackward(transform, n) {
@@ -19680,7 +19383,7 @@ function extendBackward(transform, n) {
       selection = state.selection;
 
   var sel = selection.extendBackward(n).normalize(document);
-  return transform.setSelectionOperation(sel);
+  transform.setSelectionOperation(sel);
 }
 
 /**
@@ -19688,7 +19391,6 @@ function extendBackward(transform, n) {
  *
  * @param {Transform} transform
  * @param {Number} n (optional)
- * @return {Transform}
  */
 
 function extendForward(transform, n) {
@@ -19697,7 +19399,7 @@ function extendForward(transform, n) {
       selection = state.selection;
 
   var sel = selection.extendForward(n).normalize(document);
-  return transform.setSelectionOperation(sel);
+  transform.setSelectionOperation(sel);
 }
 
 /**
@@ -19705,7 +19407,6 @@ function extendForward(transform, n) {
  *
  * @param {Transform} transform
  * @param {Node} node
- * @return {Transform}
  */
 
 function extendToEndOf(transform, node) {
@@ -19714,7 +19415,7 @@ function extendToEndOf(transform, node) {
       selection = state.selection;
 
   var sel = selection.extendToEndOf(node).normalize(document);
-  return transform.setSelectionOperation(sel);
+  transform.setSelectionOperation(sel);
 }
 
 /**
@@ -19722,7 +19423,6 @@ function extendToEndOf(transform, node) {
  *
  * @param {Transform} transform
  * @param {Node} node
- * @return {Transform}
  */
 
 function extendToStartOf(transform, node) {
@@ -19731,14 +19431,13 @@ function extendToStartOf(transform, node) {
       selection = state.selection;
 
   var sel = selection.extendToStartOf(node).normalize(document);
-  return transform.setSelectionOperation(sel);
+  transform.setSelectionOperation(sel);
 }
 
 /**
  * Focus the selection.
  *
  * @param {Transform} transform
- * @return {Transform}
  */
 
 function focus(transform) {
@@ -19746,7 +19445,7 @@ function focus(transform) {
   var selection = state.selection;
 
   var sel = selection.focus();
-  return transform.setSelectionOperation(sel);
+  transform.setSelectionOperation(sel);
 }
 
 /**
@@ -19754,7 +19453,6 @@ function focus(transform) {
  *
  * @param {Transform} transform
  * @param {Number} n (optional)
- * @return {Transform}
  */
 
 function moveBackward(transform, n) {
@@ -19763,7 +19461,7 @@ function moveBackward(transform, n) {
       selection = state.selection;
 
   var sel = selection.moveBackward(n).normalize(document);
-  return transform.setSelectionOperation(sel);
+  transform.setSelectionOperation(sel);
 }
 
 /**
@@ -19771,7 +19469,6 @@ function moveBackward(transform, n) {
  *
  * @param {Transform} transform
  * @param {Number} n (optional)
- * @return {Transform}
  */
 
 function moveForward(transform, n) {
@@ -19780,7 +19477,7 @@ function moveForward(transform, n) {
       selection = state.selection;
 
   var sel = selection.moveForward(n).normalize(document);
-  return transform.setSelectionOperation(sel);
+  transform.setSelectionOperation(sel);
 }
 
 /**
@@ -19788,11 +19485,10 @@ function moveForward(transform, n) {
  *
  * @param {Transform} transform
  * @param {Object} properties
- * @return {Transform}
  */
 
 function moveTo(transform, properties) {
-  return transform.setSelectionOperation(properties);
+  transform.setSelectionOperation(properties);
 }
 
 /**
@@ -19801,15 +19497,14 @@ function moveTo(transform, properties) {
  * @param {Transform} transform
  * @param {Number} anchor
  * @param {Number} focus (optional)
- * @return {Transform}
  */
 
-function moveToOffsets(transform, anchor, fokus) {
+function moveToOffsets(transform, anchor, _focus) {
   var state = transform.state;
   var selection = state.selection;
 
-  var sel = selection.moveToOffsets(anchor, fokus);
-  return transform.setSelectionOperation(sel);
+  var sel = selection.moveToOffsets(anchor, _focus);
+  transform.setSelectionOperation(sel);
 }
 
 /**
@@ -19818,7 +19513,6 @@ function moveToOffsets(transform, anchor, fokus) {
  * @param {Transform} transform
  * @param {Node} start
  * @param {Node} end (optional)
- * @return {Transform}
  */
 
 function moveToRangeOf(transform, start, end) {
@@ -19827,18 +19521,72 @@ function moveToRangeOf(transform, start, end) {
       selection = state.selection;
 
   var sel = selection.moveToRangeOf(start, end).normalize(document);
-  return transform.setSelectionOperation(sel);
+  transform.setSelectionOperation(sel);
+}
+
+/**
+ * Move the start offset by `n`.
+ *
+ * @param {Transform} transform
+ * @param {Number} n
+ */
+
+function moveStartOffset(transform, n) {
+  var state = transform.state;
+  var document = state.document,
+      selection = state.selection;
+
+  var sel = selection.moveStartOffset(n).normalize(document);
+  transform.setSelectionOperation(sel);
+}
+
+/**
+ * Move the end offset by `n`.
+ *
+ * @param {Transform} transform
+ * @param {Number} n
+ */
+
+function moveEndOffset(transform, n) {
+  var state = transform.state;
+  var document = state.document,
+      selection = state.selection;
+
+  var sel = selection.moveEndOffset(n).normalize(document);
+  transform.setSelectionOperation(sel);
+}
+
+/**
+ * Unset the selection's marks.
+ *
+ * @param {Transform} transform
+ */
+
+function unsetMarks(transform) {
+  transform.setSelectionOperation({ marks: null });
+}
+
+/**
+ * Snapshot the current selection.
+ *
+ * @param {Transform} transform
+ */
+
+function snapshotSelection(transform) {
+  var state = transform.state;
+  var selection = state.selection;
+
+  transform.setSelectionOperation(selection, { snapshot: true });
 }
 
 /**
  * Unset the selection, removing an association to a node.
  *
  * @param {Transform} transform
- * @return {Transform}
  */
 
 function unsetSelection(transform) {
-  return transform.setSelectionOperation({
+  transform.setSelectionOperation({
     anchorKey: null,
     anchorOffset: 0,
     focusKey: null,
@@ -19883,7 +19631,6 @@ function _interopRequireDefault(obj) {
  * @param {Number} offset
  * @param {Number} length
  * @param {Mixed} mark
- * @return {Transform}
  */
 
 function addMarkOperation(transform, path, offset, length, mark) {
@@ -19904,7 +19651,7 @@ function addMarkOperation(transform, path, offset, length, mark) {
     inverse: inverse
   };
 
-  return transform.applyOperation(operation);
+  transform.applyOperation(operation);
 }
 
 /**
@@ -19914,7 +19661,6 @@ function addMarkOperation(transform, path, offset, length, mark) {
  * @param {Array} path
  * @param {Number} index
  * @param {Node} node
- * @return {Transform}
  */
 
 function insertNodeOperation(transform, path, index, node) {
@@ -19932,7 +19678,7 @@ function insertNodeOperation(transform, path, index, node) {
     inverse: inverse
   };
 
-  return transform.applyOperation(operation);
+  transform.applyOperation(operation);
 }
 
 /**
@@ -19943,7 +19689,6 @@ function insertNodeOperation(transform, path, index, node) {
  * @param {Number} offset
  * @param {String} text
  * @param {Set<Mark>} marks (optional)
- * @return {Transform}
  */
 
 function insertTextOperation(transform, path, offset, text, marks) {
@@ -19964,7 +19709,7 @@ function insertTextOperation(transform, path, offset, text, marks) {
     inverse: inverse
   };
 
-  return transform.applyOperation(operation);
+  transform.applyOperation(operation);
 }
 
 /**
@@ -19973,7 +19718,6 @@ function insertTextOperation(transform, path, offset, text, marks) {
  * @param {Transform} transform
  * @param {Array} path
  * @param {Array} withPath
- * @return {Transform}
  */
 
 function joinNodeOperation(transform, path, withPath) {
@@ -20009,7 +19753,7 @@ function joinNodeOperation(transform, path, withPath) {
     inverse: inverse
   };
 
-  return transform.applyOperation(operation);
+  transform.applyOperation(operation);
 }
 
 /**
@@ -20019,7 +19763,6 @@ function joinNodeOperation(transform, path, withPath) {
  * @param {Array} path
  * @param {Array} newPath
  * @param {Number} newIndex
- * @return {Transform}
  */
 
 function moveNodeOperation(transform, path, newPath, newIndex) {
@@ -20042,7 +19785,7 @@ function moveNodeOperation(transform, path, newPath, newIndex) {
     inverse: inverse
   };
 
-  return transform.applyOperation(operation);
+  transform.applyOperation(operation);
 }
 
 /**
@@ -20053,7 +19796,6 @@ function moveNodeOperation(transform, path, newPath, newIndex) {
  * @param {Number} offset
  * @param {Number} length
  * @param {Mark} mark
- * @return {Transform}
  */
 
 function removeMarkOperation(transform, path, offset, length, mark) {
@@ -20074,7 +19816,7 @@ function removeMarkOperation(transform, path, offset, length, mark) {
     inverse: inverse
   };
 
-  return transform.applyOperation(operation);
+  transform.applyOperation(operation);
 }
 
 /**
@@ -20082,7 +19824,6 @@ function removeMarkOperation(transform, path, offset, length, mark) {
  *
  * @param {Transform} transform
  * @param {Array} path
- * @return {Transform}
  */
 
 function removeNodeOperation(transform, path) {
@@ -20106,7 +19847,7 @@ function removeNodeOperation(transform, path) {
     inverse: inverse
   };
 
-  return transform.applyOperation(operation);
+  transform.applyOperation(operation);
 }
 
 /**
@@ -20116,7 +19857,6 @@ function removeNodeOperation(transform, path) {
  * @param {Array} path
  * @param {Number} offset
  * @param {Number} length
- * @return {Transform}
  */
 
 function removeTextOperation(transform, path, offset, length) {
@@ -20161,7 +19901,7 @@ function removeTextOperation(transform, path, offset, length) {
     inverse: inverse
   };
 
-  return transform.applyOperation(operation);
+  transform.applyOperation(operation);
 }
 
 /**
@@ -20173,7 +19913,6 @@ function removeTextOperation(transform, path, offset, length) {
  * @param {Number} length
  * @param {Mark} mark
  * @param {Mark} newMark
- * @return {Transform}
  */
 
 function setMarkOperation(transform, path, offset, length, mark, newMark) {
@@ -20196,7 +19935,7 @@ function setMarkOperation(transform, path, offset, length, mark, newMark) {
     inverse: inverse
   };
 
-  return transform.applyOperation(operation);
+  transform.applyOperation(operation);
 }
 
 /**
@@ -20205,7 +19944,6 @@ function setMarkOperation(transform, path, offset, length, mark, newMark) {
  * @param {Transform} transform
  * @param {Array} path
  * @param {Object} properties
- * @return {Transform}
  */
 
 function setNodeOperation(transform, path, properties) {
@@ -20232,7 +19970,7 @@ function setNodeOperation(transform, path, properties) {
     inverse: inverse
   };
 
-  return transform.applyOperation(operation);
+  transform.applyOperation(operation);
 }
 
 /**
@@ -20240,10 +19978,11 @@ function setNodeOperation(transform, path, properties) {
  *
  * @param {Transform} transform
  * @param {Mixed} selection
- * @return {Transform}
  */
 
 function setSelectionOperation(transform, properties) {
+  var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
   properties = _normalize2.default.selectionProperties(properties);
 
   var state = transform.state;
@@ -20257,7 +19996,7 @@ function setSelectionOperation(transform, properties) {
   // create a dictionary of the previous values for all of the properties that
   // are being changed, for the inverse operation.
   for (var k in properties) {
-    if (properties[k] == selection[k]) continue;
+    if (!options.snapshot && properties[k] == selection[k]) continue;
     props[k] = properties[k];
     prevProps[k] = selection[k];
   }
@@ -20307,7 +20046,7 @@ function setSelectionOperation(transform, properties) {
   };
 
   // Apply the operation.
-  return transform.applyOperation(operation);
+  transform.applyOperation(operation);
 }
 
 /**
@@ -20316,7 +20055,6 @@ function setSelectionOperation(transform, properties) {
  * @param {Transform} transform
  * @param {Array} path
  * @param {Number} offset
- * @return {Transform}
  */
 
 function splitNodeOperation(transform, path, offset) {
@@ -20337,7 +20075,7 @@ function splitNodeOperation(transform, path, offset) {
     inverse: inverse
   };
 
-  return transform.applyOperation(operation);
+  transform.applyOperation(operation);
 }
 
 },{"../utils/normalize":82}],75:[function(require,module,exports){
