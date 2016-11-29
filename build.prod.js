@@ -1495,7 +1495,7 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var EMOJIS = ['😃', '😬', '🍔'];
+var EMOJIS = ['😃', '😬', '😂', '😅', '😆', '😍', '😱', '👋', '👏', '👍', '🙌', '👌', '🙏', '👻', '🍔', '🍑', '🍆', '🔑'];
 
 /**
  * Define a schema.
@@ -3432,14 +3432,15 @@ var LargeDocument = function (_React$Component) {
       return _react2.default.createElement(_.Editor, {
         placeholder: 'Enter some plain text...',
         schema: schema,
+        spellcheck: false,
         state: _this.state.state,
         onChange: _this.onChange
       });
     };
 
-    console.time('deserializeLargDocument');
+    console.time('deserializeLargeDocument');
     _this.state = { state: _.Raw.deserialize({ nodes: nodes }, { terse: true }) };
-    console.timeEnd('deserializeLargDocument');
+    console.timeEnd('deserializeLargeDocument');
     return _this;
   }
 
@@ -5562,13 +5563,13 @@ var Content = function (_React$Component) {
     /**
      * On before input, bubble up.
      *
-     * @param {Event} e
+     * @param {Event} event
      */
 
     /**
      * On blur, update the selection to be not focused.
      *
-     * @param {Event} e
+     * @param {Event} event
      */
 
     /**
@@ -5580,7 +5581,7 @@ var Content = function (_React$Component) {
     /**
      * On composition start, set the `isComposing` flag.
      *
-     * @param {Event} e
+     * @param {Event} event
      */
 
     /**
@@ -5588,69 +5589,69 @@ var Content = function (_React$Component) {
      * increment the `forces` key, which will force the contenteditable element
      * to completely re-render, since IME puts React in an unreconcilable state.
      *
-     * @param {Event} e
+     * @param {Event} event
      */
 
     /**
      * On copy, defer to `onCutCopy`, then bubble up.
      *
-     * @param {Event} e
+     * @param {Event} event
      */
 
     /**
      * On cut, defer to `onCutCopy`, then bubble up.
      *
-     * @param {Event} e
+     * @param {Event} event
      */
 
     /**
      * On drag end, unset the `isDragging` flag.
      *
-     * @param {Event} e
+     * @param {Event} event
      */
 
     /**
      * On drag over, set the `isDragging` flag and the `isInternalDrag` flag.
      *
-     * @param {Event} e
+     * @param {Event} event
      */
 
     /**
      * On drag start, set the `isDragging` flag and the `isInternalDrag` flag.
      *
-     * @param {Event} e
+     * @param {Event} event
      */
 
     /**
      * On drop.
      *
-     * @param {Event} e
+     * @param {Event} event
      */
 
     /**
      * On input, handle spellcheck and other similar edits that don't go trigger
      * the `onBeforeInput` and instead update the DOM directly.
      *
-     * @param {Event} e
+     * @param {Event} event
      */
 
     /**
      * On key down, prevent the default behavior of certain commands that will
      * leave the editor in an out-of-sync state, then bubble up.
      *
-     * @param {Event} e
+     * @param {Event} event
      */
 
     /**
      * On paste, determine the type and bubble up.
      *
-     * @param {Event} e
+     * @param {Event} event
      */
 
     /**
      * On select, update the current state's selection.
      *
-     * @param {Event} e
+     * @param {Event} event
      */
 
     /**
@@ -5736,25 +5737,25 @@ var _initialiseProps = function _initialiseProps() {
     return target.isContentEditable && (target === element || target.closest('[contenteditable]') == element);
   };
 
-  this.onBeforeInput = function (e) {
+  this.onBeforeInput = function (event) {
     if (_this2.props.readOnly) return;
-    if (!_this2.isInContentEditable(e)) return;
+    if (!_this2.isInContentEditable(event)) return;
 
     var data = {};
 
-    debug('onBeforeInput', data);
-    _this2.props.onBeforeInput(e, data);
+    debug('onBeforeInput', { event: event, data: data });
+    _this2.props.onBeforeInput(event, data);
   };
 
-  this.onBlur = function (e) {
+  this.onBlur = function (event) {
     if (_this2.props.readOnly) return;
     if (_this2.tmp.isCopying) return;
-    if (!_this2.isInContentEditable(e)) return;
+    if (!_this2.isInContentEditable(event)) return;
 
     var data = {};
 
-    debug('onBlur', data);
-    _this2.props.onBlur(e, data);
+    debug('onBlur', { event: event, data: data });
+    _this2.props.onBlur(event, data);
   };
 
   this.onChange = function (state) {
@@ -5762,17 +5763,17 @@ var _initialiseProps = function _initialiseProps() {
     _this2.props.onChange(state);
   };
 
-  this.onCompositionStart = function (e) {
-    if (!_this2.isInContentEditable(e)) return;
+  this.onCompositionStart = function (event) {
+    if (!_this2.isInContentEditable(event)) return;
 
     _this2.tmp.isComposing = true;
     _this2.tmp.compositions++;
 
-    debug('onCompositionStart');
+    debug('onCompositionStart', { event: event });
   };
 
-  this.onCompositionEnd = function (e) {
-    if (!_this2.isInContentEditable(e)) return;
+  this.onCompositionEnd = function (event) {
+    if (!_this2.isInContentEditable(event)) return;
 
     _this2.forces++;
     var count = _this2.tmp.compositions;
@@ -5785,12 +5786,12 @@ var _initialiseProps = function _initialiseProps() {
       _this2.tmp.isComposing = false;
     });
 
-    debug('onCompositionEnd');
+    debug('onCompositionEnd', { event: event });
   };
 
-  this.onCopy = function (e) {
-    if (!_this2.isInContentEditable(e)) return;
-    var window = (0, _getWindow2.default)(e.target);
+  this.onCopy = function (event) {
+    if (!_this2.isInContentEditable(event)) return;
+    var window = (0, _getWindow2.default)(event.target);
 
     _this2.tmp.isCopying = true;
     window.requestAnimationFrame(function () {
@@ -5803,14 +5804,14 @@ var _initialiseProps = function _initialiseProps() {
     data.type = 'fragment';
     data.fragment = state.fragment;
 
-    debug('onCopy', data);
-    _this2.props.onCopy(e, data);
+    debug('onCopy', { event: event, data: data });
+    _this2.props.onCopy(event, data);
   };
 
-  this.onCut = function (e) {
+  this.onCut = function (event) {
     if (_this2.props.readOnly) return;
-    if (!_this2.isInContentEditable(e)) return;
-    var window = (0, _getWindow2.default)(e.target);
+    if (!_this2.isInContentEditable(event)) return;
+    var window = (0, _getWindow2.default)(event.target);
 
     _this2.tmp.isCopying = true;
     window.requestAnimationFrame(function () {
@@ -5823,44 +5824,44 @@ var _initialiseProps = function _initialiseProps() {
     data.type = 'fragment';
     data.fragment = state.fragment;
 
-    debug('onCut', data);
-    _this2.props.onCut(e, data);
+    debug('onCut', { event: event, data: data });
+    _this2.props.onCut(event, data);
   };
 
-  this.onDragEnd = function (e) {
-    if (!_this2.isInContentEditable(e)) return;
+  this.onDragEnd = function (event) {
+    if (!_this2.isInContentEditable(event)) return;
 
     _this2.tmp.isDragging = false;
     _this2.tmp.isInternalDrag = null;
 
-    debug('onDragEnd');
+    debug('onDragEnd', { event: event });
   };
 
-  this.onDragOver = function (e) {
-    if (!_this2.isInContentEditable(e)) return;
+  this.onDragOver = function (event) {
+    if (!_this2.isInContentEditable(event)) return;
 
-    var dataTransfer = e.nativeEvent.dataTransfer;
+    var dataTransfer = event.nativeEvent.dataTransfer;
 
     var transfer = new _transfer2.default(dataTransfer);
 
     // Prevent default when nodes are dragged to allow dropping.
     if (transfer.getType() == 'node') {
-      e.preventDefault();
+      event.preventDefault();
     }
 
     if (_this2.tmp.isDragging) return;
     _this2.tmp.isDragging = true;
     _this2.tmp.isInternalDrag = false;
 
-    debug('onDragOver');
+    debug('onDragOver', { event: event });
   };
 
-  this.onDragStart = function (e) {
-    if (!_this2.isInContentEditable(e)) return;
+  this.onDragStart = function (event) {
+    if (!_this2.isInContentEditable(event)) return;
 
     _this2.tmp.isDragging = true;
     _this2.tmp.isInternalDrag = true;
-    var dataTransfer = e.nativeEvent.dataTransfer;
+    var dataTransfer = event.nativeEvent.dataTransfer;
 
     var transfer = new _transfer2.default(dataTransfer);
 
@@ -5873,21 +5874,21 @@ var _initialiseProps = function _initialiseProps() {
     var encoded = _base2.default.serializeNode(fragment);
     dataTransfer.setData(_types2.default.FRAGMENT, encoded);
 
-    debug('onDragStart');
+    debug('onDragStart', { event: event });
   };
 
-  this.onDrop = function (e) {
+  this.onDrop = function (event) {
     if (_this2.props.readOnly) return;
-    if (!_this2.isInContentEditable(e)) return;
+    if (!_this2.isInContentEditable(event)) return;
 
-    e.preventDefault();
+    event.preventDefault();
 
-    var window = (0, _getWindow2.default)(e.target);
+    var window = (0, _getWindow2.default)(event.target);
     var state = _this2.props.state;
-    var _e$nativeEvent = e.nativeEvent,
-        dataTransfer = _e$nativeEvent.dataTransfer,
-        x = _e$nativeEvent.x,
-        y = _e$nativeEvent.y;
+    var nativeEvent = event.nativeEvent;
+    var dataTransfer = nativeEvent.dataTransfer,
+        x = nativeEvent.x,
+        y = nativeEvent.y;
 
     var transfer = new _transfer2.default(dataTransfer);
     var data = transfer.getData();
@@ -5900,7 +5901,7 @@ var _initialiseProps = function _initialiseProps() {
       range = window.document.caretRangeFromPoint(x, y);
     } else {
       range = window.document.createRange();
-      range.setStart(e.nativeEvent.rangeParent, e.nativeEvent.rangeOffset);
+      range.setStart(nativeEvent.rangeParent, nativeEvent.rangeOffset);
     }
 
     var startNode = range.startContainer;
@@ -5925,17 +5926,17 @@ var _initialiseProps = function _initialiseProps() {
       data.isInternal = _this2.tmp.isInternalDrag;
     }
 
-    debug('onDrop', data);
-    _this2.props.onDrop(e, data);
+    debug('onDrop', { event: event, data: data });
+    _this2.props.onDrop(event, data);
   };
 
-  this.onInput = function (e) {
+  this.onInput = function (event) {
     if (_this2.tmp.isComposing) return;
     if (_this2.props.state.isBlurred) return;
-    if (!_this2.isInContentEditable(e)) return;
-    debug('onInput');
+    if (!_this2.isInContentEditable(event)) return;
+    debug('onInput', { event: event });
 
-    var window = (0, _getWindow2.default)(e.target);
+    var window = (0, _getWindow2.default)(event.target);
 
     // Get the selection point.
     var native = window.getSelection();
@@ -6000,63 +6001,69 @@ var _initialiseProps = function _initialiseProps() {
     _this2.onChange(next);
   };
 
-  this.onKeyDown = function (e) {
+  this.onKeyDown = function (event) {
     if (_this2.props.readOnly) return;
-    if (!_this2.isInContentEditable(e)) return;
+    if (!_this2.isInContentEditable(event)) return;
 
-    var key = (0, _keycode2.default)(e.which);
+    var altKey = event.altKey,
+        ctrlKey = event.ctrlKey,
+        metaKey = event.metaKey,
+        shiftKey = event.shiftKey,
+        which = event.which;
+
+    var key = (0, _keycode2.default)(which);
     var data = {};
 
     // When composing, these characters commit the composition but also move the
     // selection before we're able to handle it, so prevent their default,
     // selection-moving behavior.
     if (_this2.tmp.isComposing && (key == 'left' || key == 'right' || key == 'up' || key == 'down')) {
-      e.preventDefault();
+      event.preventDefault();
       return;
     }
 
     // Add helpful properties for handling hotkeys to the data object.
-    data.code = e.which;
+    data.code = which;
     data.key = key;
-    data.isAlt = e.altKey;
-    data.isCmd = _environment.IS_MAC ? e.metaKey && !e.altKey : false;
-    data.isCtrl = e.ctrlKey && !e.altKey;
-    data.isLine = _environment.IS_MAC ? e.metaKey : false;
-    data.isMeta = e.metaKey;
-    data.isMod = _environment.IS_MAC ? e.metaKey && !e.altKey : e.ctrlKey && !e.altKey;
-    data.isModAlt = _environment.IS_MAC ? e.metaKey && e.altKey : e.ctrlKey && e.altKey;
-    data.isShift = e.shiftKey;
-    data.isWord = _environment.IS_MAC ? e.altKey : e.ctrlKey;
+    data.isAlt = altKey;
+    data.isCmd = _environment.IS_MAC ? metaKey && !altKey : false;
+    data.isCtrl = ctrlKey && !altKey;
+    data.isLine = _environment.IS_MAC ? metaKey : false;
+    data.isMeta = metaKey;
+    data.isMod = _environment.IS_MAC ? metaKey && !altKey : ctrlKey && !altKey;
+    data.isModAlt = _environment.IS_MAC ? metaKey && altKey : ctrlKey && altKey;
+    data.isShift = shiftKey;
+    data.isWord = _environment.IS_MAC ? altKey : ctrlKey;
 
     // These key commands have native behavior in contenteditable elements which
     // will cause our state to be out of sync, so prevent them.
     if (key == 'enter' || key == 'backspace' || key == 'delete' || key == 'b' && data.isMod || key == 'i' && data.isMod || key == 'y' && data.isMod || key == 'z' && data.isMod) {
-      e.preventDefault();
+      event.preventDefault();
     }
 
-    debug('onKeyDown', data);
-    _this2.props.onKeyDown(e, data);
+    debug('onKeyDown', { event: event, data: data });
+    _this2.props.onKeyDown(event, data);
   };
 
-  this.onPaste = function (e) {
+  this.onPaste = function (event) {
     if (_this2.props.readOnly) return;
-    if (!_this2.isInContentEditable(e)) return;
+    if (!_this2.isInContentEditable(event)) return;
 
-    e.preventDefault();
-    var transfer = new _transfer2.default(e.clipboardData);
+    event.preventDefault();
+    var transfer = new _transfer2.default(event.clipboardData);
     var data = transfer.getData();
 
-    debug('onPaste', data);
-    _this2.props.onPaste(e, data);
+    debug('onPaste', { event: event, data: data });
+    _this2.props.onPaste(event, data);
   };
 
-  this.onSelect = function (e) {
+  this.onSelect = function (event) {
     if (_this2.props.readOnly) return;
     if (_this2.tmp.isCopying) return;
     if (_this2.tmp.isComposing) return;
-    if (!_this2.isInContentEditable(e)) return;
+    if (!_this2.isInContentEditable(event)) return;
 
-    var window = (0, _getWindow2.default)(e.target);
+    var window = (0, _getWindow2.default)(event.target);
     var state = _this2.props.state;
     var document = state.document,
         selection = state.selection;
@@ -6100,17 +6107,15 @@ var _initialiseProps = function _initialiseProps() {
         data.selection = selection.merge(properties).normalize(document);
       }
 
-    debug('onSelect', { data: data, selection: data.selection.toJS() });
-    _this2.props.onSelect(e, data);
+    debug('onSelect', { event: event, data: data });
+    _this2.props.onSelect(event, data);
   };
 
   this.render = function () {
-    debug('render');
-
-    var _props3 = _this2.props,
-        className = _props3.className,
-        readOnly = _props3.readOnly,
-        state = _props3.state;
+    var props = _this2.props;
+    var className = props.className,
+        readOnly = props.readOnly,
+        state = props.state;
     var document = state.document;
 
     var children = document.nodes.map(function (node) {
@@ -6124,12 +6129,14 @@ var _initialiseProps = function _initialiseProps() {
       whiteSpace: 'pre-wrap',
       // Allow words to break if they are too long.
       wordWrap: 'break-word'
-    }, readOnly ? {} : { WebkitUserModify: 'read-write-plaintext-only' }, _this2.props.style);
+    }, readOnly ? {} : { WebkitUserModify: 'read-write-plaintext-only' }, props.style);
 
     // COMPAT: In Firefox, spellchecking can remove entire wrapping elements
     // including inline ones like `<a>`, which is jarring for the user but also
     // causes the DOM to get into an irreconcilable state. (2016/09/01)
-    var spellCheck = _environment.IS_FIREFOX ? false : _this2.props.spellCheck;
+    var spellCheck = _environment.IS_FIREFOX ? false : props.spellCheck;
+
+    debug('render', { props: props });
 
     return _react2.default.createElement('div', {
       key: _this2.forces,
@@ -6158,10 +6165,10 @@ var _initialiseProps = function _initialiseProps() {
   };
 
   this.renderNode = function (node) {
-    var _props4 = _this2.props,
-        editor = _props4.editor,
-        schema = _props4.schema,
-        state = _props4.state;
+    var _props3 = _this2.props,
+        editor = _props3.editor,
+        schema = _props3.schema,
+        state = _props3.state;
 
     return _react2.default.createElement(_node2.default, {
       key: node.key,
@@ -6626,9 +6633,10 @@ var _initialiseProps = function _initialiseProps() {
   };
 
   this.render = function () {
-    debug('render');
+    var props = _this2.props,
+        state = _this2.state;
 
-    var handlers = {};
+    var handlers = { onChange: _this2.onChange };
 
     var _iteratorNormalCompletion6 = true;
     var _didIteratorError6 = false;
@@ -6655,15 +6663,16 @@ var _initialiseProps = function _initialiseProps() {
       }
     }
 
+    debug('render', { props: props, state: state });
+
     return _react2.default.createElement(_content2.default, _extends({}, handlers, {
-      className: _this2.props.className,
+      className: props.className,
       editor: _this2,
-      onChange: _this2.onChange,
-      readOnly: _this2.props.readOnly,
-      schema: _this2.state.schema,
-      spellCheck: _this2.props.spellCheck,
-      state: _this2.state.state,
-      style: _this2.props.style
+      readOnly: props.readOnly,
+      schema: state.schema,
+      spellCheck: props.spellCheck,
+      state: state.state,
+      style: props.style
     }));
   };
 
@@ -6783,6 +6792,8 @@ var _reactDom2 = _interopRequireDefault(_reactDom);
 var _getWindow = require('get-window');
 
 var _getWindow2 = _interopRequireDefault(_getWindow);
+
+var _environment = require('../constants/environment');
 
 function _interopRequireDefault(obj) {
   return obj && obj.__esModule ? obj : { default: obj };
@@ -6947,8 +6958,7 @@ var Leaf = function (_React$Component) {
     value: function updateSelection() {
       var _props2 = this.props,
           state = _props2.state,
-          ranges = _props2.ranges,
-          isVoid = _props2.isVoid;
+          ranges = _props2.ranges;
       var selection = state.selection;
 
       // If the selection is blurred we have nothing to do.
@@ -6972,13 +6982,6 @@ var Leaf = function (_React$Component) {
       var hasFocus = selection.hasFocusBetween(node, start, end);
       if (!hasAnchor && !hasFocus) return;
 
-      // If the leaf is a void leaf, ensure that it has no width. This is due to
-      // void nodes always rendering an empty leaf, for browser compatibility.
-      if (isVoid) {
-        anchorOffset = 0;
-        focusOffset = 0;
-      }
-
       // We have a selection to render, so prepare a few things...
       var ref = _reactDom2.default.findDOMNode(this);
       var el = findDeepestNode(ref);
@@ -6989,6 +6992,7 @@ var Leaf = function (_React$Component) {
       // COMPAT: In Firefox, it's not enough to create a range, you also need to
       // focus the contenteditable element. (2016/11/16)
       function focus() {
+        if (!_environment.IS_FIREFOX) return;
         if (parent) setTimeout(function () {
           return parent.focus();
         });
@@ -7044,7 +7048,7 @@ var Leaf = function (_React$Component) {
             }
         }
 
-      this.debug('updateSelection');
+      this.debug('updateSelection', { selection: selection });
     }
 
     /**
@@ -7056,8 +7060,6 @@ var Leaf = function (_React$Component) {
   }, {
     key: 'render',
     value: function render() {
-      this.debug('render');
-
       var props = this.props;
       var node = props.node,
           index = props.index;
@@ -7072,6 +7074,8 @@ var Leaf = function (_React$Component) {
       // renders where we don't update the leaves cause React's internal state to
       // get out of sync, causing it to not realize the DOM needs updating.
       this.tmp.renders++;
+
+      this.debug('render', { props: props });
 
       return _react2.default.createElement('span', { key: this.tmp.renders, 'data-offset-key': offsetKey }, this.renderMarks(props));
     }
@@ -7175,7 +7179,7 @@ function findDeepestNode(element) {
 
 exports.default = Leaf;
 
-},{"../utils/offset-key":83,"debug":116,"get-window":1187,"react":1484,"react-dom":1293}],40:[function(require,module,exports){
+},{"../constants/environment":43,"../utils/offset-key":83,"debug":116,"get-window":1187,"react":1484,"react-dom":1293}],40:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -7183,10 +7187,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-
-var _immutable = require('immutable');
-
-var _immutable2 = _interopRequireDefault(_immutable);
 
 var _base = require('../serializers/base-64');
 
@@ -7208,10 +7208,6 @@ var _types = require('../constants/types');
 
 var _types2 = _interopRequireDefault(_types);
 
-var _isDev = require('../constants/is-dev');
-
-var _isDev2 = _interopRequireDefault(_isDev);
-
 var _leaf = require('./leaf');
 
 var _leaf2 = _interopRequireDefault(_leaf);
@@ -7223,10 +7219,6 @@ var _void2 = _interopRequireDefault(_void);
 var _scrollTo = require('../utils/scroll-to');
 
 var _scrollTo2 = _interopRequireDefault(_scrollTo);
-
-var _warn = require('../utils/warn');
-
-var _warn2 = _interopRequireDefault(_warn);
 
 function _interopRequireDefault(obj) {
   return obj && obj.__esModule ? obj : { default: obj };
@@ -7524,9 +7516,10 @@ var _initialiseProps = function _initialiseProps() {
   };
 
   this.render = function () {
-    _this2.debug('render');
-
+    var props = _this2.props;
     var node = _this2.props.node;
+
+    _this2.debug('render', { props: props });
 
     return node.kind == 'text' ? _this2.renderText() : _this2.renderElement();
   };
@@ -7626,7 +7619,7 @@ var _initialiseProps = function _initialiseProps() {
 
 exports.default = Node;
 
-},{"../constants/is-dev":44,"../constants/types":45,"../serializers/base-64":62,"../utils/scroll-to":84,"../utils/warn":87,"./leaf":39,"./void":42,"debug":116,"immutable":1217,"react":1484,"react-dom":1293}],41:[function(require,module,exports){
+},{"../constants/types":45,"../serializers/base-64":62,"../utils/scroll-to":84,"./leaf":39,"./void":42,"debug":116,"react":1484,"react-dom":1293}],41:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -7787,6 +7780,10 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _debug = require('debug');
+
+var _debug2 = _interopRequireDefault(_debug);
+
 var _leaf = require('./leaf');
 
 var _leaf2 = _interopRequireDefault(_leaf);
@@ -7832,6 +7829,14 @@ function _inherits(subClass, superClass) {
 }
 
 /**
+ * Debug.
+ *
+ * @type {Function}
+ */
+
+var debug = (0, _debug2.default)('slate:void');
+
+/**
  * Void.
  *
  * @type {Component}
@@ -7851,86 +7856,7 @@ var Void = function (_React$Component) {
       args[_key] = arguments[_key];
     }
 
-    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = Void.__proto__ || Object.getPrototypeOf(Void)).call.apply(_ref, [this].concat(args))), _this), _this.onClick = function (e) {
-      e.preventDefault();
-      var _this$props = _this.props,
-          node = _this$props.node,
-          editor = _this$props.editor;
-
-      var next = editor.getState().transform().collapseToStartOf(node).focus().apply();
-
-      editor.onChange(next);
-    }, _this.render = function () {
-      var _this$props2 = _this.props,
-          children = _this$props2.children,
-          node = _this$props2.node;
-
-      var Tag = node.kind == 'block' ? 'div' : 'span';
-
-      // Make the outer wrapper relative, so the spacer can overlay it.
-      var style = {
-        position: 'relative'
-      };
-
-      return _react2.default.createElement(Tag, { style: style, onClick: _this.onClick }, _this.renderSpacer(), _react2.default.createElement(Tag, { contentEditable: false }, children));
-    }, _this.renderSpacer = function () {
-      var node = _this.props.node;
-
-      var style = void 0;
-
-      if (node.kind == 'block') {
-        style = _environment.IS_FIREFOX ? {
-          pointerEvents: 'none',
-          width: '0px',
-          height: '0px',
-          lineHeight: '0px',
-          visibility: 'hidden'
-        } : {
-          position: 'absolute',
-          top: '0px',
-          left: '-9999px',
-          textIndent: '-9999px'
-        };
-      } else {
-        style = {
-          position: 'relative',
-          top: '0px',
-          left: '-9999px',
-          textIndent: '-9999px'
-        };
-      }
-
-      return _react2.default.createElement('span', { style: style }, _this.renderLeaf());
-    }, _this.renderLeaf = function () {
-      var _this$props3 = _this.props,
-          node = _this$props3.node,
-          schema = _this$props3.schema,
-          state = _this$props3.state;
-
-      var child = node.getFirstText();
-      var ranges = child.getRanges();
-      var text = '';
-      var marks = _mark2.default.createSet();
-      var index = 0;
-      var offsetKey = _offsetKey2.default.stringify({
-        key: child.key,
-        index: index
-      });
-
-      return _react2.default.createElement(_leaf2.default, {
-        isVoid: true,
-        renderMark: _noop2.default,
-        key: offsetKey,
-        schema: schema,
-        state: state,
-        node: child,
-        parent: node,
-        ranges: ranges,
-        index: index,
-        text: text,
-        marks: marks
-      });
-    }, _temp), _possibleConstructorReturn(_this, _ret);
+    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = Void.__proto__ || Object.getPrototypeOf(Void)).call.apply(_ref, [this].concat(args))), _this), _initialiseProps.call(_this), _temp), _possibleConstructorReturn(_this, _ret);
   }
 
   /**
@@ -7940,9 +7866,16 @@ var Void = function (_React$Component) {
    */
 
   /**
+   * Debug.
+   *
+   * @param {String} message
+   * @param {Mixed} ...args
+   */
+
+  /**
    * When one of the wrapper elements it clicked, select the void node.
    *
-   * @param {Event} e
+   * @param {Event} event
    */
 
   /**
@@ -7983,9 +7916,123 @@ Void.propTypes = {
   schema: _react2.default.PropTypes.object.isRequired,
   state: _react2.default.PropTypes.object.isRequired
 };
+
+var _initialiseProps = function _initialiseProps() {
+  var _this2 = this;
+
+  this.debug = function (message) {
+    for (var _len2 = arguments.length, args = Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
+      args[_key2 - 1] = arguments[_key2];
+    }
+
+    var node = _this2.props.node;
+    var key = node.key,
+        type = node.type;
+
+    var id = key + ' (' + type + ')';
+    debug.apply(undefined, [message, '' + id].concat(args));
+  };
+
+  this.onClick = function (event) {
+    event.preventDefault();
+    _this2.debug('onClick', { event: event });
+
+    var _props = _this2.props,
+        node = _props.node,
+        editor = _props.editor;
+
+    var next = editor.getState().transform()
+    // COMPAT: In Chrome & Safari, selections that are at the zero offset of
+    // an inline node will be automatically replaced to be at the last offset
+    // of a previous inline node, which screws us up, so we always want to set
+    // it to the end of the node. (2016/11/29)
+    .collapseToEndOf(node).focus().apply();
+
+    editor.onChange(next);
+  };
+
+  this.render = function () {
+    var props = _this2.props;
+    var children = props.children,
+        node = props.node;
+
+    var Tag = node.kind == 'block' ? 'div' : 'span';
+
+    // Make the outer wrapper relative, so the spacer can overlay it.
+    var style = {
+      position: 'relative'
+    };
+
+    _this2.debug('render', { props: props });
+
+    return _react2.default.createElement(Tag, { style: style, onClick: _this2.onClick }, _this2.renderSpacer(), _react2.default.createElement(Tag, { contentEditable: false }, children));
+  };
+
+  this.renderSpacer = function () {
+    var node = _this2.props.node;
+
+    var style = void 0;
+
+    if (node.kind == 'block') {
+      style = _environment.IS_FIREFOX ? {
+        pointerEvents: 'none',
+        width: '0px',
+        height: '0px',
+        lineHeight: '0px',
+        visibility: 'hidden'
+      } : {
+        position: 'absolute',
+        top: '0px',
+        left: '-9999px',
+        textIndent: '-9999px'
+      };
+    } else {
+      style = {
+        position: 'relative',
+        top: '0px',
+        left: '-9999px',
+        textIndent: '-9999px'
+      };
+    }
+
+    return _react2.default.createElement('span', { style: style }, _this2.renderLeaf());
+  };
+
+  this.renderLeaf = function () {
+    var _props2 = _this2.props,
+        node = _props2.node,
+        schema = _props2.schema,
+        state = _props2.state;
+
+    var child = node.getFirstText();
+    var ranges = child.getRanges();
+    var text = '';
+    var marks = _mark2.default.createSet();
+    var index = 0;
+    var offsetKey = _offsetKey2.default.stringify({
+      key: child.key,
+      index: index
+    });
+
+    return _react2.default.createElement(_leaf2.default, {
+      isVoid: true,
+      renderMark: _noop2.default,
+      key: offsetKey,
+      schema: schema,
+      state: state,
+      node: child,
+      parent: node,
+      ranges: ranges,
+      index: index,
+      text: text,
+      marks: marks
+    });
+  };
+};
+
 exports.default = Void;
 
-},{"../constants/environment":43,"../models/mark":52,"../utils/noop":81,"../utils/offset-key":83,"./leaf":39,"react":1484}],43:[function(require,module,exports){
+},{"../constants/environment":43,"../models/mark":52,"../utils/noop":81,"../utils/offset-key":83,"./leaf":39,"debug":116,"react":1484}],43:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -8724,7 +8771,7 @@ function _inherits(subClass, superClass) {
 
 var DEFAULTS = {
   key: null,
-  nodes: new _immutable.OrderedMap()
+  nodes: new _immutable.List()
 };
 
 /**
@@ -12716,7 +12763,7 @@ var State = function (_ref) {
 
       var state = new State({ document: document, selection: selection });
 
-      return state.transform({ normalized: false }).normalize(_core2.default).apply({ save: false });
+      return state.transform().normalize(_core2.default).apply({ save: false });
     }
   }]);
 
@@ -13332,7 +13379,6 @@ var Transform = function () {
         normalized = _properties$normalize === undefined ? true : _properties$normalize;
 
     this.state = state;
-    this.prevState = normalized ? state : null;
     this.operations = [];
   }
 
@@ -14059,8 +14105,15 @@ function Plugin() {
 
       debug('onKeyDownRight', { data: data });
 
+      // COMPAT: In Chrome & Safari, selections that are at the zero offset of
+      // an inline node will be automatically replaced to be at the last offset
+      // of a previous inline node, which screws us up, so we always want to set
+      // it to the end of the node. (2016/11/29)
+      var hasNextVoidParent = document.hasVoidParent(nextText.key);
+      var method = hasNextVoidParent ? 'collapseToEndOf' : 'collapseToStartOf';
+
       e.preventDefault();
-      return state.transform().collapseToStartOf(nextText).apply();
+      return state.transform()[method](nextText).apply();
     }
   }
 
