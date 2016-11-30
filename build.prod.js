@@ -10314,8 +10314,14 @@ var Node = {
 
   getTextAtOffset: function getTextAtOffset(offset) {
     var length = 0;
-    return this.getTexts().find(function (text) {
+    return this.getTexts().find(function (text, i, texts) {
+      var next = texts.get(i + 1);
       length += text.length;
+
+      // If the next text is an empty string, return false, because we want
+      // the furthest text node at the offset, and it will also match.
+      if (next && next.length == 0) return false;
+
       return length >= offset;
     });
   },
@@ -13955,13 +13961,13 @@ function Plugin() {
     debug('onKeyDownEnter', { data: data });
 
     var document = state.document,
-        startKey = state.startKey,
-        startBlock = state.startBlock;
+        startKey = state.startKey;
 
-    // For void blocks, we don't want to split. Instead we just move to the
-    // start of the next text node if one exists.
+    var hasVoidParent = document.hasVoidParent(startKey);
 
-    if (startBlock && startBlock.isVoid) {
+    // For void nodes, we don't want to split. Instead we just move to the start
+    // of the next text node if one exists.
+    if (hasVoidParent) {
       var text = document.getNextText(startKey);
       if (!text) return;
       return state.transform().collapseToStartOf(text).apply();
@@ -17110,6 +17116,8 @@ function deleteAtRange(transform, range) {
       endKey = range.endKey,
       endOffset = range.endOffset;
 
+  // If the start and end key are the same, we can just remove text.
+
   if (startKey == endKey) {
     var index = startOffset;
     var length = endOffset - startOffset;
@@ -17117,11 +17125,10 @@ function deleteAtRange(transform, range) {
     return;
   }
 
+  // Split at the range edges within a common ancestor, without normalizing.
   var state = transform.state;
   var _state = state,
       document = _state.document;
-
-  // split the nodes at range, within the common ancestor
 
   var ancestor = document.getCommonAncestor(startKey, endKey);
   var startChild = ancestor.getHighestChild(startKey);
@@ -17132,12 +17139,9 @@ function deleteAtRange(transform, range) {
   transform.splitNodeByKey(startChild.key, startOff, OPTS);
   transform.splitNodeByKey(endChild.key, endOff, OPTS);
 
+  // Refresh variables.
   state = transform.state;
   document = state.document;
-  var startBlock = document.getClosestBlock(startKey);
-  var endBlock = document.getClosestBlock(document.getNextText(endKey).key);
-
-  // remove all of the nodes between range
   ancestor = document.getCommonAncestor(startKey, endKey);
   startChild = ancestor.getHighestChild(startKey);
   endChild = ancestor.getHighestChild(endKey);
@@ -17145,12 +17149,17 @@ function deleteAtRange(transform, range) {
   var endIndex = ancestor.nodes.indexOf(endChild);
   var middles = ancestor.nodes.slice(startIndex + 1, endIndex + 1);
 
+  // Remove all of the middle nodes, between the splits.
   if (middles.size) {
-    // remove first nodes directly so the document is not normalized
     middles.forEach(function (child) {
       transform.removeNodeByKey(child.key, OPTS);
     });
   }
+
+  // If the start and end block are different, move all of the nodes from the
+  // end block into the start block.
+  var startBlock = document.getClosestBlock(startKey);
+  var endBlock = document.getClosestBlock(document.getNextText(endKey).key);
 
   if (startBlock.key !== endBlock.key) {
     endBlock.nodes.forEach(function (child, i) {
