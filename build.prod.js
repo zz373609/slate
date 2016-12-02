@@ -15034,6 +15034,7 @@ var Html =
  *
  * @param {Object} options
  *   @property {Array} rules
+ *   @property {String} defaultBlockType
  */
 
 function Html() {
@@ -15044,6 +15045,8 @@ function Html() {
   _initialiseProps.call(this);
 
   this.rules = [].concat(_toConsumableArray(options.rules || []), [TEXT_RULE]);
+
+  this.defaultBlockType = options.defaultBlockType || 'paragraph';
 }
 
 /**
@@ -15136,7 +15139,7 @@ var _initialiseProps = function _initialiseProps() {
 
       var block = {
         kind: 'block',
-        type: 'paragraph',
+        type: _this.defaultBlockType,
         nodes: [node]
       };
 
