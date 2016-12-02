@@ -4016,6 +4016,7 @@ var PasteHtml = function (_React$Component) {
       _this.setState({ state: state });
     }, _this.onPaste = function (e, data, state) {
       if (data.type != 'html') return;
+      if (data.isShift) return;
 
       var _serializer$deseriali = serializer.deserialize(data.html),
           document = _serializer$deseriali.document;
@@ -5643,6 +5644,12 @@ var Content = function (_React$Component) {
      */
 
     /**
+     * On key up, unset the `isShifting` flag.
+     *
+     * @param {Event} event
+     */
+
+    /**
      * On paste, determine the type and bubble up.
      *
      * @param {Event} event
@@ -6014,6 +6021,13 @@ var _initialiseProps = function _initialiseProps() {
     var key = (0, _keycode2.default)(which);
     var data = {};
 
+    // Keep track of an `isShifting` flag, because it's often used to trigger
+    // "Paste and Match Style" commands, but isn't available on the event in a
+    // normal paste event.
+    if (key == 'shift') {
+      _this2.tmp.isShifting = true;
+    }
+
     // When composing, these characters commit the composition but also move the
     // selection before we're able to handle it, so prevent their default,
     // selection-moving behavior.
@@ -6045,6 +6059,16 @@ var _initialiseProps = function _initialiseProps() {
     _this2.props.onKeyDown(event, data);
   };
 
+  this.onKeyUp = function (event) {
+    var which = event.which;
+
+    var key = (0, _keycode2.default)(which);
+
+    if (key == 'shift') {
+      _this2.tmp.isShifting = false;
+    }
+  };
+
   this.onPaste = function (event) {
     if (_this2.props.readOnly) return;
     if (!_this2.isInContentEditable(event)) return;
@@ -6052,6 +6076,10 @@ var _initialiseProps = function _initialiseProps() {
     event.preventDefault();
     var transfer = new _transfer2.default(event.clipboardData);
     var data = transfer.getData();
+
+    // Attach the `isShift` flag, so that people can use it to trigger "Paste
+    // and Match Style" logic.
+    data.isShift = !!_this2.tmp.isShifting;
 
     debug('onPaste', { event: event, data: data });
     _this2.props.onPaste(event, data);
@@ -6181,7 +6209,7 @@ var _initialiseProps = function _initialiseProps() {
       onDrop: _this2.onDrop,
       onInput: _this2.onInput,
       onKeyDown: _this2.onKeyDown,
-      onKeyUp: _noop2.default,
+      onKeyUp: _this2.onKeyUp,
       onPaste: _this2.onPaste,
       onSelect: _this2.onSelect,
       spellCheck: spellCheck,
