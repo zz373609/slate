@@ -1365,11 +1365,18 @@ var Video = function (_React$Component) {
       args[_key] = arguments[_key];
     }
 
-    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = Video.__proto__ || Object.getPrototypeOf(Video)).call.apply(_ref, [this].concat(args))), _this), _this.onChange = function (e) {
-      var video = e.target.value;
+    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = Video.__proto__ || Object.getPrototypeOf(Video)).call.apply(_ref, [this].concat(args))), _this), _this.isSelected = function () {
       var _this$props = _this.props,
           node = _this$props.node,
-          editor = _this$props.editor;
+          state = _this$props.state;
+
+      var isSelected = state.selection.hasEdgeIn(node);
+      return isSelected;
+    }, _this.onChange = function (e) {
+      var video = e.target.value;
+      var _this$props2 = _this.props,
+          node = _this$props2.node,
+          editor = _this$props2.editor;
 
       var properties = {
         data: { video: video }
@@ -1389,11 +1396,26 @@ var Video = function (_React$Component) {
       );
     }, _this.renderVideo = function () {
       var video = _this.props.node.data.get('video');
+      var isSelected = _this.isSelected();
+
       var wrapperStyle = {
         position: 'relative',
         paddingBottom: '66.66%',
         paddingTop: '25px',
-        height: '0'
+        height: '0',
+        outline: isSelected ? '2px solid blue' : 'none'
+      };
+
+      var maskStyle = {
+        display: isSelected ? 'none' : 'block',
+        position: 'absolute',
+        top: '0px',
+        left: '0px',
+        right: '0px',
+        bottom: '0px',
+        height: '100%',
+        cursor: 'cell',
+        zIndex: 1
       };
 
       var iframeStyle = {
@@ -1407,6 +1429,7 @@ var Video = function (_React$Component) {
       return _react2.default.createElement(
         'div',
         { style: wrapperStyle },
+        _react2.default.createElement('div', { style: maskStyle }),
         _react2.default.createElement('iframe', {
           id: 'ytplayer',
           type: 'text/html',
@@ -1427,6 +1450,12 @@ var Video = function (_React$Component) {
       });
     }, _temp), _possibleConstructorReturn(_this, _ret);
   }
+
+  /**
+   * Check if the node is selected.
+   *
+   * @return {Boolean}
+   */
 
   /**
    * When the input text changes, update the `video` data on the node.
@@ -21064,8 +21093,8 @@ Object.defineProperty(exports, "__esModule", {
 
 function normalizeNodeAndOffset(node, offset) {
   // If it's an element node, its offset refers to the index of its children
-  // including comment nodes, so convert it to a text equivalent.
-  if (node.nodeType == 1) {
+  // including comment nodes, so try to find the right text child node.
+  if (node.nodeType == 1 && node.childNodes.length) {
     var isLast = offset == node.childNodes.length;
     var direction = isLast ? 'backward' : 'forward';
     var index = isLast ? offset - 1 : offset;
