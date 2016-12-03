@@ -5426,10 +5426,6 @@ var _keycode = require('keycode');
 
 var _keycode2 = _interopRequireDefault(_keycode);
 
-var _noop = require('../utils/noop');
-
-var _noop2 = _interopRequireDefault(_noop);
-
 var _environment = require('../constants/environment');
 
 function _interopRequireDefault(obj) {
@@ -6139,7 +6135,7 @@ var _initialiseProps = function _initialiseProps() {
         var anchorInline = document.getClosestInline(anchor.key);
         var focusInline = document.getClosestInline(focus.key);
 
-        if (anchorInline && anchor.offset == anchorText.length) {
+        if (anchorInline && !anchorInline.isVoid && anchor.offset == anchorText.length) {
           var block = document.getClosestBlock(anchor.key);
           var next = block.getNextText(anchor.key);
           if (next) {
@@ -6148,7 +6144,7 @@ var _initialiseProps = function _initialiseProps() {
           }
         }
 
-        if (focusInline && focus.offset == focusText.length) {
+        if (focusInline && !focusInline.isVoid && focus.offset == focusText.length) {
           var _block = document.getClosestBlock(focus.key);
           var _next = _block.getNextText(focus.key);
           if (_next) {
@@ -6236,7 +6232,7 @@ var _initialiseProps = function _initialiseProps() {
 
 exports.default = Content;
 
-},{"../constants/environment":43,"../constants/types":45,"../models/selection":56,"../serializers/base-64":62,"../utils/noop":81,"../utils/offset-key":84,"../utils/transfer":87,"./node":40,"debug":117,"get-window":1188,"keycode":1226,"react":1441,"react-dom":1250}],38:[function(require,module,exports){
+},{"../constants/environment":43,"../constants/types":45,"../models/selection":56,"../serializers/base-64":62,"../utils/offset-key":84,"../utils/transfer":87,"./node":40,"debug":117,"get-window":1188,"keycode":1226,"react":1441,"react-dom":1250}],38:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -6274,6 +6270,10 @@ var _react2 = _interopRequireDefault(_react);
 var _schema3 = require('../models/schema');
 
 var _schema4 = _interopRequireDefault(_schema3);
+
+var _state = require('../models/state');
+
+var _state2 = _interopRequireDefault(_state);
 
 var _noop = require('../utils/noop');
 
@@ -6516,7 +6516,7 @@ Editor.propTypes = {
   readOnly: _react2.default.PropTypes.bool,
   schema: _react2.default.PropTypes.object,
   spellCheck: _react2.default.PropTypes.bool,
-  state: _react2.default.PropTypes.object.isRequired,
+  state: _react2.default.PropTypes.instanceOf(_state2.default).isRequired,
   style: _react2.default.PropTypes.object
 };
 Editor.defaultProps = {
@@ -6807,7 +6807,7 @@ try {
 
 exports.default = Editor;
 
-},{"../models/schema":55,"../plugins/core":60,"../utils/noop":81,"./content":37,"debug":117,"react":1441}],39:[function(require,module,exports){
+},{"../models/schema":55,"../models/state":57,"../plugins/core":60,"../utils/noop":81,"./content":37,"debug":117,"react":1441}],39:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -10377,13 +10377,7 @@ var Node = {
     var length = 0;
 
     return this.getTexts().find(function (text, i, texts) {
-      var next = texts.get(i + 1);
       length += text.length;
-
-      // If the next text is an empty string, return false, because we want
-      // the furthest text node at the offset, and it will also match.
-      if (next && next.length == 0) return false;
-
       return length > offset;
     });
   },
@@ -13656,10 +13650,6 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
-var _string = require('../utils/string');
-
-var _string2 = _interopRequireDefault(_string);
-
 var _getWindow = require('get-window');
 
 var _getWindow2 = _interopRequireDefault(_getWindow);
@@ -14101,7 +14091,10 @@ function Plugin() {
   /**
    * On `left` key down, move backward.
    *
-   * COMPAT: This is required to solve for the case where an inline void node is
+   * COMPAT: This is required to make navigating with the left arrow work when
+   * a void node is selected.
+   *
+   * COMPAT: This is also required to solve for the case where an inline node is
    * surrounded by empty text nodes with zero-width spaces in them. Without this
    * the zero-width spaces will cause two arrow keys to jump to the next text.
    *
@@ -14113,7 +14106,7 @@ function Plugin() {
 
   function onKeyDownLeft(e, data, state) {
     if (data.isCtrl) return;
-    if (data.isOpt) return;
+    if (data.isAlt) return;
     if (state.isExpanded) return;
 
     var document = state.document,
@@ -14122,21 +14115,45 @@ function Plugin() {
 
     var hasVoidParent = document.hasVoidParent(startKey);
 
+    // If the current text node is empty, or we're inside a void parent, we're
+    // going to need to handle the selection behavior.
     if (startText.text == '' || hasVoidParent) {
-      var previousText = document.getPreviousText(startKey);
-      if (!previousText) return;
-
       e.preventDefault();
-      return state.transform().collapseToEndOf(previousText).apply();
+      var previous = document.getPreviousText(startKey);
+
+      // If there's no previous text node in the document, abort.
+      if (!previous) return;
+
+      // If the previous text is in the current block, and inside a non-void
+      // inline node, move one character into the inline node.
+      var startBlock = state.startBlock;
+
+      var previousBlock = document.getClosestBlock(previous.key);
+      var previousInline = document.getClosestInline(previous.key);
+
+      if (previousBlock == startBlock && previousInline && !previousInline.isVoid) {
+        return state.transform().collapseToEndOf(previous).moveBackward(1).apply();
+      }
+
+      // Otherwise, move to the end of the previous node.
+      return state.transform().collapseToEndOf(previous).apply();
     }
   }
 
   /**
    * On `right` key down, move forward.
    *
-   * COMPAT: This is required to solve for the case where an inline void node is
+   * COMPAT: This is required to make navigating with the right arrow work when
+   * a void node is selected.
+   *
+   * COMPAT: This is also required to solve for the case where an inline node is
    * surrounded by empty text nodes with zero-width spaces in them. Without this
    * the zero-width spaces will cause two arrow keys to jump to the next text.
+   *
+   * COMPAT: In Chrome & Safari, selections that are at the zero offset of
+   * an inline node will be automatically replaced to be at the last offset
+   * of a previous inline node, which screws us up, so we never want to set the
+   * selection to the very start of an inline node here. (2016/11/29)
    *
    * @param {Event} e
    * @param {Object} data
@@ -14146,7 +14163,7 @@ function Plugin() {
 
   function onKeyDownRight(e, data, state) {
     if (data.isCtrl) return;
-    if (data.isOpt) return;
+    if (data.isAlt) return;
     if (state.isExpanded) return;
 
     var document = state.document,
@@ -14155,19 +14172,35 @@ function Plugin() {
 
     var hasVoidParent = document.hasVoidParent(startKey);
 
+    // If the current text node is empty, or we're inside a void parent, we're
+    // going to need to handle the selection behavior.
     if (startText.text == '' || hasVoidParent) {
-      var nextText = document.getNextText(startKey);
-      if (!nextText) return state;
-
-      // COMPAT: In Chrome & Safari, selections that are at the zero offset of
-      // an inline node will be automatically replaced to be at the last offset
-      // of a previous inline node, which screws us up, so we always want to set
-      // it to the end of the node. (2016/11/29)
-      var hasNextVoidParent = document.hasVoidParent(nextText.key);
-      var method = hasNextVoidParent ? 'collapseToEndOf' : 'collapseToStartOf';
-
       e.preventDefault();
-      return state.transform()[method](nextText).apply();
+      var next = document.getNextText(startKey);
+
+      // If there's no next text node in the document, abort.
+      if (!next) return state;
+
+      // If the next text is inside a void node, move to the end of it.
+      var isInVoid = document.hasVoidParent(next.key);
+
+      if (isInVoid) {
+        return state.transform().collapseToEndOf(next).apply();
+      }
+
+      // If the next text is in the current block, and inside an inline node,
+      // move one character into the inline node.
+      var startBlock = state.startBlock;
+
+      var nextBlock = document.getClosestBlock(next.key);
+      var nextInline = document.getClosestInline(next.key);
+
+      if (nextBlock == startBlock && nextInline) {
+        return state.transform().collapseToStartOf(next).moveForward(1).apply();
+      }
+
+      // Otherwise, move to the start of the next text node.
+      return state.transform().collapseToStartOf(next).apply();
     }
   }
 
@@ -14455,7 +14488,7 @@ function Plugin() {
 
 exports.default = Plugin;
 
-},{"../components/placeholder":41,"../constants/environment":43,"../models/character":48,"../serializers/base-64":62,"../utils/string":86,"debug":117,"get-window":1188,"react":1441}],61:[function(require,module,exports){
+},{"../components/placeholder":41,"../constants/environment":43,"../models/character":48,"../serializers/base-64":62,"debug":117,"get-window":1188,"react":1441}],61:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -14680,13 +14713,13 @@ var rules = [
   },
   validate: function validate(node) {
     var invalids = node.nodes.reduce(function (list, child, index) {
-      if (child.kind == 'block') return list;
-      if (!child.isVoid) return list;
+      if (child.kind !== 'inline') return list;
 
       var prev = index > 0 ? node.nodes.get(index - 1) : null;
       var next = node.nodes.get(index + 1);
+      // We don't test if "prev" is inline, since it has already been processed in the loop
       var insertBefore = !prev;
-      var insertAfter = !next || isInlineVoid(next);
+      var insertAfter = !next || next.kind == 'inline';
 
       if (insertAfter || insertBefore) {
         list = list.push({ insertAfter: insertAfter, insertBefore: insertBefore, index: index });
@@ -14775,13 +14808,13 @@ var rules = [
       var next = nodes.get(i + 1);
 
       // If it's the first node, and the next is a void, preserve it.
-      if (!prev && isInlineVoid(next)) return;
+      if (!prev && next.kind == 'inline') return;
 
-      // It it's the last node, and the previous is a void, preserve it.
-      if (!next && isInlineVoid(prev)) return;
+      // It it's the last node, and the previous is an inline, preserve it.
+      if (!next && prev.kind == 'inline') return;
 
-      // If it's surrounded by voids, preserve it.
-      if (next && prev && isInlineVoid(next) && isInlineVoid(prev)) return;
+      // If it's surrounded by inlines, preserve it.
+      if (next && prev && next.kind == 'inline' && prev.kind == 'inline') return;
 
       // Otherwise, remove it.
       return true;
@@ -14795,17 +14828,6 @@ var rules = [
     });
   }
 }];
-
-/**
- * Test if a `node` is an inline void node.
- *
- * @param {Node} node
- * @return {Boolean}
- */
-
-function isInlineVoid(node) {
-  return node.kind == 'inline' && node.isVoid;
-}
 
 /**
  * Create the core schema.
@@ -17472,52 +17494,65 @@ function deleteBackwardAtRange(transform, range) {
       startKey = _range.startKey,
       focusOffset = _range.focusOffset;
 
+  // If the range is expanded, perform a regular delete instead.
+
   if (range.isExpanded) {
     transform.deleteAtRange(range, { normalize: normalize });
     return;
   }
 
+  // If the closest block is void, delete it.
   var block = document.getClosestBlock(startKey);
   if (block && block.isVoid) {
     transform.removeNodeByKey(block.key, { normalize: normalize });
     return;
   }
 
+  // If the closest inline is void, delete it.
   var inline = document.getClosestInline(startKey);
   if (inline && inline.isVoid) {
     transform.removeNodeByKey(inline.key, { normalize: normalize });
     return;
   }
 
+  // If the range is at the start of the document, abort.
   if (range.isAtStartOf(document)) {
     return;
   }
 
+  // If the range is at the start of the text node, we need to figure out what
+  // is behind it to know how to delete...
   var text = document.getDescendant(startKey);
   if (range.isAtStartOf(text)) {
     var prev = document.getPreviousText(text.key);
     var prevBlock = document.getClosestBlock(prev.key);
     var prevInline = document.getClosestInline(prev.key);
 
+    // If the previous block is void, remove it.
     if (prevBlock && prevBlock.isVoid) {
       transform.removeNodeByKey(prevBlock.key, { normalize: normalize });
       return;
     }
 
+    // If the previous inline is void, remove it.
     if (prevInline && prevInline.isVoid) {
       transform.removeNodeByKey(prevInline.key, { normalize: normalize });
       return;
     }
 
+    // If the previous text's block is inside the current block, then we need
+    // to remove a character when deleteing. Otherwise, we just want to join
+    // the two blocks together.
     range = range.merge({
       anchorKey: prev.key,
-      anchorOffset: prev.length
+      anchorOffset: prevBlock == block ? prev.length - 1 : prev.length
     });
 
     transform.deleteAtRange(range, { normalize: normalize });
     return;
   }
 
+  // Otherwise, just remove a character backwards.
   range = range.merge({
     focusOffset: focusOffset - n,
     isBackward: true
@@ -17639,9 +17674,12 @@ function deleteForwardAtRange(transform, range) {
       return;
     }
 
+    // If the next text's block is inside the current block, then we need
+    // to remove a character when deleteing. Otherwise, we just want to join
+    // the two blocks together.
     range = range.merge({
       focusKey: next.key,
-      focusOffset: 0
+      focusOffset: nextBlock == block ? 1 : 0
     });
 
     transform.deleteAtRange(range, { normalize: normalize });
