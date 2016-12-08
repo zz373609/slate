@@ -7187,7 +7187,7 @@ var Leaf = function (_React$Component) {
       // COMPAT: If the text is empty otherwise, it's because it's on the edge of
       // an inline void node, so we render a zero-width space so that the
       // selection can be inserted next to it still.
-      if (text == '') return _react2.default.createElement('span', { className: 'slate-zero-width-space' }, "\u200B");
+      if (text == '') return _react2.default.createElement('span', { 'data-slate-zero-width': true }, "\u200B");
 
       // COMPAT: Browsers will collapse trailing new lines at the end of blocks,
       // so we need to add an extra trailing new lines to prevent that.
@@ -13991,7 +13991,7 @@ function Plugin() {
 
     // Remove any zero-width space spans from the cloned DOM so that they don't
     // show up elsewhere when copied.
-    var zws = [].slice.call(contents.querySelectorAll('.slate-zero-width-space'));
+    var zws = [].slice.call(contents.querySelectorAll('[data-slate-zero-width]'));
     zws.forEach(function (zw) {
       return zw.parentNode.removeChild(zw);
     });
@@ -18676,6 +18676,7 @@ exports.setNodeByKey = setNodeByKey;
 exports.splitNodeByKey = splitNodeByKey;
 exports.unwrapInlineByKey = unwrapInlineByKey;
 exports.unwrapBlockByKey = unwrapBlockByKey;
+exports.unwrapNodeByKey = unwrapNodeByKey;
 exports.wrapInlineByKey = wrapInlineByKey;
 exports.wrapBlockByKey = wrapBlockByKey;
 
@@ -19003,7 +19004,7 @@ function splitNodeByKey(transform, key, offset) {
 
   var path = document.getPath(key);
 
-  transform.splitNodeOperation(path, offset);
+  transform.splitNodeAtOffsetOperation(path, offset);
 
   if (normalize) {
     var parent = document.getParent(key);
@@ -19053,6 +19054,60 @@ function unwrapBlockByKey(transform, key, properties, options) {
   var last = node.getLastText();
   var range = selection.moveToRangeOf(first, last);
   transform.unwrapBlockAtRange(range, properties, options);
+}
+
+/**
+ * Unwrap a single node from its parent.
+ *
+ * If the node is surrounded with siblings, its parent will be
+ * split. If the node is the only child, the parent is removed, and
+ * simply replaced by the node itself.  Cannot unwrap a root node.
+ *
+ * @param {Transform} transform
+ * @param {String} key
+ * @param {Object} options
+ *   @property {Boolean} normalize
+ */
+
+function unwrapNodeByKey(transform, key) {
+  var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+  var _options$normalize12 = options.normalize,
+      normalize = _options$normalize12 === undefined ? true : _options$normalize12;
+  var state = transform.state;
+  var document = state.document;
+
+  var parent = document.getParent(key);
+  var node = parent.getChild(key);
+
+  var index = parent.nodes.indexOf(node);
+  var isFirst = index === 0;
+  var isLast = index === parent.nodes.size - 1;
+
+  var parentParent = document.getParent(parent.key);
+  var parentIndex = parentParent.nodes.indexOf(parent);
+
+  if (parent.nodes.size === 1) {
+    // Remove the parent
+    transform.removeNodeByKey(parent.key, { normalize: false });
+    // and replace it by the node itself
+    transform.insertNodeByKey(parentParent.key, parentIndex, node, options);
+  } else if (isFirst) {
+    // Just move the node before its parent
+    transform.moveNodeByKey(key, parentParent.key, parentIndex, options);
+  } else if (isLast) {
+    // Just move the node after its parent
+    transform.moveNodeByKey(key, parentParent.key, parentIndex + 1, options);
+  } else {
+    var parentPath = document.getPath(parent.key);
+    // Split the parent
+    transform.splitNodeOperation(parentPath, index);
+    // Extract the node in between the splitted parent
+    transform.moveNodeByKey(key, parentParent.key, parentIndex + 1, { normalize: false });
+
+    if (normalize) {
+      transform.normalizeNodeByKey(parentParent.key, _core2.default);
+    }
+  }
 }
 
 /**
@@ -19211,6 +19266,7 @@ exports.default = {
   setMarkOperation: _operations.setMarkOperation,
   setNodeOperation: _operations.setNodeOperation,
   setSelectionOperation: _operations.setSelectionOperation,
+  splitNodeAtOffsetOperation: _operations.splitNodeAtOffsetOperation,
   splitNodeOperation: _operations.splitNodeOperation,
 
   /**
@@ -19290,6 +19346,7 @@ exports.default = {
   splitNodeByKey: _byKey.splitNodeByKey,
   unwrapInlineByKey: _byKey.unwrapInlineByKey,
   unwrapBlockByKey: _byKey.unwrapBlockByKey,
+  unwrapNodeByKey: _byKey.unwrapNodeByKey,
   wrapBlockByKey: _byKey.wrapBlockByKey,
   wrapInlineByKey: _byKey.wrapInlineByKey,
 
@@ -20253,6 +20310,7 @@ exports.removeTextOperation = removeTextOperation;
 exports.setMarkOperation = setMarkOperation;
 exports.setNodeOperation = setNodeOperation;
 exports.setSelectionOperation = setSelectionOperation;
+exports.splitNodeAtOffsetOperation = splitNodeAtOffsetOperation;
 exports.splitNodeOperation = splitNodeOperation;
 
 var _normalize = require('../utils/normalize');
@@ -20697,7 +20755,7 @@ function setSelectionOperation(transform, properties) {
  * @param {Number} offset
  */
 
-function splitNodeOperation(transform, path, offset) {
+function splitNodeAtOffsetOperation(transform, path, offset) {
   var inversePath = path.slice();
   inversePath[path.length - 1] += 1;
 
@@ -20705,13 +20763,45 @@ function splitNodeOperation(transform, path, offset) {
     type: 'join_node',
     path: inversePath,
     withPath: path,
-    deep: true // we need to join nodes recursively
+    // we will split down to the text nodes, so we must join nodes recursively
+    deep: true
   }];
 
   var operation = {
     type: 'split_node',
     path: path,
     offset: offset,
+    count: null,
+    inverse: inverse
+  };
+
+  transform.applyOperation(operation);
+}
+
+/**
+ * Split a node by `path` after its 'count' child.
+ *
+ * @param {Transform} transform
+ * @param {Array} path
+ * @param {Number} count
+ */
+
+function splitNodeOperation(transform, path, count) {
+  var inversePath = path.slice();
+  inversePath[path.length - 1] += 1;
+
+  var inverse = [{
+    type: 'join_node',
+    path: inversePath,
+    withPath: path,
+    deep: false
+  }];
+
+  var operation = {
+    type: 'split_node',
+    path: path,
+    offset: null,
+    count: count,
     inverse: inverse
   };
 
@@ -20736,7 +20826,7 @@ function findDOMNode(node) {
   var el = window.document.querySelector("[data-key=\"" + node.key + "\"]");
 
   if (!el) {
-    throw new Error("Unable to find a dom node for \"" + node.key + "\". This is\noften because of forgetting to add `props.attributes` to a component\nreturned from `renderNode`.");
+    throw new Error("Unable to find a DOM node for \"" + node.key + "\". This is\noften because of forgetting to add `props.attributes` to a component\nreturned from `renderNode`.");
   }
 
   return el;
