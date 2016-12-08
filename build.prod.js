@@ -8047,7 +8047,7 @@ var _initialiseProps = function _initialiseProps() {
 
     _this2.debug('render', { props: props });
 
-    return _react2.default.createElement(Tag, { style: style, onClick: _this2.onClick }, _this2.renderSpacer(), _react2.default.createElement(Tag, { contentEditable: false }, children));
+    return _react2.default.createElement(Tag, { 'data-slate-void': true, style: style, onClick: _this2.onClick }, _this2.renderSpacer(), _react2.default.createElement(Tag, { contentEditable: false }, children));
   };
 
   this.renderSpacer = function () {
@@ -21628,6 +21628,14 @@ var ATTRIBUTE = 'data-offset-key';
 var SELECTOR = '[' + ATTRIBUTE + ']';
 
 /**
+ * Void node selection.
+ *
+ * @type {String}
+ */
+
+var VOID_SELECTOR = '[data-slate-void]';
+
+/**
  * Find the start and end bounds from an `offsetKey` and `ranges`.
  *
  * @param {Number} index
@@ -21660,30 +21668,25 @@ function findKey(rawNode, rawOffset) {
       node = _normalizeNodeAndOffs.node,
       offset = _normalizeNodeAndOffs.offset;
 
+  var parentNode = node.parentNode;
+
   // Find the closest parent with an offset key attribute.
 
-
-  var closest = node.parentNode.closest(SELECTOR);
+  var closest = parentNode.closest(SELECTOR);
   var offsetKey = void 0;
 
-  // Get the key from the closest matching node if one exists.
-  if (closest) {
-    offsetKey = closest.getAttribute(ATTRIBUTE);
+  // For void nodes, the element with the offset key will be a cousin, not an
+  // ancestor, so find it by going down from the nearest void parent.
+  if (!closest) {
+    var closestVoid = parentNode.closest(VOID_SELECTOR);
+    closest = closestVoid.querySelector(SELECTOR);
+    offset = closest.textContent.length;
   }
 
-  // Otherwise, for void node scenarios, a cousin node will be selected, and
-  // we need to select the first text node cousin we can find.
-  else {
-      while (node = node.parentNode) {
-        var cousin = node.querySelector(SELECTOR);
-        if (!cousin) continue;
-        offsetKey = cousin.getAttribute(ATTRIBUTE);
-        offset = cousin.textContent.length;
-        break;
-      }
-    }
+  // Get the string value of the offset key attribute.
+  offsetKey = closest.getAttribute(ATTRIBUTE);
 
-  // If we still didn't find an offset key, error. This is a bug.
+  // If we still didn't find an offset key, this is a bug.
   if (!offsetKey) {
     throw new Error('Unable to find offset key for ' + node + ' with offset "' + offset + '".');
   }
