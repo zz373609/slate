@@ -19766,6 +19766,8 @@ var _warn = require('../utils/warn');
 
 var _warn2 = _interopRequireDefault(_warn);
 
+var _immutable = require('immutable');
+
 function _interopRequireDefault(obj) {
   return obj && obj.__esModule ? obj : { default: obj };
 }
@@ -19861,23 +19863,46 @@ function normalizeSelection(transform) {
  */
 
 function normalizeNodeAndChildren(transform, node, schema) {
-  // For performance considerations, we will check if the transform has actually
-  // added operations to the queue.
-  var count = transform.operations.length;
+  if (node.kind == 'text') {
+    normalizeNode(transform, node, schema);
+    return;
+  }
 
-  // Iterate over its children.
-  if (node.kind != 'text') {
-    node.nodes.forEach(function (child) {
+  // We can't just loop the children and normalize them, because in the process
+  // of normalizing one child, we might end up creating another. Instead, we
+  // have to normalize one at a time, and check for new children along the way.
+  var stack = node.nodes.map(function (n) {
+    return n.key;
+  }).toStack();
+  var set = new _immutable.Set();
+
+  // While there is still a child key that hasn't been normalized yet...
+  while (stack.size) {
+    var ops = transform.operations.length;
+    var key = void 0;
+
+    // Unwind the stack, normalizing every child and adding it to the set.
+    while (key = stack.peek()) {
+      var child = node.getChild(key);
       normalizeNodeAndChildren(transform, child, schema);
-    });
+      set = set.add(key);
+      stack = stack.pop();
+    }
+
+    // PERF: Only re-find the node and re-normalize any new children if
+    // operations occured that might have changed it.
+    if (transform.operations.length != ops) {
+      node = refindNode(transform, node);
+
+      // Add any new children back onto the stack.
+      node.nodes.forEach(function (n) {
+        if (set.has(n.key)) return;
+        stack = stack.push(n.key);
+      });
+    }
   }
 
-  // Re-find the node reference if necessary.
-  if (transform.operations.length != count) {
-    node = refindNode(transform, node);
-  }
-
-  // Now normalize the node itself if it still exists.
+  // Normalize the node itself if it still exists.
   if (node) {
     normalizeNode(transform, node, schema);
   }
@@ -19959,7 +19984,7 @@ function assertSchema(schema) {
   }
 }
 
-},{"../models/schema":55,"../utils/normalize":85,"../utils/warn":90}],74:[function(require,module,exports){
+},{"../models/schema":55,"../utils/normalize":85,"../utils/warn":90,"immutable":1218}],74:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
