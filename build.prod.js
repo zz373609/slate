@@ -11428,14 +11428,6 @@ function _inherits(subClass, superClass) {
 }
 
 /**
- * Start-end-and-edge convenience methods to auto-generate.
- *
- * @type {Array}
- */
-
-var EDGE_METHODS = ['has%AtStartOf', 'has%AtEndOf', 'has%Between', 'has%In'];
-
-/**
  * Default properties.
  *
  * @type {Object}
@@ -11763,42 +11755,6 @@ var Selection = function (_ref) {
     }
 
     /**
-     * Move the end point to the start point.
-     *
-     * @return {Selection}
-     */
-
-  }, {
-    key: 'collapseToStart',
-    value: function collapseToStart() {
-      return this.merge({
-        anchorKey: this.startKey,
-        anchorOffset: this.startOffset,
-        focusKey: this.startKey,
-        focusOffset: this.startOffset,
-        isBackward: false
-      });
-    }
-
-    /**
-     * Move the end point to the start point.
-     *
-     * @return {Selection}
-     */
-
-  }, {
-    key: 'collapseToEnd',
-    value: function collapseToEnd() {
-      return this.merge({
-        anchorKey: this.endKey,
-        anchorOffset: this.endOffset,
-        focusKey: this.endKey,
-        focusOffset: this.endOffset,
-        isBackward: false
-      });
-    }
-
-    /**
      * Move to the start of a `node`.
      *
      * @param {Node} node
@@ -11962,33 +11918,47 @@ var Selection = function (_ref) {
     }
 
     /**
-     * Extend the start point forward `n` characters.
+     * Move the anchor offset `n` characters.
      *
      * @param {Number} n (optional)
      * @return {Selection}
      */
 
   }, {
-    key: 'moveStartOffset',
-    value: function moveStartOffset() {
+    key: 'moveAnchorOffset',
+    value: function moveAnchorOffset() {
       var n = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+      var anchorKey = this.anchorKey,
+          focusKey = this.focusKey,
+          focusOffset = this.focusOffset;
 
-      return this.isBackward ? this.merge({ focusOffset: this.focusOffset + n }) : this.merge({ anchorOffset: this.anchorOffset + n });
+      var anchorOffset = this.anchorOffset + n;
+      return this.merge({
+        anchorOffset: anchorOffset,
+        isBackward: anchorKey == focusKey ? anchorOffset > focusOffset : this.isBackward
+      });
     }
 
     /**
-     * Extend the end point forward `n` characters.
+     * Move the anchor offset `n` characters.
      *
      * @param {Number} n (optional)
      * @return {Selection}
      */
 
   }, {
-    key: 'moveEndOffset',
-    value: function moveEndOffset() {
+    key: 'moveFocusOffset',
+    value: function moveFocusOffset() {
       var n = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+      var focusKey = this.focusKey,
+          anchorKey = this.anchorKey,
+          anchorOffset = this.anchorOffset;
 
-      return this.isBackward ? this.merge({ anchorOffset: this.anchorOffset + n }) : this.merge({ focusOffset: this.focusOffset + n });
+      var focusOffset = this.focusOffset + n;
+      return this.merge({
+        focusOffset: focusOffset,
+        isBackward: focusKey == anchorKey ? anchorOffset > focusOffset : this.isBackward
+      });
     }
 
     /**
@@ -12003,7 +11973,19 @@ var Selection = function (_ref) {
     value: function moveStartTo(key) {
       var offset = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
 
-      return this.isBackward ? this.merge({ focusKey: key, focusOffset: offset }) : this.merge({ anchorKey: key, anchorOffset: offset });
+      if (this.isBackward) {
+        return this.merge({
+          focusKey: key,
+          focusOffset: offset,
+          isBackward: null
+        });
+      } else {
+        return this.merge({
+          anchorKey: key,
+          anchorOffset: offset,
+          isBackward: null
+        });
+      }
     }
 
     /**
@@ -12018,7 +12000,19 @@ var Selection = function (_ref) {
     value: function moveEndTo(key) {
       var offset = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
 
-      return this.isBackward ? this.merge({ anchorKey: key, anchorOffset: offset }) : this.merge({ focusKey: key, focusOffset: offset });
+      if (this.isBackward) {
+        return this.merge({
+          anchorKey: key,
+          anchorOffset: offset,
+          isBackward: null
+        });
+      } else {
+        return this.merge({
+          focusKey: key,
+          focusOffset: offset,
+          isBackward: null
+        });
+      }
     }
 
     /**
@@ -12071,6 +12065,24 @@ var Selection = function (_ref) {
         focusOffset: 0,
         isFocused: false,
         isBackward: false
+      });
+    }
+
+    /**
+     * Flip the selection.
+     *
+     * @return {Selection}
+     */
+
+  }, {
+    key: 'flip',
+    value: function flip() {
+      return this.merge({
+        anchorKey: this.focusKey,
+        anchorOffset: this.focusOffset,
+        focusKey: this.anchorKey,
+        focusOffset: this.anchorOffset,
+        isBackward: this.isBackward == null ? null : !this.isBackward
       });
     }
   }, {
@@ -12209,11 +12221,11 @@ var Selection = function (_ref) {
  * Add start, end and edge convenience methods.
  */
 
-EDGE_METHODS.forEach(function (pattern) {
-  var _pattern$split = pattern.split('%'),
-      _pattern$split2 = _slicedToArray(_pattern$split, 2),
-      p = _pattern$split2[0],
-      s = _pattern$split2[1];
+[['has', 'AtStartOf', true], ['has', 'AtEndOf', true], ['has', 'Between', true], ['has', 'In', true], ['collapseTo', ''], ['move', 'Offset']].forEach(function (opts) {
+  var _opts = _slicedToArray(opts, 3),
+      p = _opts[0],
+      s = _opts[1],
+      hasEdge = _opts[2];
 
   var anchor = p + 'Anchor' + s;
   var edge = p + 'Edge' + s;
@@ -12229,9 +12241,11 @@ EDGE_METHODS.forEach(function (pattern) {
     return this.isBackward ? this[anchor].apply(this, arguments) : this[focus].apply(this, arguments);
   };
 
-  Selection.prototype[edge] = function () {
-    return this[anchor].apply(this, arguments) || this[focus].apply(this, arguments);
-  };
+  if (hasEdge) {
+    Selection.prototype[edge] = function () {
+      return this[anchor].apply(this, arguments) || this[focus].apply(this, arguments);
+    };
+  }
 });
 
 /**
@@ -16749,10 +16763,10 @@ function insertText(state, operation) {
       document = _state3.document,
       selection = _state3.selection;
   var _selection = selection,
-      startKey = _selection.startKey,
-      endKey = _selection.endKey,
-      startOffset = _selection.startOffset,
-      endOffset = _selection.endOffset;
+      anchorKey = _selection.anchorKey,
+      focusKey = _selection.focusKey,
+      anchorOffset = _selection.anchorOffset,
+      focusOffset = _selection.focusOffset;
 
   var node = document.assertPath(path);
 
@@ -16761,11 +16775,11 @@ function insertText(state, operation) {
   document = document.updateDescendant(node);
 
   // Update the selection
-  if (startKey == node.key && startOffset >= offset) {
-    selection = selection.moveStartOffset(text.length);
+  if (anchorKey == node.key && anchorOffset >= offset) {
+    selection = selection.moveAnchorOffset(text.length);
   }
-  if (endKey == node.key && endOffset >= offset) {
-    selection = selection.moveEndOffset(text.length);
+  if (focusKey == node.key && focusOffset >= offset) {
+    selection = selection.moveFocusOffset(text.length);
   }
 
   state = state.merge({ document: document, selection: selection });
@@ -16966,19 +16980,19 @@ function removeText(state, operation) {
       document = _state8.document,
       selection = _state8.selection;
   var _selection4 = selection,
-      startKey = _selection4.startKey,
-      endKey = _selection4.endKey,
-      startOffset = _selection4.startOffset,
-      endOffset = _selection4.endOffset;
+      anchorKey = _selection4.anchorKey,
+      focusKey = _selection4.focusKey,
+      anchorOffset = _selection4.anchorOffset,
+      focusOffset = _selection4.focusOffset;
 
   var node = document.assertPath(path);
 
   // Update the selection
-  if (startKey == node.key && startOffset >= rangeOffset) {
-    selection = selection.moveStartOffset(-length);
+  if (anchorKey == node.key && anchorOffset >= rangeOffset) {
+    selection = selection.moveAnchorOffset(-length);
   }
-  if (endKey == node.key && endOffset >= rangeOffset) {
-    selection = selection.moveEndOffset(-length);
+  if (focusKey == node.key && focusOffset >= rangeOffset) {
+    selection = selection.moveFocusOffset(-length);
   }
 
   node = node.removeText(offset, length);
@@ -17664,13 +17678,19 @@ function wrapText(transform, prefix) {
 
   transform.wrapTextAtRange(selection, prefix, suffix);
 
+  // If the selection was collapsed, it will have moved the start offset too.
+  if (selection.isCollapsed) {
+    transform.moveStartOffset(0 - prefix.length);
+  }
+
   // Adding the suffix will have pushed the end of the selection further on, so
   // we need to move it back to account for this.
   transform.moveEndOffset(0 - suffix.length);
 
-  // If the selection was collapsed, it will have moved the start offset too.
-  if (selection.isCollapsed) {
-    transform.moveStartOffset(0 - prefix.length);
+  // There's a chance that the selection points moved "through" each other,
+  // resulting in a now-incorrect selection direction.
+  if (selection.isForward != transform.state.selection.isForward) {
+    transform.flipSelection();
   }
 }
 
@@ -19694,6 +19714,7 @@ exports.default = {
   extendToEndOf: _onSelection.extendToEndOf,
   extendToStartOf: _onSelection.extendToStartOf,
   focus: _onSelection.focus,
+  flipSelection: _onSelection.flipSelection,
   moveBackward: _onSelection.moveBackward,
   moveForward: _onSelection.moveForward,
   moveEndOffset: _onSelection.moveEndOffset,
@@ -20116,126 +20137,48 @@ function undo(transform) {
 }
 
 },{}],75:[function(require,module,exports){
-"use strict";
+'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.blur = blur;
-exports.collapseToAnchor = collapseToAnchor;
-exports.collapseToEnd = collapseToEnd;
-exports.collapseToFocus = collapseToFocus;
-exports.collapseToStart = collapseToStart;
-exports.collapseToEndOf = collapseToEndOf;
 exports.collapseToEndOfNextBlock = collapseToEndOfNextBlock;
 exports.collapseToEndOfNextText = collapseToEndOfNextText;
 exports.collapseToEndOfPreviousBlock = collapseToEndOfPreviousBlock;
 exports.collapseToEndOfPreviousText = collapseToEndOfPreviousText;
-exports.collapseToStartOf = collapseToStartOf;
 exports.collapseToStartOfNextBlock = collapseToStartOfNextBlock;
 exports.collapseToStartOfNextText = collapseToStartOfNextText;
 exports.collapseToStartOfPreviousBlock = collapseToStartOfPreviousBlock;
 exports.collapseToStartOfPreviousText = collapseToStartOfPreviousText;
-exports.extendBackward = extendBackward;
-exports.extendForward = extendForward;
-exports.extendToEndOf = extendToEndOf;
-exports.extendToStartOf = extendToStartOf;
-exports.focus = focus;
-exports.moveBackward = moveBackward;
-exports.moveForward = moveForward;
 exports.moveTo = moveTo;
-exports.moveToOffsets = moveToOffsets;
-exports.moveToRangeOf = moveToRangeOf;
-exports.moveStartOffset = moveStartOffset;
-exports.moveEndOffset = moveEndOffset;
 exports.unsetMarks = unsetMarks;
 exports.snapshotSelection = snapshotSelection;
 exports.unsetSelection = unsetSelection;
 
 /**
- * Blur the selection.
- *
- * @param {Transform} transform
+ * Auto-generate many transforms based on the `Selection` methods.
  */
 
-function blur(transform) {
-  var state = transform.state;
-  var selection = state.selection;
+var blur = exports.blur = generate('blur');
+var collapseToAnchor = exports.collapseToAnchor = generate('collapseToAnchor');
+var collapseToEnd = exports.collapseToEnd = generate('collapseToEnd');
+var collapseToFocus = exports.collapseToFocus = generate('collapseToFocus');
+var collapseToStart = exports.collapseToStart = generate('collapseToStart');
+var collapseToEndOf = exports.collapseToEndOf = generate('collapseToEndOf');
+var collapseToStartOf = exports.collapseToStartOf = generate('collapseToStartOf');
+var extendBackward = exports.extendBackward = generate('extendBackward');
+var extendForward = exports.extendForward = generate('extendForward');
+var extendToEndOf = exports.extendToEndOf = generate('extendToEndOf');
+var extendToStartOf = exports.extendToStartOf = generate('extendToStartOf');
+var focus = exports.focus = generate('focus');
+var moveBackward = exports.moveBackward = generate('moveBackward');
+var moveForward = exports.moveForward = generate('moveForward');
+var moveToOffsets = exports.moveToOffsets = generate('moveToOffsets');
+var moveToRangeOf = exports.moveToRangeOf = generate('moveToRangeOf');
+var moveStartOffset = exports.moveStartOffset = generate('moveStartOffset');
+var moveEndOffset = exports.moveEndOffset = generate('moveEndOffset');
 
-  var sel = selection.blur();
-  transform.setSelectionOperation(sel);
-}
-
-/**
- * Move the focus point to the anchor point.
- *
- * @param {Transform} transform
- */
-
-function collapseToAnchor(transform) {
-  var state = transform.state;
-  var selection = state.selection;
-
-  var sel = selection.collapseToAnchor();
-  transform.setSelectionOperation(sel);
-}
-
-/**
- * Move the start point to the end point.
- *
- * @param {Transform} transform
- */
-
-function collapseToEnd(transform) {
-  var state = transform.state;
-  var selection = state.selection;
-
-  var sel = selection.collapseToEnd();
-  transform.setSelectionOperation(sel);
-}
-
-/**
- * Move the anchor point to the focus point.
- *
- * @param {Transform} transform
- */
-
-function collapseToFocus(transform) {
-  var state = transform.state;
-  var selection = state.selection;
-
-  var sel = selection.collapseToFocus();
-  transform.setSelectionOperation(sel);
-}
-
-/**
- * Move the end point to the start point.
- *
- * @param {Transform} transform
- */
-
-function collapseToStart(transform) {
-  var state = transform.state;
-  var selection = state.selection;
-
-  var sel = selection.collapseToStart();
-  transform.setSelectionOperation(sel);
-}
-
-/**
- * Move to the end of a `node`.
- *
- * @param {Transform} transform
- * @param {Node} node
- */
-
-function collapseToEndOf(transform, node) {
-  var state = transform.state;
-  var selection = state.selection;
-
-  var sel = selection.collapseToEndOf(node);
-  transform.setSelectionOperation(sel);
-}
+var flipSelection = exports.flipSelection = generate('flip');
 
 /**
  * Move the selection to the end of the next block.
@@ -20314,21 +20257,6 @@ function collapseToEndOfPreviousText(transform) {
   if (!previous) return;
 
   var sel = selection.collapseToEndOf(previous);
-  transform.setSelectionOperation(sel);
-}
-
-/**
- * Move to the start of a `node`.
- *
- * @param {Transform} transform
- * @param {Node} node
- */
-
-function collapseToStartOf(transform, node) {
-  var state = transform.state;
-  var selection = state.selection;
-
-  var sel = selection.collapseToStartOf(node);
   transform.setSelectionOperation(sel);
 }
 
@@ -20413,116 +20341,6 @@ function collapseToStartOfPreviousText(transform) {
 }
 
 /**
- * Extend the focus point backward `n` characters.
- *
- * @param {Transform} transform
- * @param {Number} n (optional)
- */
-
-function extendBackward(transform, n) {
-  var state = transform.state;
-  var document = state.document,
-      selection = state.selection;
-
-  var sel = selection.extendBackward(n).normalize(document);
-  transform.setSelectionOperation(sel);
-}
-
-/**
- * Extend the focus point forward `n` characters.
- *
- * @param {Transform} transform
- * @param {Number} n (optional)
- */
-
-function extendForward(transform, n) {
-  var state = transform.state;
-  var document = state.document,
-      selection = state.selection;
-
-  var sel = selection.extendForward(n).normalize(document);
-  transform.setSelectionOperation(sel);
-}
-
-/**
- * Extend the focus point to the end of a `node`.
- *
- * @param {Transform} transform
- * @param {Node} node
- */
-
-function extendToEndOf(transform, node) {
-  var state = transform.state;
-  var document = state.document,
-      selection = state.selection;
-
-  var sel = selection.extendToEndOf(node).normalize(document);
-  transform.setSelectionOperation(sel);
-}
-
-/**
- * Extend the focus point to the start of a `node`.
- *
- * @param {Transform} transform
- * @param {Node} node
- */
-
-function extendToStartOf(transform, node) {
-  var state = transform.state;
-  var document = state.document,
-      selection = state.selection;
-
-  var sel = selection.extendToStartOf(node).normalize(document);
-  transform.setSelectionOperation(sel);
-}
-
-/**
- * Focus the selection.
- *
- * @param {Transform} transform
- */
-
-function focus(transform) {
-  var state = transform.state;
-  var selection = state.selection;
-
-  var sel = selection.focus();
-  transform.setSelectionOperation(sel);
-}
-
-/**
- * Move the selection backward `n` characters.
- *
- * @param {Transform} transform
- * @param {Number} n (optional)
- */
-
-function moveBackward(transform, n) {
-  var state = transform.state;
-  var document = state.document,
-      selection = state.selection;
-
-  var sel = selection.moveBackward(n).normalize(document);
-  transform.setSelectionOperation(sel);
-}
-
-/**
- * Move the selection forward `n` characters.
- *
- * @param {Transform} transform
- * @param {Number} n (optional)
- */
-
-function moveForward(transform, n) {
-  var state = transform.state;
-  var document = state.document,
-      selection = state.selection;
-
-  var sel = selection.moveForward(n).normalize(document);
-  transform.setSelectionOperation(sel);
-}
-
-/**
  * Move the selection to a specific anchor and focus point.
  *
  * @param {Transform} transform
@@ -20531,71 +20349,6 @@ function moveForward(transform, n) {
 
 function moveTo(transform, properties) {
   transform.setSelectionOperation(properties);
-}
-
-/**
- * Move the selection to `anchor` and `focus` offsets.
- *
- * @param {Transform} transform
- * @param {Number} anchor
- * @param {Number} focus (optional)
- */
-
-function moveToOffsets(transform, anchor, _focus) {
-  var state = transform.state;
-  var selection = state.selection;
-
-  var sel = selection.moveToOffsets(anchor, _focus);
-  transform.setSelectionOperation(sel);
-}
-
-/**
- * Move to the entire range of `start` and `end` nodes.
- *
- * @param {Transform} transform
- * @param {Node} start
- * @param {Node} end (optional)
- */
-
-function moveToRangeOf(transform, start, end) {
-  var state = transform.state;
-  var document = state.document,
-      selection = state.selection;
-
-  var sel = selection.moveToRangeOf(start, end).normalize(document);
-  transform.setSelectionOperation(sel);
-}
-
-/**
- * Move the start offset by `n`.
- *
- * @param {Transform} transform
- * @param {Number} n
- */
-
-function moveStartOffset(transform, n) {
-  var state = transform.state;
-  var document = state.document,
-      selection = state.selection;
-
-  var sel = selection.moveStartOffset(n).normalize(document);
-  transform.setSelectionOperation(sel);
-}
-
-/**
- * Move the end offset by `n`.
- *
- * @param {Transform} transform
- * @param {Number} n
- */
-
-function moveEndOffset(transform, n) {
-  var state = transform.state;
-  var document = state.document,
-      selection = state.selection;
-
-  var sel = selection.moveEndOffset(n).normalize(document);
-  transform.setSelectionOperation(sel);
 }
 
 /**
@@ -20636,6 +20389,28 @@ function unsetSelection(transform) {
     isFocused: false,
     isBackward: false
   });
+}
+
+/**
+ * Generate a selection transform for `method`.
+ *
+ * @param {String} method
+ * @return {Function}
+ */
+
+function generate(method) {
+  return function (transform) {
+    for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+      args[_key - 1] = arguments[_key];
+    }
+
+    var state = transform.state;
+    var document = state.document,
+        selection = state.selection;
+
+    var sel = selection[method].apply(selection, args).normalize(document);
+    transform.setSelectionOperation(sel);
+  };
 }
 
 },{}],76:[function(require,module,exports){
