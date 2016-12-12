@@ -5439,9 +5439,9 @@ var _selection = require('../models/selection');
 
 var _selection2 = _interopRequireDefault(_selection);
 
-var _transfer = require('../utils/transfer');
+var _getTransferData = require('../utils/get-transfer-data');
 
-var _transfer2 = _interopRequireDefault(_transfer);
+var _getTransferData2 = _interopRequireDefault(_getTransferData);
 
 var _types = require('../constants/types');
 
@@ -5562,6 +5562,8 @@ var Content = function (_React$Component) {
 
       var schema = editor.getSchema();
       var offsetKey = _offsetKey2.default.findKey(element, offset);
+      if (!offsetKey) return null;
+
       var key = offsetKey.key;
 
       var node = document.getDescendant(key);
@@ -5874,10 +5876,10 @@ var _initialiseProps = function _initialiseProps() {
 
     var dataTransfer = event.nativeEvent.dataTransfer;
 
-    var transfer = new _transfer2.default(dataTransfer);
+    var data = (0, _getTransferData2.default)(dataTransfer);
 
     // Prevent default when nodes are dragged to allow dropping.
-    if (transfer.getType() == 'node') {
+    if (data.type == 'node') {
       event.preventDefault();
     }
 
@@ -5895,10 +5897,10 @@ var _initialiseProps = function _initialiseProps() {
     _this2.tmp.isInternalDrag = true;
     var dataTransfer = event.nativeEvent.dataTransfer;
 
-    var transfer = new _transfer2.default(dataTransfer);
+    var data = (0, _getTransferData2.default)(dataTransfer);
 
     // If it's a node being dragged, the data type is already set.
-    if (transfer.getType() == 'node') return;
+    if (data.type == 'node') return;
 
     var state = _this2.props.state;
     var fragment = state.fragment;
@@ -5922,8 +5924,7 @@ var _initialiseProps = function _initialiseProps() {
         x = nativeEvent.x,
         y = nativeEvent.y;
 
-    var transfer = new _transfer2.default(dataTransfer);
-    var data = transfer.getData();
+    var data = (0, _getTransferData2.default)(dataTransfer);
 
     // Resolve the point where the drop occured.
     var range = void 0;
@@ -5939,6 +5940,8 @@ var _initialiseProps = function _initialiseProps() {
     var startNode = range.startContainer;
     var startOffset = range.startOffset;
     var point = _this2.getPoint(startNode, startOffset);
+    if (!point) return;
+
     var target = _selection2.default.create({
       anchorKey: point.key,
       anchorOffset: point.offset,
@@ -5976,13 +5979,13 @@ var _initialiseProps = function _initialiseProps() {
         anchorOffset = native.anchorOffset;
 
     var point = _this2.getPoint(anchorNode, anchorOffset);
+    if (!point) return;
+
+    // Get the range in question.
     var key = point.key,
         index = point.index,
         start = point.start,
         end = point.end;
-
-    // Get the range in question.
-
     var _props2 = _this2.props,
         state = _props2.state,
         editor = _props2.editor;
@@ -6099,8 +6102,7 @@ var _initialiseProps = function _initialiseProps() {
     if (!_this2.isInContentEditable(event)) return;
 
     event.preventDefault();
-    var transfer = new _transfer2.default(event.clipboardData);
-    var data = transfer.getData();
+    var data = (0, _getTransferData2.default)(event.clipboardData);
 
     // Attach the `isShift` flag, so that people can use it to trigger "Paste
     // and Match Style" logic.
@@ -6139,6 +6141,7 @@ var _initialiseProps = function _initialiseProps() {
 
         var anchor = _this2.getPoint(anchorNode, anchorOffset);
         var focus = _this2.getPoint(focusNode, focusOffset);
+        if (!anchor || !focus) return;
 
         // There are valid situations where a select event will fire when we're
         // already at that position (for example when entering a character), since
@@ -6262,7 +6265,7 @@ var _initialiseProps = function _initialiseProps() {
 
 exports.default = Content;
 
-},{"../constants/environment":43,"../constants/types":45,"../models/selection":56,"../serializers/base-64":63,"../utils/offset-key":86,"../utils/transfer":89,"./node":40,"debug":119,"get-window":1188,"keycode":1226,"react":1441,"react-dom":1250}],38:[function(require,module,exports){
+},{"../constants/environment":43,"../constants/types":45,"../models/selection":56,"../serializers/base-64":63,"../utils/get-transfer-data":80,"../utils/offset-key":87,"./node":40,"debug":119,"get-window":1188,"keycode":1226,"react":1441,"react-dom":1250}],38:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -6698,7 +6701,7 @@ try {
 
 exports.default = Editor;
 
-},{"../models/stack":57,"../models/state":58,"../utils/noop":83,"./content":37,"debug":119,"react":1441}],39:[function(require,module,exports){
+},{"../models/stack":57,"../models/state":58,"../utils/noop":84,"./content":37,"debug":119,"react":1441}],39:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -7122,7 +7125,7 @@ function findDeepestNode(element) {
 
 exports.default = Leaf;
 
-},{"../constants/environment":43,"../utils/offset-key":86,"debug":119,"get-window":1188,"react":1441,"react-dom":1250}],40:[function(require,module,exports){
+},{"../constants/environment":43,"../utils/offset-key":87,"debug":119,"get-window":1188,"react":1441,"react-dom":1250}],40:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -7562,7 +7565,7 @@ var _initialiseProps = function _initialiseProps() {
 
 exports.default = Node;
 
-},{"../constants/types":45,"../serializers/base-64":63,"../utils/scroll-to":87,"./leaf":39,"./void":42,"debug":119,"react":1441,"react-dom":1250}],41:[function(require,module,exports){
+},{"../constants/types":45,"../serializers/base-64":63,"../utils/scroll-to":88,"./leaf":39,"./void":42,"debug":119,"react":1441,"react-dom":1250}],41:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -7975,7 +7978,7 @@ var _initialiseProps = function _initialiseProps() {
 
 exports.default = Void;
 
-},{"../constants/environment":43,"../models/mark":52,"../utils/noop":83,"../utils/offset-key":86,"./leaf":39,"debug":119,"react":1441}],43:[function(require,module,exports){
+},{"../constants/environment":43,"../models/mark":52,"../utils/noop":84,"../utils/offset-key":87,"./leaf":39,"debug":119,"react":1441}],43:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -9286,7 +9289,7 @@ var Mark = function (_ref) {
 
 exports.default = Mark;
 
-},{"../utils/memoize":82,"./data":49,"immutable":1218}],53:[function(require,module,exports){
+},{"../utils/memoize":83,"./data":49,"immutable":1218}],53:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -10869,7 +10872,7 @@ var Node = {
 
 exports.default = Node;
 
-},{"../utils/generate-key":78,"../utils/is-in-range":80,"../utils/memoize":82,"../utils/normalize":85,"./block":47,"./character":48,"./document":50,"./mark":52,"direction":124,"immutable":1218}],54:[function(require,module,exports){
+},{"../utils/generate-key":78,"../utils/is-in-range":81,"../utils/memoize":83,"../utils/normalize":86,"./block":47,"./character":48,"./document":50,"./mark":52,"direction":124,"immutable":1218}],54:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -11350,7 +11353,7 @@ function normalizeMarkComponent(render) {
 
 exports.default = Schema;
 
-},{"../utils/is-react-component":81,"immutable":1218,"react":1441,"type-of":1463}],56:[function(require,module,exports){
+},{"../utils/is-react-component":82,"immutable":1218,"react":1441,"type-of":1463}],56:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -13718,7 +13721,7 @@ var Text = function (_ref) {
 
 exports.default = Text;
 
-},{"../utils/generate-key":78,"../utils/memoize":82,"./character":48,"./mark":52,"./range":54,"immutable":1218}],60:[function(require,module,exports){
+},{"../utils/generate-key":78,"../utils/memoize":83,"./character":48,"./mark":52,"./range":54,"immutable":1218}],60:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -17694,7 +17697,7 @@ function wrapText(transform, prefix) {
   }
 }
 
-},{"../utils/normalize":85}],69:[function(require,module,exports){
+},{"../utils/normalize":86}],69:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -18997,7 +19000,7 @@ function wrapTextAtRange(transform, range, prefix) {
   transform.insertTextAtRange(end, suffix, [], { normalize: normalize });
 }
 
-},{"../schemas/core":62,"../utils/normalize":85,"../utils/string":88,"immutable":1218}],70:[function(require,module,exports){
+},{"../schemas/core":62,"../utils/normalize":86,"../utils/string":89,"immutable":1218}],70:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -19498,7 +19501,7 @@ function wrapBlockByKey(transform, key, block, options) {
   transform.moveNodeByKey(node.key, block.key, 0, options);
 }
 
-},{"../schemas/core":62,"../utils/normalize":85}],71:[function(require,module,exports){
+},{"../schemas/core":62,"../utils/normalize":86}],71:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -20005,7 +20008,7 @@ function assertSchema(schema) {
   }
 }
 
-},{"../models/schema":55,"../utils/normalize":85,"../utils/warn":90,"immutable":1218}],74:[function(require,module,exports){
+},{"../models/schema":55,"../utils/normalize":86,"../utils/warn":90,"immutable":1218}],74:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -20928,7 +20931,7 @@ function splitNodeOperation(transform, path, count) {
   transform.applyOperation(operation);
 }
 
-},{"../utils/normalize":85}],77:[function(require,module,exports){
+},{"../utils/normalize":86}],77:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -21061,6 +21064,144 @@ function getLeafText(node) {
 exports.default = getLeafText;
 
 },{}],80:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _slicedToArray = function () {
+  function sliceIterator(arr, i) {
+    var _arr = [];var _n = true;var _d = false;var _e = undefined;try {
+      for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
+        _arr.push(_s.value);if (i && _arr.length === i) break;
+      }
+    } catch (err) {
+      _d = true;_e = err;
+    } finally {
+      try {
+        if (!_n && _i["return"]) _i["return"]();
+      } finally {
+        if (_d) throw _e;
+      }
+    }return _arr;
+  }return function (arr, i) {
+    if (Array.isArray(arr)) {
+      return arr;
+    } else if (Symbol.iterator in Object(arr)) {
+      return sliceIterator(arr, i);
+    } else {
+      throw new TypeError("Invalid attempt to destructure non-iterable instance");
+    }
+  };
+}();
+
+var _base = require('../serializers/base-64');
+
+var _base2 = _interopRequireDefault(_base);
+
+var _types = require('../constants/types');
+
+var _types2 = _interopRequireDefault(_types);
+
+function _interopRequireDefault(obj) {
+  return obj && obj.__esModule ? obj : { default: obj };
+}
+
+/**
+ * Fragment matching regexp for HTML nodes.
+ *
+ * @type {RegExp}
+ */
+
+var FRAGMENT_MATCHER = /data-slate-fragment="([^\s]+)"/;
+
+/**
+ * Get the data and type from a native data `transfer`.
+ *
+ * @param {DataTransfer} transfer
+ * @return {Object}
+ */
+
+function getTransferData(transfer) {
+  var fragment = transfer.getData(_types2.default.FRAGMENT) || null;
+  var node = transfer.getData(_types2.default.NODE) || null;
+  var html = transfer.getData('text/html') || null;
+  var rich = transfer.getData('text/rtf') || null;
+  var text = transfer.getData('text/plain') || null;
+  var files = void 0;
+
+  // If there isn't a fragment, but there is HTML, check to see if the HTML is
+  // actually an encoded fragment.
+  if (!fragment && html && ~html.indexOf('<span data-slate-fragment="')) {
+    var matches = FRAGMENT_MATCHER.exec(html);
+
+    var _matches = _slicedToArray(matches, 2),
+        full = _matches[0],
+        encoded = _matches[1]; // eslint-disable-line no-unused-vars
+
+
+    if (encoded) fragment = encoded;
+  }
+
+  // Decode a fragment or node if they exist.
+  if (fragment) fragment = _base2.default.deserializeNode(fragment);
+  if (node) node = _base2.default.deserializeNode(node);
+
+  // Get and normalize files if they exist.
+  if (transfer.items && transfer.items.length) {
+    var fileItems = Array.from(transfer.items).map(function (item) {
+      return item.kind == 'file' ? item.getAsFile() : null;
+    }).filter(function (exists) {
+      return exists;
+    });
+
+    if (fileItems.length) files = fileItems;
+  }
+
+  if (transfer.files && transfer.files.length) {
+    files = Array.from(files);
+  }
+
+  // Determine the type of the data.
+  var data = { files: files, fragment: fragment, html: html, node: node, rich: rich, text: text };
+  data.type = getTransferType(data);
+  return data;
+}
+
+/**
+ * Get the type of a transfer from its `data`.
+ *
+ * @param {Object} data
+ * @return {String}
+ */
+
+function getTransferType(data) {
+  if (data.fragment) return 'fragment';
+  if (data.node) return 'node';
+
+  // COMPAT: Microsoft Word adds an image of the selected text to the data.
+  // Since files are preferred over HTML or text, this would cause the type to
+  // be considered `files`. But it also adds rich text data so we can check
+  // for that and properly set the type to `html` or `text`. (2016/11/21)
+  if (data.rich && data.html) return 'html';
+  if (data.rich && data.text) return 'text';
+
+  if (data.files) return 'files';
+  if (data.html) return 'html';
+  if (data.text) return 'text';
+  return 'unknown';
+}
+
+/**
+ * Export.
+ *
+ * @type {Function}
+ */
+
+exports.default = getTransferData;
+
+},{"../constants/types":45,"../serializers/base-64":63}],81:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -21101,7 +21242,7 @@ function isInRange(index, text, range) {
 
 exports.default = isInRange;
 
-},{}],81:[function(require,module,exports){
+},{}],82:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -21127,7 +21268,7 @@ function isReactComponent(object) {
 
 exports.default = isReactComponent;
 
-},{}],82:[function(require,module,exports){
+},{}],83:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -21398,7 +21539,7 @@ exports.default = memoize;
 exports.__clear = __clear;
 exports.__enable = __enable;
 
-},{"../constants/is-dev":44,"es6-map":185}],83:[function(require,module,exports){
+},{"../constants/is-dev":44,"es6-map":185}],84:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -21421,7 +21562,7 @@ function noop() {}
 
 exports.default = noop;
 
-},{}],84:[function(require,module,exports){
+},{}],85:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -21511,7 +21652,7 @@ function getNonComment(parent, index, direction) {
 
 exports.default = normalizeNodeAndOffset;
 
-},{}],85:[function(require,module,exports){
+},{}],86:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -21772,7 +21913,7 @@ exports.default = {
   selectionProperties: selectionProperties
 };
 
-},{"../models/block":47,"../models/data":49,"../models/document":50,"../models/inline":51,"../models/mark":52,"../models/selection":56,"../models/text":59,"./warn":90,"type-of":1463}],86:[function(require,module,exports){
+},{"../models/block":47,"../models/data":49,"../models/document":50,"../models/inline":51,"../models/mark":52,"../models/selection":56,"../models/text":59,"./warn":90,"type-of":1463}],87:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -21889,6 +22030,7 @@ function findKey(rawNode, rawOffset) {
   // ancestor, so find it by going down from the nearest void parent.
   if (!closest) {
     var closestVoid = parentNode.closest(VOID_SELECTOR);
+    if (!closestVoid) return null;
     closest = closestVoid.querySelector(SELECTOR);
     offset = closest.textContent.length;
   }
@@ -21896,10 +22038,8 @@ function findKey(rawNode, rawOffset) {
   // Get the string value of the offset key attribute.
   offsetKey = closest.getAttribute(ATTRIBUTE);
 
-  // If we still didn't find an offset key, this is a bug.
-  if (!offsetKey) {
-    throw new Error('Unable to find offset key for ' + node + ' with offset "' + offset + '".');
-  }
+  // If we still didn't find an offset key, abort.
+  if (!offsetKey) return null;
 
   // Return the parsed the offset key.
   var parsed = parse(offsetKey);
@@ -21993,7 +22133,7 @@ exports.default = {
   stringify: stringify
 };
 
-},{"./normalize-node-and-offset":84}],87:[function(require,module,exports){
+},{"./normalize-node-and-offset":85}],88:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -22072,7 +22212,7 @@ function scrollTo(element, options) {
 
 exports.default = scrollTo;
 
-},{"get-window":1188}],88:[function(require,module,exports){
+},{"get-window":1188}],89:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -22271,392 +22411,7 @@ exports.default = {
   getWordOffsetForward: getWordOffsetForward
 };
 
-},{"esrever":197}],89:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _slicedToArray = function () {
-  function sliceIterator(arr, i) {
-    var _arr = [];var _n = true;var _d = false;var _e = undefined;try {
-      for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
-        _arr.push(_s.value);if (i && _arr.length === i) break;
-      }
-    } catch (err) {
-      _d = true;_e = err;
-    } finally {
-      try {
-        if (!_n && _i["return"]) _i["return"]();
-      } finally {
-        if (_d) throw _e;
-      }
-    }return _arr;
-  }return function (arr, i) {
-    if (Array.isArray(arr)) {
-      return arr;
-    } else if (Symbol.iterator in Object(arr)) {
-      return sliceIterator(arr, i);
-    } else {
-      throw new TypeError("Invalid attempt to destructure non-iterable instance");
-    }
-  };
-}();
-
-var _createClass = function () {
-  function defineProperties(target, props) {
-    for (var i = 0; i < props.length; i++) {
-      var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
-    }
-  }return function (Constructor, protoProps, staticProps) {
-    if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
-  };
-}();
-
-var _base = require('../serializers/base-64');
-
-var _base2 = _interopRequireDefault(_base);
-
-var _types = require('../constants/types');
-
-var _types2 = _interopRequireDefault(_types);
-
-function _interopRequireDefault(obj) {
-  return obj && obj.__esModule ? obj : { default: obj };
-}
-
-function _classCallCheck(instance, Constructor) {
-  if (!(instance instanceof Constructor)) {
-    throw new TypeError("Cannot call a class as a function");
-  }
-}
-
-/**
- * Fragment matching regexp for HTML nodes.
- *
- * @type {RegExp}
- */
-
-var FRAGMENT_MATCHER = /data-slate-fragment="([^\s]+)"/;
-
-/**
- * Data transfer helper.
- *
- * @type {Transfer}
- */
-
-var Transfer = function () {
-
-  /**
-   * Constructor.
-   *
-   * @param {DataTransfer} data
-   */
-
-  function Transfer(data) {
-    _classCallCheck(this, Transfer);
-
-    this.data = data;
-    this.cache = {};
-  }
-
-  /**
-   * Get a data object representing the transfer's primary content type.
-   *
-   * @return {Object}
-   */
-
-  _createClass(Transfer, [{
-    key: 'getData',
-    value: function getData() {
-      var type = this.getType();
-      var data = {};
-      data.type = type;
-
-      switch (type) {
-        case 'files':
-          data.files = this.getFiles();
-          break;
-        case 'fragment':
-          data.fragment = this.getFragment();
-          break;
-        case 'html':
-          data.html = this.getHtml();
-          data.text = this.getText();
-          break;
-        case 'node':
-          data.node = this.getNode();
-          break;
-        case 'text':
-          data.text = this.getText();
-          break;
-      }
-
-      return data;
-    }
-
-    /**
-     * Get the Files content of the data transfer.
-     *
-     * @return {Array|Void}
-     */
-
-  }, {
-    key: 'getFiles',
-    value: function getFiles() {
-      if ('files' in this.cache) return this.cache.files;
-
-      var data = this.data;
-
-      var files = void 0;
-
-      if (data.items && data.items.length) {
-        var fileItems = Array.from(data.items).map(function (item) {
-          return item.kind == 'file' ? item.getAsFile() : null;
-        }).filter(function (exists) {
-          return exists;
-        });
-
-        if (fileItems.length) files = fileItems;
-      }
-
-      if (data.files && data.files.length) {
-        files = Array.from(data.files);
-      }
-
-      this.cache.files = files;
-      return files;
-    }
-
-    /**
-     * Get the Slate document fragment content of the data transfer.
-     *
-     * @return {Document || Void}
-     */
-
-  }, {
-    key: 'getFragment',
-    value: function getFragment() {
-      if ('fragment' in this.cache) return this.cache.fragment;
-
-      var html = this.getHtml();
-      var encoded = this.data.getData(_types2.default.FRAGMENT);
-      var fragment = void 0;
-
-      // If there's html content, and the html includes a `data-fragment`
-      // attribute, it's actually a Base64-serialized fragment from a cut/copy.
-      if (!encoded && html && ~html.indexOf('<span data-slate-fragment="')) {
-        var matches = FRAGMENT_MATCHER.exec(html);
-
-        var _matches = _slicedToArray(matches, 2),
-            full = _matches[0],
-            attribute = _matches[1]; // eslint-disable-line no-unused-vars
-
-
-        encoded = attribute;
-      }
-
-      if (encoded) {
-        fragment = _base2.default.deserializeNode(encoded);
-      }
-
-      this.cache.fragment = fragment;
-      return fragment;
-    }
-
-    /**
-     * Get the HTML content of the data transfer.
-     *
-     * @return {String|Void}
-     */
-
-  }, {
-    key: 'getHtml',
-    value: function getHtml() {
-      if ('html' in this.cache) return this.cache.html;
-
-      var html = void 0;
-      var string = this.data.getData('text/html');
-
-      if (string != '') html = string;
-
-      this.cache.html = html;
-      return html;
-    }
-
-    /**
-     * Get the Slate node content of the data transfer.
-     *
-     * @return {Node|Void}
-     */
-
-  }, {
-    key: 'getNode',
-    value: function getNode() {
-      if ('node' in this.cache) return this.cache.node;
-
-      var encoded = this.data.getData(_types2.default.NODE);
-      var node = void 0;
-
-      if (encoded) {
-        node = _base2.default.deserializeNode(encoded);
-      }
-
-      this.cache.node = node;
-      return node;
-    }
-
-    /**
-     * Get the rich text content of the data transfer.
-     *
-     * @return {String|Void}
-     */
-
-  }, {
-    key: 'getRichText',
-    value: function getRichText() {
-      if ('richtext' in this.cache) return this.cache.richtext;
-
-      var richtext = void 0;
-      var string = this.data.getData('text/rtf');
-
-      if (string != '') richtext = string;
-
-      this.cache.richtext = richtext;
-      return richtext;
-    }
-
-    /**
-     * Get the text content of the data transfer.
-     *
-     * @return {String|Void}
-     */
-
-  }, {
-    key: 'getText',
-    value: function getText() {
-      if ('text' in this.cache) return this.cache.text;
-
-      var text = void 0;
-      var string = this.data.getData('text/plain');
-
-      if (string != '') text = string;
-
-      this.cache.text = text;
-      return text;
-    }
-
-    /**
-     * Get the primary type of the data transfer.
-     *
-     * @return {String}
-     */
-
-  }, {
-    key: 'getType',
-    value: function getType() {
-      if (this.hasFragment()) return 'fragment';
-      if (this.hasNode()) return 'node';
-
-      // COMPAT: Microsoft Word adds an image of the selected text to the data.
-      // Since files are preferred over HTML or text, this would cause the type to
-      // be considered `files`. But it also adds rich text data so we can check
-      // for that and properly set the type to `html` or `text`. (2016/11/21)
-      if (this.hasRichText() && this.hasHtml()) return 'html';
-      if (this.hasRichText() && this.hasText()) return 'text';
-
-      if (this.hasFiles()) return 'files';
-      if (this.hasHtml()) return 'html';
-      if (this.hasText()) return 'text';
-      return 'unknown';
-    }
-
-    /**
-     * Check whether the data transfer has File content.
-     *
-     * @return {Boolean}
-     */
-
-  }, {
-    key: 'hasFiles',
-    value: function hasFiles() {
-      return this.getFiles() != null;
-    }
-
-    /**
-     * Check whether the data transfer has HTML content.
-     *
-     * @return {Boolean}
-     */
-
-  }, {
-    key: 'hasHtml',
-    value: function hasHtml() {
-      return this.getHtml() != null;
-    }
-
-    /**
-     * Check whether the data transfer has rich text content.
-     *
-     * @return {Boolean}
-     */
-
-  }, {
-    key: 'hasRichText',
-    value: function hasRichText() {
-      return this.getRichText() != null;
-    }
-
-    /**
-     * Check whether the data transfer has text content.
-     *
-     * @return {Boolean}
-     */
-
-  }, {
-    key: 'hasText',
-    value: function hasText() {
-      return this.getText() != null;
-    }
-
-    /**
-     * Check whether the data transfer has a Slate document fragment as content.
-     *
-     * @return {Boolean}
-     */
-
-  }, {
-    key: 'hasFragment',
-    value: function hasFragment() {
-      return this.getFragment() != null;
-    }
-
-    /**
-     * Check whether the data transfer has a Slate node as content.
-     *
-     * @return {Boolean}
-     */
-
-  }, {
-    key: 'hasNode',
-    value: function hasNode() {
-      return this.getNode() != null;
-    }
-  }]);
-
-  return Transfer;
-}();
-
-/**
- * Export.
- *
- * @type {Transfer}
- */
-
-exports.default = Transfer;
-
-},{"../constants/types":45,"../serializers/base-64":63}],90:[function(require,module,exports){
+},{"esrever":197}],90:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
