@@ -3244,8 +3244,43 @@ var App = function (_React$Component) {
       return _react2.default.createElement(
         'div',
         { className: 'app' },
+        this.renderTopBar(),
         this.renderTabBar(),
         this.renderExample()
+      );
+    }
+
+    /**
+     * Render the top bar.
+     *
+     * @return {Element} element
+     */
+
+  }, {
+    key: 'renderTopBar',
+    value: function renderTopBar() {
+      return _react2.default.createElement(
+        'div',
+        { className: 'topbar' },
+        _react2.default.createElement(
+          'span',
+          { className: 'topbar-title' },
+          'Slate Examples'
+        ),
+        _react2.default.createElement(
+          'div',
+          { className: 'topbar-links' },
+          _react2.default.createElement(
+            'a',
+            { className: 'topbar-link', href: 'https://github.com/ianstormtaylor/slate' },
+            'GitHub'
+          ),
+          _react2.default.createElement(
+            'a',
+            { className: 'topbar-link', href: 'https://docs.slatejs.org/' },
+            'Docs'
+          )
+        )
       );
     }
 
@@ -6249,6 +6284,7 @@ var _initialiseProps = function _initialiseProps() {
   this.renderNode = function (node) {
     var _props3 = _this2.props,
         editor = _props3.editor,
+        readOnly = _props3.readOnly,
         schema = _props3.schema,
         state = _props3.state;
 
@@ -6258,7 +6294,8 @@ var _initialiseProps = function _initialiseProps() {
       parent: state.document,
       schema: schema,
       state: state,
-      editor: editor
+      editor: editor,
+      readOnly: readOnly
     });
   };
 };
@@ -7325,6 +7362,7 @@ Node.propTypes = {
   editor: _react2.default.PropTypes.object.isRequired,
   node: _react2.default.PropTypes.object.isRequired,
   parent: _react2.default.PropTypes.object.isRequired,
+  readOnly: _react2.default.PropTypes.bool.isRequired,
   schema: _react2.default.PropTypes.object.isRequired,
   state: _react2.default.PropTypes.object.isRequired
 };
@@ -7363,6 +7401,10 @@ var _initialiseProps = function _initialiseProps() {
     if (Component && Component.suppressShouldComponentUpdate) {
       return true;
     }
+
+    // If the `readOnly` status has changed, we need to re-render in case there is
+    // any user-land logic that depends on it, like nested editable contents.
+    if (nextProps.readOnly !== _this2.props.readOnly) return true;
 
     // If the node has changed, update. PERF: There are certain cases where the
     // node instance will have changed, but it's properties will be exactly the
@@ -7476,6 +7518,7 @@ var _initialiseProps = function _initialiseProps() {
       node: child,
       parent: _this2.props.node,
       editor: _this2.props.editor,
+      readOnly: _this2.props.readOnly,
       schema: _this2.props.schema,
       state: _this2.props.state
     });
@@ -7486,6 +7529,7 @@ var _initialiseProps = function _initialiseProps() {
         editor = _props2.editor,
         node = _props2.node,
         parent = _props2.parent,
+        readOnly = _props2.readOnly,
         state = _props2.state;
     var Component = _this2.state.Component;
 
@@ -7513,6 +7557,7 @@ var _initialiseProps = function _initialiseProps() {
       editor: editor,
       parent: parent,
       node: node,
+      readOnly: readOnly,
       state: state
     }, children);
 
@@ -28258,7 +28303,6 @@ d.gs = function (dscr, get, set/*, options*/) {
 
 },{"es5-ext/object/assign":155,"es5-ext/object/is-callable":161,"es5-ext/object/normalize-options":167,"es5-ext/string/#/contains":174}],119:[function(require,module,exports){
 (function (process){
-
 /**
  * This is the web browser implementation of `debug()`.
  *
@@ -28298,14 +28342,23 @@ exports.colors = [
  */
 
 function useColors() {
+  // NB: In an Electron preload script, document will be defined but not fully
+  // initialized. Since we know we're in Chrome, we'll just detect this case
+  // explicitly
+  if (typeof window !== 'undefined' && window && typeof window.process !== 'undefined' && window.process.type === 'renderer') {
+    return true;
+  }
+
   // is webkit? http://stackoverflow.com/a/16459606/376773
   // document is undefined in react-native: https://github.com/facebook/react-native/pull/1632
-  return (typeof document !== 'undefined' && 'WebkitAppearance' in document.documentElement.style) ||
+  return (typeof document !== 'undefined' && document && 'WebkitAppearance' in document.documentElement.style) ||
     // is firebug? http://stackoverflow.com/a/398120/376773
-    (window.console && (console.firebug || (console.exception && console.table))) ||
+    (typeof window !== 'undefined' && window && window.console && (console.firebug || (console.exception && console.table))) ||
     // is firefox >= v31?
     // https://developer.mozilla.org/en-US/docs/Tools/Web_Console#Styling_messages
-    (navigator.userAgent.toLowerCase().match(/firefox\/(\d+)/) && parseInt(RegExp.$1, 10) >= 31);
+    (typeof navigator !== 'undefined' && navigator && navigator.userAgent && navigator.userAgent.toLowerCase().match(/firefox\/(\d+)/) && parseInt(RegExp.$1, 10) >= 31) ||
+    // double check webkit in userAgent just in case we are in a worker
+    (typeof navigator !== 'undefined' && navigator && navigator.userAgent && navigator.userAgent.toLowerCase().match(/applewebkit\/(\d+)/));
 }
 
 /**
@@ -28327,8 +28380,7 @@ exports.formatters.j = function(v) {
  * @api public
  */
 
-function formatArgs() {
-  var args = arguments;
+function formatArgs(args) {
   var useColors = this.useColors;
 
   args[0] = (useColors ? '%c' : '')
@@ -28338,17 +28390,17 @@ function formatArgs() {
     + (useColors ? '%c ' : ' ')
     + '+' + exports.humanize(this.diff);
 
-  if (!useColors) return args;
+  if (!useColors) return;
 
   var c = 'color: ' + this.color;
-  args = [args[0], c, 'color: inherit'].concat(Array.prototype.slice.call(args, 1));
+  args.splice(1, 0, c, 'color: inherit')
 
   // the final "%c" is somewhat tricky, because there could be other
   // arguments passed either before or after the %c, so we need to
   // figure out the correct index to insert the CSS into
   var index = 0;
   var lastC = 0;
-  args[0].replace(/%[a-z%]/g, function(match) {
+  args[0].replace(/%[a-zA-Z%]/g, function(match) {
     if ('%%' === match) return;
     index++;
     if ('%c' === match) {
@@ -28359,7 +28411,6 @@ function formatArgs() {
   });
 
   args.splice(lastC, 0, c);
-  return args;
 }
 
 /**
@@ -28402,7 +28453,6 @@ function save(namespaces) {
  */
 
 function load() {
-  var r;
   try {
     return exports.storage.debug;
   } catch(e) {}
@@ -28430,7 +28480,7 @@ exports.enable(load());
  * @api private
  */
 
-function localstorage(){
+function localstorage() {
   try {
     return window.localStorage;
   } catch (e) {}
@@ -28446,7 +28496,7 @@ function localstorage(){
  * Expose `debug()` as the module.
  */
 
-exports = module.exports = debug.debug = debug;
+exports = module.exports = createDebug.debug = createDebug.default = createDebug;
 exports.coerce = coerce;
 exports.disable = disable;
 exports.enable = enable;
@@ -28463,16 +28513,10 @@ exports.skips = [];
 /**
  * Map of special "%n" handling functions, for the debug "format" argument.
  *
- * Valid key names are a single, lowercased letter, i.e. "n".
+ * Valid key names are a single, lower or upper-case letter, i.e. "n" and "N".
  */
 
 exports.formatters = {};
-
-/**
- * Previously assigned color.
- */
-
-var prevColor = 0;
 
 /**
  * Previous log timestamp.
@@ -28482,13 +28526,20 @@ var prevTime;
 
 /**
  * Select a color.
- *
+ * @param {String} namespace
  * @return {Number}
  * @api private
  */
 
-function selectColor() {
-  return exports.colors[prevColor++ % exports.colors.length];
+function selectColor(namespace) {
+  var hash = 0, i;
+
+  for (i in namespace) {
+    hash  = ((hash << 5) - hash) + namespace.charCodeAt(i);
+    hash |= 0; // Convert to 32bit integer
+  }
+
+  return exports.colors[Math.abs(hash) % exports.colors.length];
 }
 
 /**
@@ -28499,17 +28550,13 @@ function selectColor() {
  * @api public
  */
 
-function debug(namespace) {
+function createDebug(namespace) {
 
-  // define the `disabled` version
-  function disabled() {
-  }
-  disabled.enabled = false;
+  function debug() {
+    // disabled?
+    if (!debug.enabled) return;
 
-  // define the `enabled` version
-  function enabled() {
-
-    var self = enabled;
+    var self = debug;
 
     // set `diff` timestamp
     var curr = +new Date();
@@ -28519,10 +28566,7 @@ function debug(namespace) {
     self.curr = curr;
     prevTime = curr;
 
-    // add the `color` if not set
-    if (null == self.useColors) self.useColors = exports.useColors();
-    if (null == self.color && self.useColors) self.color = selectColor();
-
+    // turn the `arguments` into a proper Array
     var args = new Array(arguments.length);
     for (var i = 0; i < args.length; i++) {
       args[i] = arguments[i];
@@ -28531,13 +28575,13 @@ function debug(namespace) {
     args[0] = exports.coerce(args[0]);
 
     if ('string' !== typeof args[0]) {
-      // anything else let's inspect with %o
-      args = ['%o'].concat(args);
+      // anything else let's inspect with %O
+      args.unshift('%O');
     }
 
     // apply any `formatters` transformations
     var index = 0;
-    args[0] = args[0].replace(/%([a-z%])/g, function(match, format) {
+    args[0] = args[0].replace(/%([a-zA-Z%])/g, function(match, format) {
       // if we encounter an escaped % then don't increase the array index
       if (match === '%%') return match;
       index++;
@@ -28553,19 +28597,24 @@ function debug(namespace) {
       return match;
     });
 
-    // apply env-specific formatting
-    args = exports.formatArgs.apply(self, args);
+    // apply env-specific formatting (colors, etc.)
+    exports.formatArgs.call(self, args);
 
-    var logFn = enabled.log || exports.log || console.log.bind(console);
+    var logFn = debug.log || exports.log || console.log.bind(console);
     logFn.apply(self, args);
   }
-  enabled.enabled = true;
 
-  var fn = exports.enabled(namespace) ? enabled : disabled;
+  debug.namespace = namespace;
+  debug.enabled = exports.enabled(namespace);
+  debug.useColors = exports.useColors();
+  debug.color = selectColor(namespace);
 
-  fn.namespace = namespace;
+  // env-specific initialization logic for debug instances
+  if ('function' === typeof exports.init) {
+    exports.init(debug);
+  }
 
-  return fn;
+  return debug;
 }
 
 /**
@@ -28584,7 +28633,7 @@ function enable(namespaces) {
 
   for (var i = 0; i < len; i++) {
     if (!split[i]) continue; // ignore empty strings
-    namespaces = split[i].replace(/[\\^$+?.()|[\]{}]/g, '\\$&').replace(/\*/g, '.*?');
+    namespaces = split[i].replace(/\*/g, '.*?');
     if (namespaces[0] === '-') {
       exports.skips.push(new RegExp('^' + namespaces.substr(1) + '$'));
     } else {
@@ -85168,12 +85217,18 @@ module.exports = hyphenateStyleName;
  * will remain to ensure logic does not differ in production.
  */
 
-function invariant(condition, format, a, b, c, d, e, f) {
-  if ("production" !== 'production') {
+var validateFormat = function validateFormat(format) {};
+
+if ("production" !== 'production') {
+  validateFormat = function validateFormat(format) {
     if (format === undefined) {
       throw new Error('invariant requires an error message argument');
     }
-  }
+  };
+}
+
+function invariant(condition, format, a, b, c, d, e, f) {
+  validateFormat(format);
 
   if (!condition) {
     var error;
