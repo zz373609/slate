@@ -5760,10 +5760,12 @@ Content.propTypes = {
   onPaste: _react2.default.PropTypes.func.isRequired,
   onSelect: _react2.default.PropTypes.func.isRequired,
   readOnly: _react2.default.PropTypes.bool.isRequired,
+  role: _react2.default.PropTypes.string,
   schema: _react2.default.PropTypes.object,
   spellCheck: _react2.default.PropTypes.bool.isRequired,
   state: _react2.default.PropTypes.object.isRequired,
-  style: _react2.default.PropTypes.object
+  style: _react2.default.PropTypes.object,
+  tabIndex: _react2.default.PropTypes.number
 };
 Content.defaultProps = {
   style: {}
@@ -6231,7 +6233,9 @@ var _initialiseProps = function _initialiseProps() {
     var props = _this2.props;
     var className = props.className,
         readOnly = props.readOnly,
-        state = props.state;
+        state = props.state,
+        tabIndex = props.tabIndex,
+        role = props.role;
     var document = state.document;
 
     var children = document.nodes.map(function (node) {
@@ -6277,7 +6281,9 @@ var _initialiseProps = function _initialiseProps() {
       onPaste: _this2.onPaste,
       onSelect: _this2.onSelect,
       spellCheck: spellCheck,
-      style: style
+      style: style,
+      role: readOnly ? null : role || 'textbox',
+      tabIndex: tabIndex
     }, children);
   };
 
@@ -6555,10 +6561,12 @@ Editor.propTypes = {
   placeholderStyle: _react2.default.PropTypes.object,
   plugins: _react2.default.PropTypes.array,
   readOnly: _react2.default.PropTypes.bool,
+  role: _react2.default.PropTypes.string,
   schema: _react2.default.PropTypes.object,
   spellCheck: _react2.default.PropTypes.bool,
   state: _react2.default.PropTypes.instanceOf(_state2.default).isRequired,
-  style: _react2.default.PropTypes.object
+  style: _react2.default.PropTypes.object,
+  tabIndex: _react2.default.PropTypes.number
 };
 Editor.defaultProps = {
   onChange: _noop2.default,
@@ -6700,7 +6708,9 @@ var _initialiseProps = function _initialiseProps() {
       className: props.className,
       readOnly: props.readOnly,
       spellCheck: props.spellCheck,
-      style: props.style
+      style: props.style,
+      tabIndex: props.tabIndex,
+      role: props.role
     }));
   };
 };
@@ -112981,8 +112991,15 @@ function parse(formula){
 }
 
 },{}],1243:[function(require,module,exports){
+/*
+object-assign
+(c) Sindre Sorhus
+@license MIT
+*/
+
 'use strict';
 /* eslint-disable no-unused-vars */
+var getOwnPropertySymbols = Object.getOwnPropertySymbols;
 var hasOwnProperty = Object.prototype.hasOwnProperty;
 var propIsEnumerable = Object.prototype.propertyIsEnumerable;
 
@@ -113003,7 +113020,7 @@ function shouldUseNative() {
 		// Detect buggy property enumeration order in older V8 versions.
 
 		// https://bugs.chromium.org/p/v8/issues/detail?id=4118
-		var test1 = new String('abc');  // eslint-disable-line
+		var test1 = new String('abc');  // eslint-disable-line no-new-wrappers
 		test1[5] = 'de';
 		if (Object.getOwnPropertyNames(test1)[0] === '5') {
 			return false;
@@ -113032,7 +113049,7 @@ function shouldUseNative() {
 		}
 
 		return true;
-	} catch (e) {
+	} catch (err) {
 		// We don't expect any of the above to throw, but better to be safe.
 		return false;
 	}
@@ -113052,8 +113069,8 @@ module.exports = shouldUseNative() ? Object.assign : function (target, source) {
 			}
 		}
 
-		if (Object.getOwnPropertySymbols) {
-			symbols = Object.getOwnPropertySymbols(from);
+		if (getOwnPropertySymbols) {
+			symbols = getOwnPropertySymbols(from);
 			for (var i = 0; i < symbols.length; i++) {
 				if (propIsEnumerable.call(from, symbols[i])) {
 					to[symbols[i]] = from[symbols[i]];
