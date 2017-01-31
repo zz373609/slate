@@ -8820,6 +8820,10 @@ var _block2 = _interopRequireDefault(_block);
 
 require('./inline');
 
+var _data = require('./data');
+
+var _data2 = _interopRequireDefault(_data);
+
 var _node = require('./node');
 
 var _node2 = _interopRequireDefault(_node);
@@ -8866,6 +8870,7 @@ function _inherits(subClass, superClass) {
  */
 
 var DEFAULTS = {
+  data: new _immutable.Map(),
   key: null,
   nodes: new _immutable.List()
 };
@@ -8949,6 +8954,7 @@ var Document = function (_ref) {
       if (properties instanceof Document) return properties;
 
       properties.key = properties.key || (0, _generateKey2.default)();
+      properties.data = _data2.default.create(properties.data);
       properties.nodes = _block2.default.createList(properties.nodes);
 
       return new Document(properties);
@@ -8974,7 +8980,7 @@ for (var method in _node2.default) {
 
 exports.default = Document;
 
-},{"../utils/generate-key":78,"./block":47,"./inline":51,"./node":53,"immutable":1218}],51:[function(require,module,exports){
+},{"../utils/generate-key":78,"./block":47,"./data":49,"./inline":51,"./node":53,"immutable":1218}],51:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -16005,6 +16011,7 @@ var Raw = {
   deserializeDocument: function deserializeDocument(object, options) {
     return _document2.default.create({
       key: object.key,
+      data: object.data,
       nodes: _block2.default.createList(object.nodes.map(function (node) {
         return Raw.deserializeNode(node, options);
       }))
@@ -16212,6 +16219,7 @@ var Raw = {
     var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
     var object = {
+      data: document.data.toJSON(),
       key: document.key,
       kind: document.kind,
       nodes: document.nodes.toArray().map(function (node) {
@@ -16427,6 +16435,7 @@ var Raw = {
     var ret = {};
     ret.nodes = object.nodes;
     if (object.key) ret.key = object.key;
+    if (!(0, _isEmpty2.default)(object.data)) ret.data = object.data;
     return ret;
   },
 
@@ -16635,6 +16644,7 @@ var Raw = {
     return {
       kind: 'state',
       document: {
+        data: object.data,
         key: object.key,
         kind: 'document',
         nodes: object.nodes
@@ -17112,7 +17122,7 @@ function setNode(state, operation) {
   }
 
   node = node.merge(properties);
-  document = document.updateDescendant(node);
+  document = node.kind === 'document' ? node : document.updateDescendant(node);
   state = state.merge({ document: document });
   return state;
 }
@@ -19378,8 +19388,8 @@ function setNodeByKey(transform, key, properties) {
   transform.setNodeOperation(path, properties);
 
   if (normalize) {
-    var parent = document.getParent(key);
-    transform.normalizeNodeByKey(parent.key, _core2.default);
+    var node = key === document.key ? document : document.getParent(key);
+    transform.normalizeNodeByKey(node.key, _core2.default);
   }
 }
 
@@ -94439,18 +94449,10 @@ function isSlowBuffer (obj) {
 },{}],1222:[function(require,module,exports){
 
 /**
- * Expose `isEmpty`.
+ * Has own property.
  */
 
-module.exports = isEmpty;
-
-
-/**
- * Has.
- */
-
-var has = Object.prototype.hasOwnProperty;
-
+var has = Object.prototype.hasOwnProperty
 
 /**
  * Test whether a value is "empty".
@@ -94459,14 +94461,52 @@ var has = Object.prototype.hasOwnProperty;
  * @return {Boolean}
  */
 
-function isEmpty (val) {
-  if (null == val) return true;
-  if ('boolean' == typeof val) return false;
-  if ('number' == typeof val) return 0 === val;
-  if (undefined !== val.length) return 0 === val.length;
-  for (var key in val) if (has.call(val, key)) return false;
-  return true;
+function isEmpty(val) {
+  // Null and Undefined...
+  if (null == val) return true
+
+  // Booleans...
+  if ('boolean' == typeof val) return false
+
+  // Numbers...
+  if ('number' == typeof val) return 0 === val
+
+  // Maps, Sets, Files and Errors...
+  if (val.toString) {
+    const string = val.toString()
+
+    if (
+      string == '[object Map]' ||
+      string == '[object Set]' ||
+      string == '[object File]'
+    ) {
+      return !val.size
+    }
+
+    if (string.startsWith('Error')) {
+      return !val.message
+    }
+  }
+
+  // Plain objects...
+  for (var key in val) {
+    if (has.call(val, key)) return false
+  }
+
+  // Arrays...
+  if (undefined !== val.length) return 0 === val.length
+
+  // Nothing...
+  return true
 }
+
+/**
+ * Export `isEmpty`.
+ *
+ * @type {Function}
+ */
+
+module.exports = isEmpty
 
 },{}],1223:[function(require,module,exports){
 'use strict';
