@@ -15485,6 +15485,8 @@ function Html() {
  * Deserialize pasted HTML.
  *
  * @param {String} html
+ * @param {Object} options
+ *   @property {Boolean} toRaw
  * @return {State}
  */
 
@@ -15552,6 +15554,8 @@ var _initialiseProps = function _initialiseProps() {
   var _this = this;
 
   this.deserialize = function (html) {
+    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
     var $ = _cheerio2.default.load(html).root();
     var children = $.children().toArray();
     var nodes = _this.deserializeElements(children);
@@ -15579,7 +15583,19 @@ var _initialiseProps = function _initialiseProps() {
       return memo;
     }, []);
 
-    var state = _raw2.default.deserialize({ nodes: nodes }, { terse: true });
+    var raw = {
+      kind: 'state',
+      document: {
+        kind: 'document',
+        nodes: nodes
+      }
+    };
+
+    if (options.toRaw) {
+      return raw;
+    }
+
+    var state = _raw2.default.deserialize(raw, { terse: true });
     return state;
   };
 
@@ -15823,21 +15839,9 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _block = require('../models/block');
+var _raw = require('../serializers/raw');
 
-var _block2 = _interopRequireDefault(_block);
-
-var _document = require('../models/document');
-
-var _document2 = _interopRequireDefault(_document);
-
-var _state = require('../models/state');
-
-var _state2 = _interopRequireDefault(_state);
-
-var _text = require('../models/text');
-
-var _text2 = _interopRequireDefault(_text);
+var _raw2 = _interopRequireDefault(_raw);
 
 function _interopRequireDefault(obj) {
   return obj && obj.__esModule ? obj : { default: obj };
@@ -15847,42 +15851,35 @@ function _interopRequireDefault(obj) {
  * Deserialize a plain text `string` to a state.
  *
  * @param {String} string
+ * @param {Object} options
+ *   @property {Boolean} toRaw
  * @return {State}
  */
 
 function deserialize(string) {
-  return _state2.default.create({
-    document: _document2.default.create({
-      nodes: string.split('\n').map(deserializeLine)
-    })
-  });
-}
+  var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
-/**
- * Deserialize a `line` of text.
- *
- * @param {String} line
- * @return {Block}
- */
+  var raw = {
+    kind: 'state',
+    document: {
+      kind: 'document',
+      nodes: string.split('\n').map(function (line) {
+        return {
+          kind: 'block',
+          type: 'line',
+          nodes: [{
+            kind: 'text',
+            ranges: [{
+              text: line,
+              marks: []
+            }]
+          }]
+        };
+      })
+    }
+  };
 
-function deserializeLine(line) {
-  return _block2.default.create({
-    type: 'line',
-    nodes: [_text2.default.create({
-      characters: line.split('').map(deserializeCharacter)
-    })]
-  });
-}
-
-/**
- * Deserialize a `character`.
- *
- * @param {String} char
- * @return {Character}
- */
-
-function deserializeCharacter(char) {
-  return { text: char };
+  return options.toRaw ? raw : _raw2.default.deserialize(raw);
 }
 
 /**
@@ -15909,7 +15906,7 @@ exports.default = {
   serialize: serialize
 };
 
-},{"../models/block":47,"../models/document":50,"../models/state":58,"../models/text":59}],66:[function(require,module,exports){
+},{"../serializers/raw":66}],66:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -16633,7 +16630,7 @@ var Raw = {
    */
 
   untersifyState: function untersifyState(object) {
-    if (object.selection != null) {
+    if (object.selection || object.document) {
       return {
         kind: 'state',
         document: object.document,
@@ -94450,9 +94447,19 @@ function isSlowBuffer (obj) {
 
 /**
  * Has own property.
+ *
+ * @type {Function}
  */
 
 var has = Object.prototype.hasOwnProperty
+
+/**
+ * To string.
+ *
+ * @type {Function}
+ */
+
+var toString = Object.prototype.toString
 
 /**
  * Test whether a value is "empty".
@@ -94463,41 +94470,50 @@ var has = Object.prototype.hasOwnProperty
 
 function isEmpty(val) {
   // Null and Undefined...
-  if (null == val) return true
+  if (val == null) return true
 
   // Booleans...
   if ('boolean' == typeof val) return false
 
   // Numbers...
-  if ('number' == typeof val) return 0 === val
+  if ('number' == typeof val) return val === 0
 
-  // Maps, Sets, Files and Errors...
-  if (val.toString) {
-    const string = val.toString()
+  // Strings...
+  if ('string' == typeof val) return val.length === 0
 
-    if (
-      string == '[object Map]' ||
-      string == '[object Set]' ||
-      string == '[object File]'
-    ) {
-      return !val.size
-    }
-
-    if (string.startsWith('Error')) {
-      return !val.message
-    }
-  }
-
-  // Plain objects...
-  for (var key in val) {
-    if (has.call(val, key)) return false
-  }
+  // Functions...
+  if ('function' == typeof val) return val.length === 0
 
   // Arrays...
-  if (undefined !== val.length) return 0 === val.length
+  if (Array.isArray(val)) return val.length === 0
 
-  // Nothing...
-  return true
+  // Errors...
+  if (val instanceof Error) return val.message === ''
+
+  // Objects...
+  if (val.toString == toString) {
+    switch (val.toString()) {
+
+      // Maps, Sets, Files and Errors...
+      case '[object File]':
+      case '[object Map]':
+      case '[object Set]': {
+        return val.size === 0
+      }
+
+      // Plain objects...
+      case '[object Object]': {
+        for (var key in val) {
+          if (has.call(val, key)) return false
+        }
+
+        return true
+      }
+    }
+  }
+
+  // Anything else...
+  return false
 }
 
 /**
