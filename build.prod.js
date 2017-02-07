@@ -7957,12 +7957,24 @@ var _initialiseProps = function _initialiseProps() {
     var children = props.children,
         node = props.node;
 
-    var Tag = node.kind == 'block' ? 'div' : 'span';
+    var Tag = void 0,
+        style = void 0;
 
     // Make the outer wrapper relative, so the spacer can overlay it.
-    var style = {
-      position: 'relative'
-    };
+    if (node.kind === 'block') {
+      Tag = 'div';
+      style = {
+        position: 'relative'
+      };
+    } else {
+      Tag = 'span';
+      // COMPAT: In Chrome, without setting `display: inline-block` the cursor
+      // will disappear when placed before an inline void node. (2017/02/07)
+      style = {
+        display: 'inline-block',
+        position: 'relative'
+      };
+    }
 
     _this2.debug('render', { props: props });
 
@@ -7989,7 +8001,7 @@ var _initialiseProps = function _initialiseProps() {
       };
     } else {
       style = {
-        position: 'relative',
+        position: 'absolute',
         top: '0px',
         left: '-9999px',
         textIndent: '-9999px'
