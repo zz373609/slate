@@ -17968,11 +17968,16 @@ function deleteAtRange(transform, range) {
 
 function deleteCharBackwardAtRange(transform, range, options) {
   var state = transform.state;
-  var startOffset = state.startOffset,
-      startBlock = state.startBlock;
+  var document = state.document;
+  var startKey = range.startKey,
+      startOffset = range.startOffset;
+
+  var startBlock = document.getClosestBlock(startKey);
+  var offset = startBlock.getOffset(startKey);
+  var o = offset + startOffset;
   var text = startBlock.text;
 
-  var n = _string2.default.getCharOffsetBackward(text, startOffset);
+  var n = _string2.default.getCharOffsetBackward(text, o);
   transform.deleteBackwardAtRange(range, n, options);
 }
 
@@ -17987,9 +17992,14 @@ function deleteCharBackwardAtRange(transform, range, options) {
 
 function deleteLineBackwardAtRange(transform, range, options) {
   var state = transform.state;
-  var startOffset = state.startOffset;
+  var document = state.document;
+  var startKey = range.startKey,
+      startOffset = range.startOffset;
 
-  transform.deleteBackwardAtRange(range, startOffset, options);
+  var startBlock = document.getClosestBlock(startKey);
+  var offset = startBlock.getOffset(startKey);
+  var o = offset + startOffset;
+  transform.deleteBackwardAtRange(range, o, options);
 }
 
 /**
@@ -18003,11 +18013,16 @@ function deleteLineBackwardAtRange(transform, range, options) {
 
 function deleteWordBackwardAtRange(transform, range, options) {
   var state = transform.state;
-  var startOffset = state.startOffset,
-      startBlock = state.startBlock;
+  var document = state.document;
+  var startKey = range.startKey,
+      startOffset = range.startOffset;
+
+  var startBlock = document.getClosestBlock(startKey);
+  var offset = startBlock.getOffset(startKey);
+  var o = offset + startOffset;
   var text = startBlock.text;
 
-  var n = _string2.default.getWordOffsetBackward(text, startOffset);
+  var n = _string2.default.getWordOffsetBackward(text, o);
   transform.deleteBackwardAtRange(range, n, options);
 }
 
@@ -18078,21 +18093,59 @@ function deleteBackwardAtRange(transform, range) {
       return;
     }
 
-    // If the previous text's block is inside the current block, then we need
-    // to remove a character when deleteing. Otherwise, we just want to join
-    // the two blocks together.
+    // If we're deleting by one character and the previous text node is not
+    // inside the current block, we need to join the two blocks together.
+    if (n == 1 && prevBlock != block) {
+      range = range.merge({
+        anchorKey: prev.key,
+        anchorOffset: prev.length
+      });
+
+      transform.deleteAtRange(range, { normalize: normalize });
+      return;
+    }
+  }
+
+  // If the focus offset is farther than the number of characters to delete,
+  // just remove the characters backwards inside the current node.
+  if (n < focusOffset) {
     range = range.merge({
-      anchorKey: prev.key,
-      anchorOffset: prevBlock == block ? prev.length - 1 : prev.length
+      focusOffset: focusOffset - n,
+      isBackward: true
     });
 
     transform.deleteAtRange(range, { normalize: normalize });
     return;
   }
 
-  // Otherwise, just remove a character backwards.
+  // Otherwise, we need to see how many nodes backwards to go.
+  var node = text;
+  var offset = 0;
+  var traversed = focusOffset;
+
+  while (n > traversed) {
+    node = document.getPreviousText(node.key);
+    var next = traversed + node.length;
+    if (n <= next) {
+      offset = next - n;
+      break;
+    } else {
+      traversed = next;
+    }
+  }
+
+  // If the focus node is inside a void, go up until right after it.
+  if (document.hasVoidParent(node.key)) {
+    var parent = document.getClosest(node.key, function (p) {
+      return p.isVoid;
+    });
+    node = document.getNextText(parent.key);
+    offset = 0;
+  }
+
   range = range.merge({
-    focusOffset: focusOffset - n,
+    focusKey: node.key,
+    focusOffset: offset,
     isBackward: true
   });
 
@@ -18110,11 +18163,16 @@ function deleteBackwardAtRange(transform, range) {
 
 function deleteCharForwardAtRange(transform, range, options) {
   var state = transform.state;
-  var startOffset = state.startOffset,
-      startBlock = state.startBlock;
+  var document = state.document;
+  var startKey = range.startKey,
+      startOffset = range.startOffset;
+
+  var startBlock = document.getClosestBlock(startKey);
+  var offset = startBlock.getOffset(startKey);
+  var o = offset + startOffset;
   var text = startBlock.text;
 
-  var n = _string2.default.getCharOffsetForward(text, startOffset);
+  var n = _string2.default.getCharOffsetForward(text, o);
   transform.deleteForwardAtRange(range, n, options);
 }
 
@@ -18129,10 +18187,14 @@ function deleteCharForwardAtRange(transform, range, options) {
 
 function deleteLineForwardAtRange(transform, range, options) {
   var state = transform.state;
-  var startOffset = state.startOffset,
-      startBlock = state.startBlock;
+  var document = state.document;
+  var startKey = range.startKey,
+      startOffset = range.startOffset;
 
-  transform.deleteForwardAtRange(range, startBlock.length - startOffset, options);
+  var startBlock = document.getClosestBlock(startKey);
+  var offset = startBlock.getOffset(startKey);
+  var o = offset + startOffset;
+  transform.deleteForwardAtRange(range, o, options);
 }
 
 /**
@@ -18146,11 +18208,16 @@ function deleteLineForwardAtRange(transform, range, options) {
 
 function deleteWordForwardAtRange(transform, range, options) {
   var state = transform.state;
-  var startOffset = state.startOffset,
-      startBlock = state.startBlock;
+  var document = state.document;
+  var startKey = range.startKey,
+      startOffset = range.startOffset;
+
+  var startBlock = document.getClosestBlock(startKey);
+  var offset = startBlock.getOffset(startKey);
+  var o = offset + startOffset;
   var text = startBlock.text;
 
-  var n = _string2.default.getWordOffsetForward(text, startOffset);
+  var n = _string2.default.getWordOffsetForward(text, o);
   transform.deleteForwardAtRange(range, n, options);
 }
 
@@ -18175,57 +18242,105 @@ function deleteForwardAtRange(transform, range) {
       startKey = _range2.startKey,
       focusOffset = _range2.focusOffset;
 
+  // If the range is expanded, perform a regular delete instead.
+
   if (range.isExpanded) {
     transform.deleteAtRange(range, { normalize: normalize });
     return;
   }
 
+  // If the closest block is void, delete it.
   var block = document.getClosestBlock(startKey);
   if (block && block.isVoid) {
     transform.removeNodeByKey(block.key, { normalize: normalize });
     return;
   }
 
+  // If the closest inline is void, delete it.
   var inline = document.getClosestInline(startKey);
   if (inline && inline.isVoid) {
     transform.removeNodeByKey(inline.key, { normalize: normalize });
     return;
   }
 
+  // If the range is at the start of the document, abort.
   if (range.isAtEndOf(document)) {
     return;
   }
 
+  // If the range is at the start of the text node, we need to figure out what
+  // is behind it to know how to delete...
   var text = document.getDescendant(startKey);
   if (range.isAtEndOf(text)) {
     var next = document.getNextText(text.key);
     var nextBlock = document.getClosestBlock(next.key);
     var nextInline = document.getClosestInline(next.key);
 
+    // If the previous block is void, remove it.
     if (nextBlock && nextBlock.isVoid) {
       transform.removeNodeByKey(nextBlock.key, { normalize: normalize });
       return;
     }
 
+    // If the previous inline is void, remove it.
     if (nextInline && nextInline.isVoid) {
       transform.removeNodeByKey(nextInline.key, { normalize: normalize });
       return;
     }
 
-    // If the next text's block is inside the current block, then we need
-    // to remove a character when deleteing. Otherwise, we just want to join
-    // the two blocks together.
+    // If we're deleting by one character and the previous text node is not
+    // inside the current block, we need to join the two blocks together.
+    if (n == 1 && nextBlock != block) {
+      range = range.merge({
+        focusKey: next.key,
+        focusOffset: 0
+      });
+
+      transform.deleteAtRange(range, { normalize: normalize });
+      return;
+    }
+  }
+
+  // If the remaining characters to the end of the node is greater than or equal
+  // to the number of characters to delete, just remove the characters forwards
+  // inside the current node.
+  if (n <= text.length - focusOffset) {
     range = range.merge({
-      focusKey: next.key,
-      focusOffset: nextBlock == block ? 1 : 0
+      focusOffset: focusOffset + n
     });
 
     transform.deleteAtRange(range, { normalize: normalize });
     return;
   }
 
+  // Otherwise, we need to see how many nodes forwards to go.
+  var node = text;
+  var offset = focusOffset;
+  var traversed = text.length - focusOffset;
+
+  while (n > traversed) {
+    node = document.getNextText(node.key);
+    var _next = traversed + node.length;
+    if (n <= _next) {
+      offset = n - traversed;
+      break;
+    } else {
+      traversed = _next;
+    }
+  }
+
+  // If the focus node is inside a void, go up until right before it.
+  if (document.hasVoidParent(node.key)) {
+    var parent = document.getClosest(node.key, function (p) {
+      return p.isVoid;
+    });
+    node = document.getPreviousText(parent.key);
+    offset = node.length;
+  }
+
   range = range.merge({
-    focusOffset: focusOffset + n
+    focusKey: node.key,
+    focusOffset: offset
   });
 
   transform.deleteAtRange(range, { normalize: normalize });
@@ -22355,6 +22470,7 @@ function isWord(char, remaining) {
   if (CHAMELEON.test(char)) {
     var next = remaining.charAt(0);
     var length = getCharLength(next);
+    next = remaining.slice(0, length);
     var rest = remaining.slice(length);
     if (isWord(next, rest)) return true;
   }
@@ -22428,13 +22544,14 @@ function getWordOffset(text) {
 
   while (char = text.charAt(i)) {
     var l = getCharLength(char);
+    char = text.slice(i, i + l);
     var rest = text.slice(i + l);
 
     if (isWord(char, rest)) {
       started = true;
-      length++;
+      length += l;
     } else if (!started) {
-      length++;
+      length += l;
     } else {
       break;
     }
@@ -22456,7 +22573,8 @@ function getWordOffset(text) {
 function getWordOffsetBackward(text, offset) {
   text = text.slice(0, offset);
   text = (0, _esrever.reverse)(text);
-  return getWordOffset(text);
+  var o = getWordOffset(text);
+  return o;
 }
 
 /**
@@ -22469,7 +22587,8 @@ function getWordOffsetBackward(text, offset) {
 
 function getWordOffsetForward(text, offset) {
   text = text.slice(offset);
-  return getWordOffset(text);
+  var o = getWordOffset(text);
+  return o;
 }
 
 /**
