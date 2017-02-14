@@ -15392,6 +15392,16 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _extends = Object.assign || function (target) {
+  for (var i = 1; i < arguments.length; i++) {
+    var source = arguments[i];for (var key in source) {
+      if (Object.prototype.hasOwnProperty.call(source, key)) {
+        target[key] = source[key];
+      }
+    }
+  }return target;
+};
+
 var _raw = require('./raw');
 
 var _raw2 = _interopRequireDefault(_raw);
@@ -15493,6 +15503,7 @@ var Html =
  * @param {Object} options
  *   @property {Array} rules
  *   @property {String} defaultBlockType
+ *   @property {String|Object} defaultBlockType
  */
 
 function Html() {
@@ -15599,11 +15610,14 @@ var _initialiseProps = function _initialiseProps() {
         return memo;
       }
 
-      var block = {
+      var defaultBlockType = _this.defaultBlockType;
+
+      var defaults = typeof defaultBlockType == 'string' ? { type: defaultBlockType } : defaultBlockType;
+
+      var block = _extends({
         kind: 'block',
-        type: _this.defaultBlockType,
         nodes: [node]
-      };
+      }, defaults);
 
       memo.push(block);
       return memo;
