@@ -10670,17 +10670,15 @@ var Node = {
       characters = characters.concat(second.characters);
       first = first.merge({ characters: characters });
     } else {
-      (function () {
-        var size = first.nodes.size;
-        second.nodes.forEach(function (child, i) {
-          first = first.insertNode(size + i, child);
-        });
+      var size = first.nodes.size;
+      second.nodes.forEach(function (child, i) {
+        first = first.insertNode(size + i, child);
+      });
 
-        if (deep) {
-          // Join recursively
-          first = first.joinNode(first.nodes.get(size - 1), first.nodes.get(size), { deep: deep });
-        }
-      })();
+      if (deep) {
+        // Join recursively
+        first = first.joinNode(first.nodes.get(size - 1), first.nodes.get(size), { deep: deep });
+      }
     }
 
     parent = parent.removeNode(index);
@@ -18470,19 +18468,17 @@ function insertFragmentAtRange(transform, range, fragment) {
   // If the first and last block aren't the same, we need to insert all of the
   // nodes after the fragment's first block at the index.
   if (firstBlock != lastBlock) {
-    (function () {
-      var lonelyParent = fragment.getFurthest(firstBlock.key, function (p) {
-        return p.nodes.size == 1;
-      });
-      var lonelyChild = lonelyParent || firstBlock;
-      var startIndex = parent.nodes.indexOf(startBlock);
-      fragment = fragment.removeDescendant(lonelyChild.key);
+    var lonelyParent = fragment.getFurthest(firstBlock.key, function (p) {
+      return p.nodes.size == 1;
+    });
+    var lonelyChild = lonelyParent || firstBlock;
+    var startIndex = parent.nodes.indexOf(startBlock);
+    fragment = fragment.removeDescendant(lonelyChild.key);
 
-      fragment.nodes.forEach(function (node, i) {
-        var newIndex = startIndex + i + 1;
-        transform.insertNodeByKey(parent.key, newIndex, node, OPTS);
-      });
-    })();
+    fragment.nodes.forEach(function (node, i) {
+      var newIndex = startIndex + i + 1;
+      transform.insertNodeByKey(parent.key, newIndex, node, OPTS);
+    });
   }
 
   // Check if we need to split the node.
@@ -18501,18 +18497,16 @@ function insertFragmentAtRange(transform, range, fragment) {
   // starting block's children after the split into the last block of the
   // fragment, which has already been inserted.
   if (firstBlock != lastBlock) {
-    (function () {
-      var nextChild = isAtStart ? startChild : startBlock.getNextSibling(startChild.key);
-      var nextNodes = nextChild ? startBlock.nodes.skipUntil(function (n) {
-        return n.key == nextChild.key;
-      }) : (0, _immutable.List)();
-      var lastIndex = lastBlock.nodes.size;
+    var nextChild = isAtStart ? startChild : startBlock.getNextSibling(startChild.key);
+    var nextNodes = nextChild ? startBlock.nodes.skipUntil(function (n) {
+      return n.key == nextChild.key;
+    }) : (0, _immutable.List)();
+    var lastIndex = lastBlock.nodes.size;
 
-      nextNodes.forEach(function (node, i) {
-        var newIndex = lastIndex + i;
-        transform.moveNodeByKey(node.key, lastBlock.key, newIndex, OPTS);
-      });
-    })();
+    nextNodes.forEach(function (node, i) {
+      var newIndex = lastIndex + i;
+      transform.moveNodeByKey(node.key, lastBlock.key, newIndex, OPTS);
+    });
   }
 
   // If the starting block is empty, we replace it entirely with the first block
@@ -18525,16 +18519,14 @@ function insertFragmentAtRange(transform, range, fragment) {
   // Otherwise, we maintain the starting block, and insert all of the first
   // block's inline nodes into it at the split point.
   else {
-      (function () {
-        var inlineChild = startBlock.getHighestChild(startText.key);
-        var inlineIndex = startBlock.nodes.indexOf(inlineChild);
+      var inlineChild = startBlock.getHighestChild(startText.key);
+      var inlineIndex = startBlock.nodes.indexOf(inlineChild);
 
-        firstBlock.nodes.forEach(function (inline, i) {
-          var o = startOffset == 0 ? 0 : 1;
-          var newIndex = inlineIndex + i + o;
-          transform.insertNodeByKey(startBlock.key, newIndex, inline, OPTS);
-        });
-      })();
+      firstBlock.nodes.forEach(function (inline, i) {
+        var o = startOffset == 0 ? 0 : 1;
+        var newIndex = inlineIndex + i + o;
+        transform.insertNodeByKey(startBlock.key, newIndex, inline, OPTS);
+      });
     }
 
   // Normalize if requested.
@@ -19091,86 +19083,82 @@ function wrapInlineAtRange(transform, range, inline) {
   var endOff = endChild.key == endKey ? endOffset : endChild.getOffset(endKey) + endOffset;
 
   if (startBlock == endBlock) {
-    (function () {
-      if (endOff != endChild.length) {
-        transform.splitNodeByKey(endChild.key, endOff, OPTS);
-      }
+    if (endOff != endChild.length) {
+      transform.splitNodeByKey(endChild.key, endOff, OPTS);
+    }
 
-      if (startOff != 0) {
-        transform.splitNodeByKey(startChild.key, startOff, OPTS);
-      }
+    if (startOff != 0) {
+      transform.splitNodeByKey(startChild.key, startOff, OPTS);
+    }
 
-      state = transform.state;
-      document = state.document;
-      startBlock = document.getClosestBlock(startKey);
-      startChild = startBlock.getHighestChild(startKey);
+    state = transform.state;
+    document = state.document;
+    startBlock = document.getClosestBlock(startKey);
+    startChild = startBlock.getHighestChild(startKey);
 
-      var startInner = startOff == 0 ? startChild : document.getNextSibling(startChild.key);
+    var startInner = startOff == 0 ? startChild : document.getNextSibling(startChild.key);
 
-      var startInnerIndex = startBlock.nodes.indexOf(startInner);
+    var startInnerIndex = startBlock.nodes.indexOf(startInner);
 
-      var endInner = startKey == endKey ? startInner : startBlock.getHighestChild(endKey);
-      var inlines = startBlock.nodes.skipUntil(function (n) {
-        return n == startInner;
-      }).takeUntil(function (n) {
-        return n == endInner;
-      }).push(endInner);
+    var endInner = startKey == endKey ? startInner : startBlock.getHighestChild(endKey);
+    var inlines = startBlock.nodes.skipUntil(function (n) {
+      return n == startInner;
+    }).takeUntil(function (n) {
+      return n == endInner;
+    }).push(endInner);
 
+    var node = inline.regenerateKey();
+
+    transform.insertNodeByKey(startBlock.key, startInnerIndex, node, OPTS);
+
+    inlines.forEach(function (child, i) {
+      transform.moveNodeByKey(child.key, node.key, i, OPTS);
+    });
+
+    if (normalize) {
+      transform.normalizeNodeByKey(startBlock.key, _core2.default);
+    }
+  } else {
+    transform.splitNodeByKey(startChild.key, startOff, OPTS);
+    transform.splitNodeByKey(endChild.key, endOff, OPTS);
+
+    state = transform.state;
+    document = state.document;
+    startBlock = document.getDescendant(startBlock.key);
+    endBlock = document.getDescendant(endBlock.key);
+
+    var startInlines = startBlock.nodes.slice(startIndex + 1);
+    var endInlines = endBlock.nodes.slice(0, endIndex + 1);
+    var startNode = inline.regenerateKey();
+    var endNode = inline.regenerateKey();
+
+    transform.insertNodeByKey(startBlock.key, startIndex - 1, startNode, OPTS);
+    transform.insertNodeByKey(endBlock.key, endIndex, endNode, OPTS);
+
+    startInlines.forEach(function (child, i) {
+      transform.moveNodeByKey(child.key, startNode.key, i, OPTS);
+    });
+
+    endInlines.forEach(function (child, i) {
+      transform.moveNodeByKey(child.key, endNode.key, i, OPTS);
+    });
+
+    if (normalize) {
+      transform.normalizeNodeByKey(startBlock.key, _core2.default).normalizeNodeByKey(endBlock.key, _core2.default);
+    }
+
+    blocks.slice(1, -1).forEach(function (block) {
       var node = inline.regenerateKey();
+      transform.insertNodeByKey(block.key, 0, node, OPTS);
 
-      transform.insertNodeByKey(startBlock.key, startInnerIndex, node, OPTS);
-
-      inlines.forEach(function (child, i) {
+      block.nodes.forEach(function (child, i) {
         transform.moveNodeByKey(child.key, node.key, i, OPTS);
       });
 
       if (normalize) {
-        transform.normalizeNodeByKey(startBlock.key, _core2.default);
+        transform.normalizeNodeByKey(block.key, _core2.default);
       }
-    })();
-  } else {
-    (function () {
-      transform.splitNodeByKey(startChild.key, startOff, OPTS);
-      transform.splitNodeByKey(endChild.key, endOff, OPTS);
-
-      state = transform.state;
-      document = state.document;
-      startBlock = document.getDescendant(startBlock.key);
-      endBlock = document.getDescendant(endBlock.key);
-
-      var startInlines = startBlock.nodes.slice(startIndex + 1);
-      var endInlines = endBlock.nodes.slice(0, endIndex + 1);
-      var startNode = inline.regenerateKey();
-      var endNode = inline.regenerateKey();
-
-      transform.insertNodeByKey(startBlock.key, startIndex - 1, startNode, OPTS);
-      transform.insertNodeByKey(endBlock.key, endIndex, endNode, OPTS);
-
-      startInlines.forEach(function (child, i) {
-        transform.moveNodeByKey(child.key, startNode.key, i, OPTS);
-      });
-
-      endInlines.forEach(function (child, i) {
-        transform.moveNodeByKey(child.key, endNode.key, i, OPTS);
-      });
-
-      if (normalize) {
-        transform.normalizeNodeByKey(startBlock.key, _core2.default).normalizeNodeByKey(endBlock.key, _core2.default);
-      }
-
-      blocks.slice(1, -1).forEach(function (block) {
-        var node = inline.regenerateKey();
-        transform.insertNodeByKey(block.key, 0, node, OPTS);
-
-        block.nodes.forEach(function (child, i) {
-          transform.moveNodeByKey(child.key, node.key, i, OPTS);
-        });
-
-        if (normalize) {
-          transform.normalizeNodeByKey(block.key, _core2.default);
-        }
-      });
-    })();
+    });
   }
 }
 
