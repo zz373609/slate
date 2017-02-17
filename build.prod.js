@@ -7103,7 +7103,12 @@ var Leaf = function (_React$Component) {
       // COMPAT: If the text is empty otherwise, it's because it's on the edge of
       // an inline void node, so we render a zero-width space so that the
       // selection can be inserted next to it still.
-      if (text == '') return _react2.default.createElement('span', { 'data-slate-zero-width': true }, "\u200B");
+      if (text == '') {
+        // COMPAT: In Chrome, zero-width space produces graphics glitches, so use
+        // hair space in place of it. (2017/02/12)
+        var space = _environment.IS_FIREFOX ? "\u200B" : "\u200A";
+        return _react2.default.createElement('span', { 'data-slate-zero-width': true }, space);
+      }
 
       // COMPAT: Browsers will collapse trailing new lines at the end of blocks,
       // so we need to add an extra trailing new lines to prevent that.
@@ -7940,7 +7945,6 @@ var _initialiseProps = function _initialiseProps() {
   };
 
   this.onClick = function (event) {
-    event.preventDefault();
     _this2.debug('onClick', { event: event });
 
     var _props = _this2.props,
@@ -7968,17 +7972,9 @@ var _initialiseProps = function _initialiseProps() {
     // Make the outer wrapper relative, so the spacer can overlay it.
     if (node.kind === 'block') {
       Tag = 'div';
-      style = {
-        position: 'relative'
-      };
+      style = { position: 'relative' };
     } else {
       Tag = 'span';
-      // COMPAT: In Chrome, without setting `display: inline-block` the cursor
-      // will disappear when placed before an inline void node. (2017/02/07)
-      style = {
-        display: 'inline-block',
-        position: 'relative'
-      };
     }
 
     _this2.debug('render', { props: props });
@@ -8006,10 +8002,7 @@ var _initialiseProps = function _initialiseProps() {
       };
     } else {
       style = {
-        position: 'absolute',
-        top: '0px',
-        left: '-9999px',
-        textIndent: '-9999px'
+        color: 'transparent'
       };
     }
 
@@ -14294,7 +14287,7 @@ function Plugin() {
   function onCutOrCopy(e, data, state) {
     var window = (0, _getWindow2.default)(e.target);
     var native = window.getSelection();
-    if (!native.rangeCount) return;
+    if (native.isCollapsed) return;
 
     var fragment = data.fragment;
 
@@ -20402,7 +20395,7 @@ function collapseToEndOfNextBlock(transform) {
 
   var blocks = document.getBlocksAtRange(selection);
   var last = blocks.last();
-  var next = document.getNextBlock(last);
+  var next = document.getNextBlock(last.key);
   if (!next) return;
 
   var sel = selection.collapseToEndOf(next);
@@ -20422,7 +20415,7 @@ function collapseToEndOfNextText(transform) {
 
   var texts = document.getTextsAtRange(selection);
   var last = texts.last();
-  var next = document.getNextText(last);
+  var next = document.getNextText(last.key);
   if (!next) return;
 
   var sel = selection.collapseToEndOf(next);
@@ -20442,7 +20435,7 @@ function collapseToEndOfPreviousBlock(transform) {
 
   var blocks = document.getBlocksAtRange(selection);
   var first = blocks.first();
-  var previous = document.getPreviousBlock(first);
+  var previous = document.getPreviousBlock(first.key);
   if (!previous) return;
 
   var sel = selection.collapseToEndOf(previous);
@@ -20462,7 +20455,7 @@ function collapseToEndOfPreviousText(transform) {
 
   var texts = document.getTextsAtRange(selection);
   var first = texts.first();
-  var previous = document.getPreviousText(first);
+  var previous = document.getPreviousText(first.key);
   if (!previous) return;
 
   var sel = selection.collapseToEndOf(previous);
@@ -20482,7 +20475,7 @@ function collapseToStartOfNextBlock(transform) {
 
   var blocks = document.getBlocksAtRange(selection);
   var last = blocks.last();
-  var next = document.getNextBlock(last);
+  var next = document.getNextBlock(last.key);
   if (!next) return;
 
   var sel = selection.collapseToStartOf(next);
@@ -20502,7 +20495,7 @@ function collapseToStartOfNextText(transform) {
 
   var texts = document.getTextsAtRange(selection);
   var last = texts.last();
-  var next = document.getNextText(last);
+  var next = document.getNextText(last.key);
   if (!next) return;
 
   var sel = selection.collapseToStartOf(next);
@@ -20522,7 +20515,7 @@ function collapseToStartOfPreviousBlock(transform) {
 
   var blocks = document.getBlocksAtRange(selection);
   var first = blocks.first();
-  var previous = document.getPreviousBlock(first);
+  var previous = document.getPreviousBlock(first.key);
   if (!previous) return;
 
   var sel = selection.collapseToStartOf(previous);
@@ -20542,7 +20535,7 @@ function collapseToStartOfPreviousText(transform) {
 
   var texts = document.getTextsAtRange(selection);
   var first = texts.first();
-  var previous = document.getPreviousText(first);
+  var previous = document.getPreviousText(first.key);
   if (!previous) return;
 
   var sel = selection.collapseToStartOf(previous);
@@ -26799,7 +26792,6 @@ module.exports={
   "_from": "cheerio@>=0.22.0 <0.23.0",
   "_id": "cheerio@0.22.0",
   "_inCache": true,
-  "_installable": true,
   "_location": "/cheerio",
   "_nodeVersion": "6.2.2",
   "_npmOperationalInternal": {
