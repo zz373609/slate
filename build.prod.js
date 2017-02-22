@@ -11744,7 +11744,7 @@ var Selection = function (_ref) {
       if (anchorNode.kind != 'text') {
         (0, _warn2.default)('The selection anchor was set to a Node that is not a Text node. This should not happen and can degrade performance. The node in question was:', anchorNode);
         var anchorText = anchorNode.getTextAtOffset(anchorOffset);
-        var offset = anchorNode.getOffset(anchorText);
+        var offset = anchorNode.getOffset(anchorText.key);
         anchorOffset = anchorOffset - offset;
         anchorNode = anchorText;
       }
@@ -11753,7 +11753,7 @@ var Selection = function (_ref) {
       if (focusNode.kind != 'text') {
         (0, _warn2.default)('The selection focus was set to a Node that is not a Text node. This should not happen and can degrade performance. The node in question was:', focusNode);
         var focusText = focusNode.getTextAtOffset(focusOffset);
-        var _offset = focusNode.getOffset(focusText);
+        var _offset = focusNode.getOffset(focusText.key);
         focusOffset = focusOffset - _offset;
         focusNode = focusText;
       }
