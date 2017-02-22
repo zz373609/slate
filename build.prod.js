@@ -6839,12 +6839,6 @@ var Leaf = function (_React$Component) {
    * @param {Object} props
    */
 
-  /**
-   * Property types.
-   *
-   * @type {Object}
-   */
-
   function Leaf(props) {
     _classCallCheck(this, Leaf);
 
@@ -6871,7 +6865,7 @@ var Leaf = function (_React$Component) {
    */
 
   /**
-   * Default properties.
+   * Property types.
    *
    * @type {Object}
    */
@@ -7134,15 +7128,29 @@ var Leaf = function (_React$Component) {
     key: 'renderMarks',
     value: function renderMarks(props) {
       var marks = props.marks,
-          schema = props.schema;
+          schema = props.schema,
+          node = props.node,
+          offset = props.offset,
+          text = props.text,
+          state = props.state,
+          editor = props.editor;
 
-      var text = this.renderText(props);
+      var children = this.renderText(props);
 
-      return marks.reduce(function (children, mark) {
+      return marks.reduce(function (memo, mark) {
         var Component = mark.getComponent(schema);
-        if (!Component) return children;
-        return _react2.default.createElement(Component, { mark: mark, marks: marks }, children);
-      }, text);
+        if (!Component) return memo;
+        return _react2.default.createElement(Component, {
+          editor: editor,
+          mark: mark,
+          marks: marks,
+          node: node,
+          offset: offset,
+          schema: schema,
+          state: state,
+          text: text
+        }, memo);
+      }, children);
     }
   }]);
 
@@ -7157,18 +7165,16 @@ var Leaf = function (_React$Component) {
  */
 
 Leaf.propTypes = {
+  editor: _react2.default.PropTypes.object.isRequired,
   index: _react2.default.PropTypes.number.isRequired,
-  isVoid: _react2.default.PropTypes.bool,
   marks: _react2.default.PropTypes.object.isRequired,
   node: _react2.default.PropTypes.object.isRequired,
+  offset: _react2.default.PropTypes.number.isRequired,
   parent: _react2.default.PropTypes.object.isRequired,
   ranges: _react2.default.PropTypes.object.isRequired,
   schema: _react2.default.PropTypes.object.isRequired,
   state: _react2.default.PropTypes.object.isRequired,
   text: _react2.default.PropTypes.string.isRequired
-};
-Leaf.defaultProps = {
-  isVoid: false
 };
 function findDeepestNode(element) {
   return element.firstChild ? findDeepestNode(element.firstChild) : element;
@@ -7609,16 +7615,19 @@ var _initialiseProps = function _initialiseProps() {
         node = _props4.node,
         parent = _props4.parent,
         schema = _props4.schema,
-        state = _props4.state;
+        state = _props4.state,
+        editor = _props4.editor;
 
     var text = range.text;
     var marks = range.marks;
 
     return _react2.default.createElement(_leaf2.default, {
       key: node.key + '-' + index,
+      editor: editor,
       index: index,
       marks: marks,
       node: node,
+      offset: offset,
       parent: parent,
       ranges: ranges,
       schema: schema,
@@ -7810,10 +7819,6 @@ var _offsetKey2 = _interopRequireDefault(_offsetKey);
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
-
-var _noop = require('../utils/noop');
-
-var _noop2 = _interopRequireDefault(_noop);
 
 var _environment = require('../constants/environment');
 
@@ -8013,11 +8018,13 @@ var _initialiseProps = function _initialiseProps() {
     var _props2 = _this2.props,
         node = _props2.node,
         schema = _props2.schema,
-        state = _props2.state;
+        state = _props2.state,
+        editor = _props2.editor;
 
     var child = node.getFirstText();
     var ranges = child.getRanges();
     var text = '';
+    var offset = 0;
     var marks = _mark2.default.createSet();
     var index = 0;
     var offsetKey = _offsetKey2.default.stringify({
@@ -8026,24 +8033,24 @@ var _initialiseProps = function _initialiseProps() {
     });
 
     return _react2.default.createElement(_leaf2.default, {
-      isVoid: true,
-      renderMark: _noop2.default,
       key: offsetKey,
-      schema: schema,
-      state: state,
+      editor: editor,
+      index: index,
+      marks: marks,
       node: child,
+      offset: offset,
       parent: node,
       ranges: ranges,
-      index: index,
-      text: text,
-      marks: marks
+      schema: schema,
+      state: state,
+      text: text
     });
   };
 };
 
 exports.default = Void;
 
-},{"../constants/environment":43,"../models/mark":52,"../utils/noop":84,"../utils/offset-key":87,"./leaf":39,"debug":119,"react":1447}],43:[function(require,module,exports){
+},{"../constants/environment":43,"../models/mark":52,"../utils/offset-key":87,"./leaf":39,"debug":119,"react":1447}],43:[function(require,module,exports){
 (function (process){
 'use strict';
 
