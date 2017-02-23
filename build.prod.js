@@ -18081,7 +18081,7 @@ function deleteBackwardAtRange(transform, range) {
     return;
   }
   // If the closest is not void, but empty, remove it
-  if (block && !block.isVoid && block.isEmpty) {
+  if (block && !block.isVoid && block.isEmpty && document.nodes.size !== 1) {
     transform.removeNodeByKey(block.key, { normalize: normalize });
     return;
   }
@@ -18281,7 +18281,7 @@ function deleteForwardAtRange(transform, range) {
     return;
   }
   // If the closest is not void, but empty, remove it
-  if (block && !block.isVoid && block.isEmpty) {
+  if (block && !block.isVoid && block.isEmpty && document.nodes.size !== 1) {
     transform.removeNodeByKey(block.key, { normalize: normalize });
     return;
   }
@@ -20066,12 +20066,20 @@ function normalizeSelection(transform) {
       document = _state.document,
       selection = _state.selection;
 
+  // If document is empty, return
+
+  if (document.nodes.size === 0) {
+    return;
+  }
+
   selection = selection.normalize(document);
 
   // If the selection is unset, or the anchor or focus key in the selection are
-  // pointing to nodes that no longer exist, warn and reset the selection.
+  // pointing to nodes that no longer exist, warn (if not unset) and reset the selection.
   if (selection.isUnset || !document.hasDescendant(selection.anchorKey) || !document.hasDescendant(selection.focusKey)) {
-    (0, _warn2.default)('The selection was invalid and was reset to start of the document. The selection in question was:', selection);
+    if (!selection.isUnset) {
+      (0, _warn2.default)('The selection was invalid and was reset to start of the document. The selection in question was:', selection);
+    }
 
     var firstText = document.getFirstText();
     selection = selection.merge({
