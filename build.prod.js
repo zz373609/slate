@@ -18074,9 +18074,14 @@ function deleteBackwardAtRange(transform, range) {
     return;
   }
 
-  // If the closest block is void, delete it.
   var block = document.getClosestBlock(startKey);
+  // If the closest block is void, delete it.
   if (block && block.isVoid) {
+    transform.removeNodeByKey(block.key, { normalize: normalize });
+    return;
+  }
+  // If the closest is not void, but empty, remove it
+  if (block && !block.isVoid && block.isEmpty) {
     transform.removeNodeByKey(block.key, { normalize: normalize });
     return;
   }
@@ -18269,9 +18274,14 @@ function deleteForwardAtRange(transform, range) {
     return;
   }
 
-  // If the closest block is void, delete it.
   var block = document.getClosestBlock(startKey);
+  // If the closest block is void, delete it.
   if (block && block.isVoid) {
+    transform.removeNodeByKey(block.key, { normalize: normalize });
+    return;
+  }
+  // If the closest is not void, but empty, remove it
+  if (block && !block.isVoid && block.isEmpty) {
     transform.removeNodeByKey(block.key, { normalize: normalize });
     return;
   }
