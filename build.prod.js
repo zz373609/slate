@@ -22336,19 +22336,19 @@ function _interopRequireDefault(obj) {
 }
 
 function scrollWindow(window, cursorTop, cursorLeft, cursorHeight) {
-  var deltaX = 0;
-  var deltaY = 0;
+  var scrollX = window.scrollX;
+  var scrollY = window.scrollY;
   var cursorBottom = cursorTop + cursorHeight;
 
   if (cursorTop < 0 || cursorBottom > window.innerHeight) {
-    deltaY = cursorTop - window.scrollY + window.innerHeight / 2 - cursorHeight / 2;
+    scrollY += cursorTop - window.innerHeight / 2 + cursorHeight / 2;
   }
 
   if (cursorLeft < 0 || cursorLeft > window.innerWidth) {
-    deltaX = cursorLeft - window.scrollX + window.innerWidth / 2;
+    scrollX += cursorLeft - window.innerWidth / 2;
   }
 
-  window.scrollBy(deltaX, deltaY);
+  window.scrollTo(scrollX, scrollY);
 }
 /**
  * Helps scroll the cursor into the middle of view if it isn't in view
@@ -22369,7 +22369,7 @@ function scrollTo(element) {
       var wrapperRect = wrapper.getBoundingClientRect();
       var currentY = cursorTop;
       var cursorBottom = cursorTop + cursorHeight;
-      if (cursorTop < wrapperRect.top || cursorBottom > wrapperRect.bottom) {
+      if (cursorTop < wrapperRect.top || cursorBottom > wrapperRect.top + wrapper.offsetHeight) {
         cursorTop = wrapperRect.top + wrapperRect.height / 2 - cursorHeight / 2;
         wrapper.scrollTop += currentY - cursorTop;
       }
