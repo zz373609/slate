@@ -14558,8 +14558,9 @@ function Plugin() {
       var previousBlock = document.getClosestBlock(previous.key);
       var previousInline = document.getClosestInline(previous.key);
 
-      if (previousBlock == startBlock && previousInline && !previousInline.isVoid) {
-        return state.transform().collapseToEndOf(previous).moveBackward(1).apply();
+      if (previousBlock === startBlock && previousInline && !previousInline.isVoid) {
+        var extendOrMove = data.isShift ? 'extendBackward' : 'moveBackward';
+        return state.transform().collapseToEndOf(previous)[extendOrMove](1).apply();
       }
 
       // Otherwise, move to the end of the previous node.
@@ -14623,7 +14624,8 @@ function Plugin() {
       var nextInline = document.getClosestInline(next.key);
 
       if (nextBlock == startBlock && nextInline) {
-        return state.transform().collapseToStartOf(next).moveForward(1).apply();
+        var extendOrMove = data.isShift ? 'extendForward' : 'moveBackward';
+        return state.transform().collapseToStartOf(next)[extendOrMove](1).apply();
       }
 
       // Otherwise, move to the start of the next text node.
