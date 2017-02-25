@@ -1975,13 +1975,13 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
-var _selectionPosition = require('selection-position');
-
-var _selectionPosition2 = _interopRequireDefault(_selectionPosition);
-
 var _state = require('./state.json');
 
 var _state2 = _interopRequireDefault(_state);
+
+var _selectionPosition = require('selection-position');
+
+var _selectionPosition2 = _interopRequireDefault(_selectionPosition);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -2787,6 +2787,19 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 /**
+ * Default block to be inserted when the document is empty,
+ * and after an image is the last node in the document.
+ *
+ * @type {Object}
+ */
+
+var defaultBlock = {
+  type: 'paragraph',
+  isVoid: false,
+  data: {}
+};
+
+/**
  * Define a schema.
  *
  * @type {Object}
@@ -2802,8 +2815,44 @@ var schema = {
       var src = node.data.get('src');
       var className = isFocused ? 'active' : null;
       return _react2.default.createElement('img', _extends({ src: src, className: className }, props.attributes));
+    },
+    paragraph: function paragraph(props) {
+      return _react2.default.createElement(
+        'p',
+        props.attributes,
+        props.children
+      );
     }
-  }
+  },
+  rules: [
+  // Rule to insert a paragraph block if the document is empty
+  {
+    match: function match(node) {
+      return node.kind == 'document';
+    },
+    validate: function validate(document) {
+      return document.nodes.size ? null : true;
+    },
+    normalize: function normalize(transform, document) {
+      var block = _.Block.create(defaultBlock);
+      transform.insertNodeByKey(document.key, 0, block);
+    }
+  },
+  // Rule to insert a paragraph below a void node (the image)
+  // if that node is the last one in the document
+  {
+    match: function match(node) {
+      return node.kind == 'document';
+    },
+    validate: function validate(document) {
+      var lastNode = document.nodes.last();
+      return lastNode && lastNode.isVoid ? true : null;
+    },
+    normalize: function normalize(transform, document) {
+      var block = _.Block.create(defaultBlock);
+      transform.insertNodeByKey(document.key, document.nodes.size, block);
+    }
+  }]
 };
 
 /**
@@ -2864,20 +2913,6 @@ var Images = function (_React$Component) {
       );
     }, _this.onChange = function (state) {
       _this.setState({ state: state });
-    }, _this.onDocumentChange = function (document, state) {
-      var blocks = document.getBlocks();
-      var last = blocks.last();
-      if (last.type != 'image') return;
-
-      var normalized = state.transform().collapseToEndOf(last).splitBlock().setBlock({
-        type: 'paragraph',
-        isVoid: false,
-        data: {}
-      }).apply({
-        save: false
-      });
-
-      _this.onChange(normalized);
     }, _this.onClickImage = function (e) {
       e.preventDefault();
       var src = window.prompt('Enter the URL of the image:');
@@ -2987,13 +3022,6 @@ var Images = function (_React$Component) {
   /**
    * On change.
    *
-   * @param {State} state
-   */
-
-  /**
-   * On document change, if the last block is an image, add another paragraph.
-   *
-   * @param {Document} document
    * @param {State} state
    */
 
@@ -5749,6 +5777,7 @@ var Content = function (_React$Component) {
 
 Content.propTypes = {
   autoCorrect: _react2.default.PropTypes.bool.isRequired,
+  children: _react2.default.PropTypes.object.isRequired,
   className: _react2.default.PropTypes.string,
   editor: _react2.default.PropTypes.object.isRequired,
   onBeforeInput: _react2.default.PropTypes.func.isRequired,
@@ -5975,9 +6004,11 @@ var _initialiseProps = function _initialiseProps() {
       range.setStart(nativeEvent.rangeParent, nativeEvent.rangeOffset);
     }
 
-    var startNode = range.startContainer;
-    var startOffset = range.startOffset;
-    var point = _this2.getPoint(startNode, startOffset);
+    var _range = range,
+        startContainer = _range.startContainer,
+        startOffset = _range.startOffset;
+
+    var point = _this2.getPoint(startContainer, startOffset);
     if (!point) return;
 
     var target = _selection2.default.create({
@@ -6286,7 +6317,7 @@ var _initialiseProps = function _initialiseProps() {
       style: style,
       role: readOnly ? null : role || 'textbox',
       tabIndex: tabIndex
-    }, children);
+    }, children, _this2.props.children);
   };
 
   this.renderNode = function (node) {
@@ -6336,6 +6367,10 @@ var _content2 = _interopRequireDefault(_content);
 var _debug = require('debug');
 
 var _debug2 = _interopRequireDefault(_debug);
+
+var _reactPortal = require('react-portal');
+
+var _reactPortal2 = _interopRequireDefault(_reactPortal);
 
 var _react = require('react');
 
@@ -6674,8 +6709,10 @@ var _initialiseProps = function _initialiseProps() {
   this.render = function () {
     var props = _this2.props,
         state = _this2.state;
+    var stack = state.stack;
 
     var handlers = {};
+    var children = stack.render(state.state, _this2);
 
     var _iteratorNormalCompletion4 = true;
     var _didIteratorError4 = false;
@@ -6716,6 +6753,8 @@ var _initialiseProps = function _initialiseProps() {
       style: props.style,
       tabIndex: props.tabIndex,
       role: props.role
+    }), children.map(function (child, i) {
+      return _react2.default.createElement(_reactPortal2.default, { key: i, isOpened: true }, child);
     }));
   };
 };
@@ -6753,7 +6792,7 @@ try {
 
 exports.default = Editor;
 
-},{"../models/stack":57,"../models/state":58,"../utils/noop":83,"./content":37,"debug":118,"react":1446}],39:[function(require,module,exports){
+},{"../models/stack":57,"../models/state":58,"../utils/noop":83,"./content":37,"debug":118,"react":1446,"react-portal":1383}],39:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -7001,44 +7040,40 @@ var Leaf = function (_React$Component) {
       }
 
       // Otherwise we need to set the selection across two different leaves.
-      else {
-          // If the selection is forward, we can set things in sequence. In the
-          // first leaf to render, reset the selection and set the new start. And
-          // then in the second leaf to render, extend to the new end.
-          if (selection.isForward) {
-            if (hasAnchor) {
-              native.removeAllRanges();
-              var _range = window.document.createRange();
-              _range.setStart(el, anchorOffset);
-              native.addRange(_range);
-            } else if (hasFocus) {
-              native.extend(el, focusOffset);
-              focus();
-            }
+      // If the selection is forward, we can set things in sequence. In the
+      // first leaf to render, reset the selection and set the new start. And
+      // then in the second leaf to render, extend to the new end.
+      else if (selection.isForward) {
+          if (hasAnchor) {
+            native.removeAllRanges();
+            var _range = window.document.createRange();
+            _range.setStart(el, anchorOffset);
+            native.addRange(_range);
+          } else if (hasFocus) {
+            native.extend(el, focusOffset);
+            focus();
           }
-
-          // Otherwise, if the selection is backward, we need to hack the order a bit.
-          // In the first leaf to render, set a phony start anchor to store the true
-          // end position. And then in the second leaf to render, set the start and
-          // extend the end to the stored value.
-          else {
-              if (hasFocus) {
-                native.removeAllRanges();
-                var _range2 = window.document.createRange();
-                _range2.setStart(el, focusOffset);
-                native.addRange(_range2);
-              } else if (hasAnchor) {
-                var endNode = native.focusNode;
-                var endOffset = native.focusOffset;
-                native.removeAllRanges();
-                var _range3 = window.document.createRange();
-                _range3.setStart(el, anchorOffset);
-                native.addRange(_range3);
-                native.extend(endNode, endOffset);
-                focus();
-              }
-            }
         }
+
+        // Otherwise, if the selection is backward, we need to hack the order a bit.
+        // In the first leaf to render, set a phony start anchor to store the true
+        // end position. And then in the second leaf to render, set the start and
+        // extend the end to the stored value.
+        else if (hasFocus) {
+            native.removeAllRanges();
+            var _range2 = window.document.createRange();
+            _range2.setStart(el, focusOffset);
+            native.addRange(_range2);
+          } else if (hasAnchor) {
+            var endNode = native.focusNode;
+            var endOffset = native.focusOffset;
+            native.removeAllRanges();
+            var _range3 = window.document.createRange();
+            _range3.setStart(el, anchorOffset);
+            native.addRange(_range3);
+            native.extend(endNode, endOffset);
+            focus();
+          }
 
       this.debug('updateSelection', { selection: selection });
     }
@@ -7617,9 +7652,8 @@ var _initialiseProps = function _initialiseProps() {
         schema = _props4.schema,
         state = _props4.state,
         editor = _props4.editor;
-
-    var text = range.text;
-    var marks = range.marks;
+    var text = range.text,
+        marks = range.marks;
 
     return _react2.default.createElement(_leaf2.default, {
       key: node.key + '-' + index,
@@ -10469,8 +10503,7 @@ var Node = {
    */
 
   getTextDirection: function getTextDirection() {
-    var text = this.text;
-    var dir = (0, _direction2.default)(text);
+    var dir = (0, _direction2.default)(this.text);
     return dir == 'neutral' ? undefined : dir;
   },
 
@@ -10671,6 +10704,7 @@ var Node = {
       first = first.merge({ characters: characters });
     } else {
       var size = first.nodes.size;
+
       second.nodes.forEach(function (child, i) {
         first = first.insertNode(size + i, child);
       });
@@ -12428,7 +12462,7 @@ var debug = (0, _debug2.default)('slate:stack');
  * @type {Array}
  */
 
-var EVENT_METHODS = ['onBeforeInput', 'onBlur', 'onCopy', 'onCut', 'onDrop', 'onKeyDown', 'onPaste', 'onSelect'];
+var EVENT_HANDLER_METHODS = ['onBeforeInput', 'onBlur', 'onCopy', 'onCut', 'onDrop', 'onKeyDown', 'onPaste', 'onSelect'];
 
 /**
  * Methods that accumulate an updated state.
@@ -12436,15 +12470,15 @@ var EVENT_METHODS = ['onBeforeInput', 'onBlur', 'onCopy', 'onCut', 'onDrop', 'on
  * @type {Array}
  */
 
-var ACCUMULATOR_METHODS = ['onBeforeChange', 'onChange'];
+var STATE_ACCUMULATOR_METHODS = ['onBeforeChange', 'onChange'];
 
 /**
- * All the runnable methods.
+ * Methods that accumulate an array.
  *
  * @type {Array}
  */
 
-var RUNNABLE_METHODS = [].concat(EVENT_METHODS).concat(ACCUMULATOR_METHODS);
+var ARRAY_ACCUMULATOR_METHODS = ['render'];
 
 /**
  * Default properties.
@@ -12473,67 +12507,6 @@ var Stack = function (_ref) {
   }
 
   _createClass(Stack, [{
-    key: 'run',
-
-    /**
-     * Run a `method` in the stack with `state`.
-     *
-     * @param {String} method
-     * @param {State} state
-     * @param {Editor} editor
-     * @param {Mixed} ...args
-     * @return {State}
-     */
-
-    value: function run(method, state, editor) {
-      debug(method);
-
-      if (method == 'onChange') {
-        state = this.onBeforeChange(state, editor);
-      }
-
-      for (var _len = arguments.length, args = Array(_len > 3 ? _len - 3 : 0), _key = 3; _key < _len; _key++) {
-        args[_key - 3] = arguments[_key];
-      }
-
-      var _iteratorNormalCompletion = true;
-      var _didIteratorError = false;
-      var _iteratorError = undefined;
-
-      try {
-        for (var _iterator = this.plugins[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-          var plugin = _step.value;
-
-          if (!plugin[method]) continue;
-          var next = plugin[method].apply(plugin, args.concat([state, editor]));
-
-          if (next == null) {
-            continue;
-          } else if (next instanceof _state2.default) {
-            state = next;
-            if (!ACCUMULATOR_METHODS.includes(method)) break;
-          } else {
-            throw new Error('A plugin returned an unexpected state value: ' + next);
-          }
-        }
-      } catch (err) {
-        _didIteratorError = true;
-        _iteratorError = err;
-      } finally {
-        try {
-          if (!_iteratorNormalCompletion && _iterator.return) {
-            _iterator.return();
-          }
-        } finally {
-          if (_didIteratorError) {
-            throw _iteratorError;
-          }
-        }
-      }
-
-      return state;
-    }
-  }, {
     key: 'kind',
 
     /**
@@ -12568,35 +12541,152 @@ var Stack = function (_ref) {
 }(new _immutable.Record(DEFAULTS));
 
 /**
- * Mix in the runnable methods.
+ * Mix in the event handler methods.
+ *
+ * @param {State} state
+ * @param {Editor} editor
+ * @param {Mixed} ...args
+ * @return {State|Null}
  */
+
+var _iteratorNormalCompletion = true;
+var _didIteratorError = false;
+var _iteratorError = undefined;
+
+try {
+  var _loop = function _loop() {
+    var method = _step.value;
+
+    Stack.prototype[method] = function (state, editor) {
+      debug(method);
+
+      if (method == 'onChange') {
+        state = this.onBeforeChange(state, editor);
+      }
+
+      for (var _len = arguments.length, args = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
+        args[_key - 2] = arguments[_key];
+      }
+
+      var _iteratorNormalCompletion5 = true;
+      var _didIteratorError5 = false;
+      var _iteratorError5 = undefined;
+
+      try {
+        for (var _iterator5 = this.plugins[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+          var plugin = _step5.value;
+
+          if (!plugin[method]) continue;
+          var next = plugin[method].apply(plugin, args.concat([state, editor]));
+          if (next == null) continue;
+          assertState(next);
+          return next;
+        }
+      } catch (err) {
+        _didIteratorError5 = true;
+        _iteratorError5 = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion5 && _iterator5.return) {
+            _iterator5.return();
+          }
+        } finally {
+          if (_didIteratorError5) {
+            throw _iteratorError5;
+          }
+        }
+      }
+
+      return state;
+    };
+  };
+
+  for (var _iterator = EVENT_HANDLER_METHODS[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+    _loop();
+  }
+
+  /**
+   * Mix in the state accumulator methods.
+   *
+   * @param {State} state
+   * @param {Editor} editor
+   * @param {Mixed} ...args
+   * @return {State|Null}
+   */
+} catch (err) {
+  _didIteratorError = true;
+  _iteratorError = err;
+} finally {
+  try {
+    if (!_iteratorNormalCompletion && _iterator.return) {
+      _iterator.return();
+    }
+  } finally {
+    if (_didIteratorError) {
+      throw _iteratorError;
+    }
+  }
+}
 
 var _iteratorNormalCompletion2 = true;
 var _didIteratorError2 = false;
 var _iteratorError2 = undefined;
 
 try {
-  var _loop = function _loop() {
+  var _loop2 = function _loop2() {
     var method = _step2.value;
 
-    Stack.prototype[method] = function () {
-      for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
-        args[_key2] = arguments[_key2];
+    Stack.prototype[method] = function (state, editor) {
+      debug(method);
+
+      for (var _len2 = arguments.length, args = Array(_len2 > 2 ? _len2 - 2 : 0), _key2 = 2; _key2 < _len2; _key2++) {
+        args[_key2 - 2] = arguments[_key2];
       }
 
-      return this.run.apply(this, [method].concat(args));
+      var _iteratorNormalCompletion6 = true;
+      var _didIteratorError6 = false;
+      var _iteratorError6 = undefined;
+
+      try {
+        for (var _iterator6 = this.plugins[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
+          var plugin = _step6.value;
+
+          if (!plugin[method]) continue;
+          var next = plugin[method].apply(plugin, args.concat([state, editor]));
+          if (next == null) continue;
+          assertState(next);
+          state = next;
+        }
+      } catch (err) {
+        _didIteratorError6 = true;
+        _iteratorError6 = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion6 && _iterator6.return) {
+            _iterator6.return();
+          }
+        } finally {
+          if (_didIteratorError6) {
+            throw _iteratorError6;
+          }
+        }
+      }
+
+      return state;
     };
   };
 
-  for (var _iterator2 = RUNNABLE_METHODS[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-    _loop();
+  for (var _iterator2 = STATE_ACCUMULATOR_METHODS[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+    _loop2();
   }
 
   /**
-   * Resolve a schema from a set of `plugins`.
+   * Mix in the array accumulator methods.
    *
-   * @param {Array} plugins
-   * @return {Schema}
+   * @param {State} state
+   * @param {Editor} editor
+   * @param {Mixed} ...args
+   * @return {Array}
    */
 } catch (err) {
   _didIteratorError2 = true;
@@ -12613,32 +12703,116 @@ try {
   }
 }
 
+var _iteratorNormalCompletion3 = true;
+var _didIteratorError3 = false;
+var _iteratorError3 = undefined;
+
+try {
+  var _loop3 = function _loop3() {
+    var method = _step3.value;
+
+    Stack.prototype[method] = function (state, editor) {
+      debug(method);
+      var array = [];
+
+      for (var _len3 = arguments.length, args = Array(_len3 > 2 ? _len3 - 2 : 0), _key3 = 2; _key3 < _len3; _key3++) {
+        args[_key3 - 2] = arguments[_key3];
+      }
+
+      var _iteratorNormalCompletion7 = true;
+      var _didIteratorError7 = false;
+      var _iteratorError7 = undefined;
+
+      try {
+        for (var _iterator7 = this.plugins[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
+          var plugin = _step7.value;
+
+          if (!plugin[method]) continue;
+          var next = plugin[method].apply(plugin, args.concat([state, editor]));
+          if (next == null) continue;
+          array.push(next);
+        }
+      } catch (err) {
+        _didIteratorError7 = true;
+        _iteratorError7 = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion7 && _iterator7.return) {
+            _iterator7.return();
+          }
+        } finally {
+          if (_didIteratorError7) {
+            throw _iteratorError7;
+          }
+        }
+      }
+
+      return array;
+    };
+  };
+
+  for (var _iterator3 = ARRAY_ACCUMULATOR_METHODS[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+    _loop3();
+  }
+
+  /**
+   * Assert that a `value` is a state object.
+   *
+   * @param {Mixed} value
+   */
+} catch (err) {
+  _didIteratorError3 = true;
+  _iteratorError3 = err;
+} finally {
+  try {
+    if (!_iteratorNormalCompletion3 && _iterator3.return) {
+      _iterator3.return();
+    }
+  } finally {
+    if (_didIteratorError3) {
+      throw _iteratorError3;
+    }
+  }
+}
+
+function assertState(value) {
+  if (value instanceof _state2.default) return;
+  throw new Error('A plugin returned an unexpected state value: ' + value);
+}
+
+/**
+ * Resolve a schema from a set of `plugins`.
+ *
+ * @param {Array} plugins
+ * @return {Schema}
+ */
+
 function resolveSchema(plugins) {
   var rules = [];
 
-  var _iteratorNormalCompletion3 = true;
-  var _didIteratorError3 = false;
-  var _iteratorError3 = undefined;
+  var _iteratorNormalCompletion4 = true;
+  var _didIteratorError4 = false;
+  var _iteratorError4 = undefined;
 
   try {
-    for (var _iterator3 = plugins[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-      var plugin = _step3.value;
+    for (var _iterator4 = plugins[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+      var plugin = _step4.value;
 
       if (plugin.schema == null) continue;
       var _schema = _schema3.default.create(plugin.schema);
       rules = rules.concat(_schema.rules);
     }
   } catch (err) {
-    _didIteratorError3 = true;
-    _iteratorError3 = err;
+    _didIteratorError4 = true;
+    _iteratorError4 = err;
   } finally {
     try {
-      if (!_iteratorNormalCompletion3 && _iterator3.return) {
-        _iterator3.return();
+      if (!_iteratorNormalCompletion4 && _iterator4.return) {
+        _iterator4.return();
       }
     } finally {
-      if (_didIteratorError3) {
-        throw _iteratorError3;
+      if (_didIteratorError4) {
+        throw _iteratorError4;
       }
     }
   }
@@ -19006,13 +19180,14 @@ function wrapBlockAtRange(transform, range, block) {
       siblings = void 0,
       index = void 0;
 
-  // if there is only one block in the selection then we know the parent and siblings
+  // If there is only one block in the selection then we know the parent and
+  // siblings.
   if (blocks.length === 1) {
     parent = document.getParent(firstblock.key);
     siblings = blocks;
   }
 
-  // determine closest shared parent to all blocks in selection
+  // Determine closest shared parent to all blocks in selection.
   else {
       parent = document.getClosest(firstblock.key, function (p1) {
         return !!document.getClosest(lastblock.key, function (p2) {
@@ -19021,10 +19196,11 @@ function wrapBlockAtRange(transform, range, block) {
       });
     }
 
-  // if no shared parent could be found then the parent is the document
+  // If no shared parent could be found then the parent is the document.
   if (parent == null) parent = document;
 
-  // create a list of direct children siblings of parent that fall in the selection
+  // Create a list of direct children siblings of parent that fall in the
+  // selection.
   if (siblings == null) {
     var indexes = parent.nodes.reduce(function (ind, node, i) {
       if (node == firstblock || node.hasDescendant(firstblock.key)) ind[0] = i;
@@ -19036,15 +19212,15 @@ function wrapBlockAtRange(transform, range, block) {
     siblings = parent.nodes.slice(indexes[0], indexes[1] + 1);
   }
 
-  // get the index to place the new wrapped node at
+  // Get the index to place the new wrapped node at.
   if (index == null) {
     index = parent.nodes.indexOf(siblings.first());
   }
 
-  // inject the new block node into the parent
+  // Inject the new block node into the parent.
   transform.insertNodeByKey(parent.key, index, block, OPTS);
 
-  // move the sibling nodes into the new block node
+  // Move the sibling nodes into the new block node.
   siblings.forEach(function (node, i) {
     transform.moveNodeByKey(node.key, block.key, i, OPTS);
   });
@@ -19641,21 +19817,20 @@ function unwrapNodeByKey(transform, key) {
   var parentIndex = parentParent.nodes.indexOf(parent);
 
   if (parent.nodes.size === 1) {
-    // Remove the parent
+    // Remove the parent and replace it by the node itself.
     transform.removeNodeByKey(parent.key, { normalize: false });
-    // and replace it by the node itself
     transform.insertNodeByKey(parentParent.key, parentIndex, node, options);
   } else if (isFirst) {
-    // Just move the node before its parent
+    // Just move the node before its parent.
     transform.moveNodeByKey(key, parentParent.key, parentIndex, options);
   } else if (isLast) {
-    // Just move the node after its parent
+    // Just move the node after its parent.
     transform.moveNodeByKey(key, parentParent.key, parentIndex + 1, options);
   } else {
     var parentPath = document.getPath(parent.key);
-    // Split the parent
+    // Split the parent.
     transform.splitNodeOperation(parentPath, index);
-    // Extract the node in between the splitted parent
+    // Extract the node in between the splitted parent.
     transform.moveNodeByKey(key, parentParent.key, parentIndex + 1, { normalize: false });
 
     if (normalize) {
@@ -21105,7 +21280,7 @@ function splitNodeAtOffsetOperation(transform, path, offset) {
     type: 'join_node',
     path: inversePath,
     withPath: path,
-    // we will split down to the text nodes, so we must join nodes recursively
+    // We will split down to the text nodes, so we must join nodes recursively.
     deep: true
   }];
 
@@ -22213,7 +22388,6 @@ function findKey(rawNode, rawOffset) {
   // Find the closest parent with an offset key attribute.
 
   var closest = parentNode.closest(SELECTOR);
-  var offsetKey = void 0;
 
   // For void nodes, the element with the offset key will be a cousin, not an
   // ancestor, so find it by going down from the nearest void parent.
@@ -22225,7 +22399,7 @@ function findKey(rawNode, rawOffset) {
   }
 
   // Get the string value of the offset key attribute.
-  offsetKey = closest.getAttribute(ATTRIBUTE);
+  var offsetKey = closest.getAttribute(ATTRIBUTE);
 
   // If we still didn't find an offset key, abort.
   if (!offsetKey) return null;
