@@ -5777,7 +5777,7 @@ var Content = function (_React$Component) {
 
 Content.propTypes = {
   autoCorrect: _react2.default.PropTypes.bool.isRequired,
-  children: _react2.default.PropTypes.object.isRequired,
+  children: _react2.default.PropTypes.array.isRequired,
   className: _react2.default.PropTypes.string,
   editor: _react2.default.PropTypes.object.isRequired,
   onBeforeInput: _react2.default.PropTypes.func.isRequired,
