@@ -2929,7 +2929,7 @@ var Images = function (_React$Component) {
           return _this.onDropNode(e, data, state);
       }
     }, _this.onDropNode = function (e, data, state) {
-      return state.transform().unsetSelection().removeNodeByKey(data.node.key).moveTo(data.target).insertBlock(data.node).apply();
+      return state.transform().deselect().removeNodeByKey(data.node.key).select(data.target).insertBlock(data.node).apply();
     }, _this.onDropOrPasteFiles = function (e, data, state, editor) {
       var _iteratorNormalCompletion = true;
       var _didIteratorError = false;
@@ -3663,7 +3663,7 @@ var Links = function (_React$Component) {
       } else {
         var _href = window.prompt('Enter the URL of the link:');
         var text = window.prompt('Enter the text for the link:');
-        state = state.transform().insertText(text).extendBackward(text.length).wrapInline({
+        state = state.transform().insertText(text).extend(0 - text.length).wrapInline({
           type: 'link',
           data: { href: _href }
         }).collapseToEnd().apply();
@@ -6091,15 +6091,15 @@ var _initialiseProps = function _initialiseProps() {
 
     // Determine what the selection should be after changing the text.
     var delta = textContent.length - text.length;
-    var after = selection.collapseToEnd().moveForward(delta);
+    var after = selection.collapseToEnd().move(delta);
 
     // Create an updated state with the text replaced.
-    var next = state.transform().moveTo({
+    var next = state.transform().select({
       anchorKey: key,
       anchorOffset: start,
       focusKey: key,
       focusOffset: end
-    }).delete().insertText(textContent, marks).moveTo(after).apply();
+    }).delete().insertText(textContent, marks).select(after).apply();
 
     // Change the current state.
     _this2.onChange(next);
@@ -10049,7 +10049,7 @@ var Node = {
     node = node.splitBlockAtRange(start, Infinity);
 
     var next = node.getNextText(startKey);
-    var end = startKey == endKey ? range.collapseToStartOf(next).moveForward(endOffset - startOffset) : range.collapseToEnd();
+    var end = startKey == endKey ? range.collapseToStartOf(next).move(endOffset - startOffset) : range.collapseToEnd();
     node = node.splitBlockAtRange(end, Infinity);
 
     // Get the start and end nodes.
@@ -11589,8 +11589,9 @@ var Selection = function (_ref) {
      */
 
     value: function hasAnchorAtStartOf(node) {
+      // PERF: Do a check for a `0` offset first since it's quickest.
       if (this.anchorOffset != 0) return false;
-      var first = node.kind == 'text' ? node : node.getFirstText();
+      var first = getFirst(node);
       return this.anchorKey == first.key;
     }
 
@@ -11604,7 +11605,7 @@ var Selection = function (_ref) {
   }, {
     key: 'hasAnchorAtEndOf',
     value: function hasAnchorAtEndOf(node) {
-      var last = node.kind == 'text' ? node : node.getLastText();
+      var last = getLast(node);
       return this.anchorKey == last.key && this.anchorOffset == last.length;
     }
 
@@ -11634,11 +11635,7 @@ var Selection = function (_ref) {
   }, {
     key: 'hasAnchorIn',
     value: function hasAnchorIn(node) {
-      if (node.kind == 'text') {
-        return node.key === this.anchorKey;
-      } else {
-        return node.hasDescendant(this.anchorKey);
-      }
+      return node.kind == 'text' ? node.key == this.anchorKey : node.hasDescendant(this.anchorKey);
     }
 
     /**
@@ -11651,7 +11648,7 @@ var Selection = function (_ref) {
   }, {
     key: 'hasFocusAtEndOf',
     value: function hasFocusAtEndOf(node) {
-      var last = node.kind == 'text' ? node : node.getLastText();
+      var last = getLast(node);
       return this.focusKey == last.key && this.focusOffset == last.length;
     }
 
@@ -11666,7 +11663,7 @@ var Selection = function (_ref) {
     key: 'hasFocusAtStartOf',
     value: function hasFocusAtStartOf(node) {
       if (this.focusOffset != 0) return false;
-      var first = node.kind == 'text' ? node : node.getFirstText();
+      var first = getFirst(node);
       return this.focusKey == first.key;
     }
 
@@ -11696,11 +11693,7 @@ var Selection = function (_ref) {
   }, {
     key: 'hasFocusIn',
     value: function hasFocusIn(node) {
-      if (node.kind == 'text') {
-        return node.key === this.focusKey;
-      } else {
-        return node.hasDescendant(this.focusKey);
-      }
+      return node.kind == 'text' ? node.key == this.focusKey : node.hasDescendant(this.focusKey);
     }
 
     /**
@@ -11713,14 +11706,7 @@ var Selection = function (_ref) {
   }, {
     key: 'isAtStartOf',
     value: function isAtStartOf(node) {
-      var isExpanded = this.isExpanded,
-          startKey = this.startKey,
-          startOffset = this.startOffset;
-
-      if (isExpanded) return false;
-      if (startOffset != 0) return false;
-      var first = node.kind == 'text' ? node : node.getFirstText();
-      return startKey == first.key;
+      return this.isCollapsed && this.hasAnchorAtStartOf(node);
     }
 
     /**
@@ -11733,13 +11719,308 @@ var Selection = function (_ref) {
   }, {
     key: 'isAtEndOf',
     value: function isAtEndOf(node) {
-      var endKey = this.endKey,
-          endOffset = this.endOffset,
-          isExpanded = this.isExpanded;
+      return this.isCollapsed && this.hasAnchorAtEndOf(node);
+    }
 
-      if (isExpanded) return false;
-      var last = node.kind == 'text' ? node : node.getLastText();
-      return endKey == last.key && endOffset == last.length;
+    /**
+     * Focus the selection.
+     *
+     * @return {Selection}
+     */
+
+  }, {
+    key: 'focus',
+    value: function focus() {
+      return this.merge({
+        isFocused: true
+      });
+    }
+
+    /**
+     * Blur the selection.
+     *
+     * @return {Selection}
+     */
+
+  }, {
+    key: 'blur',
+    value: function blur() {
+      return this.merge({
+        isFocused: false
+      });
+    }
+
+    /**
+     * Unset the selection.
+     *
+     * @return {Selection}
+     */
+
+  }, {
+    key: 'deselect',
+    value: function deselect() {
+      return this.merge({
+        anchorKey: null,
+        anchorOffset: 0,
+        focusKey: null,
+        focusOffset: 0,
+        isFocused: false,
+        isBackward: false
+      });
+    }
+
+    /**
+     * Flip the selection.
+     *
+     * @return {Selection}
+     */
+
+  }, {
+    key: 'flip',
+    value: function flip() {
+      return this.merge({
+        anchorKey: this.focusKey,
+        anchorOffset: this.focusOffset,
+        focusKey: this.anchorKey,
+        focusOffset: this.anchorOffset,
+        isBackward: this.isBackward == null ? null : !this.isBackward
+      });
+    }
+
+    /**
+     * Move the anchor offset `n` characters.
+     *
+     * @param {Number} n (optional)
+     * @return {Selection}
+     */
+
+  }, {
+    key: 'moveAnchor',
+    value: function moveAnchor() {
+      var n = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+      var anchorKey = this.anchorKey,
+          focusKey = this.focusKey,
+          focusOffset = this.focusOffset,
+          isBackward = this.isBackward;
+
+      var anchorOffset = this.anchorOffset + n;
+      return this.merge({
+        anchorOffset: anchorOffset,
+        isBackward: anchorKey == focusKey ? anchorOffset > focusOffset : isBackward
+      });
+    }
+
+    /**
+     * Move the anchor offset `n` characters.
+     *
+     * @param {Number} n (optional)
+     * @return {Selection}
+     */
+
+  }, {
+    key: 'moveFocus',
+    value: function moveFocus() {
+      var n = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+      var anchorKey = this.anchorKey,
+          anchorOffset = this.anchorOffset,
+          focusKey = this.focusKey,
+          isBackward = this.isBackward;
+
+      var focusOffset = this.focusOffset + n;
+      return this.merge({
+        focusOffset: focusOffset,
+        isBackward: focusKey == anchorKey ? anchorOffset > focusOffset : isBackward
+      });
+    }
+
+    /**
+     * Move the selection's anchor point to a `key` and `offset`.
+     *
+     * @param {String} key
+     * @param {Number} offset
+     * @return {Selection}
+     */
+
+  }, {
+    key: 'moveAnchorTo',
+    value: function moveAnchorTo(key, offset) {
+      var anchorKey = this.anchorKey,
+          focusKey = this.focusKey,
+          focusOffset = this.focusOffset,
+          isBackward = this.isBackward;
+
+      return this.merge({
+        anchorKey: key,
+        anchorOffset: offset,
+        isBackward: key == focusKey ? offset > focusOffset : key == anchorKey ? isBackward : null
+      });
+    }
+
+    /**
+     * Move the selection's focus point to a `key` and `offset`.
+     *
+     * @param {String} key
+     * @param {Number} offset
+     * @return {Selection}
+     */
+
+  }, {
+    key: 'moveFocusTo',
+    value: function moveFocusTo(key, offset) {
+      var focusKey = this.focusKey,
+          anchorKey = this.anchorKey,
+          anchorOffset = this.anchorOffset,
+          isBackward = this.isBackward;
+
+      return this.merge({
+        focusKey: key,
+        focusOffset: offset,
+        isBackward: key == anchorKey ? anchorOffset > offset : key == focusKey ? isBackward : null
+      });
+    }
+
+    /**
+     * Move the selection to `anchorOffset`.
+     *
+     * @param {Number} anchorOffset
+     * @return {Selection}
+     */
+
+  }, {
+    key: 'moveAnchorOffsetTo',
+    value: function moveAnchorOffsetTo(anchorOffset) {
+      return this.merge({
+        anchorOffset: anchorOffset,
+        isBackward: this.anchorKey == this.focusKey ? anchorOffset > this.focusOffset : this.isBackward
+      });
+    }
+
+    /**
+     * Move the selection to `focusOffset`.
+     *
+     * @param {Number} focusOffset
+     * @return {Selection}
+     */
+
+  }, {
+    key: 'moveFocusOffsetTo',
+    value: function moveFocusOffsetTo(focusOffset) {
+      return this.merge({
+        focusOffset: focusOffset,
+        isBackward: this.anchorKey == this.focusKey ? this.anchorOffset > focusOffset : this.isBackward
+      });
+    }
+
+    /**
+     * Move the selection to `anchorOffset` and `focusOffset`.
+     *
+     * @param {Number} anchorOffset
+     * @param {Number} focusOffset (optional)
+     * @return {Selection}
+     */
+
+  }, {
+    key: 'moveOffsetsTo',
+    value: function moveOffsetsTo(anchorOffset) {
+      var focusOffset = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : anchorOffset;
+
+      return this.moveAnchorOffsetTo(anchorOffset).moveFocusOffsetTo(focusOffset);
+    }
+
+    /**
+     * Move the focus point to the anchor point.
+     *
+     * @return {Selection}
+     */
+
+  }, {
+    key: 'moveToAnchor',
+    value: function moveToAnchor() {
+      return this.moveFocusTo(this.anchorKey, this.anchorOffset);
+    }
+
+    /**
+     * Move the anchor point to the focus point.
+     *
+     * @return {Selection}
+     */
+
+  }, {
+    key: 'moveToFocus',
+    value: function moveToFocus() {
+      return this.moveAnchorTo(this.focusKey, this.focusOffset);
+    }
+
+    /**
+     * Move the selection's anchor point to the start of a `node`.
+     *
+     * @param {Node} node
+     * @return {Selection}
+     */
+
+  }, {
+    key: 'moveAnchorToStartOf',
+    value: function moveAnchorToStartOf(node) {
+      node = getFirst(node);
+      return this.moveAnchorTo(node.key, 0);
+    }
+
+    /**
+     * Move the selection's anchor point to the end of a `node`.
+     *
+     * @param {Node} node
+     * @return {Selection}
+     */
+
+  }, {
+    key: 'moveAnchorToEndOf',
+    value: function moveAnchorToEndOf(node) {
+      node = getLast(node);
+      return this.moveAnchorTo(node.key, node.length);
+    }
+
+    /**
+     * Move the selection's focus point to the start of a `node`.
+     *
+     * @param {Node} node
+     * @return {Selection}
+     */
+
+  }, {
+    key: 'moveFocusToStartOf',
+    value: function moveFocusToStartOf(node) {
+      node = getFirst(node);
+      return this.moveFocusTo(node.key, 0);
+    }
+
+    /**
+     * Move the selection's focus point to the end of a `node`.
+     *
+     * @param {Node} node
+     * @return {Selection}
+     */
+
+  }, {
+    key: 'moveFocusToEndOf',
+    value: function moveFocusToEndOf(node) {
+      node = getLast(node);
+      return this.moveFocusTo(node.key, node.length);
+    }
+
+    /**
+     * Move to the entire range of `start` and `end` nodes.
+     *
+     * @param {Node} start
+     * @param {Node} end (optional)
+     * @return {Selection}
+     */
+
+  }, {
+    key: 'moveToRangeOf',
+    value: function moveToRangeOf(start) {
+      var end = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : start;
+
+      return this.moveAnchorToStartOf(start).moveFocusToEndOf(end);
     }
 
     /**
@@ -11815,127 +12096,16 @@ var Selection = function (_ref) {
     }
 
     /**
-     * Focus the selection.
+     * Unset the selection.
      *
      * @return {Selection}
      */
 
   }, {
-    key: 'focus',
-    value: function focus() {
-      return this.merge({
-        isFocused: true
-      });
-    }
-
-    /**
-     * Blur the selection.
-     *
-     * @return {Selection}
-     */
-
-  }, {
-    key: 'blur',
-    value: function blur() {
-      return this.merge({
-        isFocused: false
-      });
-    }
-
-    /**
-     * Move the focus point to the anchor point.
-     *
-     * @return {Selection}
-     */
-
-  }, {
-    key: 'collapseToAnchor',
-    value: function collapseToAnchor() {
-      return this.merge({
-        focusKey: this.anchorKey,
-        focusOffset: this.anchorOffset,
-        isBackward: false
-      });
-    }
-
-    /**
-     * Move the anchor point to the focus point.
-     *
-     * @return {Selection}
-     */
-
-  }, {
-    key: 'collapseToFocus',
-    value: function collapseToFocus() {
-      return this.merge({
-        anchorKey: this.focusKey,
-        anchorOffset: this.focusOffset,
-        isBackward: false
-      });
-    }
-
-    /**
-     * Move to the start of a `node`.
-     *
-     * @param {Node} node
-     * @return {Selection}
-     */
-
-  }, {
-    key: 'collapseToStartOf',
-    value: function collapseToStartOf(node) {
-      node = node.kind == 'text' ? node : node.getFirstText();
-      return this.merge({
-        anchorKey: node.key,
-        anchorOffset: 0,
-        focusKey: node.key,
-        focusOffset: 0,
-        isBackward: false
-      });
-    }
-
-    /**
-     * Move to the end of a `node`.
-     *
-     * @return {Selection}
-     */
-
-  }, {
-    key: 'collapseToEndOf',
-    value: function collapseToEndOf(node) {
-      node = node.kind == 'text' ? node : node.getLastText();
-      return this.merge({
-        anchorKey: node.key,
-        anchorOffset: node.length,
-        focusKey: node.key,
-        focusOffset: node.length,
-        isBackward: false
-      });
-    }
-
-    /**
-     * Move to the entire range of `start` and `end` nodes.
-     *
-     * @param {Node} start
-     * @param {Node} end (optional)
-     * @param {Document} document
-     * @return {Selection}
-     */
-
-  }, {
-    key: 'moveToRangeOf',
-    value: function moveToRangeOf(start) {
-      var end = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : start;
-
-      start = start.kind == 'text' ? start : start.getFirstText();
-      end = end.kind == 'text' ? end : end.getLastText();
-      return this.merge({
-        anchorKey: start.key,
-        anchorOffset: 0,
-        focusKey: end.key,
-        focusOffset: end.length,
-        isBackward: null
-      });
+    key: 'unset',
+    value: function unset() {
+      (0, _warn2.default)('The `Selection.unset` method is deprecated, please switch to using `Selection.deselect` instead.');
+      return this.deselect();
     }
 
     /**
@@ -11950,10 +12120,8 @@ var Selection = function (_ref) {
     value: function moveForward() {
       var n = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
 
-      return this.merge({
-        anchorOffset: this.anchorOffset + n,
-        focusOffset: this.focusOffset + n
-      });
+      (0, _warn2.default)('The `Selection.moveForward(n)` method is deprecated, please switch to using `Selection.move(n)` instead.');
+      return this.move(n);
     }
 
     /**
@@ -11968,34 +12136,72 @@ var Selection = function (_ref) {
     value: function moveBackward() {
       var n = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
 
-      return this.merge({
-        anchorOffset: this.anchorOffset - n,
-        focusOffset: this.focusOffset - n
-      });
+      (0, _warn2.default)('The `Selection.moveBackward(n)` method is deprecated, please switch to using `Selection.move(-n)` (with a negative number) instead.');
+      return this.move(0 - n);
     }
 
     /**
-     * Move the selection to `anchor` and `focus` offsets.
+     * Move the anchor offset `n` characters.
      *
-     * @param {Number} anchor
-     * @param {Number} focus (optional)
+     * @param {Number} n (optional)
      * @return {Selection}
      */
 
   }, {
-    key: 'moveToOffsets',
-    value: function moveToOffsets(anchor) {
-      var focus = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : anchor;
+    key: 'moveAnchorOffset',
+    value: function moveAnchorOffset() {
+      var n = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
 
-      var props = {};
-      props.anchorOffset = anchor;
-      props.focusOffset = focus;
+      (0, _warn2.default)('The `Selection.moveAnchorOffset(n)` method is deprecated, please switch to using `Selection.moveAnchor(n)` instead.');
+      return this.moveAnchor(n);
+    }
 
-      if (this.anchorKey == this.focusKey) {
-        props.isBackward = anchor > focus;
-      }
+    /**
+     * Move the focus offset `n` characters.
+     *
+     * @param {Number} n (optional)
+     * @return {Selection}
+     */
 
-      return this.merge(props);
+  }, {
+    key: 'moveFocusOffset',
+    value: function moveFocusOffset() {
+      var n = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+
+      (0, _warn2.default)('The `Selection.moveFocusOffset(n)` method is deprecated, please switch to using `Selection.moveFocus(n)` instead.');
+      return this.moveFocus(n);
+    }
+
+    /**
+     * Move the start offset `n` characters.
+     *
+     * @param {Number} n (optional)
+     * @return {Selection}
+     */
+
+  }, {
+    key: 'moveStartOffset',
+    value: function moveStartOffset() {
+      var n = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+
+      (0, _warn2.default)('The `Selection.moveStartOffset(n)` method is deprecated, please switch to using `Selection.moveStart(n)` instead.');
+      return this.moveStart(n);
+    }
+
+    /**
+     * Move the focus offset `n` characters.
+     *
+     * @param {Number} n (optional)
+     * @return {Selection}
+     */
+
+  }, {
+    key: 'moveEndOffset',
+    value: function moveEndOffset() {
+      var n = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+
+      (0, _warn2.default)('The `Selection.moveEndOffset(n)` method is deprecated, please switch to using `Selection.moveEnd(n)` instead.');
+      return this.moveEnd(n);
     }
 
     /**
@@ -12010,10 +12216,8 @@ var Selection = function (_ref) {
     value: function extendForward() {
       var n = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
 
-      return this.merge({
-        focusOffset: this.focusOffset + n,
-        isBackward: null
-      });
+      (0, _warn2.default)('The `Selection.extendForward(n)` method is deprecated, please switch to using `Selection.extend(n)` instead.');
+      return this.extend(n);
     }
 
     /**
@@ -12028,179 +12232,25 @@ var Selection = function (_ref) {
     value: function extendBackward() {
       var n = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
 
-      return this.merge({
-        focusOffset: this.focusOffset - n,
-        isBackward: null
-      });
+      (0, _warn2.default)('The `Selection.extendBackward(n)` method is deprecated, please switch to using `Selection.extend(-n)` (with a negative number) instead.');
+      return this.extend(0 - n);
     }
 
     /**
-     * Move the anchor offset `n` characters.
+     * Move the selection to `anchorOffset` and `focusOffset`.
      *
-     * @param {Number} n (optional)
+     * @param {Number} anchorOffset
+     * @param {Number} focusOffset (optional)
      * @return {Selection}
      */
 
   }, {
-    key: 'moveAnchorOffset',
-    value: function moveAnchorOffset() {
-      var n = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
-      var anchorKey = this.anchorKey,
-          focusKey = this.focusKey,
-          focusOffset = this.focusOffset;
+    key: 'moveToOffsets',
+    value: function moveToOffsets(anchorOffset) {
+      var focusOffset = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : anchorOffset;
 
-      var anchorOffset = this.anchorOffset + n;
-      return this.merge({
-        anchorOffset: anchorOffset,
-        isBackward: anchorKey == focusKey ? anchorOffset > focusOffset : this.isBackward
-      });
-    }
-
-    /**
-     * Move the anchor offset `n` characters.
-     *
-     * @param {Number} n (optional)
-     * @return {Selection}
-     */
-
-  }, {
-    key: 'moveFocusOffset',
-    value: function moveFocusOffset() {
-      var n = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
-      var focusKey = this.focusKey,
-          anchorKey = this.anchorKey,
-          anchorOffset = this.anchorOffset;
-
-      var focusOffset = this.focusOffset + n;
-      return this.merge({
-        focusOffset: focusOffset,
-        isBackward: focusKey == anchorKey ? anchorOffset > focusOffset : this.isBackward
-      });
-    }
-
-    /**
-     * Move the start key, while preserving the direction
-     *
-     * @param {String} key
-     * @return {Selection}
-     */
-
-  }, {
-    key: 'moveStartTo',
-    value: function moveStartTo(key) {
-      var offset = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
-
-      if (this.isBackward) {
-        return this.merge({
-          focusKey: key,
-          focusOffset: offset,
-          isBackward: null
-        });
-      } else {
-        return this.merge({
-          anchorKey: key,
-          anchorOffset: offset,
-          isBackward: null
-        });
-      }
-    }
-
-    /**
-     * Move the end key, while preserving the direction
-     *
-     * @param {String} key
-     * @return {Selection}
-     */
-
-  }, {
-    key: 'moveEndTo',
-    value: function moveEndTo(key) {
-      var offset = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
-
-      if (this.isBackward) {
-        return this.merge({
-          anchorKey: key,
-          anchorOffset: offset,
-          isBackward: null
-        });
-      } else {
-        return this.merge({
-          focusKey: key,
-          focusOffset: offset,
-          isBackward: null
-        });
-      }
-    }
-
-    /**
-     * Extend the focus point to the start of a `node`.
-     *
-     * @param {Node} node
-     * @return {Selection}
-     */
-
-  }, {
-    key: 'extendToStartOf',
-    value: function extendToStartOf(node) {
-      return this.merge({
-        focusKey: node.key,
-        focusOffset: 0,
-        isBackward: null
-      });
-    }
-
-    /**
-     * Extend the focus point to the end of a `node`.
-     *
-     * @param {Node} node
-     * @return {Selection}
-     */
-
-  }, {
-    key: 'extendToEndOf',
-    value: function extendToEndOf(node) {
-      return this.merge({
-        focusKey: node.key,
-        focusOffset: node.length,
-        isBackward: null
-      });
-    }
-
-    /**
-     * Unset the selection
-     *
-     * @return {Selection}
-     */
-
-  }, {
-    key: 'unset',
-    value: function unset() {
-      return this.merge({
-        anchorKey: null,
-        anchorOffset: 0,
-        focusKey: null,
-        focusOffset: 0,
-        isFocused: false,
-        isBackward: false
-      });
-    }
-
-    /**
-     * Flip the selection.
-     *
-     * @return {Selection}
-     */
-
-  }, {
-    key: 'flip',
-    value: function flip() {
-      return this.merge({
-        anchorKey: this.focusKey,
-        anchorOffset: this.focusOffset,
-        focusKey: this.anchorKey,
-        focusOffset: this.anchorOffset,
-        isBackward: this.isBackward == null ? null : !this.isBackward
-      });
+      (0, _warn2.default)('The `Selection.moveToOffsets` method is deprecated, please switch to using `Selection.moveOffsetsTo` instead.');
+      return this.moveOffsetsTo(anchorOffset, focusOffset);
     }
   }, {
     key: 'kind',
@@ -12216,7 +12266,7 @@ var Selection = function (_ref) {
     }
 
     /**
-     * Get whether the selection is blurred.
+     * Check whether the selection is blurred.
      *
      * @return {Boolean}
      */
@@ -12228,7 +12278,7 @@ var Selection = function (_ref) {
     }
 
     /**
-     * Get whether the selection is collapsed.
+     * Check whether the selection is collapsed.
      *
      * @return {Boolean}
      */
@@ -12240,7 +12290,7 @@ var Selection = function (_ref) {
     }
 
     /**
-     * Get whether the selection is expanded.
+     * Check whether the selection is expanded.
      *
      * @return {Boolean}
      */
@@ -12252,7 +12302,7 @@ var Selection = function (_ref) {
     }
 
     /**
-     * Get whether the selection is forward.
+     * Check whether the selection is forward.
      *
      * @return {Boolean}
      */
@@ -12298,16 +12348,37 @@ var Selection = function (_ref) {
     get: function get() {
       return this.isBackward ? this.focusKey : this.anchorKey;
     }
+
+    /**
+     * Get the start offset.
+     *
+     * @return {String}
+     */
+
   }, {
     key: 'startOffset',
     get: function get() {
       return this.isBackward ? this.focusOffset : this.anchorOffset;
     }
+
+    /**
+     * Get the end key.
+     *
+     * @return {String}
+     */
+
   }, {
     key: 'endKey',
     get: function get() {
       return this.isBackward ? this.anchorKey : this.focusKey;
     }
+
+    /**
+     * Get the end offset.
+     *
+     * @return {String}
+     */
+
   }, {
     key: 'endOffset',
     get: function get() {
@@ -12335,35 +12406,90 @@ var Selection = function (_ref) {
 }(new _immutable.Record(DEFAULTS));
 
 /**
- * Add start, end and edge convenience methods.
+ * Mix in some "move" convenience methods.
  */
 
-[['has', 'AtStartOf', true], ['has', 'AtEndOf', true], ['has', 'Between', true], ['has', 'In', true], ['collapseTo', ''], ['move', 'Offset']].forEach(function (opts) {
-  var _opts = _slicedToArray(opts, 3),
-      p = _opts[0],
-      s = _opts[1],
-      hasEdge = _opts[2];
+var MOVE_METHODS = [['move', ''], ['move', 'To'], ['move', 'ToStartOf'], ['move', 'ToEndOf']];
+
+MOVE_METHODS.forEach(function (_ref2) {
+  var _ref3 = _slicedToArray(_ref2, 2),
+      p = _ref3[0],
+      s = _ref3[1];
+
+  Selection.prototype['' + p + s] = function () {
+    var _ref4;
+
+    return (_ref4 = this[p + 'Anchor' + s].apply(this, arguments))[p + 'Focus' + s].apply(_ref4, arguments);
+  };
+});
+
+/**
+ * Mix in the "start", "end" and "edge" convenience methods.
+ */
+
+var EDGE_METHODS = [['has', 'AtStartOf', true], ['has', 'AtEndOf', true], ['has', 'Between', true], ['has', 'In', true], ['collapseTo', ''], ['move', ''], ['moveTo', ''], ['move', 'To'], ['move', 'OffsetTo']];
+
+EDGE_METHODS.forEach(function (_ref5) {
+  var _ref6 = _slicedToArray(_ref5, 3),
+      p = _ref6[0],
+      s = _ref6[1],
+      hasEdge = _ref6[2];
 
   var anchor = p + 'Anchor' + s;
-  var edge = p + 'Edge' + s;
-  var end = p + 'End' + s;
   var focus = p + 'Focus' + s;
-  var start = p + 'Start' + s;
 
-  Selection.prototype[start] = function () {
+  Selection.prototype[p + 'Start' + s] = function () {
     return this.isBackward ? this[focus].apply(this, arguments) : this[anchor].apply(this, arguments);
   };
 
-  Selection.prototype[end] = function () {
+  Selection.prototype[p + 'End' + s] = function () {
     return this.isBackward ? this[anchor].apply(this, arguments) : this[focus].apply(this, arguments);
   };
 
   if (hasEdge) {
-    Selection.prototype[edge] = function () {
+    Selection.prototype[p + 'Edge' + s] = function () {
       return this[anchor].apply(this, arguments) || this[focus].apply(this, arguments);
     };
   }
 });
+
+/**
+ * Mix in some aliases for convenience / parallelism with the browser APIs.
+ */
+
+var ALIAS_METHODS = [['collapseTo', 'moveTo'], ['collapseToAnchor', 'moveToAnchor'], ['collapseToFocus', 'moveToFocus'], ['collapseToStart', 'moveToStart'], ['collapseToEnd', 'moveToEnd'], ['collapseToStartOf', 'moveToStartOf'], ['collapseToEndOf', 'moveToEndOf'], ['extend', 'moveFocus'], ['extendTo', 'moveFocusTo'], ['extendToStartOf', 'moveFocusToStartOf'], ['extendToEndOf', 'moveFocusToEndOf']];
+
+ALIAS_METHODS.forEach(function (_ref7) {
+  var _ref8 = _slicedToArray(_ref7, 2),
+      alias = _ref8[0],
+      method = _ref8[1];
+
+  Selection.prototype[alias] = function () {
+    return this[method].apply(this, arguments);
+  };
+});
+
+/**
+ * Get the first text of a `node`.
+ *
+ * @param {Node} node
+ * @return {Text}
+ */
+
+function getFirst(node) {
+  return node.kind == 'text' ? node : node.getFirstText();
+}
+
+/**
+ * Get the last text of a `node`.
+ *
+ * @param {Node} node
+ * @return {Text}
+ */
+
+function getLast(node) {
+  return node.kind == 'text' ? node : node.getLastText();
+}
 
 /**
  * Export.
@@ -14554,14 +14680,14 @@ function Plugin() {
     // needs to account for the selection's content being deleted.
 
     if (isInternal && selection.endKey == target.endKey && selection.endOffset < target.endOffset) {
-      target = target.moveBackward(selection.startKey == selection.endKey ? selection.endOffset - selection.startOffset : selection.endOffset);
+      target = target.move(selection.startKey == selection.endKey ? 0 - selection.endOffset - selection.startOffset : 0 - selection.endOffset);
     }
 
     var transform = state.transform();
 
     if (isInternal) transform.delete();
 
-    return transform.moveTo(target).insertFragment(fragment).apply();
+    return transform.select(target).insertFragment(fragment).apply();
   }
 
   /**
@@ -14579,7 +14705,7 @@ function Plugin() {
     var text = data.text,
         target = data.target;
 
-    var transform = state.transform().moveTo(target);
+    var transform = state.transform().select(target);
 
     text.split('\n').forEach(function (line, i) {
       if (i > 0) transform.splitBlock();
@@ -14733,8 +14859,8 @@ function Plugin() {
       var previousInline = document.getClosestInline(previous.key);
 
       if (previousBlock === startBlock && previousInline && !previousInline.isVoid) {
-        var extendOrMove = data.isShift ? 'extendBackward' : 'moveBackward';
-        return state.transform().collapseToEndOf(previous)[extendOrMove](1).apply();
+        var extendOrMove = data.isShift ? 'extend' : 'move';
+        return state.transform().collapseToEndOf(previous)[extendOrMove](-1).apply();
       }
 
       // Otherwise, move to the end of the previous node.
@@ -14798,7 +14924,7 @@ function Plugin() {
       var nextInline = document.getClosestInline(next.key);
 
       if (nextBlock == startBlock && nextInline) {
-        var extendOrMove = data.isShift ? 'extendForward' : 'moveBackward';
+        var extendOrMove = data.isShift ? 'extend' : 'move';
         return state.transform().collapseToStartOf(next)[extendOrMove](1).apply();
       }
 
@@ -15014,7 +15140,7 @@ function Plugin() {
   function onSelect(e, data, state) {
     debug('onSelect', { data: data });
 
-    return state.transform().moveTo(data.selection).apply();
+    return state.transform().select(data.selection).apply();
   }
 
   /**
@@ -16904,8 +17030,6 @@ var _extends = Object.assign || function (target) {
   }return target;
 };
 
-exports.applyOperation = applyOperation;
-
 var _debug = require('debug');
 
 var _debug2 = _interopRequireDefault(_debug);
@@ -16925,6 +17049,14 @@ function _interopRequireDefault(obj) {
  */
 
 var debug = (0, _debug2.default)('slate:operation');
+
+/**
+ * Transforms.
+ *
+ * @type {Object}
+ */
+
+var Transforms = {};
 
 /**
  * Operations.
@@ -16958,7 +17090,7 @@ var OPERATIONS = {
  * @param {Object} operation
  */
 
-function applyOperation(transform, operation) {
+Transforms.applyOperation = function (transform, operation) {
   var state = transform.state,
       operations = transform.operations;
   var type = operation.type;
@@ -16972,7 +17104,7 @@ function applyOperation(transform, operation) {
   debug(type, operation);
   transform.state = fn(state, operation);
   transform.operations = operations.concat([operation]);
-}
+};
 
 /**
  * Add mark to text at `offset` and `length` in node by `path`.
@@ -17050,10 +17182,10 @@ function insertText(state, operation) {
 
   // Update the selection
   if (anchorKey == node.key && anchorOffset >= offset) {
-    selection = selection.moveAnchorOffset(text.length);
+    selection = selection.moveAnchor(text.length);
   }
   if (focusKey == node.key && focusOffset >= offset) {
-    selection = selection.moveFocusOffset(text.length);
+    selection = selection.moveFocus(text.length);
   }
 
   state = state.merge({ document: document, selection: selection });
@@ -17206,7 +17338,7 @@ function removeNode(state, operation) {
       } else if (next) {
         selection = selection.moveStartTo(next.key, 0);
       } else {
-        selection = selection.unset();
+        selection = selection.deselect();
       }
     }
 
@@ -17219,7 +17351,7 @@ function removeNode(state, operation) {
       } else if (_next) {
         selection = selection.moveEndTo(_next.key, 0);
       } else {
-        selection = selection.unset();
+        selection = selection.deselect();
       }
     }
   }
@@ -17263,10 +17395,10 @@ function removeText(state, operation) {
 
   // Update the selection
   if (anchorKey == node.key && anchorOffset >= rangeOffset) {
-    selection = selection.moveAnchorOffset(-length);
+    selection = selection.moveAnchor(-length);
   }
   if (focusKey == node.key && focusOffset >= rangeOffset) {
-    selection = selection.moveFocusOffset(-length);
+    selection = selection.moveFocus(-length);
   }
 
   node = node.removeText(offset, length);
@@ -17430,37 +17562,20 @@ function splitNode(state, operation) {
   return state;
 }
 
+/**
+ * Export.
+ *
+ * @type {Object}
+ */
+
+exports.default = Transforms;
+
 },{"../utils/warn":89,"debug":118}],68:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.addMark = addMark;
-exports._delete = _delete;
-exports.deleteBackward = deleteBackward;
-exports.deleteCharBackward = deleteCharBackward;
-exports.deleteLineBackward = deleteLineBackward;
-exports.deleteWordBackward = deleteWordBackward;
-exports.deleteForward = deleteForward;
-exports.deleteCharForward = deleteCharForward;
-exports.deleteLineForward = deleteLineForward;
-exports.deleteWordForward = deleteWordForward;
-exports.insertBlock = insertBlock;
-exports.insertFragment = insertFragment;
-exports.insertInline = insertInline;
-exports.insertText = insertText;
-exports.setBlock = setBlock;
-exports.setInline = setInline;
-exports.splitBlock = splitBlock;
-exports.splitInline = splitInline;
-exports.removeMark = removeMark;
-exports.toggleMark = toggleMark;
-exports.unwrapBlock = unwrapBlock;
-exports.unwrapInline = unwrapInline;
-exports.wrapBlock = wrapBlock;
-exports.wrapInline = wrapInline;
-exports.wrapText = wrapText;
 
 var _normalize = require('../utils/normalize');
 
@@ -17471,13 +17586,21 @@ function _interopRequireDefault(obj) {
 }
 
 /**
+ * Transforms.
+ *
+ * @type {Object}
+ */
+
+var Transforms = {};
+
+/**
  * Add a `mark` to the characters in the current selection.
  *
  * @param {Transform} transform
  * @param {Mark} mark
  */
 
-function addMark(transform, mark) {
+Transforms.addMark = function (transform, mark) {
   mark = _normalize2.default.mark(mark);
   var state = transform.state;
   var document = state.document,
@@ -17491,14 +17614,14 @@ function addMark(transform, mark) {
   if (selection.marks) {
     var _marks = selection.marks.add(mark);
     var _sel = selection.merge({ marks: _marks });
-    transform.moveTo(_sel);
+    transform.select(_sel);
     return;
   }
 
   var marks = document.getMarksAtRange(selection).add(mark);
   var sel = selection.merge({ marks: marks });
-  transform.moveTo(sel);
-}
+  transform.select(sel);
+};
 
 /**
  * Delete at the current selection.
@@ -17506,7 +17629,7 @@ function addMark(transform, mark) {
  * @param {Transform} transform
  */
 
-function _delete(transform) {
+Transforms.delete = function (transform) {
   var state = transform.state;
   var selection = state.selection;
 
@@ -17516,7 +17639,7 @@ function _delete(transform) {
   // Ensure that the selection is collapsed to the start, because in certain
   // cases when deleting across inline nodes this isn't guaranteed.
   .collapseToStart().snapshotSelection();
-}
+};
 
 /**
  * Delete backward `n` characters at the current selection.
@@ -17525,13 +17648,13 @@ function _delete(transform) {
  * @param {Number} n (optional)
  */
 
-function deleteBackward(transform) {
+Transforms.deleteBackward = function (transform) {
   var n = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
   var state = transform.state;
   var selection = state.selection;
 
   transform.deleteBackwardAtRange(selection, n);
-}
+};
 
 /**
  * Delete backward until the character boundary at the current selection.
@@ -17539,12 +17662,12 @@ function deleteBackward(transform) {
  * @param {Transform} transform
  */
 
-function deleteCharBackward(transform) {
+Transforms.deleteCharBackward = function (transform) {
   var state = transform.state;
   var selection = state.selection;
 
   transform.deleteCharBackwardAtRange(selection);
-}
+};
 
 /**
  * Delete backward until the line boundary at the current selection.
@@ -17552,12 +17675,12 @@ function deleteCharBackward(transform) {
  * @param {Transform} transform
  */
 
-function deleteLineBackward(transform) {
+Transforms.deleteLineBackward = function (transform) {
   var state = transform.state;
   var selection = state.selection;
 
   transform.deleteLineBackwardAtRange(selection);
-}
+};
 
 /**
  * Delete backward until the word boundary at the current selection.
@@ -17565,12 +17688,12 @@ function deleteLineBackward(transform) {
  * @param {Transform} transform
  */
 
-function deleteWordBackward(transform) {
+Transforms.deleteWordBackward = function (transform) {
   var state = transform.state;
   var selection = state.selection;
 
   transform.deleteWordBackwardAtRange(selection);
-}
+};
 
 /**
  * Delete forward `n` characters at the current selection.
@@ -17579,13 +17702,13 @@ function deleteWordBackward(transform) {
  * @param {Number} n (optional)
  */
 
-function deleteForward(transform) {
+Transforms.deleteForward = function (transform) {
   var n = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
   var state = transform.state;
   var selection = state.selection;
 
   transform.deleteForwardAtRange(selection, n);
-}
+};
 
 /**
  * Delete forward until the character boundary at the current selection.
@@ -17593,12 +17716,12 @@ function deleteForward(transform) {
  * @param {Transform} transform
  */
 
-function deleteCharForward(transform) {
+Transforms.deleteCharForward = function (transform) {
   var state = transform.state;
   var selection = state.selection;
 
   transform.deleteCharForwardAtRange(selection);
-}
+};
 
 /**
  * Delete forward until the line boundary at the current selection.
@@ -17606,12 +17729,12 @@ function deleteCharForward(transform) {
  * @param {Transform} transform
  */
 
-function deleteLineForward(transform) {
+Transforms.deleteLineForward = function (transform) {
   var state = transform.state;
   var selection = state.selection;
 
   transform.deleteLineForwardAtRange(selection);
-}
+};
 
 /**
  * Delete forward until the word boundary at the current selection.
@@ -17619,12 +17742,12 @@ function deleteLineForward(transform) {
  * @param {Transform} transform
  */
 
-function deleteWordForward(transform) {
+Transforms.deleteWordForward = function (transform) {
   var state = transform.state;
   var selection = state.selection;
 
   transform.deleteWordForwardAtRange(selection);
-}
+};
 
 /**
  * Insert a `block` at the current selection.
@@ -17633,7 +17756,7 @@ function deleteWordForward(transform) {
  * @param {String|Object|Block} block
  */
 
-function insertBlock(transform, block) {
+Transforms.insertBlock = function (transform, block) {
   block = _normalize2.default.block(block);
   var state = transform.state;
   var selection = state.selection;
@@ -17643,7 +17766,7 @@ function insertBlock(transform, block) {
   // If the node was successfully inserted, update the selection.
   var node = transform.state.document.getNode(block.key);
   if (node) transform.collapseToEndOf(node);
-}
+};
 
 /**
  * Insert a `fragment` at the current selection.
@@ -17652,7 +17775,7 @@ function insertBlock(transform, block) {
  * @param {Document} fragment
  */
 
-function insertFragment(transform, fragment) {
+Transforms.insertFragment = function (transform, fragment) {
   var state = transform.state;
   var _state = state,
       document = _state.document,
@@ -17671,7 +17794,7 @@ function insertFragment(transform, fragment) {
   });
   var isAppending = selection.hasEdgeAtEndOf(endText) || selection.hasEdgeAtStartOf(startText);
 
-  transform.unsetSelection();
+  transform.deselect();
   transform.insertFragmentAtRange(selection, fragment);
   state = transform.state;
   document = state.document;
@@ -17685,13 +17808,13 @@ function insertFragment(transform, fragment) {
   if (newText && lastInline) {
     after = selection.collapseToEndOf(newText);
   } else if (newText) {
-    after = selection.collapseToStartOf(newText).moveForward(lastText.length);
+    after = selection.collapseToStartOf(newText).move(lastText.length);
   } else {
-    after = selection.collapseToStart().moveForward(lastText.length);
+    after = selection.collapseToStart().move(lastText.length);
   }
 
-  transform.moveTo(after);
-}
+  transform.select(after);
+};
 
 /**
  * Insert a `inline` at the current selection.
@@ -17700,7 +17823,7 @@ function insertFragment(transform, fragment) {
  * @param {String|Object|Block} inline
  */
 
-function insertInline(transform, inline) {
+Transforms.insertInline = function (transform, inline) {
   inline = _normalize2.default.inline(inline);
   var state = transform.state;
   var selection = state.selection;
@@ -17710,7 +17833,7 @@ function insertInline(transform, inline) {
   // If the node was successfully inserted, update the selection.
   var node = transform.state.document.getNode(inline.key);
   if (node) transform.collapseToEndOf(node);
-}
+};
 
 /**
  * Insert a `text` string at the current selection.
@@ -17720,7 +17843,7 @@ function insertInline(transform, inline) {
  * @param {Set<Mark>} marks (optional)
  */
 
-function insertText(transform, text, marks) {
+Transforms.insertText = function (transform, text, marks) {
   var state = transform.state;
   var document = state.document,
       selection = state.selection;
@@ -17731,9 +17854,9 @@ function insertText(transform, text, marks) {
   // If the text was successfully inserted, and the selection had marks on it,
   // unset the selection's marks.
   if (selection.marks && document != transform.state.document) {
-    transform.unsetMarks();
+    transform.select({ marks: null });
   }
-}
+};
 
 /**
  * Set `properties` of the block nodes in the current selection.
@@ -17742,12 +17865,12 @@ function insertText(transform, text, marks) {
  * @param {Object} properties
  */
 
-function setBlock(transform, properties) {
+Transforms.setBlock = function (transform, properties) {
   var state = transform.state;
   var selection = state.selection;
 
   transform.setBlockAtRange(selection, properties);
-}
+};
 
 /**
  * Set `properties` of the inline nodes in the current selection.
@@ -17756,12 +17879,12 @@ function setBlock(transform, properties) {
  * @param {Object} properties
  */
 
-function setInline(transform, properties) {
+Transforms.setInline = function (transform, properties) {
   var state = transform.state;
   var selection = state.selection;
 
   transform.setInlineAtRange(selection, properties);
-}
+};
 
 /**
  * Split the block node at the current selection, to optional `depth`.
@@ -17770,13 +17893,13 @@ function setInline(transform, properties) {
  * @param {Number} depth (optional)
  */
 
-function splitBlock(transform) {
+Transforms.splitBlock = function (transform) {
   var depth = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
   var state = transform.state;
   var selection = state.selection;
 
   transform.snapshotSelection().splitBlockAtRange(selection, depth).collapseToEnd().snapshotSelection();
-}
+};
 
 /**
  * Split the inline nodes at the current selection, to optional `depth`.
@@ -17785,13 +17908,13 @@ function splitBlock(transform) {
  * @param {Number} depth (optional)
  */
 
-function splitInline(transform) {
+Transforms.splitInline = function (transform) {
   var depth = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : Infinity;
   var state = transform.state;
   var selection = state.selection;
 
   transform.snapshotSelection().splitInlineAtRange(selection, depth).snapshotSelection();
-}
+};
 
 /**
  * Remove a `mark` from the characters in the current selection.
@@ -17800,7 +17923,7 @@ function splitInline(transform) {
  * @param {Mark} mark
  */
 
-function removeMark(transform, mark) {
+Transforms.removeMark = function (transform, mark) {
   mark = _normalize2.default.mark(mark);
   var state = transform.state;
   var document = state.document,
@@ -17814,14 +17937,14 @@ function removeMark(transform, mark) {
   if (selection.marks) {
     var _marks2 = selection.marks.remove(mark);
     var _sel2 = selection.merge({ marks: _marks2 });
-    transform.moveTo(_sel2);
+    transform.select(_sel2);
     return;
   }
 
   var marks = document.getMarksAtRange(selection).remove(mark);
   var sel = selection.merge({ marks: marks });
-  transform.moveTo(sel);
-}
+  transform.select(sel);
+};
 
 /**
  * Add or remove a `mark` from the characters in the current selection,
@@ -17831,7 +17954,7 @@ function removeMark(transform, mark) {
  * @param {Mark} mark
  */
 
-function toggleMark(transform, mark) {
+Transforms.toggleMark = function (transform, mark) {
   mark = _normalize2.default.mark(mark);
   var state = transform.state;
 
@@ -17844,7 +17967,7 @@ function toggleMark(transform, mark) {
   } else {
     transform.addMark(mark);
   }
-}
+};
 
 /**
  * Unwrap the current selection from a block parent with `properties`.
@@ -17853,12 +17976,12 @@ function toggleMark(transform, mark) {
  * @param {Object|String} properties
  */
 
-function unwrapBlock(transform, properties) {
+Transforms.unwrapBlock = function (transform, properties) {
   var state = transform.state;
   var selection = state.selection;
 
   transform.unwrapBlockAtRange(selection, properties);
-}
+};
 
 /**
  * Unwrap the current selection from an inline parent with `properties`.
@@ -17867,12 +17990,12 @@ function unwrapBlock(transform, properties) {
  * @param {Object|String} properties
  */
 
-function unwrapInline(transform, properties) {
+Transforms.unwrapInline = function (transform, properties) {
   var state = transform.state;
   var selection = state.selection;
 
   transform.unwrapInlineAtRange(selection, properties);
-}
+};
 
 /**
  * Wrap the block nodes in the current selection with a new block node with
@@ -17882,12 +18005,12 @@ function unwrapInline(transform, properties) {
  * @param {Object|String} properties
  */
 
-function wrapBlock(transform, properties) {
+Transforms.wrapBlock = function (transform, properties) {
   var state = transform.state;
   var selection = state.selection;
 
   transform.wrapBlockAtRange(selection, properties);
-}
+};
 
 /**
  * Wrap the current selection in new inline nodes with `properties`.
@@ -17896,7 +18019,7 @@ function wrapBlock(transform, properties) {
  * @param {Object|String} properties
  */
 
-function wrapInline(transform, properties) {
+Transforms.wrapInline = function (transform, properties) {
   var state = transform.state;
   var _state3 = state,
       document = _state3.document,
@@ -17908,7 +18031,7 @@ function wrapInline(transform, properties) {
 
   var previous = document.getPreviousText(startKey);
 
-  transform.unsetSelection();
+  transform.deselect();
   transform.wrapInlineAtRange(selection, properties);
   state = transform.state;
   document = state.document;
@@ -17934,8 +18057,8 @@ function wrapInline(transform, properties) {
   }
 
   after = after.normalize(document);
-  transform.moveTo(after);
-}
+  transform.select(after);
+};
 
 /**
  * Wrap the current selection with prefix/suffix.
@@ -17945,7 +18068,7 @@ function wrapInline(transform, properties) {
  * @param {String} suffix
  */
 
-function wrapText(transform, prefix) {
+Transforms.wrapText = function (transform, prefix) {
   var suffix = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : prefix;
   var state = transform.state;
   var selection = state.selection;
@@ -17954,19 +18077,27 @@ function wrapText(transform, prefix) {
 
   // If the selection was collapsed, it will have moved the start offset too.
   if (selection.isCollapsed) {
-    transform.moveStartOffset(0 - prefix.length);
+    transform.moveStart(0 - prefix.length);
   }
 
   // Adding the suffix will have pushed the end of the selection further on, so
   // we need to move it back to account for this.
-  transform.moveEndOffset(0 - suffix.length);
+  transform.moveEnd(0 - suffix.length);
 
   // There's a chance that the selection points moved "through" each other,
   // resulting in a now-incorrect selection direction.
   if (selection.isForward != transform.state.selection.isForward) {
-    transform.flipSelection();
+    transform.flip();
   }
-}
+};
+
+/**
+ * Export.
+ *
+ * @type {Object}
+ */
+
+exports.default = Transforms;
 
 },{"../utils/normalize":85}],69:[function(require,module,exports){
 'use strict';
@@ -17974,31 +18105,6 @@ function wrapText(transform, prefix) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.addMarkAtRange = addMarkAtRange;
-exports.deleteAtRange = deleteAtRange;
-exports.deleteCharBackwardAtRange = deleteCharBackwardAtRange;
-exports.deleteLineBackwardAtRange = deleteLineBackwardAtRange;
-exports.deleteWordBackwardAtRange = deleteWordBackwardAtRange;
-exports.deleteBackwardAtRange = deleteBackwardAtRange;
-exports.deleteCharForwardAtRange = deleteCharForwardAtRange;
-exports.deleteLineForwardAtRange = deleteLineForwardAtRange;
-exports.deleteWordForwardAtRange = deleteWordForwardAtRange;
-exports.deleteForwardAtRange = deleteForwardAtRange;
-exports.insertBlockAtRange = insertBlockAtRange;
-exports.insertFragmentAtRange = insertFragmentAtRange;
-exports.insertInlineAtRange = insertInlineAtRange;
-exports.insertTextAtRange = insertTextAtRange;
-exports.removeMarkAtRange = removeMarkAtRange;
-exports.setBlockAtRange = setBlockAtRange;
-exports.setInlineAtRange = setInlineAtRange;
-exports.splitBlockAtRange = splitBlockAtRange;
-exports.splitInlineAtRange = splitInlineAtRange;
-exports.toggleMarkAtRange = toggleMarkAtRange;
-exports.unwrapBlockAtRange = unwrapBlockAtRange;
-exports.unwrapInlineAtRange = unwrapInlineAtRange;
-exports.wrapBlockAtRange = wrapBlockAtRange;
-exports.wrapInlineAtRange = wrapInlineAtRange;
-exports.wrapTextAtRange = wrapTextAtRange;
 
 var _normalize = require('../utils/normalize');
 
@@ -18019,12 +18125,20 @@ function _interopRequireDefault(obj) {
 }
 
 /**
- * An options object with normalize set to `false`.
+ * Transforms.
  *
  * @type {Object}
  */
 
 /* eslint no-console: 0 */
+
+var Transforms = {};
+
+/**
+ * An options object with normalize set to `false`.
+ *
+ * @type {Object}
+ */
 
 var OPTS = {
   normalize: false
@@ -18040,7 +18154,7 @@ var OPTS = {
  *   @property {Boolean} normalize
  */
 
-function addMarkAtRange(transform, range, mark) {
+Transforms.addMarkAtRange = function (transform, range, mark) {
   var options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
 
   if (range.isCollapsed) return;
@@ -18068,7 +18182,7 @@ function addMarkAtRange(transform, range, mark) {
 
     transform.addMarkByKey(key, index, length, mark, { normalize: normalize });
   });
-}
+};
 
 /**
  * Delete everything in a `range`.
@@ -18079,7 +18193,7 @@ function addMarkAtRange(transform, range, mark) {
  *   @property {Boolean} normalize
  */
 
-function deleteAtRange(transform, range) {
+Transforms.deleteAtRange = function (transform, range) {
   var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 
   if (range.isCollapsed) return;
@@ -18151,7 +18265,7 @@ function deleteAtRange(transform, range) {
   if (normalize) {
     transform.normalizeNodeByKey(ancestor.key, _core2.default);
   }
-}
+};
 
 /**
  * Delete backward until the character boundary at a `range`.
@@ -18162,7 +18276,7 @@ function deleteAtRange(transform, range) {
  *   @property {Boolean} normalize
  */
 
-function deleteCharBackwardAtRange(transform, range, options) {
+Transforms.deleteCharBackwardAtRange = function (transform, range, options) {
   var state = transform.state;
   var document = state.document;
   var startKey = range.startKey,
@@ -18175,7 +18289,7 @@ function deleteCharBackwardAtRange(transform, range, options) {
 
   var n = _string2.default.getCharOffsetBackward(text, o);
   transform.deleteBackwardAtRange(range, n, options);
-}
+};
 
 /**
  * Delete backward until the line boundary at a `range`.
@@ -18186,7 +18300,7 @@ function deleteCharBackwardAtRange(transform, range, options) {
  *   @property {Boolean} normalize
  */
 
-function deleteLineBackwardAtRange(transform, range, options) {
+Transforms.deleteLineBackwardAtRange = function (transform, range, options) {
   var state = transform.state;
   var document = state.document;
   var startKey = range.startKey,
@@ -18196,7 +18310,7 @@ function deleteLineBackwardAtRange(transform, range, options) {
   var offset = startBlock.getOffset(startKey);
   var o = offset + startOffset;
   transform.deleteBackwardAtRange(range, o, options);
-}
+};
 
 /**
  * Delete backward until the word boundary at a `range`.
@@ -18207,7 +18321,7 @@ function deleteLineBackwardAtRange(transform, range, options) {
  *   @property {Boolean} normalize
  */
 
-function deleteWordBackwardAtRange(transform, range, options) {
+Transforms.deleteWordBackwardAtRange = function (transform, range, options) {
   var state = transform.state;
   var document = state.document;
   var startKey = range.startKey,
@@ -18220,7 +18334,7 @@ function deleteWordBackwardAtRange(transform, range, options) {
 
   var n = _string2.default.getWordOffsetBackward(text, o);
   transform.deleteBackwardAtRange(range, n, options);
-}
+};
 
 /**
  * Delete backward `n` characters at a `range`.
@@ -18232,7 +18346,7 @@ function deleteWordBackwardAtRange(transform, range, options) {
  *   @property {Boolean} normalize
  */
 
-function deleteBackwardAtRange(transform, range) {
+Transforms.deleteBackwardAtRange = function (transform, range) {
   var n = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 1;
   var options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
   var _options$normalize3 = options.normalize,
@@ -18351,7 +18465,7 @@ function deleteBackwardAtRange(transform, range) {
   });
 
   transform.deleteAtRange(range, { normalize: normalize });
-}
+};
 
 /**
  * Delete forward until the character boundary at a `range`.
@@ -18362,7 +18476,7 @@ function deleteBackwardAtRange(transform, range) {
  *   @property {Boolean} normalize
  */
 
-function deleteCharForwardAtRange(transform, range, options) {
+Transforms.deleteCharForwardAtRange = function (transform, range, options) {
   var state = transform.state;
   var document = state.document;
   var startKey = range.startKey,
@@ -18375,7 +18489,7 @@ function deleteCharForwardAtRange(transform, range, options) {
 
   var n = _string2.default.getCharOffsetForward(text, o);
   transform.deleteForwardAtRange(range, n, options);
-}
+};
 
 /**
  * Delete forward until the line boundary at a `range`.
@@ -18386,7 +18500,7 @@ function deleteCharForwardAtRange(transform, range, options) {
  *   @property {Boolean} normalize
  */
 
-function deleteLineForwardAtRange(transform, range, options) {
+Transforms.deleteLineForwardAtRange = function (transform, range, options) {
   var state = transform.state;
   var document = state.document;
   var startKey = range.startKey,
@@ -18396,7 +18510,7 @@ function deleteLineForwardAtRange(transform, range, options) {
   var offset = startBlock.getOffset(startKey);
   var o = offset + startOffset;
   transform.deleteForwardAtRange(range, o, options);
-}
+};
 
 /**
  * Delete forward until the word boundary at a `range`.
@@ -18407,7 +18521,7 @@ function deleteLineForwardAtRange(transform, range, options) {
  *   @property {Boolean} normalize
  */
 
-function deleteWordForwardAtRange(transform, range, options) {
+Transforms.deleteWordForwardAtRange = function (transform, range, options) {
   var state = transform.state;
   var document = state.document;
   var startKey = range.startKey,
@@ -18420,7 +18534,7 @@ function deleteWordForwardAtRange(transform, range, options) {
 
   var n = _string2.default.getWordOffsetForward(text, o);
   transform.deleteForwardAtRange(range, n, options);
-}
+};
 
 /**
  * Delete forward `n` characters at a `range`.
@@ -18432,7 +18546,7 @@ function deleteWordForwardAtRange(transform, range, options) {
  *   @property {Boolean} normalize
  */
 
-function deleteForwardAtRange(transform, range) {
+Transforms.deleteForwardAtRange = function (transform, range) {
   var n = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 1;
   var options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
   var _options$normalize4 = options.normalize,
@@ -18550,7 +18664,7 @@ function deleteForwardAtRange(transform, range) {
   });
 
   transform.deleteAtRange(range, { normalize: normalize });
-}
+};
 
 /**
  * Insert a `block` node at `range`.
@@ -18562,7 +18676,7 @@ function deleteForwardAtRange(transform, range) {
  *   @property {Boolean} normalize
  */
 
-function insertBlockAtRange(transform, range, block) {
+Transforms.insertBlockAtRange = function (transform, range, block) {
   var options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
 
   block = _normalize2.default.block(block);
@@ -18603,7 +18717,7 @@ function insertBlockAtRange(transform, range, block) {
   if (normalize) {
     transform.normalizeNodeByKey(parent.key, _core2.default);
   }
-}
+};
 
 /**
  * Insert a `fragment` at a `range`.
@@ -18615,7 +18729,7 @@ function insertBlockAtRange(transform, range, block) {
  *   @property {Boolean} normalize
  */
 
-function insertFragmentAtRange(transform, range, fragment) {
+Transforms.insertFragmentAtRange = function (transform, range, fragment) {
   var options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
   var _options$normalize6 = options.normalize,
       normalize = _options$normalize6 === undefined ? true : _options$normalize6;
@@ -18726,7 +18840,7 @@ function insertFragmentAtRange(transform, range, fragment) {
   if (normalize) {
     transform.normalizeNodeByKey(parent.key, _core2.default);
   }
-}
+};
 
 /**
  * Insert an `inline` node at `range`.
@@ -18738,7 +18852,7 @@ function insertFragmentAtRange(transform, range, fragment) {
  *   @property {Boolean} normalize
  */
 
-function insertInlineAtRange(transform, range, inline) {
+Transforms.insertInlineAtRange = function (transform, range, inline) {
   var options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
   var _options$normalize7 = options.normalize,
       normalize = _options$normalize7 === undefined ? true : _options$normalize7;
@@ -18768,7 +18882,7 @@ function insertInlineAtRange(transform, range, inline) {
   if (normalize) {
     transform.normalizeNodeByKey(parent.key, _core2.default);
   }
-}
+};
 
 /**
  * Insert `text` at a `range`, with optional `marks`.
@@ -18781,7 +18895,7 @@ function insertInlineAtRange(transform, range, inline) {
  *   @property {Boolean} normalize
  */
 
-function insertTextAtRange(transform, range, text, marks) {
+Transforms.insertTextAtRange = function (transform, range, text, marks) {
   var options = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : {};
   var normalize = options.normalize;
   var state = transform.state;
@@ -18803,7 +18917,7 @@ function insertTextAtRange(transform, range, text, marks) {
   }
 
   transform.insertTextByKey(startKey, startOffset, text, marks, { normalize: normalize });
-}
+};
 
 /**
  * Remove an existing `mark` to the characters at `range`.
@@ -18815,7 +18929,7 @@ function insertTextAtRange(transform, range, text, marks) {
  *   @property {Boolean} normalize
  */
 
-function removeMarkAtRange(transform, range, mark) {
+Transforms.removeMarkAtRange = function (transform, range, mark) {
   var options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
 
   if (range.isCollapsed) return;
@@ -18843,7 +18957,7 @@ function removeMarkAtRange(transform, range, mark) {
 
     transform.removeMarkByKey(key, index, length, mark, { normalize: normalize });
   });
-}
+};
 
 /**
  * Set the `properties` of block nodes in a `range`.
@@ -18855,7 +18969,7 @@ function removeMarkAtRange(transform, range, mark) {
  *   @property {Boolean} normalize
  */
 
-function setBlockAtRange(transform, range, properties) {
+Transforms.setBlockAtRange = function (transform, range, properties) {
   var options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
   var _options$normalize9 = options.normalize,
       normalize = _options$normalize9 === undefined ? true : _options$normalize9;
@@ -18867,7 +18981,7 @@ function setBlockAtRange(transform, range, properties) {
   blocks.forEach(function (block) {
     transform.setNodeByKey(block.key, properties, { normalize: normalize });
   });
-}
+};
 
 /**
  * Set the `properties` of inline nodes in a `range`.
@@ -18879,7 +18993,7 @@ function setBlockAtRange(transform, range, properties) {
  *   @property {Boolean} normalize
  */
 
-function setInlineAtRange(transform, range, properties) {
+Transforms.setInlineAtRange = function (transform, range, properties) {
   var options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
   var _options$normalize10 = options.normalize,
       normalize = _options$normalize10 === undefined ? true : _options$normalize10;
@@ -18891,7 +19005,7 @@ function setInlineAtRange(transform, range, properties) {
   inlines.forEach(function (inline) {
     transform.setNodeByKey(inline.key, properties, { normalize: normalize });
   });
-}
+};
 
 /**
  * Split the block nodes at a `range`, to optional `height`.
@@ -18903,7 +19017,7 @@ function setInlineAtRange(transform, range, properties) {
  *   @property {Boolean} normalize
  */
 
-function splitBlockAtRange(transform, range) {
+Transforms.splitBlockAtRange = function (transform, range) {
   var height = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 1;
   var options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
   var _options$normalize11 = options.normalize,
@@ -18933,7 +19047,7 @@ function splitBlockAtRange(transform, range) {
   }
 
   transform.splitNodeByKey(node.key, offset, { normalize: normalize });
-}
+};
 
 /**
  * Split the inline nodes at a `range`, to optional `height`.
@@ -18945,7 +19059,7 @@ function splitBlockAtRange(transform, range) {
  *   @property {Boolean} normalize
  */
 
-function splitInlineAtRange(transform, range) {
+Transforms.splitInlineAtRange = function (transform, range) {
   var height = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : Infinity;
   var options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
   var _options$normalize12 = options.normalize,
@@ -18975,7 +19089,7 @@ function splitInlineAtRange(transform, range) {
   }
 
   transform.splitNodeByKey(node.key, offset, { normalize: normalize });
-}
+};
 
 /**
  * Add or remove a `mark` from the characters at `range`, depending on whether
@@ -18988,7 +19102,7 @@ function splitInlineAtRange(transform, range) {
  *   @property {Boolean} normalize
  */
 
-function toggleMarkAtRange(transform, range, mark) {
+Transforms.toggleMarkAtRange = function (transform, range, mark) {
   var options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
 
   if (range.isCollapsed) return;
@@ -19010,7 +19124,7 @@ function toggleMarkAtRange(transform, range, mark) {
   } else {
     transform.addMarkAtRange(range, mark, { normalize: normalize });
   }
-}
+};
 
 /**
  * Unwrap all of the block nodes in a `range` from a block with `properties`.
@@ -19022,7 +19136,7 @@ function toggleMarkAtRange(transform, range, mark) {
  *   @property {Boolean} normalize
  */
 
-function unwrapBlockAtRange(transform, range, properties) {
+Transforms.unwrapBlockAtRange = function (transform, range, properties) {
   var options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
 
   properties = _normalize2.default.nodeProperties(properties);
@@ -19102,7 +19216,7 @@ function unwrapBlockAtRange(transform, range, properties) {
   if (normalize) {
     transform.normalizeDocument(_core2.default);
   }
-}
+};
 
 /**
  * Unwrap the inline nodes in a `range` from an inline with `properties`.
@@ -19114,7 +19228,7 @@ function unwrapBlockAtRange(transform, range, properties) {
  *   @property {Boolean} normalize
  */
 
-function unwrapInlineAtRange(transform, range, properties) {
+Transforms.unwrapInlineAtRange = function (transform, range, properties) {
   var options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
 
   properties = _normalize2.default.nodeProperties(properties);
@@ -19150,7 +19264,7 @@ function unwrapInlineAtRange(transform, range, properties) {
   if (normalize) {
     transform.normalizeDocument(_core2.default);
   }
-}
+};
 
 /**
  * Wrap all of the blocks in a `range` in a new `block`.
@@ -19162,7 +19276,7 @@ function unwrapInlineAtRange(transform, range, properties) {
  *   @property {Boolean} normalize
  */
 
-function wrapBlockAtRange(transform, range, block) {
+Transforms.wrapBlockAtRange = function (transform, range, block) {
   var options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
 
   block = _normalize2.default.block(block);
@@ -19228,7 +19342,7 @@ function wrapBlockAtRange(transform, range, block) {
   if (normalize) {
     transform.normalizeNodeByKey(parent.key, _core2.default);
   }
-}
+};
 
 /**
  * Wrap the text and inlines in a `range` in a new `inline`.
@@ -19240,7 +19354,7 @@ function wrapBlockAtRange(transform, range, block) {
  *   @property {Boolean} normalize
  */
 
-function wrapInlineAtRange(transform, range, inline) {
+Transforms.wrapInlineAtRange = function (transform, range, inline) {
   var options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
   var state = transform.state;
   var _state4 = state,
@@ -19355,7 +19469,7 @@ function wrapInlineAtRange(transform, range, inline) {
       }
     });
   }
-}
+};
 
 /**
  * Wrap the text in a `range` in a prefix/suffix.
@@ -19368,7 +19482,7 @@ function wrapInlineAtRange(transform, range, inline) {
  *   @property {Boolean} normalize
  */
 
-function wrapTextAtRange(transform, range, prefix) {
+Transforms.wrapTextAtRange = function (transform, range, prefix) {
   var suffix = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : prefix;
   var options = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : {};
   var _options$normalize18 = options.normalize,
@@ -19380,12 +19494,20 @@ function wrapTextAtRange(transform, range, prefix) {
   var end = range.collapseToEnd();
 
   if (startKey == endKey) {
-    end = end.moveForward(prefix.length);
+    end = end.move(prefix.length);
   }
 
   transform.insertTextAtRange(start, prefix, [], { normalize: normalize });
   transform.insertTextAtRange(end, suffix, [], { normalize: normalize });
-}
+};
+
+/**
+ * Export.
+ *
+ * @type {Object}
+ */
+
+exports.default = Transforms;
 
 },{"../schemas/core":62,"../utils/normalize":85,"../utils/string":88,"immutable":1215}],70:[function(require,module,exports){
 'use strict';
@@ -19393,22 +19515,6 @@ function wrapTextAtRange(transform, range, prefix) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.addMarkByKey = addMarkByKey;
-exports.insertNodeByKey = insertNodeByKey;
-exports.insertTextByKey = insertTextByKey;
-exports.joinNodeByKey = joinNodeByKey;
-exports.moveNodeByKey = moveNodeByKey;
-exports.removeMarkByKey = removeMarkByKey;
-exports.removeNodeByKey = removeNodeByKey;
-exports.removeTextByKey = removeTextByKey;
-exports.setMarkByKey = setMarkByKey;
-exports.setNodeByKey = setNodeByKey;
-exports.splitNodeByKey = splitNodeByKey;
-exports.unwrapInlineByKey = unwrapInlineByKey;
-exports.unwrapBlockByKey = unwrapBlockByKey;
-exports.unwrapNodeByKey = unwrapNodeByKey;
-exports.wrapInlineByKey = wrapInlineByKey;
-exports.wrapBlockByKey = wrapBlockByKey;
 
 var _normalize = require('../utils/normalize');
 
@@ -19423,6 +19529,14 @@ function _interopRequireDefault(obj) {
 }
 
 /**
+ * Transforms.
+ *
+ * @type {Object}
+ */
+
+var Transforms = {};
+
+/**
  * Add mark to text at `offset` and `length` in node by `key`.
  *
  * @param {Transform} transform
@@ -19434,7 +19548,7 @@ function _interopRequireDefault(obj) {
  *   @property {Boolean} normalize
  */
 
-function addMarkByKey(transform, key, offset, length, mark) {
+Transforms.addMarkByKey = function (transform, key, offset, length, mark) {
   var options = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : {};
 
   mark = _normalize2.default.mark(mark);
@@ -19451,7 +19565,7 @@ function addMarkByKey(transform, key, offset, length, mark) {
     var parent = document.getParent(key);
     transform.normalizeNodeByKey(parent.key, _core2.default);
   }
-}
+};
 
 /**
  * Insert a `node` at `index` in a node by `key`.
@@ -19464,7 +19578,7 @@ function addMarkByKey(transform, key, offset, length, mark) {
  *   @property {Boolean} normalize
  */
 
-function insertNodeByKey(transform, key, index, node) {
+Transforms.insertNodeByKey = function (transform, key, index, node) {
   var options = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : {};
   var _options$normalize2 = options.normalize,
       normalize = _options$normalize2 === undefined ? true : _options$normalize2;
@@ -19478,7 +19592,7 @@ function insertNodeByKey(transform, key, index, node) {
   if (normalize) {
     transform.normalizeNodeByKey(key, _core2.default);
   }
-}
+};
 
 /**
  * Insert `text` at `offset` in node by `key`.
@@ -19492,7 +19606,7 @@ function insertNodeByKey(transform, key, index, node) {
  *   @property {Boolean} normalize
  */
 
-function insertTextByKey(transform, key, offset, text, marks) {
+Transforms.insertTextByKey = function (transform, key, offset, text, marks) {
   var options = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : {};
   var _options$normalize3 = options.normalize,
       normalize = _options$normalize3 === undefined ? true : _options$normalize3;
@@ -19507,7 +19621,7 @@ function insertTextByKey(transform, key, offset, text, marks) {
     var parent = document.getParent(key);
     transform.normalizeNodeByKey(parent.key, _core2.default);
   }
-}
+};
 
 /**
  * Join a node by `key` with a node `withKey`.
@@ -19519,7 +19633,7 @@ function insertTextByKey(transform, key, offset, text, marks) {
  *   @property {Boolean} normalize
  */
 
-function joinNodeByKey(transform, key, withKey) {
+Transforms.joinNodeByKey = function (transform, key, withKey) {
   var options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
   var _options$normalize4 = options.normalize,
       normalize = _options$normalize4 === undefined ? true : _options$normalize4;
@@ -19535,7 +19649,7 @@ function joinNodeByKey(transform, key, withKey) {
     var parent = document.getCommonAncestor(key, withKey);
     transform.normalizeNodeByKey(parent.key, _core2.default);
   }
-}
+};
 
 /**
  * Move a node by `key` to a new parent by `newKey` and `index`.
@@ -19549,7 +19663,7 @@ function joinNodeByKey(transform, key, withKey) {
  *   @property {Boolean} normalize
  */
 
-function moveNodeByKey(transform, key, newKey, newIndex) {
+Transforms.moveNodeByKey = function (transform, key, newKey, newIndex) {
   var options = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : {};
   var _options$normalize5 = options.normalize,
       normalize = _options$normalize5 === undefined ? true : _options$normalize5;
@@ -19565,7 +19679,7 @@ function moveNodeByKey(transform, key, newKey, newIndex) {
     var parent = document.getCommonAncestor(key, newKey);
     transform.normalizeNodeByKey(parent.key, _core2.default);
   }
-}
+};
 
 /**
  * Remove mark from text at `offset` and `length` in node by `key`.
@@ -19579,7 +19693,7 @@ function moveNodeByKey(transform, key, newKey, newIndex) {
  *   @property {Boolean} normalize
  */
 
-function removeMarkByKey(transform, key, offset, length, mark) {
+Transforms.removeMarkByKey = function (transform, key, offset, length, mark) {
   var options = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : {};
 
   mark = _normalize2.default.mark(mark);
@@ -19596,7 +19710,7 @@ function removeMarkByKey(transform, key, offset, length, mark) {
     var parent = document.getParent(key);
     transform.normalizeNodeByKey(parent.key, _core2.default);
   }
-}
+};
 
 /**
  * Remove a node by `key`.
@@ -19607,7 +19721,7 @@ function removeMarkByKey(transform, key, offset, length, mark) {
  *   @property {Boolean} normalize
  */
 
-function removeNodeByKey(transform, key) {
+Transforms.removeNodeByKey = function (transform, key) {
   var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
   var _options$normalize7 = options.normalize,
       normalize = _options$normalize7 === undefined ? true : _options$normalize7;
@@ -19622,7 +19736,7 @@ function removeNodeByKey(transform, key) {
     var parent = document.getParent(key);
     transform.normalizeNodeByKey(parent.key, _core2.default);
   }
-}
+};
 
 /**
  * Remove text at `offset` and `length` in node by `key`.
@@ -19635,7 +19749,7 @@ function removeNodeByKey(transform, key) {
  *   @property {Boolean} normalize
  */
 
-function removeTextByKey(transform, key, offset, length) {
+Transforms.removeTextByKey = function (transform, key, offset, length) {
   var options = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : {};
   var _options$normalize8 = options.normalize,
       normalize = _options$normalize8 === undefined ? true : _options$normalize8;
@@ -19650,7 +19764,7 @@ function removeTextByKey(transform, key, offset, length) {
     var block = document.getClosestBlock(key);
     transform.normalizeNodeByKey(block.key, _core2.default);
   }
-}
+};
 
 /**
  * Set `properties` on mark on text at `offset` and `length` in node by `key`.
@@ -19664,7 +19778,7 @@ function removeTextByKey(transform, key, offset, length) {
  *   @property {Boolean} normalize
  */
 
-function setMarkByKey(transform, key, offset, length, mark, properties) {
+Transforms.setMarkByKey = function (transform, key, offset, length, mark, properties) {
   var options = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : {};
 
   mark = _normalize2.default.mark(mark);
@@ -19684,7 +19798,7 @@ function setMarkByKey(transform, key, offset, length, mark, properties) {
     var parent = document.getParent(key);
     transform.normalizeNodeByKey(parent.key, _core2.default);
   }
-}
+};
 
 /**
  * Set `properties` on a node by `key`.
@@ -19696,7 +19810,7 @@ function setMarkByKey(transform, key, offset, length, mark, properties) {
  *   @property {Boolean} normalize
  */
 
-function setNodeByKey(transform, key, properties) {
+Transforms.setNodeByKey = function (transform, key, properties) {
   var options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
 
   properties = _normalize2.default.nodeProperties(properties);
@@ -19713,7 +19827,7 @@ function setNodeByKey(transform, key, properties) {
     var node = key === document.key ? document : document.getParent(key);
     transform.normalizeNodeByKey(node.key, _core2.default);
   }
-}
+};
 
 /**
  * Split a node by `key` at `offset`.
@@ -19725,7 +19839,7 @@ function setNodeByKey(transform, key, properties) {
  *   @property {Boolean} normalize
  */
 
-function splitNodeByKey(transform, key, offset) {
+Transforms.splitNodeByKey = function (transform, key, offset) {
   var options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
   var _options$normalize11 = options.normalize,
       normalize = _options$normalize11 === undefined ? true : _options$normalize11;
@@ -19740,7 +19854,7 @@ function splitNodeByKey(transform, key, offset) {
     var parent = document.getParent(key);
     transform.normalizeNodeByKey(parent.key, _core2.default);
   }
-}
+};
 
 /**
  * Unwrap content from an inline parent with `properties`.
@@ -19752,7 +19866,7 @@ function splitNodeByKey(transform, key, offset) {
  *   @property {Boolean} normalize
  */
 
-function unwrapInlineByKey(transform, key, properties, options) {
+Transforms.unwrapInlineByKey = function (transform, key, properties, options) {
   var state = transform.state;
   var document = state.document,
       selection = state.selection;
@@ -19762,7 +19876,7 @@ function unwrapInlineByKey(transform, key, properties, options) {
   var last = node.getLastText();
   var range = selection.moveToRangeOf(first, last);
   transform.unwrapInlineAtRange(range, properties, options);
-}
+};
 
 /**
  * Unwrap content from a block parent with `properties`.
@@ -19774,7 +19888,7 @@ function unwrapInlineByKey(transform, key, properties, options) {
  *   @property {Boolean} normalize
  */
 
-function unwrapBlockByKey(transform, key, properties, options) {
+Transforms.unwrapBlockByKey = function (transform, key, properties, options) {
   var state = transform.state;
   var document = state.document,
       selection = state.selection;
@@ -19784,7 +19898,7 @@ function unwrapBlockByKey(transform, key, properties, options) {
   var last = node.getLastText();
   var range = selection.moveToRangeOf(first, last);
   transform.unwrapBlockAtRange(range, properties, options);
-}
+};
 
 /**
  * Unwrap a single node from its parent.
@@ -19799,7 +19913,7 @@ function unwrapBlockByKey(transform, key, properties, options) {
  *   @property {Boolean} normalize
  */
 
-function unwrapNodeByKey(transform, key) {
+Transforms.unwrapNodeByKey = function (transform, key) {
   var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
   var _options$normalize12 = options.normalize,
       normalize = _options$normalize12 === undefined ? true : _options$normalize12;
@@ -19837,7 +19951,7 @@ function unwrapNodeByKey(transform, key) {
       transform.normalizeNodeByKey(parentParent.key, _core2.default);
     }
   }
-}
+};
 
 /**
  * Wrap a node in an inline with `properties`.
@@ -19849,7 +19963,7 @@ function unwrapNodeByKey(transform, key) {
  *   @property {Boolean} normalize
  */
 
-function wrapInlineByKey(transform, key, inline, options) {
+Transforms.wrapInlineByKey = function (transform, key, inline, options) {
   inline = _normalize2.default.inline(inline);
   inline = inline.merge({ nodes: inline.nodes.clear() });
 
@@ -19861,7 +19975,7 @@ function wrapInlineByKey(transform, key, inline, options) {
 
   transform.insertNodeByKey(parent.key, index, inline, { normalize: false });
   transform.moveNodeByKey(node.key, inline.key, 0, options);
-}
+};
 
 /**
  * Wrap a node in a block with `properties`.
@@ -19873,7 +19987,7 @@ function wrapInlineByKey(transform, key, inline, options) {
  *   @property {Boolean} normalize
  */
 
-function wrapBlockByKey(transform, key, block, options) {
+Transforms.wrapBlockByKey = function (transform, key, block, options) {
   block = _normalize2.default.block(block);
   block = block.merge({ nodes: block.nodes.clear() });
 
@@ -19885,7 +19999,15 @@ function wrapBlockByKey(transform, key, block, options) {
 
   transform.insertNodeByKey(parent.key, index, block, { normalize: false });
   transform.moveNodeByKey(node.key, block.key, 0, options);
-}
+};
+
+/**
+ * Export.
+ *
+ * @type {Object}
+ */
+
+exports.default = Transforms;
 
 },{"../schemas/core":62,"../utils/normalize":85}],71:[function(require,module,exports){
 "use strict";
@@ -19893,7 +20015,14 @@ function wrapBlockByKey(transform, key, block, options) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.default = call;
+
+/**
+ * Transforms.
+ *
+ * @type {Object}
+ */
+
+var Transforms = {};
 
 /**
  * Call a `fn` as if it was a core transform. This is a convenience method to
@@ -19904,14 +20033,22 @@ exports.default = call;
  * @param {Mixed} ...args
  */
 
-function call(transform, fn) {
+Transforms.call = function (transform, fn) {
   for (var _len = arguments.length, args = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
     args[_key - 2] = arguments[_key];
   }
 
   fn.apply(undefined, [transform].concat(args));
   return;
-}
+};
+
+/**
+ * Export.
+ *
+ * @type {Object}
+ */
+
+exports.default = Transforms;
 
 },{}],72:[function(require,module,exports){
 'use strict';
@@ -19920,25 +20057,51 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _extends = Object.assign || function (target) {
+  for (var i = 1; i < arguments.length; i++) {
+    var source = arguments[i];for (var key in source) {
+      if (Object.prototype.hasOwnProperty.call(source, key)) {
+        target[key] = source[key];
+      }
+    }
+  }return target;
+};
+
 var _applyOperation = require('./apply-operation');
+
+var _applyOperation2 = _interopRequireDefault(_applyOperation);
+
+var _atCurrentRange = require('./at-current-range');
+
+var _atCurrentRange2 = _interopRequireDefault(_atCurrentRange);
+
+var _atRange = require('./at-range');
+
+var _atRange2 = _interopRequireDefault(_atRange);
+
+var _byKey = require('./by-key');
+
+var _byKey2 = _interopRequireDefault(_byKey);
 
 var _call = require('./call');
 
 var _call2 = _interopRequireDefault(_call);
 
-var _operations = require('./operations');
+var _normalize = require('./normalize');
 
-var _atRange = require('./at-range');
-
-var _atCurrentRange = require('./at-current-range');
-
-var _byKey = require('./by-key');
-
-var _onSelection = require('./on-selection');
+var _normalize2 = _interopRequireDefault(_normalize);
 
 var _onHistory = require('./on-history');
 
-var _normalize = require('./normalize');
+var _onHistory2 = _interopRequireDefault(_onHistory);
+
+var _onSelection = require('./on-selection');
+
+var _onSelection2 = _interopRequireDefault(_onSelection);
+
+var _operations = require('./operations');
+
+var _operations2 = _interopRequireDefault(_operations);
 
 function _interopRequireDefault(obj) {
   return obj && obj.__esModule ? obj : { default: obj };
@@ -19950,208 +20113,7 @@ function _interopRequireDefault(obj) {
  * @type {Object}
  */
 
-/**
- * On history.
- */
-
-/**
- * By key.
- */
-
-/**
- * At range.
- */
-
-/**
- * Call external transform.
- */
-
-exports.default = {
-
-  /**
-   * Apply operation.
-   */
-
-  applyOperation: _applyOperation.applyOperation,
-
-  /**
-   * Call external transform.
-   */
-
-  call: _call2.default,
-
-  /**
-   * Operations.
-   */
-
-  addMarkOperation: _operations.addMarkOperation,
-  insertNodeOperation: _operations.insertNodeOperation,
-  insertTextOperation: _operations.insertTextOperation,
-  joinNodeOperation: _operations.joinNodeOperation,
-  moveNodeOperation: _operations.moveNodeOperation,
-  removeMarkOperation: _operations.removeMarkOperation,
-  removeNodeOperation: _operations.removeNodeOperation,
-  removeTextOperation: _operations.removeTextOperation,
-  setMarkOperation: _operations.setMarkOperation,
-  setNodeOperation: _operations.setNodeOperation,
-  setSelectionOperation: _operations.setSelectionOperation,
-  splitNodeAtOffsetOperation: _operations.splitNodeAtOffsetOperation,
-  splitNodeOperation: _operations.splitNodeOperation,
-
-  /**
-   * At range.
-   */
-
-  deleteAtRange: _atRange.deleteAtRange,
-  deleteBackwardAtRange: _atRange.deleteBackwardAtRange,
-  deleteCharBackwardAtRange: _atRange.deleteCharBackwardAtRange,
-  deleteCharForwardAtRange: _atRange.deleteCharForwardAtRange,
-  deleteForwardAtRange: _atRange.deleteForwardAtRange,
-  deleteLineBackwardAtRange: _atRange.deleteLineBackwardAtRange,
-  deleteLineForwardAtRange: _atRange.deleteLineForwardAtRange,
-  deleteWordBackwardAtRange: _atRange.deleteWordBackwardAtRange,
-  deleteWordForwardAtRange: _atRange.deleteWordForwardAtRange,
-  insertBlockAtRange: _atRange.insertBlockAtRange,
-  insertFragmentAtRange: _atRange.insertFragmentAtRange,
-  insertInlineAtRange: _atRange.insertInlineAtRange,
-  insertTextAtRange: _atRange.insertTextAtRange,
-  addMarkAtRange: _atRange.addMarkAtRange,
-  setBlockAtRange: _atRange.setBlockAtRange,
-  setInlineAtRange: _atRange.setInlineAtRange,
-  splitBlockAtRange: _atRange.splitBlockAtRange,
-  splitInlineAtRange: _atRange.splitInlineAtRange,
-  removeMarkAtRange: _atRange.removeMarkAtRange,
-  toggleMarkAtRange: _atRange.toggleMarkAtRange,
-  unwrapBlockAtRange: _atRange.unwrapBlockAtRange,
-  unwrapInlineAtRange: _atRange.unwrapInlineAtRange,
-  wrapBlockAtRange: _atRange.wrapBlockAtRange,
-  wrapInlineAtRange: _atRange.wrapInlineAtRange,
-  wrapTextAtRange: _atRange.wrapTextAtRange,
-
-  /**
-   * At current range.
-   */
-
-  delete: _atCurrentRange._delete,
-  deleteBackward: _atCurrentRange.deleteBackward,
-  deleteCharBackward: _atCurrentRange.deleteCharBackward,
-  deleteCharForward: _atCurrentRange.deleteCharForward,
-  deleteForward: _atCurrentRange.deleteForward,
-  deleteLineBackward: _atCurrentRange.deleteLineBackward,
-  deleteLineForward: _atCurrentRange.deleteLineForward,
-  deleteWordBackward: _atCurrentRange.deleteWordBackward,
-  deleteWordForward: _atCurrentRange.deleteWordForward,
-  insertBlock: _atCurrentRange.insertBlock,
-  insertFragment: _atCurrentRange.insertFragment,
-  insertInline: _atCurrentRange.insertInline,
-  insertText: _atCurrentRange.insertText,
-  addMark: _atCurrentRange.addMark,
-  setBlock: _atCurrentRange.setBlock,
-  setInline: _atCurrentRange.setInline,
-  splitBlock: _atCurrentRange.splitBlock,
-  splitInline: _atCurrentRange.splitInline,
-  removeMark: _atCurrentRange.removeMark,
-  toggleMark: _atCurrentRange.toggleMark,
-  unwrapBlock: _atCurrentRange.unwrapBlock,
-  unwrapInline: _atCurrentRange.unwrapInline,
-  wrapBlock: _atCurrentRange.wrapBlock,
-  wrapInline: _atCurrentRange.wrapInline,
-  wrapText: _atCurrentRange.wrapText,
-
-  /**
-   * By key.
-   */
-
-  addMarkByKey: _byKey.addMarkByKey,
-  insertNodeByKey: _byKey.insertNodeByKey,
-  insertTextByKey: _byKey.insertTextByKey,
-  joinNodeByKey: _byKey.joinNodeByKey,
-  moveNodeByKey: _byKey.moveNodeByKey,
-  removeMarkByKey: _byKey.removeMarkByKey,
-  removeNodeByKey: _byKey.removeNodeByKey,
-  removeTextByKey: _byKey.removeTextByKey,
-  setMarkByKey: _byKey.setMarkByKey,
-  setNodeByKey: _byKey.setNodeByKey,
-  splitNodeByKey: _byKey.splitNodeByKey,
-  unwrapInlineByKey: _byKey.unwrapInlineByKey,
-  unwrapBlockByKey: _byKey.unwrapBlockByKey,
-  unwrapNodeByKey: _byKey.unwrapNodeByKey,
-  wrapBlockByKey: _byKey.wrapBlockByKey,
-  wrapInlineByKey: _byKey.wrapInlineByKey,
-
-  /**
-   * On selection.
-   */
-
-  blur: _onSelection.blur,
-  collapseToAnchor: _onSelection.collapseToAnchor,
-  collapseToEnd: _onSelection.collapseToEnd,
-  collapseToEndOf: _onSelection.collapseToEndOf,
-  collapseToEndOfNextBlock: _onSelection.collapseToEndOfNextBlock,
-  collapseToEndOfNextText: _onSelection.collapseToEndOfNextText,
-  collapseToEndOfPreviousBlock: _onSelection.collapseToEndOfPreviousBlock,
-  collapseToEndOfPreviousText: _onSelection.collapseToEndOfPreviousText,
-  collapseToFocus: _onSelection.collapseToFocus,
-  collapseToStart: _onSelection.collapseToStart,
-  collapseToStartOf: _onSelection.collapseToStartOf,
-  collapseToStartOfNextBlock: _onSelection.collapseToStartOfNextBlock,
-  collapseToStartOfNextText: _onSelection.collapseToStartOfNextText,
-  collapseToStartOfPreviousBlock: _onSelection.collapseToStartOfPreviousBlock,
-  collapseToStartOfPreviousText: _onSelection.collapseToStartOfPreviousText,
-  extendBackward: _onSelection.extendBackward,
-  extendForward: _onSelection.extendForward,
-  extendToEndOf: _onSelection.extendToEndOf,
-  extendToStartOf: _onSelection.extendToStartOf,
-  focus: _onSelection.focus,
-  flipSelection: _onSelection.flipSelection,
-  moveBackward: _onSelection.moveBackward,
-  moveForward: _onSelection.moveForward,
-  moveEndOffset: _onSelection.moveEndOffset,
-  moveStartOffset: _onSelection.moveStartOffset,
-  moveTo: _onSelection.moveTo,
-  moveToOffsets: _onSelection.moveToOffsets,
-  moveToRangeOf: _onSelection.moveToRangeOf,
-  unsetMarks: _onSelection.unsetMarks,
-  unsetSelection: _onSelection.unsetSelection,
-  snapshotSelection: _onSelection.snapshotSelection,
-
-  /**
-   * History.
-   */
-
-  redo: _onHistory.redo,
-  save: _onHistory.save,
-  undo: _onHistory.undo,
-
-  /**
-   * Normalize.
-   */
-
-  normalize: _normalize.normalize,
-  normalizeDocument: _normalize.normalizeDocument,
-  normalizeSelection: _normalize.normalizeSelection,
-  normalizeNodeByKey: _normalize.normalizeNodeByKey
-};
-
-/**
- * Normalize.
- */
-
-/**
- * On selection.
- */
-
-/**
- * At current range.
- */
-
-/**
- * Operations.
- */
-
-/**
- * Apply operation.
- */
+exports.default = _extends({}, _applyOperation2.default, _atCurrentRange2.default, _atRange2.default, _byKey2.default, _call2.default, _normalize2.default, _onHistory2.default, _onSelection2.default, _operations2.default);
 
 },{"./apply-operation":67,"./at-current-range":68,"./at-range":69,"./by-key":70,"./call":71,"./normalize":73,"./on-history":74,"./on-selection":75,"./operations":76}],73:[function(require,module,exports){
 'use strict';
@@ -20159,10 +20121,6 @@ exports.default = {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.normalize = normalize;
-exports.normalizeDocument = normalizeDocument;
-exports.normalizeNodeByKey = normalizeNodeByKey;
-exports.normalizeSelection = normalizeSelection;
 
 var _normalize = require('../utils/normalize');
 
@@ -20183,16 +20141,24 @@ function _interopRequireDefault(obj) {
 }
 
 /**
+ * Transforms.
+ *
+ * @type {Object}
+ */
+
+var Transforms = {};
+
+/**
  * Normalize the document and selection with a `schema`.
  *
  * @param {Transform} transform
  * @param {Schema} schema
  */
 
-function normalize(transform, schema) {
+Transforms.normalize = function (transform, schema) {
   transform.normalizeDocument(schema);
   transform.normalizeSelection(schema);
-}
+};
 
 /**
  * Normalize the document with a `schema`.
@@ -20201,12 +20167,12 @@ function normalize(transform, schema) {
  * @param {Schema} schema
  */
 
-function normalizeDocument(transform, schema) {
+Transforms.normalizeDocument = function (transform, schema) {
   var state = transform.state;
   var document = state.document;
 
   transform.normalizeNodeByKey(document.key, schema);
-}
+};
 
 /**
  * Normalize a `node` and its children with a `schema`.
@@ -20216,7 +20182,7 @@ function normalizeDocument(transform, schema) {
  * @param {Schema} schema
  */
 
-function normalizeNodeByKey(transform, key, schema) {
+Transforms.normalizeNodeByKey = function (transform, key, schema) {
   assertSchema(schema);
 
   // If the schema has no validation rules, there's nothing to normalize.
@@ -20229,7 +20195,7 @@ function normalizeNodeByKey(transform, key, schema) {
   var node = document.assertNode(key);
 
   normalizeNodeAndChildren(transform, node, schema);
-}
+};
 
 /**
  * Normalize the selection.
@@ -20237,7 +20203,7 @@ function normalizeNodeByKey(transform, key, schema) {
  * @param {Transform} transform
  */
 
-function normalizeSelection(transform) {
+Transforms.normalizeSelection = function (transform) {
   var state = transform.state;
   var _state = state,
       document = _state.document,
@@ -20270,7 +20236,7 @@ function normalizeSelection(transform) {
 
   state = state.merge({ selection: selection });
   transform.state = state;
-}
+};
 
 /**
  * Normalize a `node` and its children with a `schema`.
@@ -20402,15 +20368,28 @@ function assertSchema(schema) {
   }
 }
 
+/**
+ * Export.
+ *
+ * @type {Object}
+ */
+
+exports.default = Transforms;
+
 },{"../models/schema":55,"../utils/normalize":85,"../utils/warn":89,"immutable":1215}],74:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.redo = redo;
-exports.save = save;
-exports.undo = undo;
+
+/**
+ * Transforms.
+ *
+ * @type {Object}
+ */
+
+var Transforms = {};
 
 /**
  * Redo to the next state in the history.
@@ -20418,7 +20397,7 @@ exports.undo = undo;
  * @param {Transform} transform
  */
 
-function redo(transform) {
+Transforms.redo = function (transform) {
   var state = transform.state;
   var _state = state,
       history = _state.history;
@@ -20447,7 +20426,7 @@ function redo(transform) {
 
   // Update the transform.
   transform.state = state;
-}
+};
 
 /**
  * Save the operations into the history.
@@ -20456,7 +20435,7 @@ function redo(transform) {
  * @param {Object} options
  */
 
-function save(transform) {
+Transforms.save = function (transform) {
   var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
   var _options$merge = options.merge,
       merge = _options$merge === undefined ? false : _options$merge;
@@ -20492,7 +20471,7 @@ function save(transform) {
 
   // Update the transform.
   transform.state = state;
-}
+};
 
 /**
  * Undo the previous operations in the history.
@@ -20500,7 +20479,7 @@ function save(transform) {
  * @param {Transform} transform
  */
 
-function undo(transform) {
+Transforms.undo = function (transform) {
   var state = transform.state;
   var _state3 = state,
       history = _state3.history;
@@ -20531,7 +20510,15 @@ function undo(transform) {
 
   // Update the transform.
   transform.state = state;
-}
+};
+
+/**
+ * Export.
+ *
+ * @type {Object}
+ */
+
+exports.default = Transforms;
 
 },{}],75:[function(require,module,exports){
 'use strict';
@@ -20539,224 +20526,59 @@ function undo(transform) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.collapseToEndOfNextBlock = collapseToEndOfNextBlock;
-exports.collapseToEndOfNextText = collapseToEndOfNextText;
-exports.collapseToEndOfPreviousBlock = collapseToEndOfPreviousBlock;
-exports.collapseToEndOfPreviousText = collapseToEndOfPreviousText;
-exports.collapseToStartOfNextBlock = collapseToStartOfNextBlock;
-exports.collapseToStartOfNextText = collapseToStartOfNextText;
-exports.collapseToStartOfPreviousBlock = collapseToStartOfPreviousBlock;
-exports.collapseToStartOfPreviousText = collapseToStartOfPreviousText;
-exports.moveTo = moveTo;
-exports.unsetMarks = unsetMarks;
-exports.snapshotSelection = snapshotSelection;
-exports.unsetSelection = unsetSelection;
 
-/**
- * Auto-generate many transforms based on the `Selection` methods.
- */
+var _slicedToArray = function () {
+  function sliceIterator(arr, i) {
+    var _arr = [];var _n = true;var _d = false;var _e = undefined;try {
+      for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
+        _arr.push(_s.value);if (i && _arr.length === i) break;
+      }
+    } catch (err) {
+      _d = true;_e = err;
+    } finally {
+      try {
+        if (!_n && _i["return"]) _i["return"]();
+      } finally {
+        if (_d) throw _e;
+      }
+    }return _arr;
+  }return function (arr, i) {
+    if (Array.isArray(arr)) {
+      return arr;
+    } else if (Symbol.iterator in Object(arr)) {
+      return sliceIterator(arr, i);
+    } else {
+      throw new TypeError("Invalid attempt to destructure non-iterable instance");
+    }
+  };
+}();
 
-var blur = exports.blur = generate('blur');
-var collapseToAnchor = exports.collapseToAnchor = generate('collapseToAnchor');
-var collapseToEnd = exports.collapseToEnd = generate('collapseToEnd');
-var collapseToFocus = exports.collapseToFocus = generate('collapseToFocus');
-var collapseToStart = exports.collapseToStart = generate('collapseToStart');
-var collapseToEndOf = exports.collapseToEndOf = generate('collapseToEndOf');
-var collapseToStartOf = exports.collapseToStartOf = generate('collapseToStartOf');
-var extendBackward = exports.extendBackward = generate('extendBackward');
-var extendForward = exports.extendForward = generate('extendForward');
-var extendToEndOf = exports.extendToEndOf = generate('extendToEndOf');
-var extendToStartOf = exports.extendToStartOf = generate('extendToStartOf');
-var focus = exports.focus = generate('focus');
-var moveBackward = exports.moveBackward = generate('moveBackward');
-var moveForward = exports.moveForward = generate('moveForward');
-var moveToOffsets = exports.moveToOffsets = generate('moveToOffsets');
-var moveToRangeOf = exports.moveToRangeOf = generate('moveToRangeOf');
-var moveStartOffset = exports.moveStartOffset = generate('moveStartOffset');
-var moveEndOffset = exports.moveEndOffset = generate('moveEndOffset');
+var _warn = require('../utils/warn');
 
-var flipSelection = exports.flipSelection = generate('flip');
+var _warn2 = _interopRequireDefault(_warn);
 
-/**
- * Move the selection to the end of the next block.
- *
- * @param {Transform} tansform
- */
-
-function collapseToEndOfNextBlock(transform) {
-  var state = transform.state;
-  var document = state.document,
-      selection = state.selection;
-
-  var blocks = document.getBlocksAtRange(selection);
-  var last = blocks.last();
-  var next = document.getNextBlock(last.key);
-  if (!next) return;
-
-  var sel = selection.collapseToEndOf(next);
-  transform.setSelectionOperation(sel);
+function _interopRequireDefault(obj) {
+  return obj && obj.__esModule ? obj : { default: obj };
 }
 
 /**
- * Move the selection to the end of the next text.
+ * Transforms.
  *
- * @param {Transform} tansform
+ * @type {Object}
  */
 
-function collapseToEndOfNextText(transform) {
-  var state = transform.state;
-  var document = state.document,
-      selection = state.selection;
-
-  var texts = document.getTextsAtRange(selection);
-  var last = texts.last();
-  var next = document.getNextText(last.key);
-  if (!next) return;
-
-  var sel = selection.collapseToEndOf(next);
-  transform.setSelectionOperation(sel);
-}
+var Transforms = {};
 
 /**
- * Move the selection to the end of the previous block.
- *
- * @param {Transform} tansform
- */
-
-function collapseToEndOfPreviousBlock(transform) {
-  var state = transform.state;
-  var document = state.document,
-      selection = state.selection;
-
-  var blocks = document.getBlocksAtRange(selection);
-  var first = blocks.first();
-  var previous = document.getPreviousBlock(first.key);
-  if (!previous) return;
-
-  var sel = selection.collapseToEndOf(previous);
-  transform.setSelectionOperation(sel);
-}
-
-/**
- * Move the selection to the end of the previous text.
- *
- * @param {Transform} tansform
- */
-
-function collapseToEndOfPreviousText(transform) {
-  var state = transform.state;
-  var document = state.document,
-      selection = state.selection;
-
-  var texts = document.getTextsAtRange(selection);
-  var first = texts.first();
-  var previous = document.getPreviousText(first.key);
-  if (!previous) return;
-
-  var sel = selection.collapseToEndOf(previous);
-  transform.setSelectionOperation(sel);
-}
-
-/**
- * Move the selection to the start of the next block.
- *
- * @param {Transform} tansform
- */
-
-function collapseToStartOfNextBlock(transform) {
-  var state = transform.state;
-  var document = state.document,
-      selection = state.selection;
-
-  var blocks = document.getBlocksAtRange(selection);
-  var last = blocks.last();
-  var next = document.getNextBlock(last.key);
-  if (!next) return;
-
-  var sel = selection.collapseToStartOf(next);
-  transform.setSelectionOperation(sel);
-}
-
-/**
- * Move the selection to the start of the next text.
- *
- * @param {Transform} tansform
- */
-
-function collapseToStartOfNextText(transform) {
-  var state = transform.state;
-  var document = state.document,
-      selection = state.selection;
-
-  var texts = document.getTextsAtRange(selection);
-  var last = texts.last();
-  var next = document.getNextText(last.key);
-  if (!next) return;
-
-  var sel = selection.collapseToStartOf(next);
-  transform.setSelectionOperation(sel);
-}
-
-/**
- * Move the selection to the start of the previous block.
- *
- * @param {Transform} tansform
- */
-
-function collapseToStartOfPreviousBlock(transform) {
-  var state = transform.state;
-  var document = state.document,
-      selection = state.selection;
-
-  var blocks = document.getBlocksAtRange(selection);
-  var first = blocks.first();
-  var previous = document.getPreviousBlock(first.key);
-  if (!previous) return;
-
-  var sel = selection.collapseToStartOf(previous);
-  transform.setSelectionOperation(sel);
-}
-
-/**
- * Move the selection to the start of the previous text.
- *
- * @param {Transform} tansform
- */
-
-function collapseToStartOfPreviousText(transform) {
-  var state = transform.state;
-  var document = state.document,
-      selection = state.selection;
-
-  var texts = document.getTextsAtRange(selection);
-  var first = texts.first();
-  var previous = document.getPreviousText(first.key);
-  if (!previous) return;
-
-  var sel = selection.collapseToStartOf(previous);
-  transform.setSelectionOperation(sel);
-}
-
-/**
- * Move the selection to a specific anchor and focus point.
+ * Set `properties` on the selection.
  *
  * @param {Transform} transform
  * @param {Object} properties
  */
 
-function moveTo(transform, properties) {
+Transforms.select = function (transform, properties) {
   transform.setSelectionOperation(properties);
-}
-
-/**
- * Unset the selection's marks.
- *
- * @param {Transform} transform
- */
-
-function unsetMarks(transform) {
-  transform.setSelectionOperation({ marks: null });
-}
+};
 
 /**
  * Snapshot the current selection.
@@ -20764,12 +20586,35 @@ function unsetMarks(transform) {
  * @param {Transform} transform
  */
 
-function snapshotSelection(transform) {
+Transforms.snapshotSelection = function (transform) {
   var state = transform.state;
   var selection = state.selection;
 
   transform.setSelectionOperation(selection, { snapshot: true });
-}
+};
+
+/**
+ * Set `properties` on the selection.
+ *
+ * @param {Mixed} ...args
+ * @param {Transform} transform
+ */
+
+Transforms.moveTo = function (transform, properties) {
+  (0, _warn2.default)('The `moveTo()` transform is deprecated, please use `select()` instead.');
+  transform.select(properties);
+};
+
+/**
+ * Unset the selection's marks.
+ *
+ * @param {Transform} transform
+ */
+
+Transforms.unsetMarks = function (transform) {
+  (0, _warn2.default)('The `unsetMarks()` transform is deprecated.');
+  transform.setSelectionOperation({ marks: null });
+};
 
 /**
  * Unset the selection, removing an association to a node.
@@ -20777,7 +20622,8 @@ function snapshotSelection(transform) {
  * @param {Transform} transform
  */
 
-function unsetSelection(transform) {
+Transforms.unsetSelection = function (transform) {
+  (0, _warn2.default)('The `unsetSelection()` transform is deprecated, please use `deselect()` instead.');
   transform.setSelectionOperation({
     anchorKey: null,
     anchorOffset: 0,
@@ -20786,49 +20632,117 @@ function unsetSelection(transform) {
     isFocused: false,
     isBackward: false
   });
-}
+};
 
 /**
- * Generate a selection transform for `method`.
- *
- * @param {String} method
- * @return {Function}
+ * Mix in selection transforms that are just a proxy for the selection method.
  */
 
-function generate(method) {
-  return function (transform) {
+var PROXY_TRANSFORMS = ['blur', 'collapseTo', 'collapseToAnchor', 'collapseToEnd', 'collapseToEndOf', 'collapseToFocus', 'collapseToStart', 'collapseToStartOf', 'extend', 'extendTo', 'extendToEndOf', 'extendToStartOf', 'flip', 'focus', 'move', 'moveAnchor', 'moveAnchorOffsetTo', 'moveAnchorTo', 'moveAnchorToEndOf', 'moveAnchorToStartOf', 'moveEnd', 'moveEndOffsetTo', 'moveEndTo', 'moveFocus', 'moveFocusOffsetTo', 'moveFocusTo', 'moveFocusToEndOf', 'moveFocusToStartOf', 'moveOffsetsTo', 'moveStart', 'moveStartOffsetTo', 'moveStartTo',
+// 'moveTo', Commented out for now, since it conflicts with a deprecated one.
+'moveToEnd', 'moveToEndOf', 'moveToRangeOf', 'moveToStart', 'moveToStartOf', 'deselect'];
+
+PROXY_TRANSFORMS.forEach(function (method) {
+  Transforms[method] = function (transform) {
     for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
       args[_key - 1] = arguments[_key];
     }
 
+    var normalize = method != 'deselect';
     var state = transform.state;
     var document = state.document,
         selection = state.selection;
 
-    var sel = selection[method].apply(selection, args).normalize(document);
+    var next = selection[method].apply(selection, args);
+    if (normalize) next = next.normalize(document);
+    transform.setSelectionOperation(next);
+  };
+});
+
+/**
+ * Mix in node-related transforms.
+ */
+
+var PREFIXES = ['moveTo', 'collapseTo', 'extendTo'];
+
+var DIRECTIONS = ['Next', 'Previous'];
+
+var KINDS = ['Block', 'Inline', 'Text'];
+
+PREFIXES.forEach(function (prefix) {
+  var edges = ['Start', 'End'];
+
+  if (prefix == 'moveTo') {
+    edges.push('Range');
+  }
+
+  edges.forEach(function (edge) {
+    DIRECTIONS.forEach(function (direction) {
+      KINDS.forEach(function (kind) {
+        var get = 'get' + direction + kind;
+        var getAtRange = 'get' + kind + 'sAtRange';
+        var index = direction == 'Next' ? 'last' : 'first';
+        var method = '' + prefix + edge + 'Of';
+        var name = '' + method + direction + kind;
+
+        Transforms[name] = function (transform) {
+          var state = transform.state;
+          var document = state.document,
+              selection = state.selection;
+
+          var nodes = document[getAtRange](selection);
+          var node = nodes[index]();
+          var target = document[get](node.key);
+          if (!target) return;
+          var next = selection[method](target);
+          transform.setSelectionOperation(next);
+        };
+      });
+    });
+  });
+});
+
+/**
+ * Mix in deprecated transforms with a warning.
+ */
+
+var DEPRECATED_TRANSFORMS = [['extendBackward', 'extend', 'The `extendBackward(n)` transform is deprecated, please use `extend(n)` instead with a negative offset.'], ['extendForward', 'extend', 'The `extendForward(n)` transform is deprecated, please use `extend(n)` instead.'], ['moveBackward', 'move', 'The `moveBackward(n)` transform is deprecated, please use `move(n)` instead with a negative offset.'], ['moveForward', 'move', 'The `moveForward(n)` transform is deprecated, please use `move(n)` instead.'], ['moveStartOffset', 'moveStart', 'The `moveStartOffset(n)` transform is deprecated, please use `moveStart(n)` instead.'], ['moveEndOffset', 'moveEnd', 'The `moveEndOffset(n)` transform is deprecated, please use `moveEnd()` instead.'], ['moveToOffsets', 'moveOffsetsTo', 'The `moveToOffsets()` transform is deprecated, please use `moveOffsetsTo()` instead.'], ['flipSelection', 'flip', 'The `flipSelection()` transform is deprecated, please use `flip()` instead.']];
+
+DEPRECATED_TRANSFORMS.forEach(function (_ref) {
+  var _ref2 = _slicedToArray(_ref, 3),
+      old = _ref2[0],
+      current = _ref2[1],
+      warning = _ref2[2];
+
+  Transforms[old] = function (transform) {
+    for (var _len2 = arguments.length, args = Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
+      args[_key2 - 1] = arguments[_key2];
+    }
+
+    (0, _warn2.default)(warning);
+    var state = transform.state;
+    var document = state.document,
+        selection = state.selection;
+
+    var sel = selection[current].apply(selection, args).normalize(document);
     transform.setSelectionOperation(sel);
   };
-}
+});
 
-},{}],76:[function(require,module,exports){
+/**
+ * Export.
+ *
+ * @type {Object}
+ */
+
+exports.default = Transforms;
+
+},{"../utils/warn":89}],76:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.addMarkOperation = addMarkOperation;
-exports.insertNodeOperation = insertNodeOperation;
-exports.insertTextOperation = insertTextOperation;
-exports.joinNodeOperation = joinNodeOperation;
-exports.moveNodeOperation = moveNodeOperation;
-exports.removeMarkOperation = removeMarkOperation;
-exports.removeNodeOperation = removeNodeOperation;
-exports.removeTextOperation = removeTextOperation;
-exports.setMarkOperation = setMarkOperation;
-exports.setNodeOperation = setNodeOperation;
-exports.setSelectionOperation = setSelectionOperation;
-exports.splitNodeAtOffsetOperation = splitNodeAtOffsetOperation;
-exports.splitNodeOperation = splitNodeOperation;
 
 var _normalize = require('../utils/normalize');
 
@@ -20837,6 +20751,14 @@ var _normalize2 = _interopRequireDefault(_normalize);
 function _interopRequireDefault(obj) {
   return obj && obj.__esModule ? obj : { default: obj };
 }
+
+/**
+ * Transforms.
+ *
+ * @type {Object}
+ */
+
+var Transforms = {};
 
 /**
  * Add mark to text at `offset` and `length` in node by `path`.
@@ -20848,7 +20770,7 @@ function _interopRequireDefault(obj) {
  * @param {Mixed} mark
  */
 
-function addMarkOperation(transform, path, offset, length, mark) {
+Transforms.addMarkOperation = function (transform, path, offset, length, mark) {
   var inverse = [{
     type: 'remove_mark',
     path: path,
@@ -20867,7 +20789,7 @@ function addMarkOperation(transform, path, offset, length, mark) {
   };
 
   transform.applyOperation(operation);
-}
+};
 
 /**
  * Insert a `node` at `index` in a node by `path`.
@@ -20878,7 +20800,7 @@ function addMarkOperation(transform, path, offset, length, mark) {
  * @param {Node} node
  */
 
-function insertNodeOperation(transform, path, index, node) {
+Transforms.insertNodeOperation = function (transform, path, index, node) {
   var inversePath = path.slice().concat([index]);
   var inverse = [{
     type: 'remove_node',
@@ -20894,7 +20816,7 @@ function insertNodeOperation(transform, path, index, node) {
   };
 
   transform.applyOperation(operation);
-}
+};
 
 /**
  * Insert `text` at `offset` in node by `path`.
@@ -20906,7 +20828,7 @@ function insertNodeOperation(transform, path, index, node) {
  * @param {Set<Mark>} marks (optional)
  */
 
-function insertTextOperation(transform, path, offset, text, marks) {
+Transforms.insertTextOperation = function (transform, path, offset, text, marks) {
   var inverseLength = text.length;
   var inverse = [{
     type: 'remove_text',
@@ -20925,7 +20847,7 @@ function insertTextOperation(transform, path, offset, text, marks) {
   };
 
   transform.applyOperation(operation);
-}
+};
 
 /**
  * Join a node by `path` with a node `withPath`.
@@ -20935,7 +20857,7 @@ function insertTextOperation(transform, path, offset, text, marks) {
  * @param {Array} withPath
  */
 
-function joinNodeOperation(transform, path, withPath) {
+Transforms.joinNodeOperation = function (transform, path, withPath) {
   var state = transform.state;
   var document = state.document;
 
@@ -20969,7 +20891,7 @@ function joinNodeOperation(transform, path, withPath) {
   };
 
   transform.applyOperation(operation);
-}
+};
 
 /**
  * Move a node by `path` to a `newPath` and `newIndex`.
@@ -20980,7 +20902,7 @@ function joinNodeOperation(transform, path, withPath) {
  * @param {Number} newIndex
  */
 
-function moveNodeOperation(transform, path, newPath, newIndex) {
+Transforms.moveNodeOperation = function (transform, path, newPath, newIndex) {
   var parentPath = path.slice(0, -1);
   var parentIndex = path[path.length - 1];
   var inversePath = newPath.slice().concat([newIndex]);
@@ -21001,7 +20923,7 @@ function moveNodeOperation(transform, path, newPath, newIndex) {
   };
 
   transform.applyOperation(operation);
-}
+};
 
 /**
  * Remove mark from text at `offset` and `length` in node by `path`.
@@ -21013,7 +20935,7 @@ function moveNodeOperation(transform, path, newPath, newIndex) {
  * @param {Mark} mark
  */
 
-function removeMarkOperation(transform, path, offset, length, mark) {
+Transforms.removeMarkOperation = function (transform, path, offset, length, mark) {
   var inverse = [{
     type: 'add_mark',
     path: path,
@@ -21032,7 +20954,7 @@ function removeMarkOperation(transform, path, offset, length, mark) {
   };
 
   transform.applyOperation(operation);
-}
+};
 
 /**
  * Remove a node by `path`.
@@ -21041,7 +20963,7 @@ function removeMarkOperation(transform, path, offset, length, mark) {
  * @param {Array} path
  */
 
-function removeNodeOperation(transform, path) {
+Transforms.removeNodeOperation = function (transform, path) {
   var state = transform.state;
   var document = state.document;
 
@@ -21063,7 +20985,7 @@ function removeNodeOperation(transform, path) {
   };
 
   transform.applyOperation(operation);
-}
+};
 
 /**
  * Remove text at `offset` and `length` in node by `path`.
@@ -21074,7 +20996,7 @@ function removeNodeOperation(transform, path) {
  * @param {Number} length
  */
 
-function removeTextOperation(transform, path, offset, length) {
+Transforms.removeTextOperation = function (transform, path, offset, length) {
   var state = transform.state;
   var document = state.document;
 
@@ -21117,7 +21039,7 @@ function removeTextOperation(transform, path, offset, length) {
   };
 
   transform.applyOperation(operation);
-}
+};
 
 /**
  * Set `properties` on mark on text at `offset` and `length` in node by `path`.
@@ -21130,7 +21052,7 @@ function removeTextOperation(transform, path, offset, length) {
  * @param {Mark} newMark
  */
 
-function setMarkOperation(transform, path, offset, length, mark, newMark) {
+Transforms.setMarkOperation = function (transform, path, offset, length, mark, newMark) {
   var inverse = [{
     type: 'set_mark',
     path: path,
@@ -21151,7 +21073,7 @@ function setMarkOperation(transform, path, offset, length, mark, newMark) {
   };
 
   transform.applyOperation(operation);
-}
+};
 
 /**
  * Set `properties` on a node by `path`.
@@ -21161,7 +21083,7 @@ function setMarkOperation(transform, path, offset, length, mark, newMark) {
  * @param {Object} properties
  */
 
-function setNodeOperation(transform, path, properties) {
+Transforms.setNodeOperation = function (transform, path, properties) {
   var state = transform.state;
   var document = state.document;
 
@@ -21186,7 +21108,7 @@ function setNodeOperation(transform, path, properties) {
   };
 
   transform.applyOperation(operation);
-}
+};
 
 /**
  * Set the selection to a new `selection`.
@@ -21195,7 +21117,7 @@ function setNodeOperation(transform, path, properties) {
  * @param {Mixed} selection
  */
 
-function setSelectionOperation(transform, properties) {
+Transforms.setSelectionOperation = function (transform, properties) {
   var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 
   properties = _normalize2.default.selectionProperties(properties);
@@ -21262,7 +21184,7 @@ function setSelectionOperation(transform, properties) {
 
   // Apply the operation.
   transform.applyOperation(operation);
-}
+};
 
 /**
  * Split a node by `path` at `offset`.
@@ -21272,7 +21194,7 @@ function setSelectionOperation(transform, properties) {
  * @param {Number} offset
  */
 
-function splitNodeAtOffsetOperation(transform, path, offset) {
+Transforms.splitNodeAtOffsetOperation = function (transform, path, offset) {
   var inversePath = path.slice();
   inversePath[path.length - 1] += 1;
 
@@ -21293,7 +21215,7 @@ function splitNodeAtOffsetOperation(transform, path, offset) {
   };
 
   transform.applyOperation(operation);
-}
+};
 
 /**
  * Split a node by `path` after its 'count' child.
@@ -21303,7 +21225,7 @@ function splitNodeAtOffsetOperation(transform, path, offset) {
  * @param {Number} count
  */
 
-function splitNodeOperation(transform, path, count) {
+Transforms.splitNodeOperation = function (transform, path, count) {
   var inversePath = path.slice();
   inversePath[path.length - 1] += 1;
 
@@ -21323,7 +21245,15 @@ function splitNodeOperation(transform, path, count) {
   };
 
   transform.applyOperation(operation);
-}
+};
+
+/**
+ * Export.
+ *
+ * @type {Object}
+ */
+
+exports.default = Transforms;
 
 },{"../utils/normalize":85}],77:[function(require,module,exports){
 "use strict";
