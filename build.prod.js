@@ -1871,6 +1871,7 @@ var FocusBlur = function (_React$Component) {
         'div',
         { className: 'editor' },
         _react2.default.createElement(_.Editor, {
+          autoFocus: true,
           schema: schema,
           state: _this.state.state,
           onChange: _this.onChange,
@@ -5599,6 +5600,10 @@ var Content = function (_React$Component) {
    */
 
   /**
+   * On mount, if `autoFocus` is set, focus the editor.
+   */
+
+  /**
    * On update, if the state is blurred now, but was focused before, and the
    * DOM still has a node inside the editor selected, we need to blur it.
    *
@@ -5776,6 +5781,7 @@ var Content = function (_React$Component) {
  */
 
 Content.propTypes = {
+  autoFocus: _react2.default.PropTypes.bool.isRequired,
   autoCorrect: _react2.default.PropTypes.bool.isRequired,
   children: _react2.default.PropTypes.array.isRequired,
   className: _react2.default.PropTypes.string,
@@ -5814,6 +5820,13 @@ var _initialiseProps = function _initialiseProps() {
     if (props.state.isNative) return false;
 
     return props.className != _this2.props.className || props.schema != _this2.props.schema || props.autoCorrect != _this2.props.autoCorrect || props.spellCheck != _this2.props.spellCheck || props.state != _this2.props.state || props.style != _this2.props.style;
+  };
+
+  this.componentDidMount = function () {
+    if (_this2.props.autoFocus) {
+      var el = _reactDom2.default.findDOMNode(_this2);
+      el.focus();
+    }
   };
 
   this.componentDidUpdate = function (prevProps, prevState) {
@@ -6441,6 +6454,14 @@ var EVENT_HANDLERS = ['onBeforeInput', 'onBlur', 'onCopy', 'onCut', 'onDrop', 'o
 var PLUGINS_PROPS = [].concat(EVENT_HANDLERS, ['placeholder', 'placeholderClassName', 'placeholderStyle', 'plugins', 'schema']);
 
 /**
+ * Pass-through properties of the editor.
+ *
+ * @type {Array}
+ */
+
+var PASS_THROUGH_PROPS = ['autoCorrect', 'autoFocus', 'className', 'readOnly', 'role', 'spellCheck', 'style', 'tabIndex'];
+
+/**
  * Editor.
  *
  * @type {Component}
@@ -6589,6 +6610,7 @@ var Editor = function (_React$Component) {
 
 Editor.propTypes = {
   autoCorrect: _react2.default.PropTypes.bool,
+  autoFocus: _react2.default.PropTypes.bool,
   className: _react2.default.PropTypes.string,
   onBeforeChange: _react2.default.PropTypes.func,
   onChange: _react2.default.PropTypes.func,
@@ -6607,6 +6629,7 @@ Editor.propTypes = {
   tabIndex: _react2.default.PropTypes.number
 };
 Editor.defaultProps = {
+  autoFocus: false,
   autoCorrect: true,
   onChange: _noop2.default,
   onDocumentChange: _noop2.default,
@@ -6712,6 +6735,7 @@ var _initialiseProps = function _initialiseProps() {
     var stack = state.stack;
 
     var handlers = {};
+    var passes = {};
     var children = stack.render(state.state, _this2);
 
     var _iteratorNormalCompletion4 = true;
@@ -6739,20 +6763,38 @@ var _initialiseProps = function _initialiseProps() {
       }
     }
 
+    var _iteratorNormalCompletion5 = true;
+    var _didIteratorError5 = false;
+    var _iteratorError5 = undefined;
+
+    try {
+      for (var _iterator5 = PASS_THROUGH_PROPS[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+        var _property = _step5.value;
+
+        passes[_property] = _this2.props[_property];
+      }
+    } catch (err) {
+      _didIteratorError5 = true;
+      _iteratorError5 = err;
+    } finally {
+      try {
+        if (!_iteratorNormalCompletion5 && _iterator5.return) {
+          _iterator5.return();
+        }
+      } finally {
+        if (_didIteratorError5) {
+          throw _iteratorError5;
+        }
+      }
+    }
+
     debug('render', { props: props, state: state });
 
-    return _react2.default.createElement(_content2.default, _extends({}, handlers, {
+    return _react2.default.createElement(_content2.default, _extends({}, handlers, passes, {
       editor: _this2,
       onChange: _this2.onChange,
       schema: _this2.getSchema(),
-      state: _this2.getState(),
-      className: props.className,
-      readOnly: props.readOnly,
-      autoCorrect: props.autoCorrect,
-      spellCheck: props.spellCheck,
-      style: props.style,
-      tabIndex: props.tabIndex,
-      role: props.role
+      state: _this2.getState()
     }), children.map(function (child, i) {
       return _react2.default.createElement(_reactPortal2.default, { key: i, isOpened: true }, child);
     }));
