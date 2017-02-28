@@ -2905,7 +2905,6 @@ var Images = function (_React$Component) {
           schema: schema,
           state: _this.state.state,
           onChange: _this.onChange,
-          onDocumentChange: _this.onDocumentChange,
           onDrop: _this.onDrop,
           onPaste: _this.onPaste
         })
@@ -6718,13 +6717,13 @@ var _initialiseProps = function _initialiseProps() {
     var onChange = props.onChange,
         onDocumentChange = props.onDocumentChange,
         onSelectionChange = props.onSelectionChange;
+    var document = tmp.document,
+        selection = tmp.selection;
 
     state = stack.onChange(state, _this2);
     onChange(state);
-    if (state.document != tmp.document) onDocumentChange(state.document, state);
-    if (state.selection != tmp.selection) onSelectionChange(state.selection, state);
-
-    _this2.cacheState(state);
+    if (state.document != document) onDocumentChange(state.document, state);
+    if (state.selection != selection) onSelectionChange(state.selection, state);
   };
 
   this.render = function () {
