@@ -1980,10 +1980,6 @@ var _state = require('./state.json');
 
 var _state2 = _interopRequireDefault(_state);
 
-var _selectionPosition = require('selection-position');
-
-var _selectionPosition2 = _interopRequireDefault(_selectionPosition);
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -2132,7 +2128,9 @@ var HoveringMenu = function (_React$Component) {
         return;
       }
 
-      var rect = (0, _selectionPosition2.default)();
+      var selection = window.getSelection();
+      var range = selection.getRangeAt(0);
+      var rect = range.getBoundingClientRect();
       menu.style.opacity = 1;
       menu.style.top = rect.top + window.scrollY - menu.offsetHeight + 'px';
       menu.style.left = rect.left + window.scrollX - menu.offsetWidth / 2 + rect.width / 2 + 'px';
@@ -2214,7 +2212,7 @@ var HoveringMenu = function (_React$Component) {
 
 exports.default = HoveringMenu;
 
-},{"../..":46,"./state.json":17,"react":1446,"react-portal":1383,"selection-position":1458}],17:[function(require,module,exports){
+},{"../..":46,"./state.json":17,"react":1446,"react-portal":1383}],17:[function(require,module,exports){
 module.exports={
   "nodes": [
     {
@@ -5781,8 +5779,8 @@ var Content = function (_React$Component) {
  */
 
 Content.propTypes = {
-  autoFocus: _react2.default.PropTypes.bool.isRequired,
   autoCorrect: _react2.default.PropTypes.bool.isRequired,
+  autoFocus: _react2.default.PropTypes.bool.isRequired,
   children: _react2.default.PropTypes.array.isRequired,
   className: _react2.default.PropTypes.string,
   editor: _react2.default.PropTypes.object.isRequired,
@@ -7302,9 +7300,13 @@ var _void = require('./void');
 
 var _void2 = _interopRequireDefault(_void);
 
-var _scrollTo = require('../utils/scroll-to');
+var _getWindow = require('get-window');
 
-var _scrollTo2 = _interopRequireDefault(_scrollTo);
+var _getWindow2 = _interopRequireDefault(_getWindow);
+
+var _scrollToSelection = require('../utils/scroll-to-selection');
+
+var _scrollToSelection2 = _interopRequireDefault(_scrollToSelection);
 
 function _interopRequireDefault(obj) {
   return obj && obj.__esModule ? obj : { default: obj };
@@ -7591,7 +7593,9 @@ var _initialiseProps = function _initialiseProps() {
     if (!selection.hasEndIn(node)) return;
 
     var el = _reactDom2.default.findDOMNode(_this2);
-    (0, _scrollTo2.default)(el);
+    var window = (0, _getWindow2.default)(el);
+    var native = window.getSelection();
+    (0, _scrollToSelection2.default)(native);
 
     _this2.debug('updateScroll', el);
   };
@@ -7715,7 +7719,7 @@ var _initialiseProps = function _initialiseProps() {
 
 exports.default = Node;
 
-},{"../constants/types":45,"../serializers/base-64":63,"../utils/scroll-to":87,"./leaf":39,"./void":42,"debug":118,"react":1446,"react-dom":1247}],41:[function(require,module,exports){
+},{"../constants/types":45,"../serializers/base-64":63,"../utils/scroll-to-selection":87,"./leaf":39,"./void":42,"debug":118,"get-window":1185,"react":1446,"react-dom":1247}],41:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -22479,66 +22483,49 @@ var _getWindow = require('get-window');
 
 var _getWindow2 = _interopRequireDefault(_getWindow);
 
+var _selectionIsBackward = require('selection-is-backward');
+
+var _selectionIsBackward2 = _interopRequireDefault(_selectionIsBackward);
+
 function _interopRequireDefault(obj) {
   return obj && obj.__esModule ? obj : { default: obj };
 }
 
-function scrollWindow(window, cursorTop, cursorLeft, cursorHeight) {
-  var scrollX = window.scrollX;
-  var scrollY = window.scrollY;
-  var cursorBottom = cursorTop + cursorHeight;
-
-  if (cursorTop < 0 || cursorBottom > window.innerHeight) {
-    scrollY += cursorTop - window.innerHeight / 2 + cursorHeight / 2;
-  }
-
-  if (cursorLeft < 0 || cursorLeft > window.innerWidth) {
-    scrollX += cursorLeft - window.innerWidth / 2;
-  }
-
-  window.scrollTo(scrollX, scrollY);
-}
 /**
- * Helps scroll the cursor into the middle of view if it isn't in view
+ * Scroll the current selection's focus point into view if needed.
+ *
+ * @param {Selection} selection
  */
 
-function scrollTo(element) {
-  var window = (0, _getWindow2.default)(element);
-  var s = window.getSelection();
-  if (s.rangeCount > 0) {
-    var selectionRect = s.getRangeAt(0).getBoundingClientRect();
-    var innerRect = selectionRect;
-    var wrapper = element;
-    var cursorHeight = innerRect.height;
-    var cursorTop = innerRect.top;
-    var cursorLeft = innerRect.left;
+function scrollToSelection(selection) {
+  var window = (0, _getWindow2.default)(selection.anchorNode);
+  var backward = (0, _selectionIsBackward2.default)(selection);
+  var range = selection.getRangeAt(0);
+  var rect = range.getBoundingClientRect();
+  var innerWidth = window.innerWidth,
+      innerHeight = window.innerHeight,
+      scrollY = window.scrollY,
+      scrollX = window.scrollX;
 
-    while (wrapper != window.document.body) {
-      var wrapperRect = wrapper.getBoundingClientRect();
-      var currentY = cursorTop;
-      var cursorBottom = cursorTop + cursorHeight;
-      if (cursorTop < wrapperRect.top || cursorBottom > wrapperRect.top + wrapper.offsetHeight) {
-        cursorTop = wrapperRect.top + wrapperRect.height / 2 - cursorHeight / 2;
-        wrapper.scrollTop += currentY - cursorTop;
-      }
+  var top = (backward ? rect.top : rect.bottom) + scrollY;
+  var left = (backward ? rect.left : rect.right) + scrollX;
 
-      var currentLeft = cursorLeft;
-      if (cursorLeft < wrapperRect.left || cursorLeft > wrapperRect.right) {
-        cursorLeft = wrapperRect.left + wrapperRect.width / 2;
-        wrapper.scrollLeft += currentLeft - cursorLeft;
-      }
+  var x = left < scrollX || innerWidth + scrollX < left ? left - innerWidth / 2 : scrollX;
 
-      innerRect = wrapperRect;
-      wrapper = wrapper.parentNode;
-    }
+  var y = top < scrollY || innerHeight + scrollY < top ? top - innerHeight / 2 : scrollY;
 
-    scrollWindow(window, cursorTop, cursorLeft, cursorHeight);
-  }
+  window.scrollTo(x, y);
 }
 
-exports.default = scrollTo;
+/**
+ * Export.
+ *
+ * @type {Function}
+ */
 
-},{"get-window":1185}],88:[function(require,module,exports){
+exports.default = scrollToSelection;
+
+},{"get-window":1185,"selection-is-backward":1458}],88:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -140019,39 +140006,18 @@ module.exports = require("./lib/_stream_transform.js")
 module.exports = require("./lib/_stream_writable.js")
 
 },{"./lib/_stream_writable.js":1452}],1458:[function(require,module,exports){
-/**
- * cross-browser selected text bounding-client-rect.
- *
- * @return {Object}
- */
+function isBackward(selection) {
+    var startNode = selection.anchorNode;
+    var startOffset = selection.anchorOffset;
+    var endNode = selection.focusNode;
+    var endOffset = selection.focusOffset;
 
-module.exports = function() {
+    var position = startNode.compareDocumentPosition(endNode);
 
-  if (window.getSelection) {
-    var selection = window.getSelection();
-    if (!selection.rangeCount) return;
+    return !(position === 4 || (position === 0 && startOffset < endOffset));
+}
 
-    var range = selection.getRangeAt(0);
-
-    if (!range.collapsed){
-      return range.getBoundingClientRect();
-    }
-
-    // if we only have a cursor, then we need to insert
-    // a dummy element and see what's what.
-    var dummy = document.createElement('span');
-    range.insertNode(dummy);
-    var pos = dummy.getBoundingClientRect();
-    dummy.parentNode.removeChild(dummy);
-    return pos;
-  }
-
-  if (document.selection) {
-    return document.selection
-      .createRange()
-      .getBoundingClientRect();
-  }
-};
+module.exports = isBackward;
 
 },{}],1459:[function(require,module,exports){
 'use strict';
