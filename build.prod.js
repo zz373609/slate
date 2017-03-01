@@ -20626,6 +20626,22 @@ Transforms.select = function (transform, properties) {
 };
 
 /**
+ * Selects the whole selection.
+ *
+ * @param {Transform} transform
+ * @param {Object} properties
+ */
+
+Transforms.selectAll = function (transform) {
+  var state = transform.state;
+  var document = state.document,
+      selection = state.selection;
+
+  var next = selection.moveToRangeOf(document);
+  transform.setSelectionOperation(next);
+};
+
+/**
  * Snapshot the current selection.
  *
  * @param {Transform} transform
