@@ -9385,21 +9385,9 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _block = require('./block');
-
-var _block2 = _interopRequireDefault(_block);
-
-var _character = require('./character');
-
-var _character2 = _interopRequireDefault(_character);
-
 var _document = require('./document');
 
 var _document2 = _interopRequireDefault(_document);
-
-var _mark = require('./mark');
-
-var _mark2 = _interopRequireDefault(_mark);
 
 var _normalize = require('../utils/normalize');
 
@@ -9409,6 +9397,10 @@ var _direction = require('direction');
 
 var _direction2 = _interopRequireDefault(_direction);
 
+var _generateKey = require('../utils/generate-key');
+
+var _generateKey2 = _interopRequireDefault(_generateKey);
+
 var _isInRange = require('../utils/is-in-range');
 
 var _isInRange2 = _interopRequireDefault(_isInRange);
@@ -9417,9 +9409,9 @@ var _memoize = require('../utils/memoize');
 
 var _memoize2 = _interopRequireDefault(_memoize);
 
-var _generateKey = require('../utils/generate-key');
+var _warn = require('../utils/warn');
 
-var _generateKey2 = _interopRequireDefault(_generateKey);
+var _warn2 = _interopRequireDefault(_warn);
 
 var _immutable = require('immutable');
 
@@ -9439,31 +9431,31 @@ function _interopRequireDefault(obj) {
 var Node = {
 
   /**
-   * Return a set of all keys in the node.
+   * True if the node has both descendants in that order, false otherwise. The
+   * order is depth-first, post-order.
    *
-   * @return {Set<Node>}
+   * @param {String} first
+   * @param {String} second
+   * @return {Boolean}
    */
 
-  getKeys: function getKeys() {
-    var keys = [];
+  areDescendantsSorted: function areDescendantsSorted(first, second) {
+    first = _normalize2.default.key(first);
+    second = _normalize2.default.key(second);
 
-    this.forEachDescendant(function (desc) {
-      keys.push(desc.key);
+    var sorted = void 0;
+
+    this.forEachDescendant(function (n) {
+      if (n.key === first) {
+        sorted = true;
+        return false;
+      } else if (n.key === second) {
+        sorted = false;
+        return false;
+      }
     });
 
-    return (0, _immutable.Set)(keys);
-  },
-
-  /**
-   * Get the concatenated text `string` of all child nodes.
-   *
-   * @return {String}
-   */
-
-  getText: function getText() {
-    return this.nodes.reduce(function (result, node) {
-      return result + node.text;
-    }, '');
+    return sorted;
   },
 
   /**
@@ -9538,67 +9530,34 @@ var Node = {
   },
 
   /**
-   * Concat children `nodes` on to the end of the node.
+   * Recursively filter all descendant nodes with `iterator`.
    *
-   * @param {List<Node>} nodes
-   * @return {Node}
+   * @param {Function} iterator
+   * @return {List<Node>}
    */
 
-  concatChildren: function concatChildren(nodes) {
-    nodes = this.nodes.concat(nodes);
-    return this.merge({ nodes: nodes });
-  },
+  filterDescendants: function filterDescendants(iterator) {
+    var matches = [];
 
-  /**
-   * Decorate all of the text nodes with a `decorator` function.
-   *
-   * @param {Function} decorator
-   * @return {Node}
-   */
-
-  decorateTexts: function decorateTexts(decorator) {
-    return this.mapDescendants(function (child) {
-      return child.kind == 'text' ? child.decorateCharacters(decorator) : child;
+    this.forEachDescendant(function (node, i, nodes) {
+      if (iterator(node, i, nodes)) matches.push(node);
     });
+
+    return (0, _immutable.List)(matches);
   },
 
   /**
-   * Recursively find all descendant nodes by `iterator`. Breadth first.
+   * Recursively find all descendant nodes by `iterator`.
    *
    * @param {Function} iterator
    * @return {Node|Null}
    */
 
   findDescendant: function findDescendant(iterator) {
-    var childFound = this.nodes.find(iterator);
-    if (childFound) return childFound;
-
-    var descendantFound = null;
-
-    this.nodes.find(function (node) {
-      if (node.kind != 'text') {
-        descendantFound = node.findDescendant(iterator);
-        return descendantFound;
-      } else {
-        return false;
-      }
-    });
-
-    return descendantFound;
-  },
-
-  /**
-   * Recursively find all descendant nodes by `iterator`. Depth first.
-   *
-   * @param {Function} iterator
-   * @return {Node|Null}
-   */
-
-  findDescendantDeep: function findDescendantDeep(iterator) {
     var found = void 0;
 
-    this.forEachDescendant(function (node) {
-      if (iterator(node)) {
+    this.forEachDescendant(function (node, i, nodes) {
+      if (iterator(node, i, nodes)) {
         found = node;
         return false;
       }
@@ -9608,13 +9567,13 @@ var Node = {
   },
 
   /**
-   * Recursively iterate over all descendant nodes with `iterator`.
+   * Recursively iterate over all descendant nodes with `iterator`. If the
+   * iterator returns false it will break the loop.
    *
    * @param {Function} iterator
    */
 
   forEachDescendant: function forEachDescendant(iterator) {
-    // If the iterator returns false it will break the loop.
     var ret = void 0;
 
     this.nodes.forEach(function (child, i, nodes) {
@@ -9633,36 +9592,30 @@ var Node = {
   },
 
   /**
-   * Recursively filter all descendant nodes with `iterator`.
+   * Get the path of ancestors of a descendant node by `key`.
    *
-   * @param {Function} iterator
-   * @return {List<Node>}
+   * @param {String|Node} key
+   * @return {List<Node>|Null}
    */
 
-  filterDescendants: function filterDescendants(iterator) {
-    var matches = [];
+  getAncestors: function getAncestors(key) {
+    key = _normalize2.default.key(key);
 
-    this.forEachDescendant(function (child, i, nodes) {
-      if (iterator(child, i, nodes)) matches.push(child);
+    if (key == this.key) return (0, _immutable.List)();
+    if (this.hasChild(key)) return (0, _immutable.List)([this]);
+
+    var ancestors = void 0;
+    this.nodes.find(function (node) {
+      if (node.kind == 'text') return false;
+      ancestors = node.getAncestors(key);
+      return ancestors;
     });
 
-    return (0, _immutable.List)(matches);
-  },
-
-  /**
-   * Recursively filter all descendant nodes with `iterator`, depth-first.
-   * It is different from `filterDescendants` in regard of the order of results.
-   *
-   * @param {Function} iterator
-   * @return {List<Node>}
-   */
-
-  filterDescendantsDeep: function filterDescendantsDeep(iterator) {
-    return this.nodes.reduce(function (matches, child, i, nodes) {
-      if (child.kind != 'text') matches = matches.concat(child.filterDescendantsDeep(iterator));
-      if (iterator(child, i, nodes)) matches = matches.push(child);
-      return matches;
-    }, _block2.default.createList());
+    if (ancestors) {
+      return ancestors.unshift(this);
+    } else {
+      return null;
+    }
   },
 
   /**
@@ -9677,7 +9630,7 @@ var Node = {
     return this.getTexts().map(function (text) {
       return _this.getClosestBlock(text.key);
     })
-    // Eliminate duplicates
+    // Eliminate duplicates by converting to a `Set` first.
     .toOrderedSet().toList();
   },
 
@@ -9694,15 +9647,27 @@ var Node = {
     return this.getTextsAtRange(range).map(function (text) {
       return _this2.getClosestBlock(text.key);
     })
-    // Eliminate duplicates
+    // Eliminate duplicates by converting to a `Set` first.
     .toOrderedSet().toList();
+  },
+
+  /**
+   * Get all of the characters for every text node.
+   *
+   * @return {List<Character>} characters
+   */
+
+  getCharacters: function getCharacters() {
+    return this.getTexts().reduce(function (chars, text) {
+      return chars.concat(text.characters);
+    }, new _immutable.List());
   },
 
   /**
    * Get a list of the characters in a `range`.
    *
    * @param {Selection} range
-   * @return {List<Node>} characters
+   * @return {List<Character>} characters
    */
 
   getCharactersAtRange: function getCharactersAtRange(range) {
@@ -9711,39 +9676,21 @@ var Node = {
         return (0, _isInRange2.default)(i, text, range);
       });
       return characters.concat(chars);
-    }, _character2.default.createList());
+    }, new _immutable.List());
   },
 
   /**
-   * Get children between two child keys.
+   * Get a child node by `key`.
    *
-   * @param {String} start
-   * @param {String} end
-   * @return {Node}
+   * @param {String} key
+   * @return {Node|Null}
    */
 
-  getChildrenBetween: function getChildrenBetween(start, end) {
-    start = this.assertChild(start);
-    start = this.nodes.indexOf(start);
-    end = this.assertChild(end);
-    end = this.nodes.indexOf(end);
-    return this.nodes.slice(start + 1, end);
-  },
-
-  /**
-   * Get children between two child keys, including the two children.
-   *
-   * @param {String} start
-   * @param {String} end
-   * @return {Node}
-   */
-
-  getChildrenBetweenIncluding: function getChildrenBetweenIncluding(start, end) {
-    start = this.assertChild(start);
-    start = this.nodes.indexOf(start);
-    end = this.assertChild(end);
-    end = this.nodes.indexOf(end);
-    return this.nodes.slice(start, end + 1);
+  getChild: function getChild(key) {
+    key = _normalize2.default.key(key);
+    return this.nodes.find(function (node) {
+      return node.key == key;
+    });
   },
 
   /**
@@ -9761,7 +9708,7 @@ var Node = {
       throw new Error('Could not find a descendant node with key "' + key + '".');
     }
 
-    // Exclude this node itself
+    // Exclude this node itself.
     return ancestors.rest().findLast(iterator);
   },
 
@@ -9792,16 +9739,15 @@ var Node = {
   },
 
   /**
-   * Get a child node by `key`.
+   * Get the closest void parent of a `node`.
    *
    * @param {String} key
    * @return {Node|Null}
    */
 
-  getChild: function getChild(key) {
-    key = _normalize2.default.key(key);
-    return this.nodes.find(function (node) {
-      return node.key == key;
+  getClosestVoid: function getClosestVoid(key) {
+    return this.getClosest(key, function (parent) {
+      return parent.isVoid;
     });
   },
 
@@ -9860,29 +9806,18 @@ var Node = {
   },
 
   /**
-   * Get the decorations for a descendant by `key` given a `schema`.
+   * Get the depth of a child node by `key`, with optional `startAt`.
    *
    * @param {String} key
-   * @param {Schema} schema
-   * @return {Array}
+   * @param {Number} startAt (optional)
+   * @return {Number} depth
    */
 
-  getDescendantDecorators: function getDescendantDecorators(key, schema) {
-    if (!schema.hasDecorators) {
-      return [];
-    }
+  getDepth: function getDepth(key) {
+    var startAt = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
 
-    var descendant = this.assertDescendant(key);
-    var child = this.getHighestChild(key);
-    var decorators = [];
-
-    while (child != descendant) {
-      decorators = decorators.concat(child.getDecorators(schema));
-      child = child.getHighestChild(key);
-    }
-
-    decorators = decorators.concat(descendant.getDecorators(schema));
-    return decorators;
+    this.assertDescendant(key);
+    return this.hasChild(key) ? startAt : this.getFurthestAncestor(key).getDepth(key, startAt + 1);
   },
 
   /**
@@ -9894,18 +9829,13 @@ var Node = {
 
   getDescendant: function getDescendant(key) {
     key = _normalize2.default.key(key);
-    return this._getDescendant(key);
-  },
-
-  // This one is memoized
-  _getDescendant: function _getDescendant(key) {
     var descendantFound = null;
 
     var found = this.nodes.find(function (node) {
       if (node.key === key) {
         return node;
       } else if (node.kind !== 'text') {
-        descendantFound = node._getDescendant(key);
+        descendantFound = node.getDescendant(key);
         return descendantFound;
       } else {
         return false;
@@ -9956,46 +9886,47 @@ var Node = {
   },
 
   /**
-   * True if the node has both descendants in that order, false
-   * otherwise. The order is depth-first, post-order.
+   * Get the decorators for a descendant by `key` given a `schema`.
    *
-   * @param {String} key1
-   * @param {String} key2
-   * @return {Boolean} True if nodes are found in this order
+   * @param {String} key
+   * @param {Schema} schema
+   * @return {Array}
    */
 
-  areDescendantSorted: function areDescendantSorted(key1, key2) {
-    key1 = _normalize2.default.key(key1);
-    key2 = _normalize2.default.key(key2);
+  getDescendantDecorators: function getDescendantDecorators(key, schema) {
+    if (!schema.hasDecorators) {
+      return [];
+    }
 
-    var sorted = void 0;
+    var descendant = this.assertDescendant(key);
+    var child = this.getFurthestAncestor(key);
+    var decorators = [];
 
-    this.forEachDescendant(function (n) {
-      if (n.key === key1) {
-        sorted = true;
-        return false;
-      } else if (n.key === key2) {
-        sorted = false;
-        return false;
-      }
-    });
+    while (child != descendant) {
+      decorators = decorators.concat(child.getDecorators(schema));
+      child = child.getFurthestAncestor(key);
+    }
 
-    return sorted;
+    decorators = decorators.concat(descendant.getDecorators(schema));
+    return decorators;
   },
 
   /**
-   * Get the depth of a child node by `key`, with optional `startAt`.
+   * Get the first child text node.
    *
-   * @param {String} key
-   * @param {Number} startAt (optional)
-   * @return {Number} depth
+   * @return {Node|Null}
    */
 
-  getDepth: function getDepth(key) {
-    var startAt = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
+  getFirstText: function getFirstText() {
+    var descendantFound = null;
 
-    this.assertDescendant(key);
-    return this.hasChild(key) ? startAt : this.getHighestChild(key).getDepth(key, startAt + 1);
+    var found = this.nodes.find(function (node) {
+      if (node.kind == 'text') return true;
+      descendantFound = node.getFirstText();
+      return descendantFound;
+    });
+
+    return descendantFound || found;
   },
 
   /**
@@ -10007,7 +9938,7 @@ var Node = {
 
   getFragmentAtRange: function getFragmentAtRange(range) {
     var node = this;
-    var nodes = _block2.default.createList();
+    var nodes = new _immutable.List();
 
     // If the range is collapsed, there's nothing to do.
     if (range.isCollapsed) return _document2.default.create({ nodes: nodes });
@@ -10030,8 +9961,8 @@ var Node = {
     node = node.splitBlockAtRange(end, Infinity);
 
     // Get the start and end nodes.
-    var startNode = node.getNextSibling(node.getHighestChild(startKey).key);
-    var endNode = startKey == endKey ? node.getHighestChild(next.key) : node.getHighestChild(endKey);
+    var startNode = node.getNextSibling(node.getFurthestAncestor(startKey).key);
+    var endNode = startKey == endKey ? node.getFurthestAncestor(next.key) : node.getFurthestAncestor(endKey);
 
     nodes = node.getChildrenBetweenIncluding(startNode.key, endNode.key);
 
@@ -10085,13 +10016,13 @@ var Node = {
   },
 
   /**
-   * Get the highest child ancestor of a node by `key`.
+   * Get the furthest ancestor of a node by `key`.
    *
    * @param {String} key
    * @return {Node|Null}
    */
 
-  getHighestChild: function getHighestChild(key) {
+  getFurthestAncestor: function getFurthestAncestor(key) {
     key = _normalize2.default.key(key);
     return this.nodes.find(function (node) {
       if (node.key == key) return true;
@@ -10101,13 +10032,13 @@ var Node = {
   },
 
   /**
-   * Get the highest parent of a node by `key` which has an only child.
+   * Get the furthest ancestor of a node by `key` that has only one child.
    *
    * @param {String} key
    * @return {Node|Null}
    */
 
-  getHighestOnlyChildParent: function getHighestOnlyChildParent(key) {
+  getFurthestOnlyChildAncestor: function getFurthestOnlyChildAncestor(key) {
     var ancestors = this.getAncestors(key);
 
     if (!ancestors) {
@@ -10116,13 +10047,13 @@ var Node = {
     }
 
     return ancestors
-    // Skip this node
+    // Skip this node...
     .skipLast()
-    // Take parents until there are more than one child
+    // Take parents until there are more than one child...
     .reverse().takeUntil(function (p) {
       return p.nodes.size > 1;
     })
-    // Pick the highest
+    // And pick the highest.
     .last();
   },
 
@@ -10160,6 +10091,52 @@ var Node = {
   },
 
   /**
+   * Return a set of all keys in the node.
+   *
+   * @return {Set<Node>}
+   */
+
+  getKeys: function getKeys() {
+    var keys = [];
+
+    this.forEachDescendant(function (desc) {
+      keys.push(desc.key);
+    });
+
+    return (0, _immutable.Set)(keys);
+  },
+
+  /**
+   * Get the last child text node.
+   *
+   * @return {Node|Null}
+   */
+
+  getLastText: function getLastText() {
+    var descendantFound = null;
+
+    var found = this.nodes.findLast(function (node) {
+      if (node.kind == 'text') return true;
+      descendantFound = node.getLastText();
+      return descendantFound;
+    });
+
+    return descendantFound || found;
+  },
+
+  /**
+   * Get all of the marks for all of the characters of every text node.
+   *
+   * @return {Set<Mark>}
+   */
+
+  getMarks: function getMarks() {
+    return this.getCharacters().reduce(function (marks, char) {
+      return marks.union(char.marks);
+    }, new _immutable.Set());
+  },
+
+  /**
    * Get a set of the marks in a `range`.
    *
    * @param {Selection} range
@@ -10172,12 +10149,11 @@ var Node = {
         startKey = _range.startKey,
         startOffset = _range.startOffset;
 
-    var marks = _mark2.default.createSet();
-
     // If the range is collapsed at the start of the node, check the previous.
+
     if (range.isCollapsed && startOffset == 0) {
       var previous = this.getPreviousText(startKey);
-      if (!previous || !previous.length) return marks;
+      if (!previous || !previous.length) return new _immutable.Set();
       var char = previous.characters.get(previous.length - 1);
       return char.marks;
     }
@@ -10277,7 +10253,7 @@ var Node = {
     this.assertDescendant(key);
 
     // Calculate the offset of the nodes before the highest child.
-    var child = this.getHighestChild(key);
+    var child = this.getFurthestAncestor(key);
     var offset = this.nodes.takeUntil(function (n) {
       return n == child;
     }).reduce(function (memo, n) {
@@ -10367,30 +10343,27 @@ var Node = {
   },
 
   /**
-   * Get the path of ancestors of a descendant node by `key`.
+   * Get the block node before a descendant text node by `key`.
    *
-   * @param {String|Node} key
-   * @return {List<Node>|Null}
+   * @param {String} key
+   * @return {Node|Null}
    */
 
-  getAncestors: function getAncestors(key) {
-    key = _normalize2.default.key(key);
+  getPreviousBlock: function getPreviousBlock(key) {
+    var child = this.assertDescendant(key);
+    var first = void 0;
 
-    if (key == this.key) return (0, _immutable.List)();
-    if (this.hasChild(key)) return (0, _immutable.List)([this]);
-
-    var ancestors = void 0;
-    this.nodes.find(function (node) {
-      if (node.kind == 'text') return false;
-      ancestors = node.getAncestors(key);
-      return ancestors;
-    });
-
-    if (ancestors) {
-      return ancestors.unshift(this);
+    if (child.kind == 'block') {
+      first = child.getFirstText();
     } else {
-      return null;
+      var block = this.getClosestBlock(key);
+      first = block.getFirstText();
     }
+
+    var previous = this.getPreviousText(first.key);
+    if (!previous) return null;
+
+    return this.getClosestBlock(previous.key);
   },
 
   /**
@@ -10429,27 +10402,15 @@ var Node = {
   },
 
   /**
-   * Get the block node before a descendant text node by `key`.
+   * Get the concatenated text `string` of all child nodes.
    *
-   * @param {String} key
-   * @return {Node|Null}
+   * @return {String}
    */
 
-  getPreviousBlock: function getPreviousBlock(key) {
-    var child = this.assertDescendant(key);
-    var first = void 0;
-
-    if (child.kind == 'block') {
-      first = child.getFirstText();
-    } else {
-      var block = this.getClosestBlock(key);
-      first = block.getFirstText();
-    }
-
-    var previous = this.getPreviousText(first.key);
-    if (!previous) return null;
-
-    return this.getClosestBlock(previous.key);
+  getText: function getText() {
+    return this.nodes.reduce(function (result, node) {
+      return result + node.text;
+    }, '');
   },
 
   /**
@@ -10491,55 +10452,9 @@ var Node = {
    */
 
   getTexts: function getTexts() {
-    return (0, _immutable.List)(this._getTexts());
-  },
-
-  // This one is memoized for performance.
-  _getTexts: function _getTexts() {
     return this.nodes.reduce(function (texts, node) {
-      if (node.kind == 'text') {
-        texts.push(node);
-        return texts;
-      } else {
-        return texts.concat(node._getTexts());
-      }
-    }, []);
-  },
-
-  /**
-   * Get the first child text node.
-   *
-   * @return {Node|Null}
-   */
-
-  getFirstText: function getFirstText() {
-    var descendantFound = null;
-
-    var found = this.nodes.find(function (node) {
-      if (node.kind == 'text') return true;
-      descendantFound = node.getFirstText();
-      return descendantFound;
-    });
-
-    return descendantFound || found;
-  },
-
-  /**
-   * Get the last child text node.
-   *
-   * @return {Node|Null}
-   */
-
-  getLastText: function getLastText() {
-    var descendantFound = null;
-
-    var found = this.nodes.findLast(function (node) {
-      if (node.kind == 'text') return true;
-      descendantFound = node.getLastText();
-      return descendantFound;
-    });
-
-    return descendantFound || found;
+      return node.kind == 'text' ? texts.push(node) : texts.concat(node.getTexts());
+    }, new _immutable.List());
   },
 
   /**
@@ -10632,24 +10547,6 @@ var Node = {
 
     var nodes = this.nodes.insert(index, node);
     return this.merge({ nodes: nodes });
-  },
-
-  /**
-   * Check if the inline nodes are split at a `range`.
-   *
-   * @param {Selection} range
-   * @return {Boolean}
-   */
-
-  isInlineSplitAtRange: function isInlineSplitAtRange(range) {
-    range = range.normalize(this);
-    if (range.isExpanded) throw new Error();
-
-    var _range4 = range,
-        startKey = _range4.startKey;
-
-    var start = this.getFurthestInline(startKey) || this.getDescendant(startKey);
-    return range.isAtStartOf(start) || range.isAtEndOf(start);
   },
 
   /**
@@ -10794,6 +10691,36 @@ var Node = {
   },
 
   /**
+   * Split the block nodes at a `range`, to optional `height`.
+   *
+   * @param {Selection} range
+   * @param {Number} height (optional)
+   * @return {Node}
+   */
+
+  splitBlockAtRange: function splitBlockAtRange(range) {
+    var height = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
+    var startKey = range.startKey,
+        startOffset = range.startOffset;
+
+    var base = this;
+    var node = base.assertDescendant(startKey);
+    var parent = base.getClosestBlock(node.key);
+    var offset = startOffset;
+    var h = 0;
+
+    while (parent && parent.kind == 'block' && h < height) {
+      offset += parent.getOffset(node.key);
+      node = parent;
+      parent = base.getClosestBlock(parent.key);
+      h++;
+    }
+
+    var path = base.getPath(node.key);
+    return this.splitNode(path, offset);
+  },
+
+  /**
    * Split a node by `path` at `offset`.
    *
    * @param {Array} path
@@ -10889,36 +10816,6 @@ var Node = {
   },
 
   /**
-   * Split the block nodes at a `range`, to optional `height`.
-   *
-   * @param {Selection} range
-   * @param {Number} height (optional)
-   * @return {Node}
-   */
-
-  splitBlockAtRange: function splitBlockAtRange(range) {
-    var height = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
-    var startKey = range.startKey,
-        startOffset = range.startOffset;
-
-    var base = this;
-    var node = base.assertDescendant(startKey);
-    var parent = base.getClosestBlock(node.key);
-    var offset = startOffset;
-    var h = 0;
-
-    while (parent && parent.kind == 'block' && h < height) {
-      offset += parent.getOffset(node.key);
-      node = parent;
-      parent = base.getClosestBlock(parent.key);
-      h++;
-    }
-
-    var path = base.getPath(node.key);
-    return this.splitNode(path, offset);
-  },
-
-  /**
    * Set a new value for a child node by `key`.
    *
    * @param {Node} node
@@ -10953,6 +10850,162 @@ var Node = {
 
   validate: function validate(schema) {
     return schema.__validate(this);
+  },
+
+  /**
+   * True if the node has both descendants in that order, false otherwise. The
+   * order is depth-first, post-order.
+   *
+   * @param {String} first
+   * @param {String} second
+   * @return {Boolean}
+   */
+
+  areDescendantSorted: function areDescendantSorted(first, second) {
+    (0, _warn2.default)('The Node.areDescendantSorted(first, second) method is deprecated, please use `Node.areDescendantsSorted(first, second) instead.');
+    return this.areDescendantsSorted(first, second);
+  },
+
+  /**
+   * Concat children `nodes` on to the end of the node.
+   *
+   * @param {List<Node>} nodes
+   * @return {Node}
+   */
+
+  concatChildren: function concatChildren(nodes) {
+    (0, _warn2.default)('The `Node.concatChildren(nodes)` method is deprecated.');
+    nodes = this.nodes.concat(nodes);
+    return this.merge({ nodes: nodes });
+  },
+
+  /**
+   * Decorate all of the text nodes with a `decorator` function.
+   *
+   * @param {Function} decorator
+   * @return {Node}
+   */
+
+  decorateTexts: function decorateTexts(decorator) {
+    (0, _warn2.default)('The `Node.decorateTexts(decorator) method is deprecated.');
+    return this.mapDescendants(function (child) {
+      return child.kind == 'text' ? child.decorateCharacters(decorator) : child;
+    });
+  },
+
+  /**
+   * Recursively filter all descendant nodes with `iterator`, depth-first.
+   * It is different from `filterDescendants` in regard of the order of results.
+   *
+   * @param {Function} iterator
+   * @return {List<Node>}
+   */
+
+  filterDescendantsDeep: function filterDescendantsDeep(iterator) {
+    (0, _warn2.default)('The Node.filterDescendantsDeep(iterator) method is deprecated.');
+    return this.nodes.reduce(function (matches, child, i, nodes) {
+      if (child.kind != 'text') matches = matches.concat(child.filterDescendantsDeep(iterator));
+      if (iterator(child, i, nodes)) matches = matches.push(child);
+      return matches;
+    }, new _immutable.List());
+  },
+
+  /**
+   * Recursively find all descendant nodes by `iterator`. Depth first.
+   *
+   * @param {Function} iterator
+   * @return {Node|Null}
+   */
+
+  findDescendantDeep: function findDescendantDeep(iterator) {
+    (0, _warn2.default)('The Node.findDescendantDeep(iterator) method is deprecated.');
+    var found = void 0;
+
+    this.forEachDescendant(function (node) {
+      if (iterator(node)) {
+        found = node;
+        return false;
+      }
+    });
+
+    return found;
+  },
+
+  /**
+   * Get children between two child keys.
+   *
+   * @param {String} start
+   * @param {String} end
+   * @return {Node}
+   */
+
+  getChildrenBetween: function getChildrenBetween(start, end) {
+    (0, _warn2.default)('The `Node.getChildrenBetween(start, end)` method is deprecated.');
+    start = this.assertChild(start);
+    start = this.nodes.indexOf(start);
+    end = this.assertChild(end);
+    end = this.nodes.indexOf(end);
+    return this.nodes.slice(start + 1, end);
+  },
+
+  /**
+   * Get children between two child keys, including the two children.
+   *
+   * @param {String} start
+   * @param {String} end
+   * @return {Node}
+   */
+
+  getChildrenBetweenIncluding: function getChildrenBetweenIncluding(start, end) {
+    (0, _warn2.default)('The `Node.getChildrenBetweenIncluding(start, end)` method is deprecated.');
+    start = this.assertChild(start);
+    start = this.nodes.indexOf(start);
+    end = this.assertChild(end);
+    end = this.nodes.indexOf(end);
+    return this.nodes.slice(start, end + 1);
+  },
+
+  /**
+   * Get the highest child ancestor of a node by `key`.
+   *
+   * @param {String} key
+   * @return {Node|Null}
+   */
+
+  getHighestChild: function getHighestChild(key) {
+    (0, _warn2.default)('The `Node.getHighestChild(key) method is deprecated, please use `Node.getFurthestAncestor(key) instead.');
+    return this.getFurthestAncestor(key);
+  },
+
+  /**
+   * Get the highest parent of a node by `key` which has an only child.
+   *
+   * @param {String} key
+   * @return {Node|Null}
+   */
+
+  getHighestOnlyChildParent: function getHighestOnlyChildParent(key) {
+    (0, _warn2.default)('The `Node.getHighestOnlyChildParent(key)` method is deprecated, please use `Node.getFurthestOnlyChildAncestor` instead.');
+    return this.getFurthestOnlyChildAncestor(key);
+  },
+
+  /**
+   * Check if the inline nodes are split at a `range`.
+   *
+   * @param {Selection} range
+   * @return {Boolean}
+   */
+
+  isInlineSplitAtRange: function isInlineSplitAtRange(range) {
+    (0, _warn2.default)('The `Node.isInlineSplitAtRange(range)` method is deprecated.');
+    range = range.normalize(this);
+    if (range.isExpanded) throw new Error();
+
+    var _range4 = range,
+        startKey = _range4.startKey;
+
+    var start = this.getFurthestInline(startKey) || this.getDescendant(startKey);
+    return range.isAtStartOf(start) || range.isAtEndOf(start);
   }
 };
 
@@ -10960,7 +11013,7 @@ var Node = {
  * Memoize read methods.
  */
 
-(0, _memoize2.default)(Node, ['getText', 'getAncestors', 'getBlocks', 'getBlocksAtRange', 'getCharactersAtRange', 'getChild', 'getClosestBlock', 'getClosestInline', 'getComponent', 'getDecorators', 'getDepth', '_getDescendant', 'getDescendantAtPath', 'getDescendantDecorators', 'getFirstText', 'getFragmentAtRange', 'getFurthestBlock', 'getFurthestInline', 'getHighestChild', 'getHighestOnlyChildParent', 'getInlinesAtRange', 'getLastText', 'getMarksAtRange', 'getNextBlock', 'getNextSibling', 'getNextText', 'getNode', 'getOffset', 'getOffsetAtRange', 'getParent', 'getPreviousBlock', 'getPreviousSibling', 'getPreviousText', 'getTextAtOffset', 'getTextDirection', '_getTexts', 'getTextsAtRange', 'hasVoidParent', 'isInlineSplitAtRange', 'validate']);
+(0, _memoize2.default)(Node, ['areDescendantsSorted', 'getAncestors', 'getBlocks', 'getBlocksAtRange', 'getCharacters', 'getCharactersAtRange', 'getChild', 'getChildrenBetween', 'getChildrenBetweenIncluding', 'getClosestBlock', 'getClosestInline', 'getClosestVoid', 'getCommonAncestor', 'getComponent', 'getDecorators', 'getDepth', 'getDescendant', 'getDescendant', 'getDescendantAtPath', 'getDescendantDecorators', 'getFirstText', 'getFragmentAtRange', 'getFurthestBlock', 'getFurthestInline', 'getFurthestAncestor', 'getFurthestOnlyChildAncestor', 'getInlines', 'getInlinesAtRange', 'getKeys', 'getLastText', 'getMarks', 'getMarksAtRange', 'getNextBlock', 'getNextSibling', 'getNextText', 'getNode', 'getOffset', 'getOffsetAtRange', 'getParent', 'getPath', 'getPreviousBlock', 'getPreviousSibling', 'getPreviousText', 'getText', 'getTextAtOffset', 'getTextDirection', 'getTexts', 'getTextsAtRange', 'hasChild', 'hasDescendant', 'hasNode', 'hasVoidParent', 'isInlineSplitAtRange', 'validate']);
 
 /**
  * Export.
@@ -10970,7 +11023,7 @@ var Node = {
 
 exports.default = Node;
 
-},{"../utils/generate-key":78,"../utils/is-in-range":80,"../utils/memoize":82,"../utils/normalize":85,"./block":47,"./character":48,"./document":50,"./mark":52,"direction":123,"immutable":1215}],54:[function(require,module,exports){
+},{"../utils/generate-key":78,"../utils/is-in-range":80,"../utils/memoize":82,"../utils/normalize":85,"../utils/warn":89,"./document":50,"direction":123,"immutable":1215}],54:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -12058,7 +12111,7 @@ var Selection = function (_ref) {
         if (anchorNode.key === focusNode.key) {
           isBackward = anchorOffset > focusOffset;
         } else {
-          isBackward = !node.areDescendantSorted(anchorNode.key, focusNode.key);
+          isBackward = !node.areDescendantsSorted(anchorNode.key, focusNode.key);
         }
       }
 
@@ -14079,7 +14132,7 @@ var Text = function (_ref) {
  * Memoize read methods.
  */
 
-(0, _memoize2.default)(Text.prototype, ['getDecorations', 'getDecorators', 'getRanges', 'validate']);
+(0, _memoize2.default)(Text.prototype, ['getDecorations', 'getDecorators', 'getMarksAtIndex', 'getRanges', 'validate']);
 
 /**
  * Export.
@@ -18248,8 +18301,8 @@ Transforms.deleteAtRange = function (transform, range) {
       document = _state.document;
 
   var ancestor = document.getCommonAncestor(startKey, endKey);
-  var startChild = ancestor.getHighestChild(startKey);
-  var endChild = ancestor.getHighestChild(endKey);
+  var startChild = ancestor.getFurthestAncestor(startKey);
+  var endChild = ancestor.getFurthestAncestor(endKey);
   var startOff = (startChild.kind == 'text' ? 0 : startChild.getOffset(startKey)) + startOffset;
   var endOff = (endChild.kind == 'text' ? 0 : endChild.getOffset(endKey)) + endOffset;
 
@@ -18260,8 +18313,8 @@ Transforms.deleteAtRange = function (transform, range) {
   state = transform.state;
   document = state.document;
   ancestor = document.getCommonAncestor(startKey, endKey);
-  startChild = ancestor.getHighestChild(startKey);
-  endChild = ancestor.getHighestChild(endKey);
+  startChild = ancestor.getFurthestAncestor(startKey);
+  endChild = ancestor.getFurthestAncestor(endKey);
   var startIndex = ancestor.nodes.indexOf(startChild);
   var endIndex = ancestor.nodes.indexOf(endChild);
   var middles = ancestor.nodes.slice(startIndex + 1, endIndex + 1);
@@ -18286,7 +18339,7 @@ Transforms.deleteAtRange = function (transform, range) {
     });
 
     // Remove parents of endBlock as long as they have a single child
-    var lonely = document.getHighestOnlyChildParent(endBlock.key) || endBlock;
+    var lonely = document.getFurthestOnlyChildAncestor(endBlock.key) || endBlock;
     transform.removeNodeByKey(lonely.key, OPTS);
   }
 
@@ -18479,9 +18532,7 @@ Transforms.deleteBackwardAtRange = function (transform, range) {
 
   // If the focus node is inside a void, go up until right after it.
   if (document.hasVoidParent(node.key)) {
-    var parent = document.getClosest(node.key, function (p) {
-      return p.isVoid;
-    });
+    var parent = document.getClosestVoid(node.key);
     node = document.getNextText(parent.key);
     offset = 0;
   }
@@ -18679,9 +18730,7 @@ Transforms.deleteForwardAtRange = function (transform, range) {
 
   // If the focus node is inside a void, go up until right before it.
   if (document.hasVoidParent(node.key)) {
-    var parent = document.getClosest(node.key, function (p) {
-      return p.isVoid;
-    });
+    var parent = document.getClosestVoid(node.key);
     node = document.getPreviousText(parent.key);
     offset = node.length;
   }
@@ -18790,7 +18839,7 @@ Transforms.insertFragmentAtRange = function (transform, range, fragment) {
 
   var startText = document.getDescendant(startKey);
   var startBlock = document.getClosestBlock(startText.key);
-  var startChild = startBlock.getHighestChild(startText.key);
+  var startChild = startBlock.getFurthestAncestor(startText.key);
   var isAtStart = range.isAtStartOf(startBlock);
   var parent = document.getParent(startBlock.key);
   var index = parent.nodes.indexOf(startBlock);
@@ -18826,7 +18875,7 @@ Transforms.insertFragmentAtRange = function (transform, range, fragment) {
   document = state.document;
   startText = document.getDescendant(startKey);
   startBlock = document.getClosestBlock(startKey);
-  startChild = startBlock.getHighestChild(startText.key);
+  startChild = startBlock.getFurthestAncestor(startText.key);
 
   // If the first and last block aren't the same, we need to move any of the
   // starting block's children after the split into the last block of the
@@ -18854,7 +18903,7 @@ Transforms.insertFragmentAtRange = function (transform, range, fragment) {
   // Otherwise, we maintain the starting block, and insert all of the first
   // block's inline nodes into it at the split point.
   else {
-      var inlineChild = startBlock.getHighestChild(startText.key);
+      var inlineChild = startBlock.getFurthestAncestor(startText.key);
       var inlineIndex = startBlock.nodes.indexOf(inlineChild);
 
       firstBlock.nodes.forEach(function (inline, i) {
@@ -19410,8 +19459,8 @@ Transforms.wrapInlineAtRange = function (transform, range, inline) {
   var blocks = document.getBlocksAtRange(range);
   var startBlock = document.getClosestBlock(startKey);
   var endBlock = document.getClosestBlock(endKey);
-  var startChild = startBlock.getHighestChild(startKey);
-  var endChild = endBlock.getHighestChild(endKey);
+  var startChild = startBlock.getFurthestAncestor(startKey);
+  var endChild = endBlock.getFurthestAncestor(endKey);
   var startIndex = startBlock.nodes.indexOf(startChild);
   var endIndex = endBlock.nodes.indexOf(endChild);
 
@@ -19431,13 +19480,13 @@ Transforms.wrapInlineAtRange = function (transform, range, inline) {
     state = transform.state;
     document = state.document;
     startBlock = document.getClosestBlock(startKey);
-    startChild = startBlock.getHighestChild(startKey);
+    startChild = startBlock.getFurthestAncestor(startKey);
 
     var startInner = startOff == 0 ? startChild : document.getNextSibling(startChild.key);
 
     var startInnerIndex = startBlock.nodes.indexOf(startInner);
 
-    var endInner = startKey == endKey ? startInner : startBlock.getHighestChild(endKey);
+    var endInner = startKey == endKey ? startInner : startBlock.getFurthestAncestor(endKey);
     var inlines = startBlock.nodes.skipUntil(function (n) {
       return n == startInner;
     }).takeUntil(function (n) {
