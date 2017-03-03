@@ -6370,10 +6370,6 @@ var _extends = Object.assign || function (target) {
   }return target;
 };
 
-var _content = require('./content');
-
-var _content2 = _interopRequireDefault(_content);
-
 var _debug = require('debug');
 
 var _debug2 = _interopRequireDefault(_debug);
@@ -6449,14 +6445,6 @@ var EVENT_HANDLERS = ['onBeforeInput', 'onBlur', 'onCopy', 'onCut', 'onDrop', 'o
  */
 
 var PLUGINS_PROPS = [].concat(EVENT_HANDLERS, ['placeholder', 'placeholderClassName', 'placeholderStyle', 'plugins', 'schema']);
-
-/**
- * Pass-through properties of the editor.
- *
- * @type {Array}
- */
-
-var PASS_THROUGH_PROPS = ['autoCorrect', 'autoFocus', 'className', 'readOnly', 'role', 'spellCheck', 'style', 'tabIndex'];
 
 /**
  * Editor.
@@ -6731,70 +6719,14 @@ var _initialiseProps = function _initialiseProps() {
         state = _this2.state;
     var stack = state.stack;
 
-    var handlers = {};
-    var passes = {};
-    var children = stack.render(state.state, _this2);
-
-    var _iteratorNormalCompletion4 = true;
-    var _didIteratorError4 = false;
-    var _iteratorError4 = undefined;
-
-    try {
-      for (var _iterator4 = EVENT_HANDLERS[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-        var property = _step4.value;
-
-        handlers[property] = _this2[property];
-      }
-    } catch (err) {
-      _didIteratorError4 = true;
-      _iteratorError4 = err;
-    } finally {
-      try {
-        if (!_iteratorNormalCompletion4 && _iterator4.return) {
-          _iterator4.return();
-        }
-      } finally {
-        if (_didIteratorError4) {
-          throw _iteratorError4;
-        }
-      }
-    }
-
-    var _iteratorNormalCompletion5 = true;
-    var _didIteratorError5 = false;
-    var _iteratorError5 = undefined;
-
-    try {
-      for (var _iterator5 = PASS_THROUGH_PROPS[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
-        var _property = _step5.value;
-
-        passes[_property] = _this2.props[_property];
-      }
-    } catch (err) {
-      _didIteratorError5 = true;
-      _iteratorError5 = err;
-    } finally {
-      try {
-        if (!_iteratorNormalCompletion5 && _iterator5.return) {
-          _iterator5.return();
-        }
-      } finally {
-        if (_didIteratorError5) {
-          throw _iteratorError5;
-        }
-      }
-    }
+    var children = stack.renderPortal(state.state, _this2).map(function (child, i) {
+      return _react2.default.createElement(_reactPortal2.default, { key: i, isOpened: true }, child);
+    });
 
     debug('render', { props: props, state: state });
 
-    return _react2.default.createElement(_content2.default, _extends({}, handlers, passes, {
-      editor: _this2,
-      onChange: _this2.onChange,
-      schema: _this2.getSchema(),
-      state: _this2.getState()
-    }), children.map(function (child, i) {
-      return _react2.default.createElement(_reactPortal2.default, { key: i, isOpened: true }, child);
-    }));
+    var tree = stack.render(state.state, _this2, _extends({}, props, { children: children }));
+    return tree;
   };
 };
 
@@ -6831,7 +6763,7 @@ try {
 
 exports.default = Editor;
 
-},{"../models/stack":57,"../models/state":58,"../utils/noop":83,"./content":37,"debug":118,"react":1446,"react-portal":1383}],39:[function(require,module,exports){
+},{"../models/stack":57,"../models/state":58,"../utils/noop":83,"debug":118,"react":1446,"react-portal":1383}],39:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -12644,14 +12576,6 @@ var EVENT_HANDLER_METHODS = ['onBeforeInput', 'onBlur', 'onCopy', 'onCut', 'onDr
 var STATE_ACCUMULATOR_METHODS = ['onBeforeChange', 'onChange'];
 
 /**
- * Methods that accumulate an array.
- *
- * @type {Array}
- */
-
-var ARRAY_ACCUMULATOR_METHODS = ['render'];
-
-/**
  * Default properties.
  *
  * @type {Object}
@@ -12672,9 +12596,83 @@ var Stack = function (_ref) {
   _inherits(Stack, _ref);
 
   function Stack() {
+    var _ref2;
+
+    var _temp, _this, _ret;
+
     _classCallCheck(this, Stack);
 
-    return _possibleConstructorReturn(this, (Stack.__proto__ || Object.getPrototypeOf(Stack)).apply(this, arguments));
+    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref2 = Stack.__proto__ || Object.getPrototypeOf(Stack)).call.apply(_ref2, [this].concat(args))), _this), _this.render = function (state, editor, props) {
+      debug('render');
+      var plugins = _this.plugins.slice().reverse();
+      var children = void 0;
+
+      var _iteratorNormalCompletion = true;
+      var _didIteratorError = false;
+      var _iteratorError = undefined;
+
+      try {
+        for (var _iterator = plugins[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+          var plugin = _step.value;
+
+          if (!plugin.render) continue;
+          children = plugin.render(props, state, editor);
+          props.children = children;
+        }
+      } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion && _iterator.return) {
+            _iterator.return();
+          }
+        } finally {
+          if (_didIteratorError) {
+            throw _iteratorError;
+          }
+        }
+      }
+
+      return children;
+    }, _this.renderPortal = function (state, editor) {
+      debug('renderPortal');
+      var portals = [];
+
+      var _iteratorNormalCompletion2 = true;
+      var _didIteratorError2 = false;
+      var _iteratorError2 = undefined;
+
+      try {
+        for (var _iterator2 = _this.plugins[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+          var plugin = _step2.value;
+
+          if (!plugin.renderPortal) continue;
+          var portal = plugin.renderPortal(state, editor);
+          if (portal == null) continue;
+          portals.push(portal);
+        }
+      } catch (err) {
+        _didIteratorError2 = true;
+        _iteratorError2 = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion2 && _iterator2.return) {
+            _iterator2.return();
+          }
+        } finally {
+          if (_didIteratorError2) {
+            throw _iteratorError2;
+          }
+        }
+      }
+
+      return portals;
+    }, _temp), _possibleConstructorReturn(_this, _ret);
   }
 
   _createClass(Stack, [{
@@ -12689,6 +12687,26 @@ var Stack = function (_ref) {
     get: function get() {
       return 'stack';
     }
+
+    /**
+     * Invoke `render` on all of the plugins in reverse, building up a tree of
+     * higher-order components.
+     *
+     * @param {State} state
+     * @param {Editor} editor
+     * @param {Object} children
+     * @param {Object} props
+     * @return {Component}
+     */
+
+    /**
+     * Invoke `renderPortal` on all of the plugins, building a list of portals.
+     *
+     * @param {State} state
+     * @param {Editor} editor
+     * @return {Array}
+     */
+
   }], [{
     key: 'create',
 
@@ -12720,13 +12738,13 @@ var Stack = function (_ref) {
  * @return {State|Null}
  */
 
-var _iteratorNormalCompletion = true;
-var _didIteratorError = false;
-var _iteratorError = undefined;
+var _iteratorNormalCompletion3 = true;
+var _didIteratorError3 = false;
+var _iteratorError3 = undefined;
 
 try {
   var _loop = function _loop() {
-    var method = _step.value;
+    var method = _step3.value;
 
     Stack.prototype[method] = function (state, editor) {
       debug(method);
@@ -12734,81 +12752,6 @@ try {
       if (method == 'onChange') {
         state = this.onBeforeChange(state, editor);
       }
-
-      for (var _len = arguments.length, args = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
-        args[_key - 2] = arguments[_key];
-      }
-
-      var _iteratorNormalCompletion5 = true;
-      var _didIteratorError5 = false;
-      var _iteratorError5 = undefined;
-
-      try {
-        for (var _iterator5 = this.plugins[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
-          var plugin = _step5.value;
-
-          if (!plugin[method]) continue;
-          var next = plugin[method].apply(plugin, args.concat([state, editor]));
-          if (next == null) continue;
-          assertState(next);
-          return next;
-        }
-      } catch (err) {
-        _didIteratorError5 = true;
-        _iteratorError5 = err;
-      } finally {
-        try {
-          if (!_iteratorNormalCompletion5 && _iterator5.return) {
-            _iterator5.return();
-          }
-        } finally {
-          if (_didIteratorError5) {
-            throw _iteratorError5;
-          }
-        }
-      }
-
-      return state;
-    };
-  };
-
-  for (var _iterator = EVENT_HANDLER_METHODS[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-    _loop();
-  }
-
-  /**
-   * Mix in the state accumulator methods.
-   *
-   * @param {State} state
-   * @param {Editor} editor
-   * @param {Mixed} ...args
-   * @return {State|Null}
-   */
-} catch (err) {
-  _didIteratorError = true;
-  _iteratorError = err;
-} finally {
-  try {
-    if (!_iteratorNormalCompletion && _iterator.return) {
-      _iterator.return();
-    }
-  } finally {
-    if (_didIteratorError) {
-      throw _iteratorError;
-    }
-  }
-}
-
-var _iteratorNormalCompletion2 = true;
-var _didIteratorError2 = false;
-var _iteratorError2 = undefined;
-
-try {
-  var _loop2 = function _loop2() {
-    var method = _step2.value;
-
-    Stack.prototype[method] = function (state, editor) {
-      debug(method);
 
       for (var _len2 = arguments.length, args = Array(_len2 > 2 ? _len2 - 2 : 0), _key2 = 2; _key2 < _len2; _key2++) {
         args[_key2 - 2] = arguments[_key2];
@@ -12826,7 +12769,7 @@ try {
           var next = plugin[method].apply(plugin, args.concat([state, editor]));
           if (next == null) continue;
           assertState(next);
-          state = next;
+          return next;
         }
       } catch (err) {
         _didIteratorError6 = true;
@@ -12847,44 +12790,43 @@ try {
     };
   };
 
-  for (var _iterator2 = STATE_ACCUMULATOR_METHODS[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-    _loop2();
+  for (var _iterator3 = EVENT_HANDLER_METHODS[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+    _loop();
   }
 
   /**
-   * Mix in the array accumulator methods.
+   * Mix in the state accumulator methods.
    *
    * @param {State} state
    * @param {Editor} editor
    * @param {Mixed} ...args
-   * @return {Array}
+   * @return {State|Null}
    */
 } catch (err) {
-  _didIteratorError2 = true;
-  _iteratorError2 = err;
+  _didIteratorError3 = true;
+  _iteratorError3 = err;
 } finally {
   try {
-    if (!_iteratorNormalCompletion2 && _iterator2.return) {
-      _iterator2.return();
+    if (!_iteratorNormalCompletion3 && _iterator3.return) {
+      _iterator3.return();
     }
   } finally {
-    if (_didIteratorError2) {
-      throw _iteratorError2;
+    if (_didIteratorError3) {
+      throw _iteratorError3;
     }
   }
 }
 
-var _iteratorNormalCompletion3 = true;
-var _didIteratorError3 = false;
-var _iteratorError3 = undefined;
+var _iteratorNormalCompletion4 = true;
+var _didIteratorError4 = false;
+var _iteratorError4 = undefined;
 
 try {
-  var _loop3 = function _loop3() {
-    var method = _step3.value;
+  var _loop2 = function _loop2() {
+    var method = _step4.value;
 
     Stack.prototype[method] = function (state, editor) {
       debug(method);
-      var array = [];
 
       for (var _len3 = arguments.length, args = Array(_len3 > 2 ? _len3 - 2 : 0), _key3 = 2; _key3 < _len3; _key3++) {
         args[_key3 - 2] = arguments[_key3];
@@ -12901,7 +12843,8 @@ try {
           if (!plugin[method]) continue;
           var next = plugin[method].apply(plugin, args.concat([state, editor]));
           if (next == null) continue;
-          array.push(next);
+          assertState(next);
+          state = next;
         }
       } catch (err) {
         _didIteratorError7 = true;
@@ -12918,12 +12861,12 @@ try {
         }
       }
 
-      return array;
+      return state;
     };
   };
 
-  for (var _iterator3 = ARRAY_ACCUMULATOR_METHODS[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-    _loop3();
+  for (var _iterator4 = STATE_ACCUMULATOR_METHODS[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+    _loop2();
   }
 
   /**
@@ -12932,16 +12875,16 @@ try {
    * @param {Mixed} value
    */
 } catch (err) {
-  _didIteratorError3 = true;
-  _iteratorError3 = err;
+  _didIteratorError4 = true;
+  _iteratorError4 = err;
 } finally {
   try {
-    if (!_iteratorNormalCompletion3 && _iterator3.return) {
-      _iterator3.return();
+    if (!_iteratorNormalCompletion4 && _iterator4.return) {
+      _iterator4.return();
     }
   } finally {
-    if (_didIteratorError3) {
-      throw _iteratorError3;
+    if (_didIteratorError4) {
+      throw _iteratorError4;
     }
   }
 }
@@ -12961,29 +12904,29 @@ function assertState(value) {
 function resolveSchema(plugins) {
   var rules = [];
 
-  var _iteratorNormalCompletion4 = true;
-  var _didIteratorError4 = false;
-  var _iteratorError4 = undefined;
+  var _iteratorNormalCompletion5 = true;
+  var _didIteratorError5 = false;
+  var _iteratorError5 = undefined;
 
   try {
-    for (var _iterator4 = plugins[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-      var plugin = _step4.value;
+    for (var _iterator5 = plugins[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+      var plugin = _step5.value;
 
       if (plugin.schema == null) continue;
       var _schema = _schema3.default.create(plugin.schema);
       rules = rules.concat(_schema.rules);
     }
   } catch (err) {
-    _didIteratorError4 = true;
-    _iteratorError4 = err;
+    _didIteratorError5 = true;
+    _iteratorError5 = err;
   } finally {
     try {
-      if (!_iteratorNormalCompletion4 && _iterator4.return) {
-        _iterator4.return();
+      if (!_iteratorNormalCompletion5 && _iterator5.return) {
+        _iterator5.return();
       }
     } finally {
-      if (_didIteratorError4) {
-        throw _iteratorError4;
+      if (_didIteratorError5) {
+        throw _iteratorError5;
       }
     }
   }
@@ -14406,6 +14349,10 @@ var _base = require('../serializers/base-64');
 
 var _base2 = _interopRequireDefault(_base);
 
+var _content = require('../components/content');
+
+var _content2 = _interopRequireDefault(_content);
+
 var _character = require('../models/character');
 
 var _character2 = _interopRequireDefault(_character);
@@ -15189,6 +15136,41 @@ function Plugin() {
   }
 
   /**
+   * Render.
+   *
+   * @param {Object} props
+   * @param {State} state
+   * @param {Editor} editor
+   * @return {Object}
+   */
+
+  function render(props, state, editor) {
+    return _react2.default.createElement(_content2.default, {
+      autoCorrect: props.autoCorrect,
+      autoFocus: props.autoFocus,
+      className: props.className,
+      children: props.children,
+      editor: editor,
+      onBeforeInput: editor.onBeforeInput,
+      onBlur: editor.onBlur,
+      onChange: editor.onChange,
+      onCopy: editor.onCopy,
+      onCut: editor.onCut,
+      onDrop: editor.onDrop,
+      onKeyDown: editor.onKeyDown,
+      onPaste: editor.onPaste,
+      onSelect: editor.onSelect,
+      readOnly: props.readOnly,
+      role: props.role,
+      schema: editor.getSchema(),
+      spellCheck: props.spellCheck,
+      state: state,
+      style: props.style,
+      tabIndex: props.tabIndex
+    });
+  }
+
+  /**
    * A default schema rule to render block nodes.
    *
    * @type {Object}
@@ -15250,6 +15232,7 @@ function Plugin() {
     onKeyDown: onKeyDown,
     onPaste: onPaste,
     onSelect: onSelect,
+    render: render,
     schema: schema
   };
 }
@@ -15262,7 +15245,7 @@ function Plugin() {
 
 exports.default = Plugin;
 
-},{"../components/placeholder":41,"../constants/environment":43,"../models/character":48,"../serializers/base-64":63,"debug":118,"get-window":1185,"react":1446}],62:[function(require,module,exports){
+},{"../components/content":37,"../components/placeholder":41,"../constants/environment":43,"../models/character":48,"../serializers/base-64":63,"debug":118,"get-window":1185,"react":1446}],62:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
