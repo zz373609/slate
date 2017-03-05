@@ -19343,7 +19343,7 @@ Transforms.unwrapInlineAtRange = function (transform, range, properties) {
   }).toOrderedSet().toList();
 
   inlines.forEach(function (inline) {
-    var parent = document.getParent(inline.key);
+    var parent = transform.state.document.getParent(inline.key);
     var index = parent.nodes.indexOf(inline);
 
     inline.nodes.forEach(function (child, i) {
