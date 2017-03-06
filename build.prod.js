@@ -13589,11 +13589,14 @@ var State = function (_ref) {
      * Create a new `State` with `properties`.
      *
      * @param {Object|State} properties
+     * @param {Object} options
+     *   @property {Boolean} normalize
      * @return {State}
      */
 
     value: function create() {
       var properties = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
       if (properties instanceof State) return properties;
 
@@ -13607,7 +13610,7 @@ var State = function (_ref) {
 
       var state = new State({ document: document, selection: selection });
 
-      return state.transform().normalize(_core2.default).apply({ save: false });
+      return options.normalize === false ? state : state.transform().normalize(_core2.default).apply({ save: false });
     }
   }]);
 
@@ -16569,7 +16572,7 @@ var Raw = {
       selection = Raw.deserializeSelection(object.selection, options);
     }
 
-    return _state2.default.create({ document: document, selection: selection });
+    return _state2.default.create({ document: document, selection: selection }, options);
   },
 
   /**
