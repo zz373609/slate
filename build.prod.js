@@ -5673,6 +5673,12 @@ var Content = function (_React$Component) {
      */
 
     /**
+     * On focus, update the selection to be focused.
+     *
+     * @param {Event} event
+     */
+
+    /**
      * On change, bubble up.
      *
      * @param {State} state
@@ -5796,6 +5802,7 @@ Content.propTypes = {
   onCopy: _react2.default.PropTypes.func.isRequired,
   onCut: _react2.default.PropTypes.func.isRequired,
   onDrop: _react2.default.PropTypes.func.isRequired,
+  onFocus: _react2.default.PropTypes.func.isRequired,
   onKeyDown: _react2.default.PropTypes.func.isRequired,
   onPaste: _react2.default.PropTypes.func.isRequired,
   onSelect: _react2.default.PropTypes.func.isRequired,
@@ -5874,6 +5881,17 @@ var _initialiseProps = function _initialiseProps() {
 
     debug('onBlur', { event: event, data: data });
     _this2.props.onBlur(event, data);
+  };
+
+  this.onFocus = function (event) {
+    if (_this2.props.readOnly) return;
+    if (_this2.tmp.isCopying) return;
+    if (!_this2.isInContentEditable(event)) return;
+
+    var data = {};
+
+    debug('onFocus', { event: event, data: data });
+    _this2.props.onFocus(event, data);
   };
 
   this.onChange = function (state) {
@@ -6316,6 +6334,7 @@ var _initialiseProps = function _initialiseProps() {
       className: className,
       onBeforeInput: _this2.onBeforeInput,
       onBlur: _this2.onBlur,
+      onFocus: _this2.onFocus,
       onCompositionEnd: _this2.onCompositionEnd,
       onCompositionStart: _this2.onCompositionStart,
       onCopy: _this2.onCopy,
@@ -6443,7 +6462,7 @@ var debug = (0, _debug2.default)('slate:editor');
  * @type {Array}
  */
 
-var EVENT_HANDLERS = ['onBeforeInput', 'onBlur', 'onCopy', 'onCut', 'onDrop', 'onKeyDown', 'onPaste', 'onSelect'];
+var EVENT_HANDLERS = ['onBeforeInput', 'onBlur', 'onFocus', 'onCopy', 'onCut', 'onDrop', 'onKeyDown', 'onPaste', 'onSelect'];
 
 /**
  * Plugin-related properties of the editor.
@@ -9978,7 +9997,10 @@ var Node = {
     var startNode = node.getNextSibling(node.getFurthestAncestor(startKey).key);
     var endNode = startKey == endKey ? node.getFurthestAncestor(next.key) : node.getFurthestAncestor(endKey);
 
-    nodes = node.getChildrenBetweenIncluding(startNode.key, endNode.key);
+    // Get children range of nodes from start to end nodes
+    var startIndex = node.nodes.indexOf(startNode);
+    var endIndex = node.nodes.indexOf(endNode);
+    nodes = node.nodes.slice(startIndex, endIndex + 1);
 
     // Return a new document fragment.
     return _document2.default.create({ nodes: nodes });
@@ -12632,7 +12654,7 @@ var debug = (0, _debug2.default)('slate:stack');
  * @type {Array}
  */
 
-var EVENT_HANDLER_METHODS = ['onBeforeInput', 'onBlur', 'onCopy', 'onCut', 'onDrop', 'onKeyDown', 'onPaste', 'onSelect'];
+var EVENT_HANDLER_METHODS = ['onBeforeInput', 'onBlur', 'onFocus', 'onCopy', 'onCut', 'onDrop', 'onKeyDown', 'onPaste', 'onSelect'];
 
 /**
  * Methods that accumulate an updated state.
@@ -14599,6 +14621,23 @@ function Plugin() {
   }
 
   /**
+   * On focus.
+   *
+   * @param {Event} e
+   * @param {Object} data
+   * @param {State} state
+   * @return {State}
+   */
+
+  function onFocus(e, data, state) {
+    var isNative = true;
+
+    debug('onFocus', { data: data, isNative: isNative });
+
+    return state.transform().focus().apply({ isNative: isNative });
+  }
+
+  /**
    * On copy.
    *
    * @param {Event} e
@@ -15223,6 +15262,7 @@ function Plugin() {
       editor: editor,
       onBeforeInput: editor.onBeforeInput,
       onBlur: editor.onBlur,
+      onFocus: editor.onFocus,
       onChange: editor.onChange,
       onCopy: editor.onCopy,
       onCut: editor.onCut,
@@ -15296,6 +15336,7 @@ function Plugin() {
     onBeforeChange: onBeforeChange,
     onBeforeInput: onBeforeInput,
     onBlur: onBlur,
+    onFocus: onFocus,
     onCopy: onCopy,
     onCut: onCut,
     onDrop: onDrop,
@@ -21554,17 +21595,13 @@ function getTransferData(transfer) {
 
   // Get and normalize files if they exist.
   if (transfer.items && transfer.items.length) {
-    var fileItems = Array.from(transfer.items).map(function (item) {
+    files = Array.from(transfer.items).map(function (item) {
       return item.kind == 'file' ? item.getAsFile() : null;
     }).filter(function (exists) {
       return exists;
     });
-
-    if (fileItems.length) files = fileItems;
-  }
-
-  if (transfer.files && transfer.files.length) {
-    files = Array.from(files);
+  } else if (transfer.files && transfer.files.length) {
+    files = Array.from(transfer.files);
   }
 
   // Determine the type of the data.
@@ -22568,15 +22605,15 @@ function scrollToSelection(selection) {
   var rect = range.getBoundingClientRect();
   var innerWidth = window.innerWidth,
       innerHeight = window.innerHeight,
-      scrollY = window.scrollY,
-      scrollX = window.scrollX;
+      pageYOffset = window.pageYOffset,
+      pageXOffset = window.pageXOffset;
 
-  var top = (backward ? rect.top : rect.bottom) + scrollY;
-  var left = (backward ? rect.left : rect.right) + scrollX;
+  var top = (backward ? rect.top : rect.bottom) + pageYOffset;
+  var left = (backward ? rect.left : rect.right) + pageXOffset;
 
-  var x = left < scrollX || innerWidth + scrollX < left ? left - innerWidth / 2 : scrollX;
+  var x = left < pageXOffset || innerWidth + pageXOffset < left ? left - innerWidth / 2 : pageXOffset;
 
-  var y = top < scrollY || innerHeight + scrollY < top ? top - innerHeight / 2 : scrollY;
+  var y = top < pageYOffset || innerHeight + pageYOffset < top ? top - innerHeight / 2 : pageYOffset;
 
   window.scrollTo(x, y);
 }
@@ -28541,37 +28578,38 @@ function addToken(subselects, tokens){
 },{}],116:[function(require,module,exports){
 'use strict';
 
-var copy       = require('es5-ext/object/copy')
-  , map        = require('es5-ext/object/map')
-  , callable   = require('es5-ext/object/valid-callable')
-  , validValue = require('es5-ext/object/valid-value')
+var copy             = require('es5-ext/object/copy')
+  , normalizeOptions = require('es5-ext/object/normalize-options')
+  , ensureCallable   = require('es5-ext/object/valid-callable')
+  , map              = require('es5-ext/object/map')
+  , callable         = require('es5-ext/object/valid-callable')
+  , validValue       = require('es5-ext/object/valid-value')
 
   , bind = Function.prototype.bind, defineProperty = Object.defineProperty
   , hasOwnProperty = Object.prototype.hasOwnProperty
   , define;
 
-define = function (name, desc, bindTo) {
+define = function (name, desc, options) {
 	var value = validValue(desc) && callable(desc.value), dgs;
 	dgs = copy(desc);
 	delete dgs.writable;
 	delete dgs.value;
 	dgs.get = function () {
-		if (hasOwnProperty.call(this, name)) return value;
-		desc.value = bind.call(value, (bindTo == null) ? this : this[bindTo]);
+		if (!options.overwriteDefinition && hasOwnProperty.call(this, name)) return value;
+		desc.value = bind.call(value, options.resolveContext ? options.resolveContext(this) : this);
 		defineProperty(this, name, desc);
 		return this[name];
 	};
 	return dgs;
 };
 
-module.exports = function (props/*, bindTo*/) {
-	var bindTo = arguments[1];
-	return map(props, function (desc, name) {
-		return define(name, desc, bindTo);
-	});
+module.exports = function (props/*, options*/) {
+	var options = normalizeOptions(arguments[1]);
+	if (options.resolveContext != null) ensureCallable(options.resolveContext);
+	return map(props, function (desc, name) { return define(name, desc, options); });
 };
 
-},{"es5-ext/object/copy":157,"es5-ext/object/map":165,"es5-ext/object/valid-callable":171,"es5-ext/object/valid-value":172}],117:[function(require,module,exports){
+},{"es5-ext/object/copy":157,"es5-ext/object/map":165,"es5-ext/object/normalize-options":166,"es5-ext/object/valid-callable":171,"es5-ext/object/valid-value":172}],117:[function(require,module,exports){
 'use strict';
 
 var assign        = require('es5-ext/object/assign')
@@ -28788,14 +28826,17 @@ function save(namespaces) {
  */
 
 function load() {
+  var r;
   try {
-    return exports.storage.debug;
+    r = exports.storage.debug;
   } catch(e) {}
 
   // If debug isn't set in LS, and we're in Electron, try to load $DEBUG
-  if (typeof process !== 'undefined' && 'env' in process) {
-    return process.env.DEBUG;
+  if (!r && typeof process !== 'undefined' && 'env' in process) {
+    r = process.env.DEBUG;
   }
+
+  return r;
 }
 
 /**
@@ -30625,7 +30666,7 @@ module.exports = function (obj) { return typeof obj === 'function'; };
 },{}],161:[function(require,module,exports){
 'use strict';
 
-var map = { function: true, object: true };
+var map = { 'function': true, object: true };
 
 module.exports = function (x) {
 	return ((x != null) && map[typeof x]) || false;
@@ -31346,7 +31387,7 @@ module.exports = function (x) {
 };
 
 },{}],193:[function(require,module,exports){
-// ES2015 Symbol polyfill for environments that do not support it (or partially support it)
+// ES2015 Symbol polyfill for environments that do not (or partially) support it
 
 'use strict';
 
@@ -31391,7 +31432,7 @@ var generateName = (function () {
 // Internal constructor (not one exposed) for creating Symbol instances.
 // This one is used to ensure that `someSymbol instanceof Symbol` always return false
 HiddenSymbol = function Symbol(description) {
-	if (this instanceof HiddenSymbol) throw new TypeError('TypeError: Symbol is not a constructor');
+	if (this instanceof HiddenSymbol) throw new TypeError('Symbol is not a constructor');
 	return SymbolPolyfill(description);
 };
 
@@ -31399,7 +31440,7 @@ HiddenSymbol = function Symbol(description) {
 // (returns instances of HiddenSymbol)
 module.exports = SymbolPolyfill = function Symbol(description) {
 	var symbol;
-	if (this instanceof Symbol) throw new TypeError('TypeError: Symbol is not a constructor');
+	if (this instanceof Symbol) throw new TypeError('Symbol is not a constructor');
 	if (isNativeSafe) return NativeSymbol(description);
 	symbol = create(HiddenSymbol.prototype);
 	description = (description === undefined ? '' : String(description));
@@ -31419,8 +31460,8 @@ defineProperties(SymbolPolyfill, {
 		for (key in globalSymbols) if (globalSymbols[key] === s) return key;
 	}),
 
-	// If there's native implementation of given symbol, let's fallback to it
-	// to ensure proper interoperability with other native functions e.g. Array.from
+	// To ensure proper interoperability with other native functions (e.g. Array.from)
+	// fallback to eventual native implementation of given symbol
 	hasInstance: d('', (NativeSymbol && NativeSymbol.hasInstance) || SymbolPolyfill('hasInstance')),
 	isConcatSpreadable: d('', (NativeSymbol && NativeSymbol.isConcatSpreadable) ||
 		SymbolPolyfill('isConcatSpreadable')),
@@ -85291,6 +85332,7 @@ function focusNode(node) {
 
 module.exports = focusNode;
 },{}],1170:[function(require,module,exports){
+(function (global){
 'use strict';
 
 /**
@@ -85312,19 +85354,24 @@ module.exports = focusNode;
  *
  * The activeElement will be null only if the document or document body is not
  * yet defined.
+ *
+ * @param {?DOMDocument} doc Defaults to current document.
+ * @return {?DOMElement}
  */
-function getActiveElement() /*?DOMElement*/{
-  if (typeof document === 'undefined') {
+function getActiveElement(doc) /*?DOMElement*/{
+  doc = doc || global.document;
+  if (typeof doc === 'undefined') {
     return null;
   }
   try {
-    return document.activeElement || document.body;
+    return doc.activeElement || doc.body;
   } catch (e) {
-    return document.body;
+    return doc.body;
   }
 }
 
 module.exports = getActiveElement;
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}],1171:[function(require,module,exports){
 'use strict';
 
@@ -85446,10 +85493,10 @@ module.exports = getMarkupWrap;
  */
 
 function getUnboundedScrollPosition(scrollable) {
-  if (scrollable === window) {
+  if (scrollable.Window && scrollable instanceof scrollable.Window) {
     return {
-      x: window.pageXOffset || document.documentElement.scrollLeft,
-      y: window.pageYOffset || document.documentElement.scrollTop
+      x: scrollable.pageXOffset || scrollable.document.documentElement.scrollLeft,
+      y: scrollable.pageYOffset || scrollable.document.documentElement.scrollTop
     };
   }
   return {
@@ -85606,7 +85653,9 @@ module.exports = invariant;
  * @return {boolean} Whether or not the object is a DOM node.
  */
 function isNode(object) {
-  return !!(object && (typeof Node === 'function' ? object instanceof Node : typeof object === 'object' && typeof object.nodeType === 'number' && typeof object.nodeName === 'string'));
+  var doc = object ? object.ownerDocument || object : document;
+  var defaultView = doc.defaultView || window;
+  return !!(object && (typeof defaultView.Node === 'function' ? object instanceof defaultView.Node : typeof object === 'object' && typeof object.nodeType === 'number' && typeof object.nodeName === 'string'));
 }
 
 module.exports = isNode;
@@ -138399,7 +138448,7 @@ function ReadableState(options, stream) {
   this.highWaterMark = hwm || hwm === 0 ? hwm : defaultHwm;
 
   // cast to ints.
-  this.highWaterMark = ~ ~this.highWaterMark;
+  this.highWaterMark = ~~this.highWaterMark;
 
   // A linked list is used to store data chunks instead of an array because the
   // linked list can remove elements from the beginning faster than
@@ -139511,7 +139560,7 @@ function WritableState(options, stream) {
   this.highWaterMark = hwm || hwm === 0 ? hwm : defaultHwm;
 
   // cast to ints.
-  this.highWaterMark = ~ ~this.highWaterMark;
+  this.highWaterMark = ~~this.highWaterMark;
 
   // drain event flag.
   this.needDrain = false;
@@ -139666,20 +139715,16 @@ function writeAfterEnd(stream, cb) {
   processNextTick(cb, er);
 }
 
-// If we get something that is not a buffer, string, null, or undefined,
-// and we're not in objectMode, then that's an error.
-// Otherwise stream chunks are all considered to be of length=1, and the
-// watermarks determine how many objects to keep in the buffer, rather than
-// how many bytes or characters.
+// Checks that a user-supplied chunk is valid, especially for the particular
+// mode the stream is in. Currently this means that `null` is never accepted
+// and undefined/non-string values are only allowed in object mode.
 function validChunk(stream, state, chunk, cb) {
   var valid = true;
   var er = false;
-  // Always throw error if a null is written
-  // if we are not in object mode then throw
-  // if it is not a buffer, string, or undefined.
+
   if (chunk === null) {
     er = new TypeError('May not write null values to stream');
-  } else if (!Buffer.isBuffer(chunk) && typeof chunk !== 'string' && chunk !== undefined && !state.objectMode) {
+  } else if (typeof chunk !== 'string' && chunk !== undefined && !state.objectMode) {
     er = new TypeError('Invalid non-string/buffer chunk');
   }
   if (er) {
@@ -139693,19 +139738,20 @@ function validChunk(stream, state, chunk, cb) {
 Writable.prototype.write = function (chunk, encoding, cb) {
   var state = this._writableState;
   var ret = false;
+  var isBuf = Buffer.isBuffer(chunk);
 
   if (typeof encoding === 'function') {
     cb = encoding;
     encoding = null;
   }
 
-  if (Buffer.isBuffer(chunk)) encoding = 'buffer';else if (!encoding) encoding = state.defaultEncoding;
+  if (isBuf) encoding = 'buffer';else if (!encoding) encoding = state.defaultEncoding;
 
   if (typeof cb !== 'function') cb = nop;
 
-  if (state.ended) writeAfterEnd(this, cb);else if (validChunk(this, state, chunk, cb)) {
+  if (state.ended) writeAfterEnd(this, cb);else if (isBuf || validChunk(this, state, chunk, cb)) {
     state.pendingcb++;
-    ret = writeOrBuffer(this, state, chunk, encoding, cb);
+    ret = writeOrBuffer(this, state, isBuf, chunk, encoding, cb);
   }
 
   return ret;
@@ -139745,10 +139791,11 @@ function decodeChunk(state, chunk, encoding) {
 // if we're already writing something, then just put this
 // in the queue, and wait our turn.  Otherwise, call _write
 // If we return false, then we need a drain event, so set that flag.
-function writeOrBuffer(stream, state, chunk, encoding, cb) {
-  chunk = decodeChunk(state, chunk, encoding);
-
-  if (Buffer.isBuffer(chunk)) encoding = 'buffer';
+function writeOrBuffer(stream, state, isBuf, chunk, encoding, cb) {
+  if (!isBuf) {
+    chunk = decodeChunk(state, chunk, encoding);
+    if (Buffer.isBuffer(chunk)) encoding = 'buffer';
+  }
   var len = state.objectMode ? 1 : chunk.length;
 
   state.length += len;
@@ -139817,8 +139864,8 @@ function onwrite(stream, er) {
       asyncWrite(afterWrite, stream, state, finished, cb);
       /*</replacement>*/
     } else {
-        afterWrite(stream, state, finished, cb);
-      }
+      afterWrite(stream, state, finished, cb);
+    }
   }
 }
 
@@ -139969,7 +140016,6 @@ function CorkedRequest(state) {
 
   this.next = null;
   this.entry = null;
-
   this.finish = function (err) {
     var entry = _this.entry;
     _this.entry = null;
