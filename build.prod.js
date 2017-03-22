@@ -9587,7 +9587,7 @@ var Node = {
    */
 
   findDescendant: function findDescendant(iterator) {
-    var found = void 0;
+    var found = null;
 
     this.forEachDescendant(function (node, i, nodes) {
       if (iterator(node, i, nodes)) {
@@ -9691,8 +9691,8 @@ var Node = {
    */
 
   getCharacters: function getCharacters() {
-    return this.getTexts().reduce(function (chars, text) {
-      return chars.concat(text.characters);
+    return this.nodes.reduce(function (chars, node) {
+      return node.kind == 'text' ? chars.concat(node.characters) : chars.concat(node.getCharacters());
     }, new _immutable.List());
   },
 
@@ -9973,9 +9973,6 @@ var Node = {
     var node = this;
     var nodes = new _immutable.List();
 
-    // If the range is collapsed, there's nothing to do.
-    if (range.isCollapsed) return _document2.default.create({ nodes: nodes });
-
     // Make sure the children exist.
     var startKey = range.startKey,
         startOffset = range.startOffset,
@@ -10094,7 +10091,7 @@ var Node = {
   },
 
   /**
-   * Get the furthest inline nodes for each text node in the node.
+   * Get the closest inline nodes for each text node in the node.
    *
    * @return {List<Node>}
    */
@@ -10103,7 +10100,7 @@ var Node = {
     var _this3 = this;
 
     return this.getTexts().map(function (text) {
-      return _this3.getFurthestInline(text.key);
+      return _this3.getClosestInline(text.key);
     }).filter(function (exists) {
       return exists;
     }).toOrderedSet().toList();
@@ -10163,20 +10160,20 @@ var Node = {
   /**
    * Get all of the marks for all of the characters of every text node.
    *
-   * @return {Set<Mark>}
+   * @return {OrderedSet<Mark>}
    */
 
   getMarks: function getMarks() {
-    return this.getCharacters().reduce(function (marks, char) {
-      return marks.union(char.marks);
-    }, new _immutable.Set());
+    return this.nodes.reduce(function (marks, node) {
+      return marks.union(node.getMarks());
+    }, new _immutable.OrderedSet());
   },
 
   /**
    * Get a set of the marks in a `range`.
    *
    * @param {Selection} range
-   * @return {Set<Mark>}
+   * @return {OrderedSet<Mark>}
    */
 
   getMarksAtRange: function getMarksAtRange(range) {
@@ -10204,7 +10201,22 @@ var Node = {
     // Otherwise, get a set of the marks for each character in the range.
     return this.getCharactersAtRange(range).reduce(function (memo, char) {
       return memo.union(char.marks);
-    }, new _immutable.Set());
+    }, new _immutable.OrderedSet());
+  },
+
+  /**
+   * Get all of the marks that match a `type`.
+   *
+   * @param {String} type
+   * @return {OrderedSet<Mark>}
+   */
+
+  getMarksByType: function getMarksByType(type) {
+    return this.nodes.reduce(function (marks, node) {
+      return node.kind == 'text' ? node.getMarks().filter(function (m) {
+        return m.type == type;
+      }) : node.getMarksByType(type);
+    }, new _immutable.OrderedSet());
   },
 
   /**
@@ -10438,14 +10450,14 @@ var Node = {
   },
 
   /**
-   * Get the concatenated text `string` of all child nodes.
+   * Get the concatenated text string of all child nodes.
    *
    * @return {String}
    */
 
   getText: function getText() {
-    return this.nodes.reduce(function (result, node) {
-      return result + node.text;
+    return this.nodes.reduce(function (string, node) {
+      return string + node.text;
     }, '');
   },
 
@@ -13816,6 +13828,20 @@ var Text = function (_ref) {
     key: 'getDecorators',
     value: function getDecorators(schema) {
       return schema.__getDecorators(this);
+    }
+
+    /**
+     * Get all of the marks on the text.
+     *
+     * @return {OrderedSet<Mark>}
+     */
+
+  }, {
+    key: 'getMarks',
+    value: function getMarks() {
+      return this.characters.reduce(function (marks, char) {
+        return marks.union(char.marks);
+      }, new _immutable.OrderedSet());
     }
 
     /**
