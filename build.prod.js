@@ -9652,15 +9652,29 @@ var Node = {
   },
 
   /**
-   * Get the closest block nodes for each text node in the node.
+   * Get the leaf block descendants of the node.
    *
    * @return {List<Node>}
    */
 
   getBlocks: function getBlocks() {
+    return this.nodes.reduce(function (blocks, node) {
+      if (node.kind != 'block') return blocks;
+      return node.isLeafBlock() ? blocks.push(node) : blocks.concat(node.getBlocks());
+    }, new _immutable.List());
+  },
+
+  /**
+   * Get the leaf block descendants in a `range`.
+   *
+   * @param {Selection} range
+   * @return {List<Node>}
+   */
+
+  getBlocksAtRange: function getBlocksAtRange(range) {
     var _this = this;
 
-    return this.getTexts().map(function (text) {
+    return this.getTextsAtRange(range).map(function (text) {
       return _this.getClosestBlock(text.key);
     })
     // Eliminate duplicates by converting to a `Set` first.
@@ -9668,20 +9682,18 @@ var Node = {
   },
 
   /**
-   * Get the closest block nodes for each text node in a `range`.
+   * Get all of the leaf blocks that match a `type`.
    *
-   * @param {Selection} range
+   * @param {String} type
    * @return {List<Node>}
    */
 
-  getBlocksAtRange: function getBlocksAtRange(range) {
-    var _this2 = this;
-
-    return this.getTextsAtRange(range).map(function (text) {
-      return _this2.getClosestBlock(text.key);
-    })
-    // Eliminate duplicates by converting to a `Set` first.
-    .toOrderedSet().toList();
+  getBlocksByType: function getBlocksByType(type) {
+    return this.nodes.reduce(function (blocks, node) {
+      if (node.kind != 'block') return blocks;
+      if (node.isLeafBlock() && node.type == type) return blocks.push(node);
+      return blocks.concat(node.getBlocksByType(type));
+    }, new _immutable.List());
   },
 
   /**
@@ -10097,13 +10109,10 @@ var Node = {
    */
 
   getInlines: function getInlines() {
-    var _this3 = this;
-
-    return this.getTexts().map(function (text) {
-      return _this3.getClosestInline(text.key);
-    }).filter(function (exists) {
-      return exists;
-    }).toOrderedSet().toList();
+    return this.nodes.reduce(function (inlines, node) {
+      if (node.kind == 'text') return inlines;
+      return node.isLeafInline() ? inlines.push(node) : inlines.concat(node.getInlines());
+    }, new _immutable.List());
   },
 
   /**
@@ -10114,13 +10123,28 @@ var Node = {
    */
 
   getInlinesAtRange: function getInlinesAtRange(range) {
-    var _this4 = this;
+    var _this2 = this;
 
     return this.getTextsAtRange(range).map(function (text) {
-      return _this4.getClosestInline(text.key);
+      return _this2.getClosestInline(text.key);
     }).filter(function (exists) {
       return exists;
     }).toOrderedSet().toList();
+  },
+
+  /**
+   * Get all of the leaf inline nodes that match a `type`.
+   *
+   * @param {String} type
+   * @return {List<Node>}
+   */
+
+  getInlinesByType: function getInlinesByType(type) {
+    return this.nodes.reduce(function (inlines, node) {
+      if (node.kind == 'text') return inlines;
+      if (node.isLeafInline() && node.type == type) return inlines.push(node);
+      return inlines.concat(node.getInlinesByType(type));
+    }, new _immutable.List());
   },
 
   /**
@@ -10213,9 +10237,9 @@ var Node = {
 
   getMarksByType: function getMarksByType(type) {
     return this.nodes.reduce(function (marks, node) {
-      return node.kind == 'text' ? node.getMarks().filter(function (m) {
+      return node.kind == 'text' ? marks.union(node.getMarks().filter(function (m) {
         return m.type == type;
-      }) : node.getMarksByType(type);
+      })) : marks.union(node.getMarksByType(type));
     }, new _immutable.OrderedSet());
   },
 
@@ -10598,6 +10622,30 @@ var Node = {
   },
 
   /**
+   * Check whether the node is a leaf block.
+   *
+   * @return {Boolean}
+   */
+
+  isLeafBlock: function isLeafBlock() {
+    return this.kind == 'block' && this.nodes.every(function (n) {
+      return n.kind != 'block';
+    });
+  },
+
+  /**
+   * Check whether the node is a leaf inline.
+   *
+   * @return {Boolean}
+   */
+
+  isLeafInline: function isLeafInline() {
+    return this.kind == 'inline' && this.nodes.every(function (n) {
+      return n.kind != 'inline';
+    });
+  },
+
+  /**
    * Join a children node `first` with another children node `second`.
    * `first` and `second` will be concatenated in that order.
    * `first` and `second` must be two Nodes or two Text.
@@ -10652,12 +10700,12 @@ var Node = {
    */
 
   mapChildren: function mapChildren(iterator) {
-    var _this5 = this;
+    var _this3 = this;
 
     var nodes = this.nodes;
 
     nodes.forEach(function (node, i) {
-      var ret = iterator(node, i, _this5.nodes);
+      var ret = iterator(node, i, _this3.nodes);
       if (ret != node) nodes = nodes.set(ret.key, ret);
     });
 
@@ -10673,14 +10721,14 @@ var Node = {
    */
 
   mapDescendants: function mapDescendants(iterator) {
-    var _this6 = this;
+    var _this4 = this;
 
     var nodes = this.nodes;
 
     nodes.forEach(function (node, i) {
       var ret = node;
       if (ret.kind != 'text') ret = ret.mapDescendants(iterator);
-      ret = iterator(ret, i, _this6.nodes);
+      ret = iterator(ret, i, _this4.nodes);
       if (ret == node) return;
 
       var index = nodes.indexOf(node);
@@ -11061,7 +11109,7 @@ var Node = {
  * Memoize read methods.
  */
 
-(0, _memoize2.default)(Node, ['areDescendantsSorted', 'getAncestors', 'getBlocks', 'getBlocksAtRange', 'getCharacters', 'getCharactersAtRange', 'getChild', 'getChildrenBetween', 'getChildrenBetweenIncluding', 'getClosestBlock', 'getClosestInline', 'getClosestVoid', 'getCommonAncestor', 'getComponent', 'getDecorators', 'getDepth', 'getDescendant', 'getDescendant', 'getDescendantAtPath', 'getDescendantDecorators', 'getFirstText', 'getFragmentAtRange', 'getFurthestBlock', 'getFurthestInline', 'getFurthestAncestor', 'getFurthestOnlyChildAncestor', 'getInlines', 'getInlinesAtRange', 'getKeys', 'getLastText', 'getMarks', 'getMarksAtRange', 'getNextBlock', 'getNextSibling', 'getNextText', 'getNode', 'getOffset', 'getOffsetAtRange', 'getParent', 'getPath', 'getPreviousBlock', 'getPreviousSibling', 'getPreviousText', 'getText', 'getTextAtOffset', 'getTextDirection', 'getTexts', 'getTextsAtRange', 'hasChild', 'hasDescendant', 'hasNode', 'hasVoidParent', 'isInlineSplitAtRange', 'validate']);
+(0, _memoize2.default)(Node, ['areDescendantsSorted', 'getAncestors', 'getBlocks', 'getBlocksAtRange', 'getBlocksByType', 'getCharacters', 'getCharactersAtRange', 'getChild', 'getChildrenBetween', 'getChildrenBetweenIncluding', 'getClosestBlock', 'getClosestInline', 'getClosestVoid', 'getCommonAncestor', 'getComponent', 'getDecorators', 'getDepth', 'getDescendant', 'getDescendant', 'getDescendantAtPath', 'getDescendantDecorators', 'getFirstText', 'getFragmentAtRange', 'getFurthestBlock', 'getFurthestInline', 'getFurthestAncestor', 'getFurthestOnlyChildAncestor', 'getInlines', 'getInlinesAtRange', 'getInlinesByType', 'getKeys', 'getLastText', 'getMarks', 'getMarksAtRange', 'getMarksByType', 'getNextBlock', 'getNextSibling', 'getNextText', 'getNode', 'getOffset', 'getOffsetAtRange', 'getParent', 'getPath', 'getPreviousBlock', 'getPreviousSibling', 'getPreviousText', 'getText', 'getTextAtOffset', 'getTextDirection', 'getTexts', 'getTextsAtRange', 'hasChild', 'hasDescendant', 'hasNode', 'hasVoidParent', 'isInlineSplitAtRange', 'isLeafBlock', 'isLeafInline', 'validate']);
 
 /**
  * Export.
