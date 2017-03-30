@@ -412,7 +412,7 @@ var CheckListItem = function (_React$Component) {
         'div',
         _extends({}, attributes, { className: 'check-list-item' }),
         _react2.default.createElement(
-          'div',
+          'span',
           { contentEditable: false },
           _react2.default.createElement('input', {
             type: 'checkbox',
@@ -3148,9 +3148,9 @@ var schema = {
       var node = props.node,
           state = props.state;
 
-      var isFocused = state.selection.hasEdgeIn(node);
+      var active = state.isFocused && state.selection.hasEdgeIn(node);
       var src = node.data.get('src');
-      var className = isFocused ? 'active' : null;
+      var className = active ? 'active' : null;
       return _react2.default.createElement('img', _extends({ src: src, className: className }, props.attributes));
     },
     paragraph: function paragraph(props) {
@@ -5912,7 +5912,7 @@ var Content = function (_React$Component) {
 
     _this.tmp = {};
     _this.tmp.compositions = 0;
-    _this.forces = 0;
+    _this.tmp.forces = 0;
     return _this;
   }
 
@@ -5931,15 +5931,15 @@ var Content = function (_React$Component) {
    */
 
   /**
-   * On mount, if `autoFocus` is set, focus the editor.
+   * On mount, update the selection, and focus the editor if `autoFocus` is set.
    */
 
   /**
-   * On update, if the state is blurred now, but was focused before, and the
-   * DOM still has a node inside the editor selected, we need to blur it.
-   *
-   * @param {Object} prevProps
-   * @param {Object} prevState
+   * On update, update the selection.
+   */
+
+  /**
+   * Update the native DOM selection to reflect the internal model.
    */
 
   /**
@@ -6129,21 +6129,103 @@ var _initialiseProps = function _initialiseProps() {
   };
 
   this.componentDidMount = function () {
+    _this2.updateSelection();
+
     if (_this2.props.autoFocus) {
       var el = _reactDom2.default.findDOMNode(_this2);
       el.focus();
     }
   };
 
-  this.componentDidUpdate = function (prevProps, prevState) {
-    if (_this2.props.state.isBlurred && prevProps.state.isFocused) {
-      var el = _reactDom2.default.findDOMNode(_this2);
-      var window = (0, _getWindow2.default)(el);
-      var native = window.getSelection();
+  this.componentDidUpdate = function () {
+    _this2.updateSelection();
+  };
+
+  this.updateSelection = function () {
+    var state = _this2.props.state;
+    var selection = state.selection;
+
+    var el = _reactDom2.default.findDOMNode(_this2);
+    var window = (0, _getWindow2.default)(el);
+    var native = window.getSelection();
+
+    // If both selections are blurred, do nothing.
+    if (!native.rangeCount && selection.isBlurred) return;
+
+    // If the selection has been blurred, but hasn't been updated in the DOM,
+    // blur the DOM selection.
+    if (selection.isBlurred) {
       if (!el.contains(native.anchorNode)) return;
       native.removeAllRanges();
       el.blur();
+      debug('updateSelection', { selection: selection, native: native });
+      return;
     }
+
+    // Otherwise, figure out which DOM nodes should be selected...
+    var anchorText = state.anchorText,
+        focusText = state.focusText;
+    var anchorKey = selection.anchorKey,
+        anchorOffset = selection.anchorOffset,
+        focusKey = selection.focusKey,
+        focusOffset = selection.focusOffset;
+
+    var anchorRanges = anchorText.getRanges();
+    var focusRanges = focusText.getRanges();
+    var a = 0;
+    var f = 0;
+    var anchorIndex = void 0;
+    var focusIndex = void 0;
+    var anchorOff = void 0;
+    var focusOff = void 0;
+
+    anchorRanges.forEach(function (range, i, ranges) {
+      var length = range.text.length;
+
+      a += length;
+      if (a < anchorOffset) return;
+      anchorIndex = i;
+      anchorOff = anchorOffset - (a - length);
+      return false;
+    });
+
+    focusRanges.forEach(function (range, i, ranges) {
+      var length = range.text.length;
+
+      f += length;
+      if (f < focusOffset) return;
+      focusIndex = i;
+      focusOff = focusOffset - (f - length);
+      return false;
+    });
+
+    var anchorSpan = el.querySelector('[data-offset-key="' + anchorKey + '-' + anchorIndex + '"]');
+    var focusSpan = el.querySelector('[data-offset-key="' + focusKey + '-' + focusIndex + '"]');
+    var anchorEl = anchorSpan.firstChild;
+    var focusEl = focusSpan.firstChild;
+
+    // If they are already selected, do nothing.
+    if (anchorEl == native.anchorNode && anchorOff == native.anchorOffset && focusEl == native.focusNode && focusOff == native.focusOffset) {
+      return;
+    }
+
+    // Otherwise, set the `isSelecting` flag and update the selection.
+    _this2.tmp.isSelecting = true;
+    native.removeAllRanges();
+    var range = window.document.createRange();
+    range.setStart(anchorEl, anchorOff);
+    native.addRange(range);
+    native.extend(focusEl, focusOff);
+
+    // Then unset the `isSelecting` flag after a delay.
+    setTimeout(function () {
+      // COMPAT: In Firefox, it's not enough to create a range, you also need to
+      // focus the contenteditable element too. (2016/11/16)
+      if (_environment.IS_FIREFOX) el.focus();
+      _this2.tmp.isSelecting = false;
+    });
+
+    debug('updateSelection', { selection: selection, native: native });
   };
 
   this.ref = function (element) {
@@ -6206,7 +6288,7 @@ var _initialiseProps = function _initialiseProps() {
   this.onCompositionEnd = function (event) {
     if (!_this2.isInContentEditable(event)) return;
 
-    _this2.forces++;
+    _this2.tmp.forces++;
     var count = _this2.tmp.compositions;
 
     // The `count` check here ensures that if another composition starts
@@ -6518,6 +6600,7 @@ var _initialiseProps = function _initialiseProps() {
     if (_this2.props.readOnly) return;
     if (_this2.tmp.isCopying) return;
     if (_this2.tmp.isComposing) return;
+    if (_this2.tmp.isSelecting) return;
     if (!_this2.isInContentEditable(event)) return;
 
     var window = (0, _getWindow2.default)(event.target);
@@ -6547,11 +6630,13 @@ var _initialiseProps = function _initialiseProps() {
         var focus = (0, _getPoint2.default)(focusNode, focusOffset, state, editor);
         if (!anchor || !focus) return;
 
-        // There are valid situations where a select event will fire when we're
-        // already at that position (for example when entering a character), since
-        // our `insertText` transform already updates the selection. In those
-        // cases we can safely ignore the event.
+        // There are situations where a select event will fire with a new native
+        // selection that resolves to the same internal position. In those cases
+        // we don't need to trigger any changes, since our internal model is
+        // already up to date, but we do want to update the native selection again
+        // to make sure it is in sync.
         if (anchor.key == selection.anchorKey && anchor.offset == selection.anchorOffset && focus.key == selection.focusKey && focus.offset == selection.focusOffset && selection.isFocused) {
+          _this2.updateSelection();
           return;
         }
 
@@ -6627,7 +6712,7 @@ var _initialiseProps = function _initialiseProps() {
 
     return _react2.default.createElement('div', {
       'data-slate-editor': true,
-      key: _this2.forces,
+      key: _this2.tmp.forces,
       ref: _this2.ref,
       contentEditable: !readOnly,
       suppressContentEditableWarning: true,
@@ -7124,10 +7209,6 @@ var _reactDom = require('react-dom');
 
 var _reactDom2 = _interopRequireDefault(_reactDom);
 
-var _getWindow = require('get-window');
-
-var _getWindow2 = _interopRequireDefault(_getWindow);
-
 var _environment = require('../constants/environment');
 
 function _interopRequireDefault(obj) {
@@ -7228,151 +7309,8 @@ var Leaf = function (_React$Component) {
       var text = this.renderText(props);
       if (el.textContent != text) return true;
 
-      // If the selection was previously focused, and now it isn't, re-render so
-      // that the selection will be properly removed.
-      if (this.props.state.isFocused && props.state.isBlurred) {
-        var _props = this.props,
-            index = _props.index,
-            node = _props.node,
-            ranges = _props.ranges,
-            state = _props.state;
-
-        var _OffsetKey$findBounds = _offsetKey2.default.findBounds(index, ranges),
-            start = _OffsetKey$findBounds.start,
-            end = _OffsetKey$findBounds.end;
-
-        if (state.selection.hasEdgeBetween(node, start, end)) return true;
-      }
-
-      // If the selection will be focused, only re-render if this leaf contains
-      // one or both of the selection's edges.
-      if (props.state.isFocused) {
-        var _index = props.index,
-            _node = props.node,
-            _ranges = props.ranges,
-            _state = props.state;
-
-        var _OffsetKey$findBounds2 = _offsetKey2.default.findBounds(_index, _ranges),
-            _start = _OffsetKey$findBounds2.start,
-            _end = _OffsetKey$findBounds2.end;
-
-        if (_state.selection.hasEdgeBetween(_node, _start, _end)) return true;
-      }
-
       // Otherwise, don't update.
       return false;
-    }
-
-    /**
-     * When the DOM updates, try updating the selection.
-     */
-
-  }, {
-    key: 'componentDidMount',
-    value: function componentDidMount() {
-      this.updateSelection();
-    }
-  }, {
-    key: 'componentDidUpdate',
-    value: function componentDidUpdate() {
-      this.updateSelection();
-    }
-
-    /**
-     * Update the DOM selection if it's inside the leaf.
-     */
-
-  }, {
-    key: 'updateSelection',
-    value: function updateSelection() {
-      var _props2 = this.props,
-          state = _props2.state,
-          ranges = _props2.ranges;
-      var selection = state.selection;
-
-      // If the selection is blurred we have nothing to do.
-
-      if (selection.isBlurred) return;
-
-      var _props3 = this.props,
-          node = _props3.node,
-          index = _props3.index;
-
-      var _OffsetKey$findBounds3 = _offsetKey2.default.findBounds(index, ranges),
-          start = _OffsetKey$findBounds3.start,
-          end = _OffsetKey$findBounds3.end;
-
-      var anchorOffset = selection.anchorOffset - start;
-      var focusOffset = selection.focusOffset - start;
-
-      // If neither matches, the selection doesn't start or end here, so exit.
-      var hasAnchor = selection.hasAnchorBetween(node, start, end);
-      var hasFocus = selection.hasFocusBetween(node, start, end);
-      if (!hasAnchor && !hasFocus) return;
-
-      // We have a selection to render, so prepare a few things...
-      var ref = _reactDom2.default.findDOMNode(this);
-      var el = findDeepestNode(ref);
-      var window = (0, _getWindow2.default)(el);
-      var native = window.getSelection();
-      var parent = ref.closest('[contenteditable]');
-
-      // COMPAT: In Firefox, it's not enough to create a range, you also need to
-      // focus the contenteditable element. (2016/11/16)
-      function focus() {
-        if (!_environment.IS_FIREFOX) return;
-        if (parent) setTimeout(function () {
-          return parent.focus();
-        });
-      }
-
-      // If both the start and end are here, set the selection all at once.
-      if (hasAnchor && hasFocus) {
-        native.removeAllRanges();
-        var range = window.document.createRange();
-        range.setStart(el, anchorOffset);
-        native.addRange(range);
-        native.extend(el, focusOffset);
-        focus();
-      }
-
-      // Otherwise we need to set the selection across two different leaves.
-      // If the selection is forward, we can set things in sequence. In the
-      // first leaf to render, reset the selection and set the new start. And
-      // then in the second leaf to render, extend to the new end.
-      else if (selection.isForward) {
-          if (hasAnchor) {
-            native.removeAllRanges();
-            var _range = window.document.createRange();
-            _range.setStart(el, anchorOffset);
-            native.addRange(_range);
-          } else if (hasFocus) {
-            native.extend(el, focusOffset);
-            focus();
-          }
-        }
-
-        // Otherwise, if the selection is backward, we need to hack the order a bit.
-        // In the first leaf to render, set a phony start anchor to store the true
-        // end position. And then in the second leaf to render, set the start and
-        // extend the end to the stored value.
-        else if (hasFocus) {
-            native.removeAllRanges();
-            var _range2 = window.document.createRange();
-            _range2.setStart(el, focusOffset);
-            native.addRange(_range2);
-          } else if (hasAnchor) {
-            var endNode = native.focusNode;
-            var endOffset = native.focusOffset;
-            native.removeAllRanges();
-            var _range3 = window.document.createRange();
-            _range3.setStart(el, anchorOffset);
-            native.addRange(_range3);
-            native.extend(endNode, endOffset);
-            focus();
-          }
-
-      this.debug('updateSelection', { selection: selection });
     }
 
     /**
@@ -7520,7 +7458,7 @@ function findDeepestNode(element) {
 
 exports.default = Leaf;
 
-},{"../constants/environment":45,"../utils/offset-key":89,"debug":121,"get-window":1188,"react":1450,"react-dom":1251}],42:[function(require,module,exports){
+},{"../constants/environment":45,"../utils/offset-key":89,"debug":121,"react":1450,"react-dom":1251}],42:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -7754,72 +7692,43 @@ var _initialiseProps = function _initialiseProps() {
   };
 
   this.shouldComponentUpdate = function (nextProps) {
+    var props = _this2.props;
     var Component = _this2.state.Component;
 
-    // If the node is rendered with a `Component` that has enabled suppression
-    // of update checking, always return true so that it can deal with update
-    // checking itself.
+    // If the `Component` has enabled suppression of update checking, always
+    // return true so that it can deal with update checking itself.
 
-    if (Component && Component.suppressShouldComponentUpdate) {
-      return true;
+    if (Component && Component.suppressShouldComponentUpdate) return true;
+
+    // If the `readOnly` status has changed, re-render in case there is any
+    // user-land logic that depends on it, like nested editable contents.
+    if (nextProps.readOnly != props.readOnly) return true;
+
+    // If the node has changed, update. PERF: There are cases where it will have
+    // changed, but it's properties will be exactly the same (eg. copy-paste)
+    // which this won't catch. But that's rare and not a drag on performance, so
+    // for simplicity we just let them through.
+    if (nextProps.node != props.node) return true;
+
+    // If the node is a block or inline, which can have custom renderers, we
+    // include an extra check to re-render if the node's focus changes, to make
+    // it simple for users to show a node's "selected" state.
+    if (props.node.kind != 'text') {
+      var hasEdgeIn = props.state.selection.hasEdgeIn(props.node);
+      var nextHasEdgeIn = nextProps.state.selection.hasEdgeIn(nextProps.node);
+      var hasFocus = props.state.isFocused || nextProps.state.isFocused;
+      var hasEdge = hasEdgeIn || nextHasEdgeIn;
+      if (hasFocus && hasEdge) return true;
     }
 
-    // If the `readOnly` status has changed, we need to re-render in case there is
-    // any user-land logic that depends on it, like nested editable contents.
-    if (nextProps.readOnly !== _this2.props.readOnly) return true;
-
-    // If the node has changed, update. PERF: There are certain cases where the
-    // node instance will have changed, but it's properties will be exactly the
-    // same (copy-paste, delete backwards, etc.) in which case this will not
-    // catch a potentially avoidable re-render. But those cases are rare enough
-    // that they aren't really a drag on performance, so for simplicity we just
-    // let them through.
-    if (nextProps.node != _this2.props.node) {
-      return true;
-    }
-
-    var nextHasEdgeIn = nextProps.state.selection.hasEdgeIn(nextProps.node);
-
-    // If the selection is focused and is inside the node, we need to update so
-    // that the selection will be set by one of the <Leaf> components.
-    if (nextProps.state.isFocused && nextHasEdgeIn) {
-      return true;
-    }
-
-    var hasEdgeIn = _this2.props.state.selection.hasEdgeIn(nextProps.node);
-    // If the selection is blurred but was previously focused (or vice versa) inside the node,
-    // we need to update to ensure the selection gets updated by re-rendering.
-    if (_this2.props.state.isFocused != nextProps.state.isFocused && (hasEdgeIn || nextHasEdgeIn)) {
-      return true;
-    }
-
-    // For block and inline nodes, which can have custom renderers, we need to
-    // include another check for whether the previous selection had an edge in
-    // the node, to allow for intuitive selection-based rendering.
-    if (_this2.props.node.kind != 'text' && hasEdgeIn != nextHasEdgeIn) {
-      return true;
-    }
-
-    // For text nodes, which can have custom decorations, we need to check to
-    // see if the block has changed, which has caused the decorations to change.
+    // If the node is a text node, re-render if the current decorations have
+    // changed, even if the content of the text node itself hasn't.
     if (nextProps.node.kind == 'text' && nextProps.schema.hasDecorators) {
-      var node = nextProps.node,
-          schema = nextProps.schema,
-          state = nextProps.state;
-      var document = state.document;
-
-      var decorators = document.getDescendantDecorators(node.key, schema);
-      var ranges = node.getRanges(decorators);
-
-      var prevNode = _this2.props.node;
-      var prevSchema = _this2.props.schema;
-      var prevDocument = _this2.props.state.document;
-      var prevDecorators = prevDocument.getDescendantDecorators(prevNode.key, prevSchema);
-      var prevRanges = prevNode.getRanges(prevDecorators);
-
-      if (!ranges.equals(prevRanges)) {
-        return true;
-      }
+      var nextDecorators = nextProps.state.document.getDescendantDecorators(nextProps.node.key, nextProps.schema);
+      var decorators = props.state.document.getDescendantDecorators(props.node.key, props.schema);
+      var nextRanges = nextProps.node.getRanges(nextDecorators);
+      var ranges = props.node.getRanges(decorators);
+      if (!nextRanges.equals(ranges)) return true;
     }
 
     // Otherwise, don't update.
@@ -15020,28 +14929,8 @@ function Plugin() {
    */
 
   function onBlur(e, data, state) {
-    var isNative = true;
-
-    debug('onBlur', { data: data, isNative: isNative });
-
-    return state.transform().blur().apply({ isNative: isNative });
-  }
-
-  /**
-   * On focus.
-   *
-   * @param {Event} e
-   * @param {Object} data
-   * @param {State} state
-   * @return {State}
-   */
-
-  function onFocus(e, data, state) {
-    var isNative = true;
-
-    debug('onFocus', { data: data, isNative: isNative });
-
-    return state.transform().focus().apply({ isNative: isNative });
+    debug('onBlur', { data: data });
+    return state.transform().blur().apply();
   }
 
   /**
@@ -15743,7 +15632,6 @@ function Plugin() {
     onBeforeChange: onBeforeChange,
     onBeforeInput: onBeforeInput,
     onBlur: onBlur,
-    onFocus: onFocus,
     onCopy: onCopy,
     onCut: onCut,
     onDrop: onDrop,
@@ -85798,7 +85686,6 @@ function focusNode(node) {
 
 module.exports = focusNode;
 },{}],1173:[function(require,module,exports){
-(function (global){
 'use strict';
 
 /**
@@ -85825,7 +85712,7 @@ module.exports = focusNode;
  * @return {?DOMElement}
  */
 function getActiveElement(doc) /*?DOMElement*/{
-  doc = doc || global.document;
+  doc = doc || (typeof document !== 'undefined' ? document : undefined);
   if (typeof doc === 'undefined') {
     return null;
   }
@@ -85837,7 +85724,6 @@ function getActiveElement(doc) /*?DOMElement*/{
 }
 
 module.exports = getActiveElement;
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}],1174:[function(require,module,exports){
 'use strict';
 
