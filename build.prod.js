@@ -7733,7 +7733,7 @@ var _initialiseProps = function _initialiseProps() {
     // If the node is a block or inline, which can have custom renderers, we
     // include an extra check to re-render if the node's focus changes, to make
     // it simple for users to show a node's "selected" state.
-    if (props.node.kind != 'text') {
+    if (nextProps.node.kind != 'text') {
       var hasEdgeIn = props.state.selection.hasEdgeIn(props.node);
       var nextHasEdgeIn = nextProps.state.selection.hasEdgeIn(nextProps.node);
       var hasFocus = props.state.isFocused || nextProps.state.isFocused;
@@ -7749,6 +7749,14 @@ var _initialiseProps = function _initialiseProps() {
       var nextRanges = nextProps.node.getRanges(nextDecorators);
       var ranges = props.node.getRanges(decorators);
       if (!nextRanges.equals(ranges)) return true;
+    }
+
+    // If the node is a text node, and its parent is a block node, and it was
+    // the last child of the block, re-render to cleanup extra `<br/>` or `\n`.
+    if (nextProps.node.kind == 'text' && nextProps.parent.kind == 'block') {
+      var last = props.parent.nodes.last();
+      var nextLast = nextProps.parent.nodes.last();
+      if (props.node == last && nextProps.node != nextLast) return true;
     }
 
     // Otherwise, don't update.
