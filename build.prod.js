@@ -410,17 +410,24 @@ var CheckListItem = function (_React$Component) {
       var checked = node.data.get('checked');
       return _react2.default.createElement(
         'div',
-        _extends({}, attributes, { className: 'check-list-item' }),
+        _extends({
+          className: 'check-list-item',
+          contentEditable: false
+        }, attributes),
         _react2.default.createElement(
           'span',
-          { contentEditable: false },
+          null,
           _react2.default.createElement('input', {
             type: 'checkbox',
             checked: checked,
             onChange: _this.onChange
           })
         ),
-        children
+        _react2.default.createElement(
+          'span',
+          { contentEditable: true, suppressContentEditableWarning: true },
+          children
+        )
       );
     }, _temp), _possibleConstructorReturn(_this, _ret);
   }
@@ -558,7 +565,7 @@ module.exports={
           "kind": "text",
           "ranges": [
             {
-              "text": "With Slate you can build complex block types that have their own embeded content and behaviors, like rendering checkboxes inside check list items!"
+              "text": "With Slate you can build complex block types that have their own embedded content and behaviors, like rendering checkboxes inside check list items!"
             }
           ]
         }
@@ -6232,16 +6239,16 @@ var _initialiseProps = function _initialiseProps() {
     _this2.element = element;
   };
 
-  this.isInContentEditable = function (event) {
+  this.isInEditor = function (event) {
     var element = _this2.element;
     var target = event.target;
 
-    return target.isContentEditable && (target === element || target.closest('[data-slate-editor]') === element);
+    return target.isContentEditable && (target == element || target.closest('[data-slate-editor]') == element);
   };
 
   this.onBeforeInput = function (event) {
     if (_this2.props.readOnly) return;
-    if (!_this2.isInContentEditable(event)) return;
+    if (!_this2.isInEditor(event)) return;
 
     var data = {};
 
@@ -6252,7 +6259,12 @@ var _initialiseProps = function _initialiseProps() {
   this.onBlur = function (event) {
     if (_this2.props.readOnly) return;
     if (_this2.tmp.isCopying) return;
-    if (!_this2.isInContentEditable(event)) return;
+    if (!_this2.isInEditor(event)) return;
+
+    // If the element that is now focused is actually inside the editor, we
+    // need to ignore it. This can happen in situations where there is a nested
+    // `contenteditable="true"` node that isn't another Slate editor.
+    if (_this2.element.contains(event.relatedTarget)) return;
 
     var data = {};
 
@@ -6263,7 +6275,15 @@ var _initialiseProps = function _initialiseProps() {
   this.onFocus = function (event) {
     if (_this2.props.readOnly) return;
     if (_this2.tmp.isCopying) return;
-    if (!_this2.isInContentEditable(event)) return;
+    if (!_this2.isInEditor(event)) return;
+
+    // COMPAT: If the editor has nested editable elements, the focus can go to
+    // those elements. In Firefox, this must be prevented because it results in
+    // issues with keyboard navigation. (2017/03/30)
+    if (_environment.IS_FIREFOX && event.target != _this2.element) {
+      _this2.element.focus();
+      return;
+    }
 
     var data = {};
 
@@ -6277,7 +6297,7 @@ var _initialiseProps = function _initialiseProps() {
   };
 
   this.onCompositionStart = function (event) {
-    if (!_this2.isInContentEditable(event)) return;
+    if (!_this2.isInEditor(event)) return;
 
     _this2.tmp.isComposing = true;
     _this2.tmp.compositions++;
@@ -6286,7 +6306,7 @@ var _initialiseProps = function _initialiseProps() {
   };
 
   this.onCompositionEnd = function (event) {
-    if (!_this2.isInContentEditable(event)) return;
+    if (!_this2.isInEditor(event)) return;
 
     _this2.tmp.forces++;
     var count = _this2.tmp.compositions;
@@ -6303,7 +6323,7 @@ var _initialiseProps = function _initialiseProps() {
   };
 
   this.onCopy = function (event) {
-    if (!_this2.isInContentEditable(event)) return;
+    if (!_this2.isInEditor(event)) return;
     var window = (0, _getWindow2.default)(event.target);
 
     _this2.tmp.isCopying = true;
@@ -6323,7 +6343,7 @@ var _initialiseProps = function _initialiseProps() {
 
   this.onCut = function (event) {
     if (_this2.props.readOnly) return;
-    if (!_this2.isInContentEditable(event)) return;
+    if (!_this2.isInEditor(event)) return;
     var window = (0, _getWindow2.default)(event.target);
 
     _this2.tmp.isCopying = true;
@@ -6342,7 +6362,7 @@ var _initialiseProps = function _initialiseProps() {
   };
 
   this.onDragEnd = function (event) {
-    if (!_this2.isInContentEditable(event)) return;
+    if (!_this2.isInEditor(event)) return;
 
     _this2.tmp.isDragging = false;
     _this2.tmp.isInternalDrag = null;
@@ -6351,7 +6371,7 @@ var _initialiseProps = function _initialiseProps() {
   };
 
   this.onDragOver = function (event) {
-    if (!_this2.isInContentEditable(event)) return;
+    if (!_this2.isInEditor(event)) return;
 
     var dataTransfer = event.nativeEvent.dataTransfer;
 
@@ -6370,7 +6390,7 @@ var _initialiseProps = function _initialiseProps() {
   };
 
   this.onDragStart = function (event) {
-    if (!_this2.isInContentEditable(event)) return;
+    if (!_this2.isInEditor(event)) return;
 
     _this2.tmp.isDragging = true;
     _this2.tmp.isInternalDrag = true;
@@ -6392,7 +6412,7 @@ var _initialiseProps = function _initialiseProps() {
 
   this.onDrop = function (event) {
     if (_this2.props.readOnly) return;
-    if (!_this2.isInContentEditable(event)) return;
+    if (!_this2.isInEditor(event)) return;
 
     event.preventDefault();
 
@@ -6451,7 +6471,7 @@ var _initialiseProps = function _initialiseProps() {
   this.onInput = function (event) {
     if (_this2.tmp.isComposing) return;
     if (_this2.props.state.isBlurred) return;
-    if (!_this2.isInContentEditable(event)) return;
+    if (!_this2.isInEditor(event)) return;
     debug('onInput', { event: event });
 
     var window = (0, _getWindow2.default)(event.target);
@@ -6522,7 +6542,7 @@ var _initialiseProps = function _initialiseProps() {
 
   this.onKeyDown = function (event) {
     if (_this2.props.readOnly) return;
-    if (!_this2.isInContentEditable(event)) return;
+    if (!_this2.isInEditor(event)) return;
 
     var altKey = event.altKey,
         ctrlKey = event.ctrlKey,
@@ -6583,7 +6603,7 @@ var _initialiseProps = function _initialiseProps() {
 
   this.onPaste = function (event) {
     if (_this2.props.readOnly) return;
-    if (!_this2.isInContentEditable(event)) return;
+    if (!_this2.isInEditor(event)) return;
 
     event.preventDefault();
     var data = (0, _getTransferData2.default)(event.clipboardData);
@@ -6601,7 +6621,7 @@ var _initialiseProps = function _initialiseProps() {
     if (_this2.tmp.isCopying) return;
     if (_this2.tmp.isComposing) return;
     if (_this2.tmp.isSelecting) return;
-    if (!_this2.isInContentEditable(event)) return;
+    if (!_this2.isInEditor(event)) return;
 
     var window = (0, _getWindow2.default)(event.target);
     var _props3 = _this2.props,
@@ -14853,7 +14873,7 @@ function Plugin() {
     // is replaced. But the `select` event for this change doesn't fire until after
     // the `beforeInput` event, even though the native selection is updated. So we
     // need to manually adjust the selection to be in sync. (03/18/2017)
-    var window = (0, _getWindow2.default)(event.target);
+    var window = (0, _getWindow2.default)(e.target);
     var native = window.getSelection();
     var anchorNode = native.anchorNode,
         anchorOffset = native.anchorOffset,
