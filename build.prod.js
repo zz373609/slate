@@ -21038,23 +21038,30 @@ function normalizeNodeAndChildren(transform, node, schema) {
   // We can't just loop the children and normalize them, because in the process
   // of normalizing one child, we might end up creating another. Instead, we
   // have to normalize one at a time, and check for new children along the way.
-  var stack = node.nodes.map(function (n) {
+  // PERF: use a mutable array here instead of an immutable stack.
+  var keys = node.nodes.toArray().map(function (n) {
     return n.key;
-  }).toStack();
-  var set = new _immutable.Set();
+  });
 
   // While there is still a child key that hasn't been normalized yet...
-  while (stack.size) {
+
+  var _loop = function _loop() {
     var ops = transform.operations.length;
     var key = void 0;
 
+    // PERF: use a mutable set here since we'll be add to it a lot.
+    var set = new _immutable.Set().asMutable();
+
     // Unwind the stack, normalizing every child and adding it to the set.
-    while (key = stack.peek()) {
+    while (key = keys[0]) {
       var child = node.getChild(key);
       normalizeNodeAndChildren(transform, child, schema);
-      set = set.add(key);
-      stack = stack.pop();
+      set.add(key);
+      keys.shift();
     }
+
+    // Turn the set immutable to be able to compare against it.
+    set = set.asImmutable();
 
     // PERF: Only re-find the node and re-normalize any new children if
     // operations occured that might have changed it.
@@ -21064,9 +21071,13 @@ function normalizeNodeAndChildren(transform, node, schema) {
       // Add any new children back onto the stack.
       node.nodes.forEach(function (n) {
         if (set.has(n.key)) return;
-        stack = stack.push(n.key);
+        keys.unshift(n.key);
       });
     }
+  };
+
+  while (keys.length) {
+    _loop();
   }
 
   // Normalize the node itself if it still exists.
