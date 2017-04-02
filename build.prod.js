@@ -3483,6 +3483,23 @@ var schema = {
         props.children
       );
     }
+  },
+  marks: {
+    bold: {
+      fontWeight: 'bold'
+    },
+    code: {
+      fontFamily: 'monospace',
+      backgroundColor: '#eee',
+      padding: '3px',
+      borderRadius: '4px'
+    },
+    italic: {
+      fontStyle: 'italic'
+    },
+    underlined: {
+      textDecoration: 'underline'
+    }
   }
 };
 
@@ -3528,18 +3545,46 @@ var LargeDocument = function (_React$Component) {
       _this.setState({ state: state });
     };
 
+    _this.onKeyDown = function (e, data, state) {
+      if (!data.isMod) return;
+      var mark = void 0;
+
+      switch (data.key) {
+        case 'b':
+          mark = 'bold';
+          break;
+        case 'i':
+          mark = 'italic';
+          break;
+        case 'u':
+          mark = 'underlined';
+          break;
+        case '`':
+          mark = 'code';
+          break;
+        default:
+          return;
+      }
+
+      state = state.transform().toggleMark(mark).apply();
+
+      e.preventDefault();
+      return state;
+    };
+
     _this.render = function () {
       return _react2.default.createElement(_.Editor, {
         placeholder: 'Enter some plain text...',
         schema: schema,
         spellCheck: false,
         state: _this.state.state,
-        onChange: _this.onChange
+        onChange: _this.onChange,
+        onKeyDown: _this.onKeyDown
       });
     };
 
     console.time('deserializeLargeDocument');
-    _this.state = { state: _.Raw.deserialize({ nodes: nodes }, { terse: true }) };
+    _this.state = { state: _.Raw.deserialize({ nodes: nodes }, { normalize: false, terse: true }) };
     console.timeEnd('deserializeLargeDocument');
     return _this;
   }
@@ -3548,6 +3593,15 @@ var LargeDocument = function (_React$Component) {
    * On change.
    *
    * @param {State} state
+   */
+
+  /**
+   * On key down, if it's a formatting command toggle a mark.
+   *
+   * @param {Event} e
+   * @param {Object} data
+   * @param {State} state
+   * @return {State}
    */
 
   /**
@@ -6864,7 +6918,7 @@ var _initialiseProps = function _initialiseProps() {
 
     // If there are no ranges, the editor was blurred natively.
     if (!native.rangeCount) {
-      data.selection = selection.merge({ isFocused: false });
+      data.selection = selection.set('isFocused', false);
       data.isNative = true;
     }
 
@@ -7605,8 +7659,8 @@ var Leaf = function (_React$Component) {
   }, {
     key: 'renderText',
     value: function renderText(props) {
-      var node = props.node,
-          state = props.state,
+      var block = props.block,
+          node = props.node,
           parent = props.parent,
           text = props.text,
           index = props.index,
@@ -7629,7 +7683,6 @@ var Leaf = function (_React$Component) {
 
       // COMPAT: Browsers will collapse trailing new lines at the end of blocks,
       // so we need to add an extra trailing new lines to prevent that.
-      var block = state.document.getClosestBlock(node.key);
       var lastText = block.getLastText();
       var lastChar = text.charAt(text.length - 1);
       var isLastText = node == lastText;
@@ -7687,6 +7740,7 @@ var Leaf = function (_React$Component) {
  */
 
 Leaf.propTypes = {
+  block: _react2.default.PropTypes.object.isRequired,
   editor: _react2.default.PropTypes.object.isRequired,
   index: _react2.default.PropTypes.number.isRequired,
   marks: _react2.default.PropTypes.object.isRequired,
@@ -7901,6 +7955,7 @@ var Node = function (_React$Component) {
  */
 
 Node.propTypes = {
+  block: _react2.default.PropTypes.object,
   editor: _react2.default.PropTypes.object.isRequired,
   node: _react2.default.PropTypes.object.isRequired,
   parent: _react2.default.PropTypes.object.isRequired,
@@ -8039,6 +8094,7 @@ var _initialiseProps = function _initialiseProps() {
     return _react2.default.createElement(Node, {
       key: child.key,
       node: child,
+      block: _this2.props.node.kind == 'block' ? _this2.props.node : _this2.props.block,
       parent: _this2.props.node,
       editor: _this2.props.editor,
       readOnly: _this2.props.readOnly,
@@ -8056,9 +8112,7 @@ var _initialiseProps = function _initialiseProps() {
         state = _props2.state;
     var Component = _this2.state.Component;
 
-    var children = node.nodes.map(function (child) {
-      return _this2.renderNode(child);
-    }).toArray();
+    var children = node.nodes.map(_this2.renderNode).toArray();
 
     // Attributes that the developer must to mix into the element in their
     // custom node renderer component.
@@ -8109,6 +8163,7 @@ var _initialiseProps = function _initialiseProps() {
 
   this.renderLeaf = function (ranges, range, index, offset) {
     var _props4 = _this2.props,
+        block = _props4.block,
         node = _props4.node,
         parent = _props4.parent,
         schema = _props4.schema,
@@ -8119,6 +8174,7 @@ var _initialiseProps = function _initialiseProps() {
 
     return _react2.default.createElement(_leaf2.default, {
       key: node.key + '-' + index,
+      block: block,
       editor: editor,
       index: index,
       marks: marks,
@@ -10117,10 +10173,23 @@ var Node = {
    */
 
   getBlocks: function getBlocks() {
-    return this.nodes.reduce(function (blocks, node) {
-      if (node.kind != 'block') return blocks;
-      return node.isLeafBlock() ? blocks.push(node) : blocks.concat(node.getBlocks());
-    }, new _immutable.List());
+    var array = this.getBlocksAsArray();
+    return new _immutable.List(array);
+  },
+
+  /**
+   * Get the leaf block descendants of the node.
+   *
+   * @return {List<Node>}
+   */
+
+  getBlocksAsArray: function getBlocksAsArray() {
+    return this.nodes.reduce(function (array, child) {
+      if (child.kind != 'block') return array;
+      if (!child.isLeafBlock()) return array.concat(child.getBlocksAsArray());
+      array.push(child);
+      return array;
+    }, []);
   },
 
   /**
@@ -10568,10 +10637,29 @@ var Node = {
    */
 
   getInlines: function getInlines() {
-    return this.nodes.reduce(function (inlines, node) {
-      if (node.kind == 'text') return inlines;
-      return node.isLeafInline() ? inlines.push(node) : inlines.concat(node.getInlines());
-    }, new _immutable.List());
+    var array = this.getInlinesAsArray();
+    return new _immutable.List(array);
+  },
+
+  /**
+   * Get the closest inline nodes for each text node in the node, as an array.
+   *
+   * @return {List<Node>}
+   */
+
+  getInlinesAsArray: function getInlinesAsArray() {
+    var array = [];
+
+    this.nodes.forEach(function (child) {
+      if (child.kind == 'text') return;
+      if (child.isLeafInline()) {
+        array.push(child);
+      } else {
+        array = array.concat(child.getInlinesAsArray());
+      }
+    });
+
+    return array;
   },
 
   /**
@@ -10848,29 +10936,17 @@ var Node = {
    */
 
   getPath: function getPath(key) {
-    key = _normalize2.default.key(key);
-
-    if (key == this.key) return [];
-
+    var child = this.assertNode(key);
+    var ancestors = this.getAncestors(key);
     var path = [];
-    var childKey = key;
-    var parent = void 0;
 
-    // Efficient with getParent memoization
-    while (parent = this.getParent(childKey)) {
-      var index = parent.nodes.findIndex(function (n) {
-        return n.key === childKey;
-      });
+    ancestors.reverse().forEach(function (ancestor) {
+      var index = ancestor.nodes.indexOf(child);
       path.unshift(index);
-      childKey = parent.key;
-    }
+      child = ancestor;
+    });
 
-    if (childKey === key) {
-      // Did not loop once, meaning we could not find the child
-      throw new Error('Could not find a descendant node with key "' + key + '".');
-    } else {
-      return path;
-    }
+    return path;
   },
 
   /**
@@ -10983,9 +11059,28 @@ var Node = {
    */
 
   getTexts: function getTexts() {
-    return this.nodes.reduce(function (texts, node) {
-      return node.kind == 'text' ? texts.push(node) : texts.concat(node.getTexts());
-    }, new _immutable.List());
+    var array = this.getTextsAsArray();
+    return new _immutable.List(array);
+  },
+
+  /**
+   * Recursively get all the leaf text nodes in order of appearance, as array.
+   *
+   * @return {List<Node>}
+   */
+
+  getTextsAsArray: function getTextsAsArray() {
+    var array = [];
+
+    this.nodes.forEach(function (node) {
+      if (node.kind == 'text') {
+        array.push(node);
+      } else {
+        array = array.concat(node.getTextsAsArray());
+      }
+    });
+
+    return array;
   },
 
   /**
@@ -11077,7 +11172,7 @@ var Node = {
     }
 
     var nodes = this.nodes.insert(index, node);
-    return this.merge({ nodes: nodes });
+    return this.set('nodes', nodes);
   },
 
   /**
@@ -11130,7 +11225,7 @@ var Node = {
           characters = _first.characters;
 
       characters = characters.concat(second.characters);
-      first = first.merge({ characters: characters });
+      first = first.set('characters', characters);
     } else {
       var size = first.nodes.size;
 
@@ -11168,7 +11263,7 @@ var Node = {
       if (ret != node) nodes = nodes.set(ret.key, ret);
     });
 
-    return this.merge({ nodes: nodes });
+    return this.set('nodes', nodes);
   },
 
   /**
@@ -11194,7 +11289,7 @@ var Node = {
       nodes = nodes.set(index, ret);
     });
 
-    return this.merge({ nodes: nodes });
+    return this.set('nodes', nodes);
   },
 
   /**
@@ -11204,7 +11299,8 @@ var Node = {
    */
 
   regenerateKey: function regenerateKey() {
-    return this.merge({ key: (0, _generateKey2.default)() });
+    var key = (0, _generateKey2.default)();
+    return this.set('key', key);
   },
 
   /**
@@ -11227,9 +11323,8 @@ var Node = {
     var isParent = node == parent;
     var nodes = parent.nodes.splice(index, 1);
 
-    parent = parent.merge({ nodes: nodes });
+    parent = parent.set('nodes', nodes);
     node = isParent ? parent : node.updateDescendant(parent);
-
     return node;
   },
 
@@ -11242,7 +11337,7 @@ var Node = {
 
   removeNode: function removeNode(index) {
     var nodes = this.nodes.splice(index, 1);
-    return this.merge({ nodes: nodes });
+    return this.set('nodes', nodes);
   },
 
   /**
@@ -11306,8 +11401,8 @@ var Node = {
 
         var oneChars = characters.take(i);
         var twoChars = characters.skip(i);
-        one = child.merge({ characters: oneChars });
-        two = child.merge({ characters: twoChars }).regenerateKey();
+        one = child.set('characters', oneChars);
+        two = child.set('characters', twoChars).regenerateKey();
       } else {
         var _child2 = child,
             nodes = _child2.nodes;
@@ -11323,8 +11418,8 @@ var Node = {
         var twoNodes = nodes.skipUntil(function (n) {
           return n.key == one.key;
         }).rest().unshift(two);
-        one = child.merge({ nodes: oneNodes });
-        two = child.merge({ nodes: twoNodes }).regenerateKey();
+        one = child.set('nodes', oneNodes);
+        two = child.set('nodes', twoNodes).regenerateKey();
       }
 
       child = base.getParent(child.key);
@@ -11358,8 +11453,8 @@ var Node = {
     var oneNodes = nodes.take(count);
     var twoNodes = nodes.skip(count);
 
-    var one = node.merge({ nodes: oneNodes });
-    var two = node.merge({ nodes: twoNodes }).regenerateKey();
+    var one = node.set('nodes', oneNodes);
+    var two = node.set('nodes', twoNodes).regenerateKey();
 
     var nodeIndex = parent.nodes.indexOf(node);
     parent = parent.removeNode(nodeIndex);
@@ -11378,22 +11473,21 @@ var Node = {
    */
 
   updateDescendant: function updateDescendant(node) {
-    var found = false;
+    var child = this.assertDescendant(node.key);
+    var ancestors = this.getAncestors(node.key);
 
-    var result = this.mapDescendants(function (d) {
-      if (d.key == node.key) {
-        found = true;
-        return node;
-      } else {
-        return d;
-      }
+    ancestors.reverse().forEach(function (parent) {
+      var _parent = parent,
+          nodes = _parent.nodes;
+
+      var index = nodes.indexOf(child);
+      child = parent;
+      nodes = nodes.set(index, node);
+      parent = parent.set('nodes', nodes);
+      node = parent;
     });
 
-    if (!found) {
-      throw new Error('Could not update descendant node with key "' + node.key + '".');
-    } else {
-      return result;
-    }
+    return node;
   },
 
   /**
@@ -11431,7 +11525,7 @@ var Node = {
   concatChildren: function concatChildren(nodes) {
     (0, _warn2.default)('The `Node.concatChildren(nodes)` method is deprecated.');
     nodes = this.nodes.concat(nodes);
-    return this.merge({ nodes: nodes });
+    return this.set('nodes', nodes);
   },
 
   /**
@@ -11568,7 +11662,7 @@ var Node = {
  * Memoize read methods.
  */
 
-(0, _memoize2.default)(Node, ['areDescendantsSorted', 'getAncestors', 'getBlocks', 'getBlocksAtRange', 'getBlocksByType', 'getCharacters', 'getCharactersAtRange', 'getChild', 'getChildrenBetween', 'getChildrenBetweenIncluding', 'getClosestBlock', 'getClosestInline', 'getClosestVoid', 'getCommonAncestor', 'getComponent', 'getDecorators', 'getDepth', 'getDescendant', 'getDescendant', 'getDescendantAtPath', 'getDescendantDecorators', 'getFirstText', 'getFragmentAtRange', 'getFurthestBlock', 'getFurthestInline', 'getFurthestAncestor', 'getFurthestOnlyChildAncestor', 'getInlines', 'getInlinesAtRange', 'getInlinesByType', 'getKeys', 'getLastText', 'getMarks', 'getMarksAtRange', 'getMarksByType', 'getNextBlock', 'getNextSibling', 'getNextText', 'getNode', 'getOffset', 'getOffsetAtRange', 'getParent', 'getPath', 'getPreviousBlock', 'getPreviousSibling', 'getPreviousText', 'getText', 'getTextAtOffset', 'getTextDirection', 'getTexts', 'getTextsAtRange', 'hasChild', 'hasDescendant', 'hasNode', 'hasVoidParent', 'isInlineSplitAtRange', 'isLeafBlock', 'isLeafInline', 'validate']);
+(0, _memoize2.default)(Node, ['areDescendantsSorted', 'getAncestors', 'getBlocks', 'getBlocksAsArray', 'getBlocksAtRange', 'getBlocksByType', 'getCharacters', 'getCharactersAtRange', 'getChild', 'getChildrenBetween', 'getChildrenBetweenIncluding', 'getClosestBlock', 'getClosestInline', 'getClosestVoid', 'getCommonAncestor', 'getComponent', 'getDecorators', 'getDepth', 'getDescendant', 'getDescendant', 'getDescendantAtPath', 'getDescendantDecorators', 'getFirstText', 'getFragmentAtRange', 'getFurthestBlock', 'getFurthestInline', 'getFurthestAncestor', 'getFurthestOnlyChildAncestor', 'getInlines', 'getInlinesAsArray', 'getInlinesAtRange', 'getInlinesByType', 'getKeys', 'getLastText', 'getMarks', 'getMarksAtRange', 'getMarksByType', 'getNextBlock', 'getNextSibling', 'getNextText', 'getNode', 'getOffset', 'getOffsetAtRange', 'getParent', 'getPath', 'getPreviousBlock', 'getPreviousSibling', 'getPreviousText', 'getText', 'getTextAtOffset', 'getTextDirection', 'getTexts', 'getTextsAsArray', 'getTextsAtRange', 'hasChild', 'hasDescendant', 'hasNode', 'hasVoidParent', 'isInlineSplitAtRange', 'isLeafBlock', 'isLeafInline', 'validate']);
 
 /**
  * Export.
@@ -14273,11 +14367,11 @@ var Text = function (_ref) {
             marks = _char.marks;
 
         marks = marks.add(mark);
-        char = char.merge({ marks: marks });
+        char = char.set('marks', marks);
         return char;
       });
 
-      return this.merge({ characters: characters });
+      return this.set('characters', characters);
     }
 
     /**
@@ -14394,49 +14488,55 @@ var Text = function (_ref) {
     value: function getRanges() {
       var decorators = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
 
-      var list = new _immutable.List();
       var characters = this.getDecorations(decorators);
+      var ranges = [];
+
+      // PERF: cache previous values for faster lookup.
+      var prevChar = void 0;
+      var prevRange = void 0;
 
       // If there are no characters, return one empty range.
       if (characters.size == 0) {
-        return list.push(new _range2.default());
+        ranges.push({});
       }
 
-      // Convert the now-decorated characters into ranges.
-      var ranges = characters.reduce(function (memo, char, i) {
-        var marks = char.marks,
-            text = char.text;
+      // Otherwise, loop the characters and build the ranges...
+      else {
+          characters.forEach(function (char, i) {
+            var marks = char.marks,
+                text = char.text;
 
-        // The first one can always just be created.
+            // The first one can always just be created.
 
-        if (i == 0) {
-          return memo.push(new _range2.default({ text: text, marks: marks }));
+            if (i == 0) {
+              prevChar = char;
+              prevRange = { text: text, marks: marks };
+              ranges.push(prevRange);
+              return;
+            }
+
+            // Otherwise, compare the current and previous marks.
+            var prevMarks = prevChar.marks;
+            var isSame = (0, _immutable.is)(marks, prevMarks);
+
+            // If the marks are the same, add the text to the previous range.
+            if (isSame) {
+              prevChar = char;
+              prevRange.text += text;
+              return;
+            }
+
+            // Otherwise, create a new range.
+            prevChar = char;
+            prevRange = { text: text, marks: marks };
+            ranges.push(prevRange);
+          }, []);
         }
 
-        // Otherwise, compare to the previous and see if a new range should be
-        // created, or whether the text should be added to the previous range.
-        var previous = characters.get(i - 1);
-        var prevMarks = previous.marks;
-        var added = marks.filterNot(function (mark) {
-          return prevMarks.includes(mark);
-        });
-        var removed = prevMarks.filterNot(function (mark) {
-          return marks.includes(mark);
-        });
-        var isSame = !added.size && !removed.size;
-
-        // If the marks are the same, add the text to the previous range.
-        if (isSame) {
-          var index = memo.size - 1;
-          var prevRange = memo.get(index);
-          var prevText = prevRange.get('text');
-          prevRange = prevRange.set('text', prevText += text);
-          return memo.set(index, prevRange);
-        }
-
-        // Otherwise, create a new range.
-        return memo.push(new _range2.default({ text: text, marks: marks }));
-      }, list);
+      // PERF: convert the ranges to immutable objects after iterating.
+      ranges = new _immutable.List(ranges.map(function (object) {
+        return new _range2.default(object);
+      }));
 
       // Return the ranges.
       return ranges;
@@ -14474,7 +14574,7 @@ var Text = function (_ref) {
 
       characters = characters.slice(0, index).concat(chars).concat(characters.slice(index));
 
-      return this.merge({ characters: characters });
+      return this.set('characters', characters);
     }
 
     /**
@@ -14486,7 +14586,8 @@ var Text = function (_ref) {
   }, {
     key: 'regenerateKey',
     value: function regenerateKey() {
-      return this.merge({ key: (0, _generateKey2.default)() });
+      var key = (0, _generateKey2.default)();
+      return this.set('key', key);
     }
 
     /**
@@ -14508,11 +14609,11 @@ var Text = function (_ref) {
             marks = _char2.marks;
 
         marks = marks.remove(mark);
-        char = char.merge({ marks: marks });
+        char = char.set('marks', marks);
         return char;
       });
 
-      return this.merge({ characters: characters });
+      return this.set('characters', characters);
     }
 
     /**
@@ -14533,7 +14634,7 @@ var Text = function (_ref) {
       characters = characters.filterNot(function (char, i) {
         return start <= i && i < end;
       });
-      return this.merge({ characters: characters });
+      return this.set('characters', characters);
     }
 
     /**
@@ -14558,11 +14659,11 @@ var Text = function (_ref) {
         if (!marks.has(mark)) return char;
         marks = marks.remove(mark);
         marks = marks.add(newMark);
-        char = char.merge({ marks: marks });
+        char = char.set('marks', marks);
         return char;
       });
 
-      return this.merge({ characters: characters });
+      return this.set('characters', characters);
     }
 
     /**
@@ -14623,8 +14724,8 @@ var Text = function (_ref) {
   }, {
     key: 'text',
     get: function get() {
-      return this.characters.reduce(function (result, char) {
-        return result + char.text;
+      return this.characters.reduce(function (string, char) {
+        return string + char.text;
       }, '');
     }
   }], [{
@@ -14838,7 +14939,7 @@ var Transform = function () {
       if (save) this.save({ merge: merge });
 
       // Return the new state with the `isNative` flag set.
-      return this.state.merge({ isNative: !!isNative });
+      return this.state.set('isNative', !!isNative);
     }
   }, {
     key: 'kind',
@@ -15159,7 +15260,7 @@ function Plugin() {
 
     // Add the `isNative` flag directly, so we don't have to re-transform.
     if (isNative) {
-      next = next.merge({ isNative: isNative });
+      next = next.set('isNative', isNative);
     }
 
     // If not native, prevent default so that the DOM remains untouched.
@@ -17108,12 +17209,14 @@ var Raw = {
 
     if (options.terse) object = Raw.untersifyRange(object);
 
+    var marks = _mark2.default.createSet(object.marks.map(function (mark) {
+      return Raw.deserializeMark(mark, options);
+    }));
+
     return _character2.default.createList(object.text.split('').map(function (char) {
       return _character2.default.create({
         text: char,
-        marks: _mark2.default.createSet(object.marks.map(function (mark) {
-          return Raw.deserializeMark(mark, options);
-        }))
+        marks: marks
       });
     }));
   },
@@ -17809,7 +17912,7 @@ function addMark(state, operation) {
   var node = document.assertPath(path);
   node = node.addMark(offset, length, mark);
   document = document.updateDescendant(node);
-  state = state.merge({ document: document });
+  state = state.set('document', document);
   return state;
 }
 
@@ -17832,7 +17935,7 @@ function insertNode(state, operation) {
   var isParent = document == parent;
   parent = parent.insertNode(index, node);
   document = isParent ? parent : document.updateDescendant(parent);
-  state = state.merge({ document: document });
+  state = state.set('document', document);
   return state;
 }
 
@@ -17872,7 +17975,7 @@ function insertText(state, operation) {
     selection = selection.moveFocus(text.length);
   }
 
-  state = state.merge({ document: document, selection: selection });
+  state = state.set('document', document).set('selection', selection);
   return state;
 }
 
@@ -17927,7 +18030,7 @@ function joinNode(state, operation) {
     }
   }
 
-  state = state.merge({ document: document, selection: selection });
+  state = state.set('document', document).set('selection', selection);
   return state;
 }
 
@@ -17961,7 +18064,7 @@ function moveNode(state, operation) {
   target = target.insertNode(newIndex, node);
   document = isTarget ? target : document.updateDescendant(target);
 
-  state = state.merge({ document: document });
+  state = state.set('document', document);
   return state;
 }
 
@@ -17984,7 +18087,7 @@ function removeMark(state, operation) {
   var node = document.assertPath(path);
   node = node.removeMark(offset, length, mark);
   document = document.updateDescendant(node);
-  state = state.merge({ document: document });
+  state = state.set('document', document);
   return state;
 }
 
@@ -18048,7 +18151,7 @@ function removeNode(state, operation) {
   document = isParent ? parent : document.updateDescendant(parent);
 
   // Update the document and selection.
-  state = state.merge({ document: document, selection: selection });
+  state = state.set('document', document).set('selection', selection);
   return state;
 }
 
@@ -18087,7 +18190,7 @@ function removeText(state, operation) {
 
   node = node.removeText(offset, length);
   document = document.updateDescendant(node);
-  state = state.merge({ document: document, selection: selection });
+  state = state.set('document', document).set('selection', selection);
   return state;
 }
 
@@ -18111,7 +18214,7 @@ function setMark(state, operation) {
   var node = document.assertPath(path);
   node = node.updateMark(offset, length, mark, newMark);
   document = document.updateDescendant(node);
-  state = state.merge({ document: document });
+  state = state.set('document', document);
   return state;
 }
 
@@ -18145,7 +18248,7 @@ function setNode(state, operation) {
 
   node = node.merge(properties);
   document = node.kind === 'document' ? node : document.updateDescendant(node);
-  state = state.merge({ document: document });
+  state = state.set('document', document);
   return state;
 }
 
@@ -18175,7 +18278,7 @@ function setSelection(state, operation) {
 
   selection = selection.merge(properties);
   selection = selection.normalize(document);
-  state = state.merge({ selection: selection });
+  state = state.set('selection', selection);
   return state;
 }
 
@@ -18203,7 +18306,7 @@ function splitNode(state, operation) {
 
   if (offset == null) {
     document = document.splitNodeAfter(path, count);
-    state = state.merge({ document: document });
+    state = state.set('document', document);
     return state;
   }
 
@@ -18242,7 +18345,7 @@ function splitNode(state, operation) {
     }
   }
 
-  state = state.merge({ document: document, selection: selection });
+  state = state.set('document', document).set('selection', selection);
   return state;
 }
 
@@ -18297,13 +18400,13 @@ Transforms.addMark = function (transform, mark) {
 
   if (selection.marks) {
     var _marks = selection.marks.add(mark);
-    var _sel = selection.merge({ marks: _marks });
+    var _sel = selection.set('marks', _marks);
     transform.select(_sel);
     return;
   }
 
   var marks = document.getMarksAtRange(selection).add(mark);
-  var sel = selection.merge({ marks: marks });
+  var sel = selection.set('marks', marks);
   transform.select(sel);
 };
 
@@ -18620,13 +18723,13 @@ Transforms.removeMark = function (transform, mark) {
 
   if (selection.marks) {
     var _marks2 = selection.marks.remove(mark);
-    var _sel2 = selection.merge({ marks: _marks2 });
+    var _sel2 = selection.set('marks', _marks2);
     transform.select(_sel2);
     return;
   }
 
   var marks = document.getMarksAtRange(selection).remove(mark);
-  var sel = selection.merge({ marks: marks });
+  var sel = selection.set('marks', marks);
   transform.select(sel);
 };
 
@@ -19960,7 +20063,7 @@ Transforms.wrapBlockAtRange = function (transform, range, block) {
   var options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
 
   block = _normalize2.default.block(block);
-  block = block.merge({ nodes: block.nodes.clear() });
+  block = block.set('nodes', block.nodes.clear());
 
   var _options$normalize16 = options.normalize,
       normalize = _options$normalize16 === undefined ? true : _options$normalize16;
@@ -20057,7 +20160,7 @@ Transforms.wrapInlineAtRange = function (transform, range, inline) {
   }
 
   inline = _normalize2.default.inline(inline);
-  inline = inline.merge({ nodes: inline.nodes.clear() });
+  inline = inline.set('nodes', inline.nodes.clear());
 
   var blocks = document.getBlocksAtRange(range);
   var startBlock = document.getClosestBlock(startKey);
@@ -20645,7 +20748,7 @@ Transforms.unwrapNodeByKey = function (transform, key) {
 
 Transforms.wrapInlineByKey = function (transform, key, inline, options) {
   inline = _normalize2.default.inline(inline);
-  inline = inline.merge({ nodes: inline.nodes.clear() });
+  inline = inline.set('nodes', inline.nodes.clear());
 
   var document = transform.state.document;
 
@@ -20669,7 +20772,7 @@ Transforms.wrapInlineByKey = function (transform, key, inline, options) {
 
 Transforms.wrapBlockByKey = function (transform, key, block, options) {
   block = _normalize2.default.block(block);
-  block = block.merge({ nodes: block.nodes.clear() });
+  block = block.set('nodes', block.nodes.clear());
 
   var document = transform.state.document;
 
@@ -20914,7 +21017,7 @@ Transforms.normalizeSelection = function (transform) {
     });
   }
 
-  state = state.merge({ selection: selection });
+  state = state.set('selection', selection);
   transform.state = state;
 };
 
@@ -21057,7 +21160,7 @@ function assertSchema(schema) {
 exports.default = Transforms;
 
 },{"../models/schema":58,"../utils/normalize":90,"../utils/warn":94,"immutable":1220}],77:[function(require,module,exports){
-"use strict";
+'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
@@ -21101,8 +21204,8 @@ Transforms.redo = function (transform) {
 
   // Update the history.
   state = transform.state;
-  history = history.merge({ undos: undos, redos: redos });
-  state = state.merge({ history: history });
+  history = history.set('undos', undos).set('redos', redos);
+  state = state.set('history', history);
 
   // Update the transform.
   transform.state = state;
@@ -21146,8 +21249,8 @@ Transforms.save = function (transform) {
   redos = redos.clear();
 
   // Update the state.
-  history = history.merge({ undos: undos, redos: redos });
-  state = state.merge({ history: history });
+  history = history.set('undos', undos).set('redos', redos);
+  state = state.set('history', history);
 
   // Update the transform.
   transform.state = state;
@@ -21185,8 +21288,8 @@ Transforms.undo = function (transform) {
 
   // Update the history.
   state = transform.state;
-  history = history.merge({ undos: undos, redos: redos });
-  state = state.merge({ history: history });
+  history = history.set('undos', undos).set('redos', redos);
+  state = state.set('history', history);
 
   // Update the transform.
   transform.state = state;
