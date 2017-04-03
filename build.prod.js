@@ -6106,10 +6106,6 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
-var _reactDom = require('react-dom');
-
-var _reactDom2 = _interopRequireDefault(_reactDom);
-
 var _selection = require('../models/selection');
 
 var _selection2 = _interopRequireDefault(_selection);
@@ -6416,8 +6412,7 @@ var _initialiseProps = function _initialiseProps() {
     _this2.updateSelection();
 
     if (_this2.props.autoFocus) {
-      var el = _reactDom2.default.findDOMNode(_this2);
-      el.focus();
+      _this2.element.focus();
     }
   };
 
@@ -6432,8 +6427,7 @@ var _initialiseProps = function _initialiseProps() {
     var document = state.document,
         selection = state.selection;
 
-    var el = _reactDom2.default.findDOMNode(_this2);
-    var window = (0, _getWindow2.default)(el);
+    var window = (0, _getWindow2.default)(_this2.element);
     var native = window.getSelection();
 
     // If both selections are blurred, do nothing.
@@ -6442,9 +6436,9 @@ var _initialiseProps = function _initialiseProps() {
     // If the selection has been blurred, but hasn't been updated in the DOM,
     // blur the DOM selection.
     if (selection.isBlurred) {
-      if (!el.contains(native.anchorNode)) return;
+      if (!_this2.element.contains(native.anchorNode)) return;
       native.removeAllRanges();
-      el.blur();
+      _this2.element.blur();
       debug('updateSelection', { selection: selection, native: native });
       return;
     }
@@ -6489,8 +6483,8 @@ var _initialiseProps = function _initialiseProps() {
       return false;
     });
 
-    var anchorSpan = el.querySelector('[data-offset-key="' + anchorKey + '-' + anchorIndex + '"]');
-    var focusSpan = el.querySelector('[data-offset-key="' + focusKey + '-' + focusIndex + '"]');
+    var anchorSpan = _this2.element.querySelector('[data-offset-key="' + anchorKey + '-' + anchorIndex + '"]');
+    var focusSpan = _this2.element.querySelector('[data-offset-key="' + focusKey + '-' + focusIndex + '"]');
     var anchorEl = (0, _findDeepestNode2.default)(anchorSpan);
     var focusEl = (0, _findDeepestNode2.default)(focusSpan);
 
@@ -6511,7 +6505,7 @@ var _initialiseProps = function _initialiseProps() {
     setTimeout(function () {
       // COMPAT: In Firefox, it's not enough to create a range, you also need to
       // focus the contenteditable element too. (2016/11/16)
-      if (_environment.IS_FIREFOX) el.focus();
+      if (_environment.IS_FIREFOX) _this2.element.focus();
       _this2.tmp.isSelecting = false;
     });
 
@@ -7065,7 +7059,7 @@ var _initialiseProps = function _initialiseProps() {
 
 exports.default = Content;
 
-},{"../constants/environment":46,"../constants/types":48,"../models/selection":59,"../serializers/base-64":66,"../utils/find-deepest-node":80,"../utils/get-point":83,"../utils/get-transfer-data":84,"./node":43,"debug":123,"get-window":1190,"keycode":1229,"react":1452,"react-dom":1253}],41:[function(require,module,exports){
+},{"../constants/environment":46,"../constants/types":48,"../models/selection":59,"../serializers/base-64":66,"../utils/find-deepest-node":80,"../utils/get-point":83,"../utils/get-transfer-data":84,"./node":43,"debug":123,"get-window":1190,"keycode":1229,"react":1452}],41:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -8568,6 +8562,7 @@ var _initialiseProps = function _initialiseProps() {
 
   this.renderLeaf = function () {
     var _props2 = _this2.props,
+        block = _props2.block,
         node = _props2.node,
         schema = _props2.schema,
         state = _props2.state,
@@ -8586,6 +8581,7 @@ var _initialiseProps = function _initialiseProps() {
 
     return _react2.default.createElement(_leaf2.default, {
       key: offsetKey,
+      block: block,
       editor: editor,
       index: index,
       marks: marks,
