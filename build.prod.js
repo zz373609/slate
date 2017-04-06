@@ -466,14 +466,15 @@ function codeBlockDecorator(text, block) {
 
       var length = offset + token.content.length;
       var type = 'highlight-' + token.type;
+      var mark = _.Mark.create({ type: type });
 
       for (var i = offset; i < length; i++) {
         var char = characters.get(i);
         var _char = char,
             marks = _char.marks;
 
-        marks = marks.add(_.Mark.create({ type: type }));
-        char = char.merge({ marks: marks });
+        marks = marks.add(mark);
+        char = char.set('marks', marks);
         characters.set(i, char);
       }
 
@@ -3963,7 +3964,7 @@ function addMarks(characters, tokens, offset) {
             marks = _char.marks;
 
         marks = marks.add(mark);
-        char = char.merge({ marks: marks });
+        char = char.set('marks', marks);
         characters.set(i, char);
       }
 
