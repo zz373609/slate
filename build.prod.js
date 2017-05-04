@@ -6226,18 +6226,12 @@ var Content = function (_React$Component) {
   /**
    * When the editor first mounts in the DOM we need to:
    *
-   *   - Setup the original state for `isWindowFocused`.
-   *   - Attach window focus and blur listeners for tab switching.
    *   - Update the selection, in case it starts focused.
    *   - Focus the editor if `autoFocus` is set.
    */
 
   /**
    * On update, update the selection.
-   */
-
-  /**
-   * Before unmounting, detach our window focus and blur listeners.
    */
 
   /**
@@ -6251,11 +6245,11 @@ var Content = function (_React$Component) {
    */
 
   /**
-   * Check if an `event` is being fired from within the contenteditable element.
-   * This will return false for edits happening in non-contenteditable children,
-   * such as void nodes and other nested Slate editors.
+   * Check if an event `target` is fired from within the contenteditable
+   * element. This should be false for edits happening in non-contenteditable
+   * children, such as void nodes and other nested Slate editors.
    *
-   * @param {Event} event
+   * @param {Element} target
    * @return {Boolean}
    */
 
@@ -6366,18 +6360,6 @@ var Content = function (_React$Component) {
    */
 
   /**
-   * On window blur, unset the `isWindowFocused` flag.
-   *
-   * @param {Event} event
-   */
-
-  /**
-   * On window focus, update the `isWindowFocused` flag.
-   *
-   * @param {Event} event
-   */
-
-  /**
    * Render the editor content.
    *
    * @return {Element}
@@ -6443,11 +6425,6 @@ var _initialiseProps = function _initialiseProps() {
   };
 
   this.componentDidMount = function () {
-    var window = (0, _getWindow2.default)(_this2.element);
-    window.addEventListener('focus', _this2.onWindowFocus, true);
-    window.addEventListener('blur', _this2.onWindowBlur, true);
-    _this2.tmp.isWindowFocused = !window.document.hidden;
-
     _this2.updateSelection();
 
     if (_this2.props.autoFocus) {
@@ -6457,12 +6434,6 @@ var _initialiseProps = function _initialiseProps() {
 
   this.componentDidUpdate = function () {
     _this2.updateSelection();
-  };
-
-  this.componentWillUnmount = function () {
-    var window = (0, _getWindow2.default)(_this2.element);
-    window.removeEventListener('focus', _this2.onWindowFocus, true);
-    window.removeEventListener('blur', _this2.onWindowBlur, true);
   };
 
   this.updateSelection = function () {
@@ -6478,10 +6449,10 @@ var _initialiseProps = function _initialiseProps() {
     // If both selections are blurred, do nothing.
     if (!native.rangeCount && selection.isBlurred) return;
 
-    // If the selection has been blurred, but hasn't been updated in the DOM,
-    // blur the DOM selection.
+    // If the selection has been blurred, but is still inside the editor in the
+    // DOM, blur it manually.
     if (selection.isBlurred) {
-      if (!_this2.element.contains(native.anchorNode)) return;
+      if (!_this2.isInEditor(native.anchorNode)) return;
       native.removeAllRanges();
       _this2.element.blur();
       debug('updateSelection', { selection: selection, native: native });
@@ -6561,16 +6532,15 @@ var _initialiseProps = function _initialiseProps() {
     _this2.element = element;
   };
 
-  this.isInEditor = function (event) {
+  this.isInEditor = function (target) {
     var element = _this2.element;
-    var target = event.target;
 
     return target.isContentEditable && (target == element || (0, _findClosestNode2.default)(target, '[data-slate-editor]') == element);
   };
 
   this.onBeforeInput = function (event) {
     if (_this2.props.readOnly) return;
-    if (!_this2.isInEditor(event)) return;
+    if (!_this2.isInEditor(event.target)) return;
 
     var data = {};
 
@@ -6581,13 +6551,13 @@ var _initialiseProps = function _initialiseProps() {
   this.onBlur = function (event) {
     if (_this2.props.readOnly) return;
     if (_this2.tmp.isCopying) return;
-    if (!_this2.tmp.isWindowFocused) return;
-    if (!_this2.isInEditor(event)) return;
+    if (!_this2.isInEditor(event.target)) return;
 
-    // If the element that is now focused is actually inside the editor, we
-    // need to ignore it. This can happen in situations where there is a nested
-    // `contenteditable="true"` node that isn't another Slate editor.
-    if (_this2.element.contains(event.relatedTarget)) return;
+    // If the active element is still the editor, the blur event is due to the
+    // window itself being blurred (eg. when changing tabs) so we should ignore
+    // the event, since we want to maintain focus when returning.
+    var window = (0, _getWindow2.default)(_this2.element);
+    if (window.document.activeElement == _this2.element) return;
 
     var data = {};
 
@@ -6598,8 +6568,7 @@ var _initialiseProps = function _initialiseProps() {
   this.onFocus = function (event) {
     if (_this2.props.readOnly) return;
     if (_this2.tmp.isCopying) return;
-    if (!_this2.tmp.isWindowFocused) return;
-    if (!_this2.isInEditor(event)) return;
+    if (!_this2.isInEditor(event.target)) return;
 
     // COMPAT: If the editor has nested editable elements, the focus can go to
     // those elements. In Firefox, this must be prevented because it results in
@@ -6621,7 +6590,7 @@ var _initialiseProps = function _initialiseProps() {
   };
 
   this.onCompositionStart = function (event) {
-    if (!_this2.isInEditor(event)) return;
+    if (!_this2.isInEditor(event.target)) return;
 
     _this2.tmp.isComposing = true;
     _this2.tmp.compositions++;
@@ -6630,7 +6599,7 @@ var _initialiseProps = function _initialiseProps() {
   };
 
   this.onCompositionEnd = function (event) {
-    if (!_this2.isInEditor(event)) return;
+    if (!_this2.isInEditor(event.target)) return;
 
     _this2.tmp.forces++;
     var count = _this2.tmp.compositions;
@@ -6647,7 +6616,7 @@ var _initialiseProps = function _initialiseProps() {
   };
 
   this.onCopy = function (event) {
-    if (!_this2.isInEditor(event)) return;
+    if (!_this2.isInEditor(event.target)) return;
     var window = (0, _getWindow2.default)(event.target);
 
     _this2.tmp.isCopying = true;
@@ -6667,7 +6636,7 @@ var _initialiseProps = function _initialiseProps() {
 
   this.onCut = function (event) {
     if (_this2.props.readOnly) return;
-    if (!_this2.isInEditor(event)) return;
+    if (!_this2.isInEditor(event.target)) return;
     var window = (0, _getWindow2.default)(event.target);
 
     _this2.tmp.isCopying = true;
@@ -6686,7 +6655,7 @@ var _initialiseProps = function _initialiseProps() {
   };
 
   this.onDragEnd = function (event) {
-    if (!_this2.isInEditor(event)) return;
+    if (!_this2.isInEditor(event.target)) return;
 
     _this2.tmp.isDragging = false;
     _this2.tmp.isInternalDrag = null;
@@ -6695,7 +6664,7 @@ var _initialiseProps = function _initialiseProps() {
   };
 
   this.onDragOver = function (event) {
-    if (!_this2.isInEditor(event)) return;
+    if (!_this2.isInEditor(event.target)) return;
 
     var dataTransfer = event.nativeEvent.dataTransfer;
 
@@ -6714,7 +6683,7 @@ var _initialiseProps = function _initialiseProps() {
   };
 
   this.onDragStart = function (event) {
-    if (!_this2.isInEditor(event)) return;
+    if (!_this2.isInEditor(event.target)) return;
 
     _this2.tmp.isDragging = true;
     _this2.tmp.isInternalDrag = true;
@@ -6736,7 +6705,7 @@ var _initialiseProps = function _initialiseProps() {
 
   this.onDrop = function (event) {
     if (_this2.props.readOnly) return;
-    if (!_this2.isInEditor(event)) return;
+    if (!_this2.isInEditor(event.target)) return;
 
     event.preventDefault();
 
@@ -6795,7 +6764,7 @@ var _initialiseProps = function _initialiseProps() {
   this.onInput = function (event) {
     if (_this2.tmp.isComposing) return;
     if (_this2.props.state.isBlurred) return;
-    if (!_this2.isInEditor(event)) return;
+    if (!_this2.isInEditor(event.target)) return;
     debug('onInput', { event: event });
 
     var window = (0, _getWindow2.default)(event.target);
@@ -6866,7 +6835,7 @@ var _initialiseProps = function _initialiseProps() {
 
   this.onKeyDown = function (event) {
     if (_this2.props.readOnly) return;
-    if (!_this2.isInEditor(event)) return;
+    if (!_this2.isInEditor(event.target)) return;
 
     var altKey = event.altKey,
         ctrlKey = event.ctrlKey,
@@ -6927,7 +6896,7 @@ var _initialiseProps = function _initialiseProps() {
 
   this.onPaste = function (event) {
     if (_this2.props.readOnly) return;
-    if (!_this2.isInEditor(event)) return;
+    if (!_this2.isInEditor(event.target)) return;
 
     event.preventDefault();
     var data = (0, _getTransferData2.default)(event.clipboardData);
@@ -6945,7 +6914,7 @@ var _initialiseProps = function _initialiseProps() {
     if (_this2.tmp.isCopying) return;
     if (_this2.tmp.isComposing) return;
     if (_this2.tmp.isSelecting) return;
-    if (!_this2.isInEditor(event)) return;
+    if (!_this2.isInEditor(event.target)) return;
 
     var window = (0, _getWindow2.default)(event.target);
     var _props4 = _this2.props,
@@ -7023,16 +6992,6 @@ var _initialiseProps = function _initialiseProps() {
 
     debug('onSelect', { event: event, data: data });
     _this2.props.onSelect(event, data);
-  };
-
-  this.onWindowBlur = function (e) {
-    debug('onWindowBlur');
-    _this2.tmp.isWindowFocused = false;
-  };
-
-  this.onWindowFocus = function (e) {
-    debug('onWindowFocus');
-    _this2.tmp.isWindowFocused = true;
   };
 
   this.render = function () {
@@ -23792,15 +23751,6 @@ function warn(message) {
     }
 
     (_console = console).warn.apply(_console, ['Warning: ' + message].concat(args)); // eslint-disable-line no-console
-  }
-
-  try {
-    // --- Welcome to debugging Slate! ---
-    // This error was thrown as a convenience so that you can use this stack
-    // to find the callsite that caused this warning to fire.
-    throw new Error(message);
-  } catch (x) {
-    // This error is only for debugging.
   }
 }
 
