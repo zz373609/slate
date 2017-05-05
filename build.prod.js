@@ -15154,7 +15154,7 @@ function Plugin() {
     // a transform and normalize the selection if the document is the same
     if (prevState && state.document == prevState.document) return state;
 
-    var newState = state.transform().normalize(schema).apply({ save: false });
+    var newState = state.transform().normalize(schema).apply({ merge: true });
 
     debug('onBeforeChange');
     return newState;
@@ -21302,13 +21302,13 @@ Transforms.save = function (transform) {
       undos = _history2.undos,
       redos = _history2.redos;
 
-  // If there are no operations, abort.
+  var previous = undos.peek();
 
+  // If there are no operations, abort.
   if (!operations.length) return;
 
   // Create a new save point or merge the operations into the previous one.
-  if (merge) {
-    var previous = undos.peek();
+  if (merge && previous) {
     undos = undos.pop();
     previous = previous.concat(operations);
     undos = undos.push(previous);
