@@ -10198,13 +10198,24 @@ var Node = {
    */
 
   getBlocksAtRange: function getBlocksAtRange(range) {
+    var array = this.getBlocksAtRangeAsArray(range);
+    // Eliminate duplicates by converting to an `OrderedSet` first.
+    return new _immutable.List(new _immutable.OrderedSet(array));
+  },
+
+  /**
+   * Get the leaf block descendants in a `range` as an array
+   *
+   * @param {Selection} range
+   * @return {Array}
+   */
+
+  getBlocksAtRangeAsArray: function getBlocksAtRangeAsArray(range) {
     var _this = this;
 
-    return this.getTextsAtRange(range).map(function (text) {
+    return this.getTextsAtRangeAsArray(range).map(function (text) {
       return _this.getClosestBlock(text.key);
-    })
-    // Eliminate duplicates by converting to a `Set` first.
-    .toOrderedSet().toList();
+    });
   },
 
   /**
@@ -10215,39 +10226,75 @@ var Node = {
    */
 
   getBlocksByType: function getBlocksByType(type) {
-    return this.nodes.reduce(function (blocks, node) {
-      if (node.kind != 'block') return blocks;
-      if (node.isLeafBlock() && node.type == type) return blocks.push(node);
-      return blocks.concat(node.getBlocksByType(type));
-    }, new _immutable.List());
+    var array = this.getBlocksByTypeAsArray(type);
+    return new _immutable.List(array);
+  },
+
+  /**
+   * Get all of the leaf blocks that match a `type` as an array
+   *
+   * @param {String} type
+   * @return {Array}
+   */
+
+  getBlocksByTypeAsArray: function getBlocksByTypeAsArray(type) {
+    return this.nodes.reduce(function (array, node) {
+      if (node.kind != 'block') return array;
+      if (node.isLeafBlock() && node.type == type) return array.push(node);
+      return array.concat(node.getBlocksByTypeAsArray(type));
+    }, []);
   },
 
   /**
    * Get all of the characters for every text node.
    *
-   * @return {List<Character>} characters
+   * @return {List<Character>}
    */
 
   getCharacters: function getCharacters() {
-    return this.nodes.reduce(function (chars, node) {
-      return node.kind == 'text' ? chars.concat(node.characters) : chars.concat(node.getCharacters());
-    }, new _immutable.List());
+    var array = this.getCharactersAsArray();
+    return new _immutable.List(array);
+  },
+
+  /**
+   * Get all of the characters for every text node as an array
+   *
+   * @return {Array}
+   */
+
+  getCharactersAsArray: function getCharactersAsArray() {
+    return this.nodes.reduce(function (arr, node) {
+      return node.kind == 'text' ? arr.concat(node.characters.toArray()) : arr.concat(node.getCharactersAsArray());
+    }, []);
   },
 
   /**
    * Get a list of the characters in a `range`.
    *
    * @param {Selection} range
-   * @return {List<Character>} characters
+   * @return {List<Character>}
    */
 
   getCharactersAtRange: function getCharactersAtRange(range) {
-    return this.getTextsAtRange(range).reduce(function (characters, text) {
+    var array = this.getCharactersAtRangeAsArray(range);
+    return new _immutable.List(array);
+  },
+
+  /**
+   * Get a list of the characters in a `range` as an array.
+   *
+   * @param {Selection} range
+   * @return {Array}
+   */
+
+  getCharactersAtRangeAsArray: function getCharactersAtRangeAsArray(range) {
+    return this.getTextsAtRange(range).reduce(function (arr, text) {
       var chars = text.characters.filter(function (char, i) {
         return (0, _isInRange2.default)(i, text, range);
-      });
-      return characters.concat(chars);
-    }, new _immutable.List());
+      }).toArray();
+
+      return arr.concat(chars);
+    }, []);
   },
 
   /**
@@ -10388,7 +10435,8 @@ var Node = {
     var startAt = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
 
     this.assertDescendant(key);
-    return this.hasChild(key) ? startAt : this.getFurthestAncestor(key).getDepth(key, startAt + 1);
+    if (this.hasChild(key)) return startAt;
+    return this.getFurthestAncestor(key).getDepth(key, startAt + 1);
   },
 
   /**
@@ -10668,13 +10716,26 @@ var Node = {
    */
 
   getInlinesAtRange: function getInlinesAtRange(range) {
+    var array = this.getInlinesAtRangeAsArray(range);
+    // Remove duplicates by converting it to an `OrderedSet` first.
+    return new _immutable.List(new _immutable.OrderedSet(array));
+  },
+
+  /**
+   * Get the closest inline nodes for each text node in a `range` as an array.
+   *
+   * @param {Selection} range
+   * @return {Array}
+   */
+
+  getInlinesAtRangeAsArray: function getInlinesAtRangeAsArray(range) {
     var _this2 = this;
 
-    return this.getTextsAtRange(range).map(function (text) {
+    return this.getTextsAtRangeAsArray(range).map(function (text) {
       return _this2.getClosestInline(text.key);
     }).filter(function (exists) {
       return exists;
-    }).toOrderedSet().toList();
+    });
   },
 
   /**
@@ -10685,17 +10746,29 @@ var Node = {
    */
 
   getInlinesByType: function getInlinesByType(type) {
+    var array = this.getInlinesByTypeAsArray(type);
+    return new _immutable.List(array);
+  },
+
+  /**
+   * Get all of the leaf inline nodes that match a `type` as an array.
+   *
+   * @param {String} type
+   * @return {Array}
+   */
+
+  getInlinesByTypeAsArray: function getInlinesByTypeAsArray(type) {
     return this.nodes.reduce(function (inlines, node) {
       if (node.kind == 'text') return inlines;
       if (node.isLeafInline() && node.type == type) return inlines.push(node);
-      return inlines.concat(node.getInlinesByType(type));
-    }, new _immutable.List());
+      return inlines.concat(node.getInlinesByTypeAsArray(type));
+    }, []);
   },
 
   /**
    * Return a set of all keys in the node.
    *
-   * @return {Set<Node>}
+   * @return {Set<String>}
    */
 
   getKeys: function getKeys() {
@@ -10705,7 +10778,7 @@ var Node = {
       keys.push(desc.key);
     });
 
-    return (0, _immutable.Set)(keys);
+    return new _immutable.Set(keys);
   },
 
   /**
@@ -10729,13 +10802,47 @@ var Node = {
   /**
    * Get all of the marks for all of the characters of every text node.
    *
-   * @return {OrderedSet<Mark>}
+   * @return {Set<Mark>}
    */
 
   getMarks: function getMarks() {
+    var array = this.getMarksAsArray();
+    return new _immutable.Set(array);
+  },
+
+  /**
+   * Get all of the marks for all of the characters of every text node.
+   *
+   * @return {OrderedSet<Mark>}
+   */
+
+  getOrderedMarks: function getOrderedMarks() {
+    var array = this.getMarksAsArray();
+    return new _immutable.OrderedSet(array);
+  },
+
+  /**
+   * Get all of the marks as an array.
+   *
+   * @return {Array}
+   */
+
+  getMarksAsArray: function getMarksAsArray() {
     return this.nodes.reduce(function (marks, node) {
-      return marks.union(node.getMarks());
-    }, new _immutable.OrderedSet());
+      return marks.concat(node.getMarksAsArray());
+    }, []);
+  },
+
+  /**
+   * Get a set of the marks in a `range`.
+   *
+   * @param {Selection} range
+   * @return {Set<Mark>}
+   */
+
+  getMarksAtRange: function getMarksAtRange(range) {
+    var array = this.getMarksAtRangeAsArray(range);
+    return new _immutable.Set(array);
   },
 
   /**
@@ -10745,7 +10852,19 @@ var Node = {
    * @return {OrderedSet<Mark>}
    */
 
-  getMarksAtRange: function getMarksAtRange(range) {
+  getOrderedMarksAtRange: function getOrderedMarksAtRange(range) {
+    var array = this.getMarksAtRangeAsArray(range);
+    return new _immutable.OrderedSet(array);
+  },
+
+  /**
+   * Get a set of the marks in a `range`.
+   *
+   * @param {Selection} range
+   * @return {Array}
+   */
+
+  getMarksAtRangeAsArray: function getMarksAtRangeAsArray(range) {
     range = range.normalize(this);
     var _range = range,
         startKey = _range.startKey,
@@ -10755,22 +10874,34 @@ var Node = {
 
     if (range.isCollapsed && startOffset == 0) {
       var previous = this.getPreviousText(startKey);
-      if (!previous || !previous.length) return new _immutable.Set();
+      if (!previous || !previous.length) return [];
       var char = previous.characters.get(previous.length - 1);
-      return char.marks;
+      return char.marks.toArray();
     }
 
     // If the range is collapsed, check the character before the start.
     if (range.isCollapsed) {
       var text = this.getDescendant(startKey);
       var _char = text.characters.get(range.startOffset - 1);
-      return _char.marks;
+      return _char.marks.toArray();
     }
 
     // Otherwise, get a set of the marks for each character in the range.
     return this.getCharactersAtRange(range).reduce(function (memo, char) {
-      return memo.union(char.marks);
-    }, new _immutable.OrderedSet());
+      return memo.concat(char.marks.toArray());
+    }, []);
+  },
+
+  /**
+   * Get all of the marks that match a `type`.
+   *
+   * @param {String} type
+   * @return {Set<Mark>}
+   */
+
+  getMarksByType: function getMarksByType(type) {
+    var array = this.getMarksByTypeAsArray(type);
+    return new _immutable.Set(array);
   },
 
   /**
@@ -10780,12 +10911,24 @@ var Node = {
    * @return {OrderedSet<Mark>}
    */
 
-  getMarksByType: function getMarksByType(type) {
-    return this.nodes.reduce(function (marks, node) {
-      return node.kind == 'text' ? marks.union(node.getMarks().filter(function (m) {
+  getOrderedMarksByType: function getOrderedMarksByType(type) {
+    var array = this.getMarksByTypeAsArray(type);
+    return new _immutable.OrderedSet(array);
+  },
+
+  /**
+   * Get all of the marks that match a `type` as an array.
+   *
+   * @param {String} type
+   * @return {Array}
+   */
+
+  getMarksByTypeAsArray: function getMarksByTypeAsArray(type) {
+    return this.nodes.reduce(function (array, node) {
+      return node.kind == 'text' ? array.concat(node.getMarksAsArray().filter(function (m) {
         return m.type == type;
-      })) : marks.union(node.getMarksByType(type));
-    }, new _immutable.OrderedSet());
+      })) : array.concat(node.getMarksByTypeAsArray(type));
+    }, []);
   },
 
   /**
@@ -11089,14 +11232,31 @@ var Node = {
    */
 
   getTextsAtRange: function getTextsAtRange(range) {
+    var array = this.getTextsAtRangeAsArray(range);
+    return new _immutable.List(array);
+  },
+
+  /**
+   * Get all of the text nodes in a `range` as an array.
+   *
+   * @param {Selection} range
+   * @return {Array}
+   */
+
+  getTextsAtRangeAsArray: function getTextsAtRangeAsArray(range) {
     range = range.normalize(this);
     var _range3 = range,
         startKey = _range3.startKey,
         endKey = _range3.endKey;
 
-    var texts = this.getTexts();
     var startText = this.getDescendant(startKey);
+
+    // PERF: the most common case is when the range is in a single text node,
+    // where we can avoid a lot of iterating of the tree.
+    if (startKey == endKey) return [startText];
+
     var endText = this.getDescendant(endKey);
+    var texts = this.getTextsAsArray();
     var start = texts.indexOf(startText);
     var end = texts.indexOf(endText);
     return texts.slice(start, end + 1);
@@ -11660,7 +11820,7 @@ var Node = {
  * Memoize read methods.
  */
 
-(0, _memoize2.default)(Node, ['areDescendantsSorted', 'getAncestors', 'getBlocks', 'getBlocksAsArray', 'getBlocksAtRange', 'getBlocksByType', 'getCharacters', 'getCharactersAtRange', 'getChild', 'getChildrenBetween', 'getChildrenBetweenIncluding', 'getClosestBlock', 'getClosestInline', 'getClosestVoid', 'getCommonAncestor', 'getComponent', 'getDecorators', 'getDepth', 'getDescendant', 'getDescendant', 'getDescendantAtPath', 'getDescendantDecorators', 'getFirstText', 'getFragmentAtRange', 'getFurthestBlock', 'getFurthestInline', 'getFurthestAncestor', 'getFurthestOnlyChildAncestor', 'getInlines', 'getInlinesAsArray', 'getInlinesAtRange', 'getInlinesByType', 'getKeys', 'getLastText', 'getMarks', 'getMarksAtRange', 'getMarksByType', 'getNextBlock', 'getNextSibling', 'getNextText', 'getNode', 'getOffset', 'getOffsetAtRange', 'getParent', 'getPath', 'getPreviousBlock', 'getPreviousSibling', 'getPreviousText', 'getText', 'getTextAtOffset', 'getTextDirection', 'getTexts', 'getTextsAsArray', 'getTextsAtRange', 'hasChild', 'hasDescendant', 'hasNode', 'hasVoidParent', 'isInlineSplitAtRange', 'isLeafBlock', 'isLeafInline', 'validate']);
+(0, _memoize2.default)(Node, ['areDescendantsSorted', 'getAncestors', 'getBlocks', 'getBlocksAsArray', 'getBlocksAtRange', 'getBlocksAtRangeAsArray', 'getBlocksByType', 'getBlocksByTypeAsArray', 'getCharacters', 'getCharactersAsArray', 'getCharactersAtRange', 'getCharactersAtRangeAsArray', 'getChild', 'getChildrenBetween', 'getChildrenBetweenIncluding', 'getClosestBlock', 'getClosestInline', 'getClosestVoid', 'getCommonAncestor', 'getComponent', 'getDecorators', 'getDepth', 'getDescendant', 'getDescendantAtPath', 'getDescendantDecorators', 'getFirstText', 'getFragmentAtRange', 'getFurthestBlock', 'getFurthestInline', 'getFurthestAncestor', 'getFurthestOnlyChildAncestor', 'getInlines', 'getInlinesAsArray', 'getInlinesAtRange', 'getInlinesAtRangeAsArray', 'getInlinesByType', 'getInlinesByTypeAsArray', 'getKeys', 'getLastText', 'getMarks', 'getOrderedMarks', 'getMarksAsArray', 'getMarksAtRange', 'getOrderedMarksAtRange', 'getMarksAtRangeAsArray', 'getMarksByType', 'getOrderedMarksByType', 'getMarksByTypeAsArray', 'getNextBlock', 'getNextSibling', 'getNextText', 'getNode', 'getOffset', 'getOffsetAtRange', 'getParent', 'getPath', 'getPreviousBlock', 'getPreviousSibling', 'getPreviousText', 'getText', 'getTextAtOffset', 'getTextDirection', 'getTexts', 'getTextsAsArray', 'getTextsAtRange', 'getTextsAtRangeAsArray', 'hasChild', 'hasDescendant', 'hasNode', 'hasVoidParent', 'isInlineSplitAtRange', 'isLeafBlock', 'isLeafInline', 'validate']);
 
 /**
  * Export.
@@ -14438,9 +14598,22 @@ var Text = function (_ref) {
   }, {
     key: 'getMarks',
     value: function getMarks() {
-      return this.characters.reduce(function (marks, char) {
-        return marks.union(char.marks);
-      }, new _immutable.OrderedSet());
+      var array = this.getMarksAsArray();
+      return new _immutable.OrderedSet(array);
+    }
+
+    /**
+     * Get all of the marks on the text as an array
+     *
+     * @return {Array}
+     */
+
+  }, {
+    key: 'getMarksAsArray',
+    value: function getMarksAsArray() {
+      return this.characters.reduce(function (array, char) {
+        return array.concat(char.marks.toArray());
+      }, []);
     }
 
     /**
@@ -14803,7 +14976,7 @@ var Text = function (_ref) {
  * Memoize read methods.
  */
 
-(0, _memoize2.default)(Text.prototype, ['getDecorations', 'getDecorators', 'getMarksAtIndex', 'getRanges', 'validate']);
+(0, _memoize2.default)(Text.prototype, ['getDecorations', 'getDecorators', 'getMarks', 'getMarksAsArray', 'getMarksAtIndex', 'getRanges', 'validate']);
 
 /**
  * Export.
