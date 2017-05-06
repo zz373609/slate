@@ -9914,7 +9914,9 @@ var Mark = function (_ref) {
  * Memoize read methods.
  */
 
-(0, _memoize2.default)(Mark.prototype, ['getComponent']);
+(0, _memoize2.default)(Mark.prototype, ['getComponent'], {
+  takesArguments: true
+});
 
 /**
  * Export.
@@ -11820,7 +11822,13 @@ var Node = {
  * Memoize read methods.
  */
 
-(0, _memoize2.default)(Node, ['areDescendantsSorted', 'getAncestors', 'getBlocks', 'getBlocksAsArray', 'getBlocksAtRange', 'getBlocksAtRangeAsArray', 'getBlocksByType', 'getBlocksByTypeAsArray', 'getCharacters', 'getCharactersAsArray', 'getCharactersAtRange', 'getCharactersAtRangeAsArray', 'getChild', 'getChildrenBetween', 'getChildrenBetweenIncluding', 'getClosestBlock', 'getClosestInline', 'getClosestVoid', 'getCommonAncestor', 'getComponent', 'getDecorators', 'getDepth', 'getDescendant', 'getDescendantAtPath', 'getDescendantDecorators', 'getFirstText', 'getFragmentAtRange', 'getFurthestBlock', 'getFurthestInline', 'getFurthestAncestor', 'getFurthestOnlyChildAncestor', 'getInlines', 'getInlinesAsArray', 'getInlinesAtRange', 'getInlinesAtRangeAsArray', 'getInlinesByType', 'getInlinesByTypeAsArray', 'getKeys', 'getLastText', 'getMarks', 'getOrderedMarks', 'getMarksAsArray', 'getMarksAtRange', 'getOrderedMarksAtRange', 'getMarksAtRangeAsArray', 'getMarksByType', 'getOrderedMarksByType', 'getMarksByTypeAsArray', 'getNextBlock', 'getNextSibling', 'getNextText', 'getNode', 'getOffset', 'getOffsetAtRange', 'getParent', 'getPath', 'getPreviousBlock', 'getPreviousSibling', 'getPreviousText', 'getText', 'getTextAtOffset', 'getTextDirection', 'getTexts', 'getTextsAsArray', 'getTextsAtRange', 'getTextsAtRangeAsArray', 'hasChild', 'hasDescendant', 'hasNode', 'hasVoidParent', 'isInlineSplitAtRange', 'isLeafBlock', 'isLeafInline', 'validate']);
+(0, _memoize2.default)(Node, ['getBlocks', 'getBlocksAsArray', 'getCharacters', 'getCharactersAsArray', 'getFirstText', 'getInlines', 'getInlinesAsArray', 'getKeys', 'getLastText', 'getMarks', 'getOrderedMarks', 'getMarksAsArray', 'getText', 'getTextDirection', 'getTexts', 'getTextsAsArray', 'isLeafBlock', 'isLeafInline'], {
+  takesArguments: false
+});
+
+(0, _memoize2.default)(Node, ['areDescendantsSorted', 'getAncestors', 'getBlocksAtRange', 'getBlocksAtRangeAsArray', 'getBlocksByType', 'getBlocksByTypeAsArray', 'getCharactersAtRange', 'getCharactersAtRangeAsArray', 'getChild', 'getChildrenBetween', 'getChildrenBetweenIncluding', 'getClosestBlock', 'getClosestInline', 'getClosestVoid', 'getCommonAncestor', 'getComponent', 'getDecorators', 'getDepth', 'getDescendant', 'getDescendantAtPath', 'getDescendantDecorators', 'getFragmentAtRange', 'getFurthestBlock', 'getFurthestInline', 'getFurthestAncestor', 'getFurthestOnlyChildAncestor', 'getInlinesAtRange', 'getInlinesAtRangeAsArray', 'getInlinesByType', 'getInlinesByTypeAsArray', 'getMarksAtRange', 'getOrderedMarksAtRange', 'getMarksAtRangeAsArray', 'getMarksByType', 'getOrderedMarksByType', 'getMarksByTypeAsArray', 'getNextBlock', 'getNextSibling', 'getNextText', 'getNode', 'getOffset', 'getOffsetAtRange', 'getParent', 'getPath', 'getPreviousBlock', 'getPreviousSibling', 'getPreviousText', 'getTextAtOffset', 'getTextsAtRange', 'getTextsAtRangeAsArray', 'hasChild', 'hasDescendant', 'hasNode', 'hasVoidParent', 'isInlineSplitAtRange', 'validate'], {
+  takesArguments: true
+});
 
 /**
  * Export.
@@ -14976,7 +14984,13 @@ var Text = function (_ref) {
  * Memoize read methods.
  */
 
-(0, _memoize2.default)(Text.prototype, ['getDecorations', 'getDecorators', 'getMarks', 'getMarksAsArray', 'getMarksAtIndex', 'getRanges', 'validate']);
+(0, _memoize2.default)(Text.prototype, ['getMarks', 'getMarksAsArray'], {
+  takesArguments: false
+});
+
+(0, _memoize2.default)(Text.prototype, ['getDecorations', 'getDecorators', 'getMarksAtIndex', 'getRanges', 'validate'], {
+  takesArguments: true
+});
 
 /**
  * Export.
@@ -22796,7 +22810,7 @@ function _interopRequireDefault(obj) {
 }
 
 /**
- * GLOBAL: True if memoization should is enabled. Only effective in DEV mode.
+ * GLOBAL: True if memoization should is enabled. Only effective when `IS_DEV`.
  *
  * @type {Boolean}
  */
@@ -22805,7 +22819,7 @@ var ENABLED = true;
 
 /**
  * GLOBAL: Changing this cache key will clear all previous cached results.
- * Only effective in DEV mode.
+ * Only effective when `IS_DEV`.
  *
  * @type {Number}
  */
@@ -22813,9 +22827,8 @@ var ENABLED = true;
 var CACHE_KEY = 0;
 
 /**
- * The leaf node of a cache tree. Used to support variable argument length.
- *
- * A unique object, so that native Maps will key it by reference.
+ * The leaf node of a cache tree. Used to support variable argument length. A
+ * unique object, so that native Maps will key it by reference.
  *
  * @type {Object}
  */
@@ -22823,8 +22836,8 @@ var CACHE_KEY = 0;
 var LEAF = {};
 
 /**
- * A value to represent a memoized undefined value. Allows efficient
- * value retrieval using Map.get only.
+ * A value to represent a memoized undefined value. Allows efficient value
+ * retrieval using Map.get only.
  *
  * @type {Object}
  */
@@ -22848,6 +22861,9 @@ var UNSET = undefined;
  */
 
 function memoize(object, properties) {
+  var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+  var _options$takesArgumen = options.takesArguments,
+      takesArguments = _options$takesArgumen === undefined ? true : _options$takesArgumen;
   var _iteratorNormalCompletion = true;
   var _didIteratorError = false;
   var _iteratorError = undefined;
@@ -22868,26 +22884,45 @@ function memoize(object, properties) {
         }
 
         if (_isDev2.default) {
-          if (!ENABLED) {
-            // Memoization disabled
-            return original.apply(this, args);
-          } else if (CACHE_KEY !== this.__cache_key) {
-            // Previous caches must be cleared
+          // If memoization is disabled, call into the original method.
+          if (!ENABLED) return original.apply(this, args);
+
+          // If the cache key is different, previous caches must be cleared.
+          if (CACHE_KEY !== this.__cache_key) {
             this.__cache_key = CACHE_KEY;
             this.__cache = new _es6Map2.default();
           }
         }
 
-        var keys = [property].concat(args);
-        this.__cache = this.__cache || new _es6Map2.default();
+        if (!this.__cache) {
+          this.__cache = new _es6Map2.default();
+        }
 
-        var cachedValue = getIn(this.__cache, keys);
+        var cachedValue = void 0;
+        var keys = void 0;
+
+        if (takesArguments) {
+          keys = [property].concat(args);
+          cachedValue = getIn(this.__cache, keys);
+        } else {
+          cachedValue = this.__cache.get(property);
+        }
+
+        // If we've got a result already, return it.
         if (cachedValue !== UNSET) {
           return cachedValue === UNDEFINED ? undefined : cachedValue;
         }
 
+        // Otherwise calculate what it should be once and cache it.
         var value = original.apply(this, args);
-        this.__cache = setIn(this.__cache, keys, value);
+        var v = value === undefined ? UNDEFINED : value;
+
+        if (takesArguments) {
+          this.__cache = setIn(this.__cache, keys, v);
+        } else {
+          this.__cache.set(property, v);
+        }
+
         return value;
       };
     };
@@ -22912,19 +22947,17 @@ function memoize(object, properties) {
 }
 
 /**
- * Set a value at a key path in a tree of Map, creating Maps on the go.
+ * Get a value at a key path in a tree of Map.
+ *
+ * If not set, returns UNSET.
+ * If the set value is undefined, returns UNDEFINED.
  *
  * @param {Map} map
  * @param {Array} keys
- * @param {Any} value
- * @return {Map}
+ * @return {Any|UNSET|UNDEFINED}
  */
 
-function setIn(map, keys, value) {
-  value = value === undefined ? UNDEFINED : value;
-
-  var parentMap = map;
-  var childMap = void 0;
+function getIn(map, keys) {
   var _iteratorNormalCompletion2 = true;
   var _didIteratorError2 = false;
   var _iteratorError2 = undefined;
@@ -22933,18 +22966,9 @@ function setIn(map, keys, value) {
     for (var _iterator2 = keys[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
       var key = _step2.value;
 
-      childMap = parentMap.get(key);
-
-      // If the path was not created yet...
-      if (childMap === UNSET) {
-        childMap = new _es6Map2.default();
-        parentMap.set(key, childMap);
-      }
-
-      parentMap = childMap;
+      map = map.get(key);
+      if (map === UNSET) return UNSET;
     }
-
-    // The whole path has been created, so set the value to the bottom most map.
   } catch (err) {
     _didIteratorError2 = true;
     _iteratorError2 = err;
@@ -22960,24 +22984,22 @@ function setIn(map, keys, value) {
     }
   }
 
-  childMap.set(LEAF, value);
-
-  return map;
+  return map.get(LEAF);
 }
 
 /**
- * Get a value at a key path in a tree of Map.
- *
- * If not set, returns UNSET.
- * If the set value is undefined, returns UNDEFINED.
+ * Set a value at a key path in a tree of Map, creating Maps on the go.
  *
  * @param {Map} map
  * @param {Array} keys
- * @return {Any|UNSET|UNDEFINED}
+ * @param {Any} value
+ * @return {Map}
  */
 
-function getIn(map, keys) {
-  var childMap = void 0;
+function setIn(map, keys, value) {
+  var parent = map;
+  var child = void 0;
+
   var _iteratorNormalCompletion3 = true;
   var _didIteratorError3 = false;
   var _iteratorError3 = undefined;
@@ -22986,14 +23008,18 @@ function getIn(map, keys) {
     for (var _iterator3 = keys[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
       var key = _step3.value;
 
-      childMap = map.get(key);
+      child = parent.get(key);
 
-      if (childMap === UNSET) {
-        return UNSET;
+      // If the path was not created yet...
+      if (child === UNSET) {
+        child = new _es6Map2.default();
+        parent.set(key, child);
       }
 
-      map = childMap;
+      parent = child;
     }
+
+    // The whole path has been created, so set the value to the bottom most map.
   } catch (err) {
     _didIteratorError3 = true;
     _iteratorError3 = err;
@@ -23009,7 +23035,8 @@ function getIn(map, keys) {
     }
   }
 
-  return childMap.get(LEAF);
+  child.set(LEAF, value);
+  return map;
 }
 
 /**
@@ -23020,6 +23047,7 @@ function getIn(map, keys) {
 
 function __clear() {
   CACHE_KEY++;
+
   if (CACHE_KEY >= Number.MAX_SAFE_INTEGER) {
     CACHE_KEY = 0;
   }
