@@ -3802,7 +3802,7 @@ module.exports={
             {
               "kind": "text",
               "text": "hyperlinks"
-            },
+            }
           ]
         },
         {
@@ -10241,9 +10241,14 @@ var Node = {
 
   getBlocksByTypeAsArray: function getBlocksByTypeAsArray(type) {
     return this.nodes.reduce(function (array, node) {
-      if (node.kind != 'block') return array;
-      if (node.isLeafBlock() && node.type == type) return array.push(node);
-      return array.concat(node.getBlocksByTypeAsArray(type));
+      if (node.kind != 'block') {
+        return array;
+      } else if (node.isLeafBlock() && node.type == type) {
+        array.push(node);
+        return array;
+      } else {
+        return array.concat(node.getBlocksByTypeAsArray(type));
+      }
     }, []);
   },
 
@@ -10761,9 +10766,14 @@ var Node = {
 
   getInlinesByTypeAsArray: function getInlinesByTypeAsArray(type) {
     return this.nodes.reduce(function (inlines, node) {
-      if (node.kind == 'text') return inlines;
-      if (node.isLeafInline() && node.type == type) return inlines.push(node);
-      return inlines.concat(node.getInlinesByTypeAsArray(type));
+      if (node.kind == 'text') {
+        return inlines;
+      } else if (node.isLeafInline() && node.type == type) {
+        inlines.push(node);
+        return inlines;
+      } else {
+        return inlines.concat(node.getInlinesByTypeAsArray(type));
+      }
     }, []);
   },
 
