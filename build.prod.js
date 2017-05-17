@@ -16961,11 +16961,6 @@ var _initialiseProps = function _initialiseProps() {
         case 'object':
           nodes.push(node);
           break;
-        case 'null':
-        case 'undefined':
-          return;
-        default:
-          throw new Error('A rule returned an invalid deserialized representation: "' + node + '".');
       }
     });
 
@@ -16998,8 +16993,16 @@ var _initialiseProps = function _initialiseProps() {
         var rule = _step.value;
 
         if (!rule.deserialize) continue;
+
         var ret = rule.deserialize(element, next);
-        if (!ret) continue;
+        if (ret === undefined) continue;
+        if (ret === null) break;
+
+        var type = (0, _typeOf2.default)(ret);
+        if (type != 'array' && type != 'object') {
+          throw new Error('A rule returned an invalid deserialized representation: "' + node + '".');
+        }
+
         node = ret.kind == 'mark' ? _this.deserializeMark(ret) : ret;
         break;
       }
