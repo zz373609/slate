@@ -8026,12 +8026,16 @@ var _initialiseProps = function _initialiseProps() {
     if (selection.isBlurred) return;
     if (!selection.hasEndIn(node)) return;
 
-    var el = _reactDom2.default.findDOMNode(_this2);
-    var window = (0, _getWindow2.default)(el);
-    var native = window.getSelection();
-    (0, _scrollToSelection2.default)(native);
+    // The native selection will be updated after componentDidMount or componentDidUpdate.
+    // Use setTimeout to queue scrolling to the last when the native selection has been updated to the correct value.
+    setTimeout(function () {
+      var el = _reactDom2.default.findDOMNode(_this2);
+      var window = (0, _getWindow2.default)(el);
+      var native = window.getSelection();
+      (0, _scrollToSelection2.default)(native);
 
-    _this2.debug('updateScroll', el);
+      _this2.debug('updateScroll', el);
+    });
   };
 
   this.onDragStart = function (e) {
@@ -16780,6 +16784,8 @@ var TEXT_RULE = {
     }
 
     if (el.type == 'text') {
+      if (el.data && el.data.match(/<!--.*?-->/)) return;
+
       return {
         kind: 'text',
         text: el.data
