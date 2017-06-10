@@ -6469,8 +6469,11 @@ var _initialiseProps = function _initialiseProps() {
 
   this.isInEditor = function (target) {
     var element = _this2.element;
+    // COMPAT: Text nodes don't have `isContentEditable` property. So, when
+    // `target` is a text node use its parent element for check.
 
-    return target.isContentEditable && (target == element || (0, _findClosestNode2.default)(target, '[data-slate-editor]') == element);
+    var el = target.nodeType === 3 ? target.parentElement : target;
+    return el.isContentEditable && (el === element || (0, _findClosestNode2.default)(el, '[data-slate-editor]') === element);
   };
 
   this.onBeforeInput = function (event) {
@@ -7861,6 +7864,13 @@ var Node = function (_React$Component) {
    */
 
   /**
+   * There is a corner case, that some nodes are unmounted right after they update
+   * Then, when the timer execute, it will throw the error
+   * `findDOMNode was called on an unmounted component`
+   * We should clear the timer from updateScroll here
+   */
+
+  /**
    * Update the scroll position after a change as occured if this is a leaf
    * block and it has the selection's ending edge. This ensures that scrolling
    * matches native `contenteditable` behavior even for cases where the edit is
@@ -8011,6 +8021,10 @@ var _initialiseProps = function _initialiseProps() {
     if (_this2.props.node != prevProps.node) _this2.updateScroll();
   };
 
+  this.componentWillUnmount = function () {
+    clearTimeout(_this2.scrollTimer);
+  };
+
   this.updateScroll = function () {
     var _props = _this2.props,
         node = _props.node,
@@ -8028,7 +8042,7 @@ var _initialiseProps = function _initialiseProps() {
 
     // The native selection will be updated after componentDidMount or componentDidUpdate.
     // Use setTimeout to queue scrolling to the last when the native selection has been updated to the correct value.
-    setTimeout(function () {
+    _this2.scrollTimer = setTimeout(function () {
       var el = _reactDom2.default.findDOMNode(_this2);
       var window = (0, _getWindow2.default)(el);
       var native = window.getSelection();
@@ -13631,10 +13645,6 @@ try {
     Stack.prototype[method] = function (state, editor) {
       debug(method);
 
-      if (method == 'onChange') {
-        state = this.onBeforeChange(state, editor);
-      }
-
       for (var _len2 = arguments.length, args = Array(_len2 > 2 ? _len2 - 2 : 0), _key2 = 2; _key2 < _len2; _key2++) {
         args[_key2 - 2] = arguments[_key2];
       }
@@ -13709,6 +13719,10 @@ try {
 
     Stack.prototype[method] = function (state, editor) {
       debug(method);
+
+      if (method == 'onChange') {
+        state = this.onBeforeChange(state, editor);
+      }
 
       for (var _len3 = arguments.length, args = Array(_len3 > 2 ? _len3 - 2 : 0), _key3 = 2; _key3 < _len3; _key3++) {
         args[_key3 - 2] = arguments[_key3];
@@ -19078,8 +19092,6 @@ Transforms.wrapInline = function (transform, properties) {
 
   var startKey = selection.startKey;
 
-  var previous = document.getPreviousText(startKey);
-
   transform.deselect();
   transform.wrapInlineAtRange(selection, properties);
   state = transform.state;
@@ -19089,11 +19101,20 @@ Transforms.wrapInline = function (transform, properties) {
   if (selection.isCollapsed) {
     after = selection;
   } else if (selection.startOffset == 0) {
-    var text = previous ? document.getNextText(previous.key) : document.getFirstText();
-    after = selection.moveToRangeOf(text);
+    // Find the inline that has been inserted.
+    // We want to handle multiple wrap, so we need to take the highest parent
+    var inline = document.getAncestors(startKey).find(function (parent) {
+      return parent.kind == 'inline' && parent.getOffset(startKey) == 0;
+    });
+
+    var start = inline ? document.getPreviousText(inline.getFirstText().key) : document.getFirstText();
+    var end = document.getNextText(inline ? inline.getLastText().key : start.key);
+
+    // Move selection to wrap around the inline
+    after = selection.moveAnchorToEndOf(start).moveFocusToStartOf(end);
   } else if (selection.startKey == selection.endKey) {
-    var _text = document.getNextText(selection.startKey);
-    after = selection.moveToRangeOf(_text);
+    var text = document.getNextText(selection.startKey);
+    after = selection.moveToRangeOf(text);
   } else {
     var anchor = document.getNextText(selection.anchorKey);
     var focus = document.getDescendant(selection.focusKey);
