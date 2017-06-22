@@ -4862,10 +4862,39 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 /**
+ * Word Count plugin
+ *
+ * Example of using plugin.render to create a HOC
+ * https://docs.slatejs.org/reference/plugins/plugin.html#render
+ */
+
+function WordCount(options) {
+  return {
+    render: function render(props) {
+      return _react2.default.createElement(
+        'div',
+        null,
+        _react2.default.createElement(
+          'div',
+          null,
+          props.children
+        ),
+        _react2.default.createElement(
+          'span',
+          { className: 'word-counter' },
+          'Word Count: ',
+          props.state.document.text.split(' ').length
+        )
+      );
+    }
+  };
+}
+
+/**
  * Plugins.
  */
 
-var plugins = [(0, _slateAutoReplaceText2.default)('(c)', '©'), (0, _slateAutoReplaceText2.default)('(r)', '®'), (0, _slateAutoReplaceText2.default)('(tm)', '™'), (0, _slateCollapseOnEscape2.default)(), (0, _slateSoftBreak2.default)()];
+var plugins = [(0, _slateAutoReplaceText2.default)('(c)', '©'), (0, _slateAutoReplaceText2.default)('(r)', '®'), (0, _slateAutoReplaceText2.default)('(tm)', '™'), (0, _slateCollapseOnEscape2.default)(), (0, _slateSoftBreak2.default)(), WordCount()];
 
 /**
  * The plugins example.
@@ -4888,7 +4917,7 @@ var Plugins = function (_React$Component) {
     }
 
     return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = Plugins.__proto__ || Object.getPrototypeOf(Plugins)).call.apply(_ref, [this].concat(args))), _this), _this.state = {
-      state: _.Plain.deserialize('This example shows how you can extend Slate with plugins! It uses three fairly simple plugins, but you can use any plugins you want, or write your own!\n\nThe first is an "auto replacer". Try typing "(c)" and you\'ll see it turn into a copyright symbol automatically!\n\nThe second is a simple plugin to collapse the selection whenever the escape key is pressed. Try selecting some text and pressing escape.\n\nAnd the third is another simple plugin that inserts a "soft" break when enter is pressed instead of creating a new block. Try pressing enter!')
+      state: _.Plain.deserialize('This example shows how you can extend Slate with plugins! It uses four fairly simple plugins, but you can use any plugins you want, or write your own!\n\nThe first is an "auto replacer". Try typing "(c)" and you\'ll see it turn into a copyright symbol automatically!\n\nThe second is a simple plugin to collapse the selection whenever the escape key is pressed. Try selecting some text and pressing escape.\n\nThe third is another simple plugin that inserts a "soft" break when enter is pressed instead of creating a new block. Try pressing enter!\n\nThe fourth is an example of using the plugin.render property to create a higher-order-component.')
     }, _this.onChange = function (state) {
       _this.setState({ state: state });
     }, _this.render = function () {
@@ -18301,8 +18330,8 @@ function moveNode(state, operation) {
       document = _state5.document;
 
   var node = document.assertPath(path);
-  var index = path.pop();
-  var parentDepth = path.length;
+  var index = path[path.length - 1];
+  var parentPath = path.slice(0, -1);
 
   // Remove the node from its current parent
   var parent = document.getParent(node.key);
@@ -18310,15 +18339,15 @@ function moveNode(state, operation) {
   document = parent.kind === 'document' ? parent : document.updateDescendant(parent);
 
   // Check if `parent` is an anchestor of `target`
-  var isAncestor = path.every(function (x, i) {
+  var isAncestor = parentPath.every(function (x, i) {
     return x === newPath[i];
   });
 
   var target = void 0;
 
-  // If `parent` ia an ancestor of `target` and they have the same depth,
-  // then `parent` and `target` are the same node.
-  if (isAncestor && parentDepth === newPath.length) {
+  // If `parent` is an ancestor of `target` and their paths have same length,
+  // then `parent` and `target` are equal.
+  if (isAncestor && parentPath.length === newPath.length) {
     target = parent;
   }
 
@@ -18326,8 +18355,8 @@ function moveNode(state, operation) {
   // the index of the `target` ancestor with the same depth of `node`,
   // then removing `node` changes the path to `target`.
   // So we have to adjust `newPath` before picking `target`.
-  else if (isAncestor && index < newPath[parentDepth]) {
-      newPath[parentDepth]--;
+  else if (isAncestor && index < newPath[parentPath.length]) {
+      newPath[parentPath.length]--;
       target = document.assertPath(newPath);
     }
 
