@@ -11011,7 +11011,10 @@ var Node = {
 
     // Otherwise, get a set of the marks for each character in the range.
     return this.getCharactersAtRange(range).reduce(function (memo, char) {
-      return memo.concat(char.marks.toArray());
+      char.marks.toArray().forEach(function (c) {
+        return memo.push(c);
+      });
+      return memo;
     }, []);
   },
 
