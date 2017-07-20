@@ -17126,6 +17126,10 @@ var _initialiseProps = function _initialiseProps() {
     var children = $.children().toArray();
     var nodes = _this.deserializeElements(children);
 
+    var defaultBlockType = _this.defaultBlockType;
+
+    var defaults = typeof defaultBlockType == 'string' ? { type: defaultBlockType } : defaultBlockType;
+
     // HACK: ensure for now that all top-level inline are wrapped into a block.
     nodes = nodes.reduce(function (memo, node, i, original) {
       if (node.kind == 'block') {
@@ -17139,10 +17143,6 @@ var _initialiseProps = function _initialiseProps() {
         return memo;
       }
 
-      var defaultBlockType = _this.defaultBlockType;
-
-      var defaults = typeof defaultBlockType == 'string' ? { type: defaultBlockType } : defaultBlockType;
-
       var block = _extends({
         kind: 'block',
         nodes: [node]
@@ -17151,6 +17151,13 @@ var _initialiseProps = function _initialiseProps() {
       memo.push(block);
       return memo;
     }, []);
+
+    if (nodes.length === 0) {
+      nodes = [_extends({
+        kind: 'block',
+        nodes: []
+      }, defaults)];
+    }
 
     var raw = {
       kind: 'state',
