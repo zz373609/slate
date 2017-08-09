@@ -7,6 +7,8 @@ Object.defineProperty(exports, "__esModule", {
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
 var _ = require('../..');
 
 var _react = require('react');
@@ -54,11 +56,31 @@ var CheckListItem = function (_React$Component) {
       var state = editor.getState().transform().setNodeByKey(node.key, { data: { checked: checked } }).apply();
 
       editor.onChange(state);
-    }, _this.render = function () {
-      var _this$props2 = _this.props,
-          attributes = _this$props2.attributes,
-          children = _this$props2.children,
-          node = _this$props2.node;
+    }, _temp), _possibleConstructorReturn(_this, _ret);
+  }
+
+  /**
+   * On change, set the new checked value on the block.
+   *
+   * @param {Event} e
+   */
+
+  _createClass(CheckListItem, [{
+    key: 'render',
+
+
+    /**
+     * Render a check list item, using `contenteditable="false"` to embed the
+     * checkbox right next to the block's text.
+     *
+     * @return {Element}
+     */
+
+    value: function render() {
+      var _props = this.props,
+          attributes = _props.attributes,
+          children = _props.children,
+          node = _props.node;
 
       var checked = node.data.get('checked');
       return _react2.default.createElement(
@@ -73,7 +95,7 @@ var CheckListItem = function (_React$Component) {
           _react2.default.createElement('input', {
             type: 'checkbox',
             checked: checked,
-            onChange: _this.onChange
+            onChange: this.onChange
           })
         ),
         _react2.default.createElement(
@@ -82,21 +104,8 @@ var CheckListItem = function (_React$Component) {
           children
         )
       );
-    }, _temp), _possibleConstructorReturn(_this, _ret);
-  }
-
-  /**
-   * On change, set the new checked value on the block.
-   *
-   * @param {Event} e
-   */
-
-  /**
-   * Render a check list item, using `contenteditable="false"` to embed the
-   * checkbox right next to the block's text.
-   *
-   * @return {Element}
-   */
+    }
+  }]);
 
   return CheckListItem;
 }(_react2.default.Component);
@@ -145,23 +154,6 @@ var CheckLists = function (_React$Component2) {
       if (data.key == 'backspace' && state.isCollapsed && state.startBlock.type == 'check-list-item' && state.selection.startOffset == 0) {
         return state.transform().setBlock('paragraph').apply();
       }
-    }, _this2.render = function () {
-      return _react2.default.createElement(
-        'div',
-        null,
-        _react2.default.createElement(
-          'div',
-          { className: 'editor' },
-          _react2.default.createElement(_.Editor, {
-            spellCheck: true,
-            placeholder: 'Enter some text...',
-            schema: schema,
-            state: _this2.state.state,
-            onChange: _this2.onChange,
-            onKeyDown: _this2.onKeyDown
-          })
-        )
-      );
     }, _temp2), _possibleConstructorReturn(_this2, _ret2);
   }
 
@@ -192,11 +184,35 @@ var CheckLists = function (_React$Component2) {
    * @return {State|Void}
    */
 
-  /**
-   * Render.
-   *
-   * @return {Element}
-   */
+  _createClass(CheckLists, [{
+    key: 'render',
+
+
+    /**
+     * Render.
+     *
+     * @return {Element}
+     */
+
+    value: function render() {
+      return _react2.default.createElement(
+        'div',
+        null,
+        _react2.default.createElement(
+          'div',
+          { className: 'editor' },
+          _react2.default.createElement(_.Editor, {
+            spellCheck: true,
+            placeholder: 'Enter some text...',
+            schema: schema,
+            state: this.state.state,
+            onChange: this.onChange,
+            onKeyDown: this.onKeyDown
+          })
+        )
+      );
+    }
+  }]);
 
   return CheckLists;
 }(_react2.default.Component);
@@ -207,7 +223,7 @@ var CheckLists = function (_React$Component2) {
 
 exports.default = CheckLists;
 
-},{"../..":51,"./state.json":2,"react":1365}],2:[function(require,module,exports){
+},{"../..":52,"./state.json":2,"react":1367}],2:[function(require,module,exports){
 module.exports={
   "nodes": [
     {
@@ -349,6 +365,8 @@ module.exports={
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _ = require('../..');
 
@@ -559,17 +577,6 @@ var CodeHighlighting = function (_React$Component) {
       transform.insertText('\n');
 
       return transform.apply();
-    }, _this.render = function () {
-      return _react2.default.createElement(
-        'div',
-        { className: 'editor' },
-        _react2.default.createElement(_.Editor, {
-          schema: schema,
-          state: _this.state.state,
-          onKeyDown: _this.onKeyDown,
-          onChange: _this.onChange
-        })
-      );
     }, _temp), _possibleConstructorReturn(_this, _ret);
   }
 
@@ -594,11 +601,29 @@ var CodeHighlighting = function (_React$Component) {
    * @return {State}
    */
 
-  /**
-   * Render.
-   *
-   * @return {Component}
-   */
+  _createClass(CodeHighlighting, [{
+    key: 'render',
+
+
+    /**
+     * Render.
+     *
+     * @return {Component}
+     */
+
+    value: function render() {
+      return _react2.default.createElement(
+        'div',
+        { className: 'editor' },
+        _react2.default.createElement(_.Editor, {
+          schema: schema,
+          state: this.state.state,
+          onKeyDown: this.onKeyDown,
+          onChange: this.onChange
+        })
+      );
+    }
+  }]);
 
   return CodeHighlighting;
 }(_react2.default.Component);
@@ -609,7 +634,7 @@ var CodeHighlighting = function (_React$Component) {
 
 exports.default = CodeHighlighting;
 
-},{"../..":51,"./state.json":4,"prismjs":1169,"react":1365}],4:[function(require,module,exports){
+},{"../..":52,"./state.json":4,"prismjs":1171,"react":1367}],4:[function(require,module,exports){
 module.exports={
   "nodes": [
     {
@@ -654,6 +679,8 @@ module.exports={
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; /* eslint-disable no-console */
 
@@ -789,17 +816,6 @@ var LargeDocument = function (_React$Component) {
       return state;
     };
 
-    _this.render = function () {
-      return _react2.default.createElement(_.Editor, {
-        placeholder: 'Enter some plain text...',
-        schema: schema,
-        spellCheck: false,
-        state: _this.state.state,
-        onChange: _this.onChange,
-        onKeyDown: _this.onKeyDown
-      });
-    };
-
     console.time('deserializeLargeDocument');
     _this.state = { state: _.Raw.deserialize({ nodes: nodes }, { normalize: false, terse: true }) };
     console.timeEnd('deserializeLargeDocument');
@@ -821,11 +837,27 @@ var LargeDocument = function (_React$Component) {
    * @return {State}
    */
 
-  /**
-   * Render the editor.
-   *
-   * @return {Component} component
-   */
+  _createClass(LargeDocument, [{
+    key: 'render',
+
+
+    /**
+     * Render the editor.
+     *
+     * @return {Component} component
+     */
+
+    value: function render() {
+      return _react2.default.createElement(_.Editor, {
+        placeholder: 'Enter some plain text...',
+        schema: schema,
+        spellCheck: false,
+        state: this.state.state,
+        onChange: this.onChange,
+        onKeyDown: this.onKeyDown
+      });
+    }
+  }]);
 
   return LargeDocument;
 }(_react2.default.Component);
@@ -836,12 +868,14 @@ var LargeDocument = function (_React$Component) {
 
 exports.default = LargeDocument;
 
-},{"../../..":51,"faker":160,"react":1365}],6:[function(require,module,exports){
+},{"../../..":52,"faker":162,"react":1367}],6:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _ = require('../../..');
 
@@ -885,12 +919,6 @@ var PlainText = function (_React$Component) {
       state: _.Plain.deserialize(_state2.default)
     }, _this.onChange = function (state) {
       _this.setState({ state: state });
-    }, _this.render = function () {
-      return _react2.default.createElement(_.Editor, {
-        placeholder: 'Enter some plain text...',
-        state: _this.state.state,
-        onChange: _this.onChange
-      });
     }, _temp), _possibleConstructorReturn(_this, _ret);
   }
 
@@ -906,11 +934,24 @@ var PlainText = function (_React$Component) {
    * @param {State} state
    */
 
-  /**
-   * Render the editor.
-   *
-   * @return {Component} component
-   */
+  _createClass(PlainText, [{
+    key: 'render',
+
+
+    /**
+     * Render the editor.
+     *
+     * @return {Component} component
+     */
+
+    value: function render() {
+      return _react2.default.createElement(_.Editor, {
+        placeholder: 'Enter some plain text...',
+        state: this.state.state,
+        onChange: this.onChange
+      });
+    }
+  }]);
 
   return PlainText;
 }(_react2.default.Component);
@@ -921,7 +962,7 @@ var PlainText = function (_React$Component) {
 
 exports.default = PlainText;
 
-},{"../../..":51,"./state.json":7,"react":1365}],7:[function(require,module,exports){
+},{"../../..":52,"./state.json":7,"react":1367}],7:[function(require,module,exports){
 module.exports="For the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.\nFor the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.\nFor the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.For the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.\nFor the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.\nFor the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.\nFor the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.\nFor the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.For the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.\nFor the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.\nFor the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.\nFor the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.\nFor the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.For the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.\nFor the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the sadfijasd;lkfjas;dlkfja;lsdkfj;alksdjf;sdaljfsf lskajdflkadsjflksdajflksdajfnecessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.\nFor the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.\nFor the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.\nFor the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.For the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.\nFor the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist."
 
 },{}],8:[function(require,module,exports){
@@ -930,6 +971,8 @@ module.exports="For the first six months after Oliver Twist was removed, the sys
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _ = require('../../..');
 
@@ -1119,13 +1162,6 @@ var RichText = function (_React$Component) {
 
       state = transform.apply();
       _this.setState({ state: state });
-    }, _this.render = function () {
-      return _react2.default.createElement(
-        'div',
-        null,
-        _this.renderToolbar(),
-        _this.renderEditor()
-      );
     }, _this.renderToolbar = function () {
       return _react2.default.createElement(
         'div',
@@ -1234,39 +1270,54 @@ var RichText = function (_React$Component) {
    * @param {String} type
    */
 
-  /**
-   * Render.
-   *
-   * @return {Element}
-   */
+  _createClass(RichText, [{
+    key: 'render',
 
-  /**
-   * Render the toolbar.
-   *
-   * @return {Element}
-   */
 
-  /**
-   * Render a mark-toggling toolbar button.
-   *
-   * @param {String} type
-   * @param {String} icon
-   * @return {Element}
-   */
+    /**
+     * Render.
+     *
+     * @return {Element}
+     */
 
-  /**
-   * Render a block-toggling toolbar button.
-   *
-   * @param {String} type
-   * @param {String} icon
-   * @return {Element}
-   */
+    value: function render() {
+      return _react2.default.createElement(
+        'div',
+        null,
+        this.renderToolbar(),
+        this.renderEditor()
+      );
+    }
 
-  /**
-   * Render the Slate editor.
-   *
-   * @return {Element}
-   */
+    /**
+     * Render the toolbar.
+     *
+     * @return {Element}
+     */
+
+    /**
+     * Render a mark-toggling toolbar button.
+     *
+     * @param {String} type
+     * @param {String} icon
+     * @return {Element}
+     */
+
+    /**
+     * Render a block-toggling toolbar button.
+     *
+     * @param {String} type
+     * @param {String} icon
+     * @return {Element}
+     */
+
+    /**
+     * Render the Slate editor.
+     *
+     * @return {Element}
+     */
+
+  }]);
 
   return RichText;
 }(_react2.default.Component);
@@ -1277,7 +1328,7 @@ var RichText = function (_React$Component) {
 
 exports.default = RichText;
 
-},{"../../..":51,"./state.json":9,"react":1365}],9:[function(require,module,exports){
+},{"../../..":52,"./state.json":9,"react":1367}],9:[function(require,module,exports){
 module.exports={
   "nodes": [
     {
@@ -1381,6 +1432,8 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
 var _ = require('../..');
 
 var _react = require('react');
@@ -1439,16 +1492,6 @@ var Embeds = function (_React$Component) {
       state: _.Raw.deserialize(_state2.default, { terse: true })
     }, _this.onChange = function (state) {
       _this.setState({ state: state });
-    }, _this.render = function () {
-      return _react2.default.createElement(
-        'div',
-        { className: 'editor' },
-        _react2.default.createElement(_.Editor, {
-          schema: schema,
-          state: _this.state.state,
-          onChange: _this.onChange
-        })
-      );
     }, _temp), _possibleConstructorReturn(_this, _ret);
   }
 
@@ -1464,11 +1507,28 @@ var Embeds = function (_React$Component) {
    * @param {State} state
    */
 
-  /**
-   * Render the app.
-   *
-   * @return {Element} element
-   */
+  _createClass(Embeds, [{
+    key: 'render',
+
+
+    /**
+     * Render the app.
+     *
+     * @return {Element} element
+     */
+
+    value: function render() {
+      return _react2.default.createElement(
+        'div',
+        { className: 'editor' },
+        _react2.default.createElement(_.Editor, {
+          schema: schema,
+          state: this.state.state,
+          onChange: this.onChange
+        })
+      );
+    }
+  }]);
 
   return Embeds;
 }(_react2.default.Component);
@@ -1479,7 +1539,7 @@ var Embeds = function (_React$Component) {
 
 exports.default = Embeds;
 
-},{"../..":51,"./state.json":11,"./video":12,"react":1365}],11:[function(require,module,exports){
+},{"../..":52,"./state.json":11,"./video":12,"react":1367}],11:[function(require,module,exports){
 module.exports={
   "nodes": [
     {
@@ -1519,6 +1579,8 @@ module.exports={
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _react = require('react');
 
@@ -1574,13 +1636,6 @@ var Video = function (_React$Component) {
       editor.onChange(next);
     }, _this.onClick = function (e) {
       e.stopPropagation();
-    }, _this.render = function () {
-      return _react2.default.createElement(
-        'div',
-        _this.props.attributes,
-        _this.renderVideo(),
-        _this.renderInput()
-      );
     }, _this.renderVideo = function () {
       var video = _this.props.node.data.get('video');
       var isSelected = _this.isSelected();
@@ -1657,23 +1712,38 @@ var Video = function (_React$Component) {
    * @type {Event} e
    */
 
-  /**
-   * Render.
-   *
-   * @return {Element}
-   */
+  _createClass(Video, [{
+    key: 'render',
 
-  /**
-   * Render the Youtube iframe, responsively.
-   *
-   * @return {Element}
-   */
 
-  /**
-   * Render the video URL input.
-   *
-   * @return {Element}
-   */
+    /**
+     * Render.
+     *
+     * @return {Element}
+     */
+
+    value: function render() {
+      return _react2.default.createElement(
+        'div',
+        this.props.attributes,
+        this.renderVideo(),
+        this.renderInput()
+      );
+    }
+
+    /**
+     * Render the Youtube iframe, responsively.
+     *
+     * @return {Element}
+     */
+
+    /**
+     * Render the video URL input.
+     *
+     * @return {Element}
+     */
+
+  }]);
 
   return Video;
 }(_react2.default.Component);
@@ -1684,7 +1754,7 @@ var Video = function (_React$Component) {
 
 exports.default = Video;
 
-},{"react":1365}],13:[function(require,module,exports){
+},{"react":1367}],13:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1864,7 +1934,7 @@ var Emojis = function (_React$Component) {
 
 exports.default = Emojis;
 
-},{"../..":51,"./state.json":14,"react":1365}],14:[function(require,module,exports){
+},{"../..":52,"./state.json":14,"react":1367}],14:[function(require,module,exports){
 module.exports={
   "nodes": [
     {
@@ -1922,6 +1992,8 @@ module.exports={
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _ = require('../..');
 
@@ -2001,13 +2073,6 @@ var FocusBlur = function (_React$Component) {
       return _this.onClick(e, 'blur');
     }, _this.onClickBlurDelay = function (e) {
       return _this.onClick(e, 'blur', 3000);
-    }, _this.render = function () {
-      return _react2.default.createElement(
-        'div',
-        null,
-        _this.renderToolbar(),
-        _this.renderEditor()
-      );
     }, _this.renderToolbar = function () {
       return _react2.default.createElement(
         'div',
@@ -2093,23 +2158,38 @@ var FocusBlur = function (_React$Component) {
    * @param {Event} e
    */
 
-  /**
-   * Render the app.
-   *
-   * @return {Element} element
-   */
+  _createClass(FocusBlur, [{
+    key: 'render',
 
-  /**
-   * Render the toolbar.
-   *
-   * @return {Element} element
-   */
 
-  /**
-   * Render the editor.
-   *
-   * @return {Element} element
-   */
+    /**
+     * Render the app.
+     *
+     * @return {Element} element
+     */
+
+    value: function render() {
+      return _react2.default.createElement(
+        'div',
+        null,
+        this.renderToolbar(),
+        this.renderEditor()
+      );
+    }
+
+    /**
+     * Render the toolbar.
+     *
+     * @return {Element} element
+     */
+
+    /**
+     * Render the editor.
+     *
+     * @return {Element} element
+     */
+
+  }]);
 
   return FocusBlur;
 }(_react2.default.Component);
@@ -2120,7 +2200,7 @@ var FocusBlur = function (_React$Component) {
 
 exports.default = FocusBlur;
 
-},{"../..":51,"./state.json":16,"react":1365}],16:[function(require,module,exports){
+},{"../..":52,"./state.json":16,"react":1367}],16:[function(require,module,exports){
 module.exports={
   "nodes": [
     {
@@ -2152,6 +2232,8 @@ module.exports={
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _ = require('../..');
 
@@ -2269,12 +2351,6 @@ var ForcedLayout = function (_React$Component) {
       }
     }, _this.onChange = function (state) {
       _this.setState({ state: state });
-    }, _this.render = function () {
-      return _react2.default.createElement(_.Editor, {
-        state: _this.state.state,
-        schema: _this.state.schema,
-        onChange: _this.onChange
-      });
     }, _temp), _possibleConstructorReturn(_this, _ret);
   }
 
@@ -2290,11 +2366,24 @@ var ForcedLayout = function (_React$Component) {
    * @param {State} state
    */
 
-  /**
-   * Render the editor.
-   *
-   * @return {Component} component
-   */
+  _createClass(ForcedLayout, [{
+    key: 'render',
+
+
+    /**
+     * Render the editor.
+     *
+     * @return {Component} component
+     */
+
+    value: function render() {
+      return _react2.default.createElement(_.Editor, {
+        state: this.state.state,
+        schema: this.state.schema,
+        onChange: this.onChange
+      });
+    }
+  }]);
 
   return ForcedLayout;
 }(_react2.default.Component);
@@ -2305,7 +2394,7 @@ var ForcedLayout = function (_React$Component) {
 
 exports.default = ForcedLayout;
 
-},{"../..":51,"./state.json":18,"react":1365}],18:[function(require,module,exports){
+},{"../..":52,"./state.json":18,"react":1367}],18:[function(require,module,exports){
 module.exports={
   "nodes": [
     {
@@ -2345,6 +2434,8 @@ module.exports={
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _ = require('../..');
 
@@ -2451,13 +2542,6 @@ var HoveringMenu = function (_React$Component) {
       _this.setState({ state: state });
     }, _this.onOpen = function (portal) {
       _this.setState({ menu: portal.firstChild });
-    }, _this.render = function () {
-      return _react2.default.createElement(
-        'div',
-        null,
-        _this.renderMenu(),
-        _this.renderEditor()
-      );
     }, _this.renderMenu = function () {
       return _react2.default.createElement(
         _reactPortal2.default,
@@ -2553,35 +2637,50 @@ var HoveringMenu = function (_React$Component) {
    * @param {Element} portal
    */
 
-  /**
-   * Render.
-   *
-   * @return {Element}
-   */
+  _createClass(HoveringMenu, [{
+    key: 'render',
 
-  /**
-   * Render the hovering menu.
-   *
-   * @return {Element}
-   */
 
-  /**
-   * Render a mark-toggling toolbar button.
-   *
-   * @param {String} type
-   * @param {String} icon
-   * @return {Element}
-   */
+    /**
+     * Render.
+     *
+     * @return {Element}
+     */
 
-  /**
-   * Render the Slate editor.
-   *
-   * @return {Element}
-   */
+    value: function render() {
+      return _react2.default.createElement(
+        'div',
+        null,
+        this.renderMenu(),
+        this.renderEditor()
+      );
+    }
 
-  /**
-   * Update the menu's absolute position.
-   */
+    /**
+     * Render the hovering menu.
+     *
+     * @return {Element}
+     */
+
+    /**
+     * Render a mark-toggling toolbar button.
+     *
+     * @param {String} type
+     * @param {String} icon
+     * @return {Element}
+     */
+
+    /**
+     * Render the Slate editor.
+     *
+     * @return {Element}
+     */
+
+    /**
+     * Update the menu's absolute position.
+     */
+
+  }]);
 
   return HoveringMenu;
 }(_react2.default.Component);
@@ -2592,7 +2691,7 @@ var HoveringMenu = function (_React$Component) {
 
 exports.default = HoveringMenu;
 
-},{"../..":51,"./state.json":20,"react":1365,"react-portal":1315}],20:[function(require,module,exports){
+},{"../..":52,"./state.json":20,"react":1367,"react-portal":1317}],20:[function(require,module,exports){
 module.exports={
   "nodes": [
     {
@@ -2668,6 +2767,8 @@ module.exports={
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _ = require('../..');
 
@@ -2845,55 +2946,6 @@ var Iframes = function (_React$Component) {
       state = state.transform().setBlock(isActive ? DEFAULT_NODE : type).apply();
 
       _this.setState({ state: state });
-    }, _this.render = function () {
-      var bootstrap = _react2.default.createElement('link', {
-        href: 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css',
-        rel: 'stylesheet',
-        integrity: 'sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u',
-        crossOrigin: 'anonymous'
-      });
-
-      var style = {
-        width: '100%',
-        height: '500px'
-      };
-
-      return _react2.default.createElement(
-        'div',
-        null,
-        _react2.default.createElement(
-          'p',
-          { style: { marginBottom: '10px' } },
-          'This editor is rendered inside of an ',
-          _react2.default.createElement(
-            'code',
-            null,
-            'iframe'
-          ),
-          ' element, and everything works as usual! This is helpful for scenarios where you need the content to be rendered in an isolated, for example to create a "live example" with a specific set of stylesheets applied.'
-        ),
-        _react2.default.createElement(
-          'p',
-          { style: { marginBottom: '10px' } },
-          'In this example\'s case, we\'ve added Bootstrap\'s CSS to the ',
-          _react2.default.createElement(
-            'code',
-            null,
-            'iframe'
-          ),
-          ' for default styles:'
-        ),
-        _react2.default.createElement(
-          _reactFrameComponent2.default,
-          { head: bootstrap, style: style },
-          _react2.default.createElement(
-            'div',
-            { style: { padding: '20px' } },
-            _this.renderToolbar(),
-            _this.renderEditor()
-          )
-        )
-      );
     }, _this.renderToolbar = function () {
       return _react2.default.createElement(
         'div',
@@ -2991,46 +3043,103 @@ var Iframes = function (_React$Component) {
    * @param {String} type
    */
 
-  /**
-   * Render.
-   *
-   * @return {Element}
-   */
+  _createClass(Iframes, [{
+    key: 'render',
 
-  /**
-   * Render the toolbar.
-   *
-   * @return {Element}
-   */
 
-  /**
-   * Render a mark-toggling toolbar button.
-   *
-   * @param {String} type
-   * @param {String} icon
-   * @return {Element}
-   */
+    /**
+     * Render.
+     *
+     * @return {Element}
+     */
 
-  /**
-   * Render a block-toggling toolbar button.
-   *
-   * @param {String} type
-   * @param {String} icon
-   * @return {Element}
-   */
+    value: function render() {
+      var bootstrap = _react2.default.createElement('link', {
+        href: 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css',
+        rel: 'stylesheet',
+        integrity: 'sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u',
+        crossOrigin: 'anonymous'
+      });
 
-  /**
-   * Render the Slate editor.
-   *
-   * @return {Element}
-   */
+      var style = {
+        width: '100%',
+        height: '500px'
+      };
+
+      return _react2.default.createElement(
+        'div',
+        null,
+        _react2.default.createElement(
+          'p',
+          { style: { marginBottom: '10px' } },
+          'This editor is rendered inside of an ',
+          _react2.default.createElement(
+            'code',
+            null,
+            'iframe'
+          ),
+          ' element, and everything works as usual! This is helpful for scenarios where you need the content to be rendered in an isolated, for example to create a "live example" with a specific set of stylesheets applied.'
+        ),
+        _react2.default.createElement(
+          'p',
+          { style: { marginBottom: '10px' } },
+          'In this example\'s case, we\'ve added Bootstrap\'s CSS to the ',
+          _react2.default.createElement(
+            'code',
+            null,
+            'iframe'
+          ),
+          ' for default styles:'
+        ),
+        _react2.default.createElement(
+          _reactFrameComponent2.default,
+          { head: bootstrap, style: style },
+          _react2.default.createElement(
+            'div',
+            { style: { padding: '20px' } },
+            this.renderToolbar(),
+            this.renderEditor()
+          )
+        )
+      );
+    }
+
+    /**
+     * Render the toolbar.
+     *
+     * @return {Element}
+     */
+
+    /**
+     * Render a mark-toggling toolbar button.
+     *
+     * @param {String} type
+     * @param {String} icon
+     * @return {Element}
+     */
+
+    /**
+     * Render a block-toggling toolbar button.
+     *
+     * @param {String} type
+     * @param {String} icon
+     * @return {Element}
+     */
+
+    /**
+     * Render the Slate editor.
+     *
+     * @return {Element}
+     */
+
+  }]);
 
   return Iframes;
 }(_react2.default.Component);
 
 exports.default = Iframes;
 
-},{"../..":51,"./state.json":22,"react":1365,"react-frame-aware-selection-plugin":1310,"react-frame-component":1314}],22:[function(require,module,exports){
+},{"../..":52,"./state.json":22,"react":1367,"react-frame-aware-selection-plugin":1312,"react-frame-component":1316}],22:[function(require,module,exports){
 module.exports={
   "nodes": [
     {
@@ -3136,6 +3245,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
@@ -3256,13 +3367,6 @@ var Images = function (_React$Component) {
 
     return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = Images.__proto__ || Object.getPrototypeOf(Images)).call.apply(_ref, [this].concat(args))), _this), _this.state = {
       state: _.Raw.deserialize(_state2.default, { terse: true })
-    }, _this.render = function () {
-      return _react2.default.createElement(
-        'div',
-        null,
-        _this.renderToolbar(),
-        _this.renderEditor()
-      );
     }, _this.renderToolbar = function () {
       return _react2.default.createElement(
         'div',
@@ -3379,82 +3483,97 @@ var Images = function (_React$Component) {
    * @type {Object}
    */
 
-  /**
-   * Render the app.
-   *
-   * @return {Element} element
-   */
+  _createClass(Images, [{
+    key: 'render',
 
-  /**
-   * Render the toolbar.
-   *
-   * @return {Element} element
-   */
 
-  /**
-   * Render the editor.
-   *
-   * @return {Element} element
-   */
+    /**
+     * Render the app.
+     *
+     * @return {Element} element
+     */
 
-  /**
-   * On change.
-   *
-   * @param {State} state
-   */
+    value: function render() {
+      return _react2.default.createElement(
+        'div',
+        null,
+        this.renderToolbar(),
+        this.renderEditor()
+      );
+    }
 
-  /**
-   * On clicking the image button, prompt for an image and insert it.
-   *
-   * @param {Event} e
-   */
+    /**
+     * Render the toolbar.
+     *
+     * @return {Element} element
+     */
 
-  /**
-   * On drop, insert the image wherever it is dropped.
-   *
-   * @param {Event} e
-   * @param {Object} data
-   * @param {State} state
-   * @param {Editor} editor
-   * @return {State}
-   */
+    /**
+     * Render the editor.
+     *
+     * @return {Element} element
+     */
 
-  /**
-   * On drop or paste files, read and insert the image files.
-   *
-   * @param {Event} e
-   * @param {Object} data
-   * @param {State} state
-   * @param {Editor} editor
-   * @return {State}
-   */
+    /**
+     * On change.
+     *
+     * @param {State} state
+     */
 
-  /**
-   * On paste, if the pasted content is an image URL, insert it.
-   *
-   * @param {Event} e
-   * @param {Object} data
-   * @param {State} state
-   * @param {Editor} editor
-   * @return {State}
-   */
+    /**
+     * On clicking the image button, prompt for an image and insert it.
+     *
+     * @param {Event} e
+     */
 
-  /**
-   * On paste text, if the pasted content is an image URL, insert it.
-   *
-   * @param {Event} e
-   * @param {Object} data
-   * @param {State} state
-   * @return {State}
-   */
+    /**
+     * On drop, insert the image wherever it is dropped.
+     *
+     * @param {Event} e
+     * @param {Object} data
+     * @param {State} state
+     * @param {Editor} editor
+     * @return {State}
+     */
 
-  /**
-   * Insert an image with `src` at the current selection.
-   *
-   * @param {State} state
-   * @param {String} src
-   * @return {State}
-   */
+    /**
+     * On drop or paste files, read and insert the image files.
+     *
+     * @param {Event} e
+     * @param {Object} data
+     * @param {State} state
+     * @param {Editor} editor
+     * @return {State}
+     */
+
+    /**
+     * On paste, if the pasted content is an image URL, insert it.
+     *
+     * @param {Event} e
+     * @param {Object} data
+     * @param {State} state
+     * @param {Editor} editor
+     * @return {State}
+     */
+
+    /**
+     * On paste text, if the pasted content is an image URL, insert it.
+     *
+     * @param {Event} e
+     * @param {Object} data
+     * @param {State} state
+     * @return {State}
+     */
+
+    /**
+     * Insert an image with `src` at the current selection.
+     *
+     * @param {State} state
+     * @param {String} src
+     * @return {State}
+     */
+
+  }]);
 
   return Images;
 }(_react2.default.Component);
@@ -3465,7 +3584,7 @@ var Images = function (_React$Component) {
 
 exports.default = Images;
 
-},{"../..":51,"./state.json":24,"is-image":1160,"is-url":1162,"react":1365}],24:[function(require,module,exports){
+},{"../..":52,"./state.json":24,"is-image":1162,"is-url":1164,"react":1367}],24:[function(require,module,exports){
 module.exports={
   "nodes": [
     {
@@ -3743,12 +3862,14 @@ var root = document.body.querySelector('main');
 _reactDom2.default.render(router, root);
 
 }).call(this,require('_process'))
-},{"./check-lists":1,"./code-highlighting":3,"./dev/large-document":5,"./dev/performance-plain":6,"./dev/performance-rich":8,"./embeds":10,"./emojis":13,"./focus-blur":15,"./forced-layout":17,"./hovering-menu":19,"./iframes":21,"./images":23,"./links":26,"./markdown-preview":28,"./markdown-shortcuts":29,"./paste-html":31,"./plain-text":33,"./plugins":34,"./read-only":35,"./rich-text":36,"./rtl":38,"./tables":40,"_process":1170,"react":1365,"react-addons-perf":1177,"react-dom":1178,"react-router-dom":1327}],26:[function(require,module,exports){
+},{"./check-lists":1,"./code-highlighting":3,"./dev/large-document":5,"./dev/performance-plain":6,"./dev/performance-rich":8,"./embeds":10,"./emojis":13,"./focus-blur":15,"./forced-layout":17,"./hovering-menu":19,"./iframes":21,"./images":23,"./links":26,"./markdown-preview":28,"./markdown-shortcuts":29,"./paste-html":31,"./plain-text":33,"./plugins":34,"./read-only":35,"./rich-text":36,"./rtl":38,"./tables":40,"_process":1172,"react":1367,"react-addons-perf":1179,"react-dom":1180,"react-router-dom":1329}],26:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
@@ -3873,13 +3994,6 @@ var Links = function (_React$Component) {
           href: data.text
         }
       }).collapseToEnd().apply();
-    }, _this.render = function () {
-      return _react2.default.createElement(
-        'div',
-        null,
-        _this.renderToolbar(),
-        _this.renderEditor()
-      );
     }, _this.renderToolbar = function () {
       var hasLinks = _this.hasLinks();
       return _react2.default.createElement(
@@ -3942,23 +4056,38 @@ var Links = function (_React$Component) {
    * @param {State} state
    */
 
-  /**
-   * Render the app.
-   *
-   * @return {Element} element
-   */
+  _createClass(Links, [{
+    key: 'render',
 
-  /**
-   * Render the toolbar.
-   *
-   * @return {Element} element
-   */
 
-  /**
-   * Render the editor.
-   *
-   * @return {Element} element
-   */
+    /**
+     * Render the app.
+     *
+     * @return {Element} element
+     */
+
+    value: function render() {
+      return _react2.default.createElement(
+        'div',
+        null,
+        this.renderToolbar(),
+        this.renderEditor()
+      );
+    }
+
+    /**
+     * Render the toolbar.
+     *
+     * @return {Element} element
+     */
+
+    /**
+     * Render the editor.
+     *
+     * @return {Element} element
+     */
+
+  }]);
 
   return Links;
 }(_react2.default.Component);
@@ -3969,7 +4098,7 @@ var Links = function (_React$Component) {
 
 exports.default = Links;
 
-},{"../..":51,"./state.json":27,"is-url":1162,"react":1365}],27:[function(require,module,exports){
+},{"../..":52,"./state.json":27,"is-url":1164,"react":1367}],27:[function(require,module,exports){
 module.exports={
   "nodes": [
     {
@@ -4018,6 +4147,8 @@ module.exports={
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _ = require('../..');
 
@@ -4182,16 +4313,6 @@ var MarkdownPreview = function (_React$Component) {
 
     return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = MarkdownPreview.__proto__ || Object.getPrototypeOf(MarkdownPreview)).call.apply(_ref, [this].concat(args))), _this), _this.state = {
       state: _.Plain.deserialize('Slate is flexible enough to add **decorators** that can format text based on its content. For example, this editor has **Markdown** preview decorators on it, to make it _dead_ simple to make an editor with built-in Markdown previewing.\n## Try it out!\nTry it out for yourself!')
-    }, _this.render = function () {
-      return _react2.default.createElement(
-        'div',
-        { className: 'editor' },
-        _react2.default.createElement(_.Editor, {
-          schema: schema,
-          state: _this.state.state,
-          onChange: _this.onChange
-        })
-      );
     }, _this.onChange = function (state) {
       _this.setState({ state: state });
     }, _temp), _possibleConstructorReturn(_this, _ret);
@@ -4203,18 +4324,36 @@ var MarkdownPreview = function (_React$Component) {
    * @type {Object}
    */
 
-  /**
-   *
-   * Render the example.
-   *
-   * @return {Component} component
-   */
+  _createClass(MarkdownPreview, [{
+    key: 'render',
 
-  /**
-   * On change.
-   *
-   * @param {State} state
-   */
+
+    /**
+     *
+     * Render the example.
+     *
+     * @return {Component} component
+     */
+
+    value: function render() {
+      return _react2.default.createElement(
+        'div',
+        { className: 'editor' },
+        _react2.default.createElement(_.Editor, {
+          schema: schema,
+          state: this.state.state,
+          onChange: this.onChange
+        })
+      );
+    }
+
+    /**
+     * On change.
+     *
+     * @param {State} state
+     */
+
+  }]);
 
   return MarkdownPreview;
 }(_react2.default.Component);
@@ -4225,12 +4364,14 @@ var MarkdownPreview = function (_React$Component) {
 
 exports.default = MarkdownPreview;
 
-},{"../..":51,"prismjs":1169,"react":1365}],29:[function(require,module,exports){
+},{"../..":52,"prismjs":1171,"react":1367}],29:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _ = require('../..');
 
@@ -4369,17 +4510,6 @@ var MarkdownShortcuts = function (_React$Component) {
         default:
           return null;
       }
-    }, _this.render = function () {
-      return _react2.default.createElement(
-        'div',
-        { className: 'editor' },
-        _react2.default.createElement(_.Editor, {
-          schema: schema,
-          state: _this.state.state,
-          onChange: _this.onChange,
-          onKeyDown: _this.onKeyDown
-        })
-      );
     }, _this.onChange = function (state) {
       _this.setState({ state: state });
     }, _this.onKeyDown = function (e, data, state) {
@@ -4458,54 +4588,73 @@ var MarkdownShortcuts = function (_React$Component) {
    * @return {String} block
    */
 
-  /**
-   *
-   * Render the example.
-   *
-   * @return {Component} component
-   */
+  _createClass(MarkdownShortcuts, [{
+    key: 'render',
 
-  /**
-   * On change.
-   *
-   * @param {State} state
-   */
 
-  /**
-   * On key down, check for our specific key shortcuts.
-   *
-   * @param {Event} e
-   * @param {Data} data
-   * @param {State} state
-   * @return {State or Null} state
-   */
+    /**
+     *
+     * Render the example.
+     *
+     * @return {Component} component
+     */
 
-  /**
-   * On space, if it was after an auto-markdown shortcut, convert the current
-   * node into the shortcut's corresponding type.
-   *
-   * @param {Event} e
-   * @param {State} state
-   * @return {State or Null} state
-   */
+    value: function render() {
+      return _react2.default.createElement(
+        'div',
+        { className: 'editor' },
+        _react2.default.createElement(_.Editor, {
+          schema: schema,
+          state: this.state.state,
+          onChange: this.onChange,
+          onKeyDown: this.onKeyDown
+        })
+      );
+    }
 
-  /**
-   * On backspace, if at the start of a non-paragraph, convert it back into a
-   * paragraph node.
-   *
-   * @param {Event} e
-   * @param {State} state
-   * @return {State or Null} state
-   */
+    /**
+     * On change.
+     *
+     * @param {State} state
+     */
 
-  /**
-   * On return, if at the end of a node type that should not be extended,
-   * create a new paragraph below it.
-   *
-   * @param {Event} e
-   * @param {State} state
-   * @return {State or Null} state
-   */
+    /**
+     * On key down, check for our specific key shortcuts.
+     *
+     * @param {Event} e
+     * @param {Data} data
+     * @param {State} state
+     * @return {State or Null} state
+     */
+
+    /**
+     * On space, if it was after an auto-markdown shortcut, convert the current
+     * node into the shortcut's corresponding type.
+     *
+     * @param {Event} e
+     * @param {State} state
+     * @return {State or Null} state
+     */
+
+    /**
+     * On backspace, if at the start of a non-paragraph, convert it back into a
+     * paragraph node.
+     *
+     * @param {Event} e
+     * @param {State} state
+     * @return {State or Null} state
+     */
+
+    /**
+     * On return, if at the end of a node type that should not be extended,
+     * create a new paragraph below it.
+     *
+     * @param {Event} e
+     * @param {State} state
+     * @return {State or Null} state
+     */
+
+  }]);
 
   return MarkdownShortcuts;
 }(_react2.default.Component);
@@ -4516,7 +4665,7 @@ var MarkdownShortcuts = function (_React$Component) {
 
 exports.default = MarkdownShortcuts;
 
-},{"../..":51,"./state.json":30,"react":1365}],30:[function(require,module,exports){
+},{"../..":52,"./state.json":30,"react":1367}],30:[function(require,module,exports){
 module.exports={
   "nodes": [
     {
@@ -4578,6 +4727,8 @@ module.exports={
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
@@ -4863,17 +5014,6 @@ var PasteHtml = function (_React$Component) {
           document = _serializer$deseriali.document;
 
       return state.transform().insertFragment(document).apply();
-    }, _this.render = function () {
-      return _react2.default.createElement(
-        'div',
-        { className: 'editor' },
-        _react2.default.createElement(_.Editor, {
-          schema: schema,
-          state: _this.state.state,
-          onPaste: _this.onPaste,
-          onChange: _this.onChange
-        })
-      );
     }, _temp), _possibleConstructorReturn(_this, _ret);
   }
 
@@ -4897,11 +5037,29 @@ var PasteHtml = function (_React$Component) {
    * @param {State} state
    */
 
-  /**
-   * Render.
-   *
-   * @return {Component}
-   */
+  _createClass(PasteHtml, [{
+    key: 'render',
+
+
+    /**
+     * Render.
+     *
+     * @return {Component}
+     */
+
+    value: function render() {
+      return _react2.default.createElement(
+        'div',
+        { className: 'editor' },
+        _react2.default.createElement(_.Editor, {
+          schema: schema,
+          state: this.state.state,
+          onPaste: this.onPaste,
+          onChange: this.onChange
+        })
+      );
+    }
+  }]);
 
   return PasteHtml;
 }(_react2.default.Component);
@@ -4912,7 +5070,7 @@ var PasteHtml = function (_React$Component) {
 
 exports.default = PasteHtml;
 
-},{"../..":51,"./state.json":32,"react":1365}],32:[function(require,module,exports){
+},{"../..":52,"./state.json":32,"react":1367}],32:[function(require,module,exports){
 module.exports={
   "nodes": [
     {
@@ -4944,6 +5102,8 @@ module.exports={
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _ = require('../..');
 
@@ -4983,12 +5143,6 @@ var PlainText = function (_React$Component) {
       state: _.Plain.deserialize('This is editable plain text, just like a <textarea>!')
     }, _this.onChange = function (state) {
       _this.setState({ state: state });
-    }, _this.render = function () {
-      return _react2.default.createElement(_.Editor, {
-        placeholder: 'Enter some plain text...',
-        state: _this.state.state,
-        onChange: _this.onChange
-      });
     }, _temp), _possibleConstructorReturn(_this, _ret);
   }
 
@@ -5004,11 +5158,24 @@ var PlainText = function (_React$Component) {
    * @param {State} state
    */
 
-  /**
-   * Render the editor.
-   *
-   * @return {Component} component
-   */
+  _createClass(PlainText, [{
+    key: 'render',
+
+
+    /**
+     * Render the editor.
+     *
+     * @return {Component} component
+     */
+
+    value: function render() {
+      return _react2.default.createElement(_.Editor, {
+        placeholder: 'Enter some plain text...',
+        state: this.state.state,
+        onChange: this.onChange
+      });
+    }
+  }]);
 
   return PlainText;
 }(_react2.default.Component);
@@ -5019,12 +5186,14 @@ var PlainText = function (_React$Component) {
 
 exports.default = PlainText;
 
-},{"../..":51,"react":1365}],34:[function(require,module,exports){
+},{"../..":52,"react":1367}],34:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _ = require('../..');
 
@@ -5111,13 +5280,6 @@ var Plugins = function (_React$Component) {
       state: _.Plain.deserialize('This example shows how you can extend Slate with plugins! It uses four fairly simple plugins, but you can use any plugins you want, or write your own!\n\nThe first is an "auto replacer". Try typing "(c)" and you\'ll see it turn into a copyright symbol automatically!\n\nThe second is a simple plugin to collapse the selection whenever the escape key is pressed. Try selecting some text and pressing escape.\n\nThe third is another simple plugin that inserts a "soft" break when enter is pressed instead of creating a new block. Try pressing enter!\n\nThe fourth is an example of using the plugin.render property to create a higher-order-component.')
     }, _this.onChange = function (state) {
       _this.setState({ state: state });
-    }, _this.render = function () {
-      return _react2.default.createElement(_.Editor, {
-        placeholder: 'Enter some text...',
-        plugins: plugins,
-        state: _this.state.state,
-        onChange: _this.onChange
-      });
     }, _temp), _possibleConstructorReturn(_this, _ret);
   }
 
@@ -5133,11 +5295,25 @@ var Plugins = function (_React$Component) {
    * @param {State} state
    */
 
-  /**
-   * Render the editor.
-   *
-   * @return {Component} component
-   */
+  _createClass(Plugins, [{
+    key: 'render',
+
+
+    /**
+     * Render the editor.
+     *
+     * @return {Component} component
+     */
+
+    value: function render() {
+      return _react2.default.createElement(_.Editor, {
+        placeholder: 'Enter some text...',
+        plugins: plugins,
+        state: this.state.state,
+        onChange: this.onChange
+      });
+    }
+  }]);
 
   return Plugins;
 }(_react2.default.Component);
@@ -5148,12 +5324,14 @@ var Plugins = function (_React$Component) {
 
 exports.default = Plugins;
 
-},{"../..":51,"react":1365,"slate-auto-replace-text":1368,"slate-collapse-on-escape":1369,"slate-soft-break":1370}],35:[function(require,module,exports){
+},{"../..":52,"react":1367,"slate-auto-replace-text":1370,"slate-collapse-on-escape":1371,"slate-soft-break":1372}],35:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _ = require('../..');
 
@@ -5193,13 +5371,6 @@ var ReadOnly = function (_React$Component) {
       state: _.Plain.deserialize('This is read-only text. You should not be able to edit it, which is useful for scenarios where you want to render via Slate, without giving the user editing permissions.')
     }, _this.onChange = function (state) {
       _this.setState({ state: state });
-    }, _this.render = function () {
-      return _react2.default.createElement(_.Editor, {
-        readOnly: true,
-        placeholder: 'Enter some text...',
-        state: _this.state.state,
-        onChange: _this.onChange
-      });
     }, _temp), _possibleConstructorReturn(_this, _ret);
   }
 
@@ -5215,11 +5386,25 @@ var ReadOnly = function (_React$Component) {
    * @param {State} state
    */
 
-  /**
-   * Render the editor.
-   *
-   * @return {Component} component
-   */
+  _createClass(ReadOnly, [{
+    key: 'render',
+
+
+    /**
+     * Render the editor.
+     *
+     * @return {Component} component
+     */
+
+    value: function render() {
+      return _react2.default.createElement(_.Editor, {
+        readOnly: true,
+        placeholder: 'Enter some text...',
+        state: this.state.state,
+        onChange: this.onChange
+      });
+    }
+  }]);
 
   return ReadOnly;
 }(_react2.default.Component);
@@ -5230,12 +5415,14 @@ var ReadOnly = function (_React$Component) {
 
 exports.default = ReadOnly;
 
-},{"../..":51,"react":1365}],36:[function(require,module,exports){
+},{"../..":52,"react":1367}],36:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _ = require('../..');
 
@@ -5441,13 +5628,6 @@ var RichText = function (_React$Component) {
 
       state = transform.apply();
       _this.setState({ state: state });
-    }, _this.render = function () {
-      return _react2.default.createElement(
-        'div',
-        null,
-        _this.renderToolbar(),
-        _this.renderEditor()
-      );
     }, _this.renderToolbar = function () {
       return _react2.default.createElement(
         'div',
@@ -5557,39 +5737,54 @@ var RichText = function (_React$Component) {
    * @param {String} type
    */
 
-  /**
-   * Render.
-   *
-   * @return {Element}
-   */
+  _createClass(RichText, [{
+    key: 'render',
 
-  /**
-   * Render the toolbar.
-   *
-   * @return {Element}
-   */
 
-  /**
-   * Render a mark-toggling toolbar button.
-   *
-   * @param {String} type
-   * @param {String} icon
-   * @return {Element}
-   */
+    /**
+     * Render.
+     *
+     * @return {Element}
+     */
 
-  /**
-   * Render a block-toggling toolbar button.
-   *
-   * @param {String} type
-   * @param {String} icon
-   * @return {Element}
-   */
+    value: function render() {
+      return _react2.default.createElement(
+        'div',
+        null,
+        this.renderToolbar(),
+        this.renderEditor()
+      );
+    }
 
-  /**
-   * Render the Slate editor.
-   *
-   * @return {Element}
-   */
+    /**
+     * Render the toolbar.
+     *
+     * @return {Element}
+     */
+
+    /**
+     * Render a mark-toggling toolbar button.
+     *
+     * @param {String} type
+     * @param {String} icon
+     * @return {Element}
+     */
+
+    /**
+     * Render a block-toggling toolbar button.
+     *
+     * @param {String} type
+     * @param {String} icon
+     * @return {Element}
+     */
+
+    /**
+     * Render the Slate editor.
+     *
+     * @return {Element}
+     */
+
+  }]);
 
   return RichText;
 }(_react2.default.Component);
@@ -5600,7 +5795,7 @@ var RichText = function (_React$Component) {
 
 exports.default = RichText;
 
-},{"../..":51,"./state.json":37,"react":1365}],37:[function(require,module,exports){
+},{"../..":52,"./state.json":37,"react":1367}],37:[function(require,module,exports){
 arguments[4][9][0].apply(exports,arguments)
 },{"dup":9}],38:[function(require,module,exports){
 'use strict';
@@ -5608,6 +5803,8 @@ arguments[4][9][0].apply(exports,arguments)
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _ = require('../..');
 
@@ -5673,14 +5870,6 @@ var PlainText = function (_React$Component) {
       if (data.key == 'enter' && data.isShift) {
         return state.transform().insertText('\n').apply();
       }
-    }, _this.render = function () {
-      return _react2.default.createElement(_.Editor, {
-        placeholder: 'Enter some plain text...',
-        schema: schema,
-        state: _this.state.state,
-        onChange: _this.onChange,
-        onKeyDown: _this.onKeyDown
-      });
     }, _temp), _possibleConstructorReturn(_this, _ret);
   }
 
@@ -5704,11 +5893,26 @@ var PlainText = function (_React$Component) {
    * @param {State} state
    */
 
-  /**
-   * Render the editor.
-   *
-   * @return {Component} component
-   */
+  _createClass(PlainText, [{
+    key: 'render',
+
+
+    /**
+     * Render the editor.
+     *
+     * @return {Component} component
+     */
+
+    value: function render() {
+      return _react2.default.createElement(_.Editor, {
+        placeholder: 'Enter some plain text...',
+        schema: schema,
+        state: this.state.state,
+        onChange: this.onChange,
+        onKeyDown: this.onKeyDown
+      });
+    }
+  }]);
 
   return PlainText;
 }(_react2.default.Component);
@@ -5719,7 +5923,7 @@ var PlainText = function (_React$Component) {
 
 exports.default = PlainText;
 
-},{"../..":51,"./state.json":39,"react":1365}],39:[function(require,module,exports){
+},{"../..":52,"./state.json":39,"react":1367}],39:[function(require,module,exports){
 module.exports={
   "nodes": [
     {
@@ -5781,6 +5985,8 @@ module.exports={
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _ = require('../..');
 
@@ -5906,17 +6112,6 @@ var Tables = function (_React$Component) {
         case 'enter':
           return _this.onEnter(e, state);
       }
-    }, _this.render = function () {
-      return _react2.default.createElement(
-        'div',
-        { className: 'editor' },
-        _react2.default.createElement(_.Editor, {
-          schema: schema,
-          state: _this.state.state,
-          onKeyDown: _this.onKeyDown,
-          onChange: _this.onChange
-        })
-      );
     }, _temp), _possibleConstructorReturn(_this, _ret);
   }
 
@@ -5965,11 +6160,29 @@ var Tables = function (_React$Component) {
    * @return {State or Null} state
    */
 
-  /**
-   * Render the example.
-   *
-   * @return {Component} component
-   */
+  _createClass(Tables, [{
+    key: 'render',
+
+
+    /**
+     * Render the example.
+     *
+     * @return {Component} component
+     */
+
+    value: function render() {
+      return _react2.default.createElement(
+        'div',
+        { className: 'editor' },
+        _react2.default.createElement(_.Editor, {
+          schema: schema,
+          state: this.state.state,
+          onKeyDown: this.onKeyDown,
+          onChange: this.onChange
+        })
+      );
+    }
+  }]);
 
   return Tables;
 }(_react2.default.Component);
@@ -5980,7 +6193,7 @@ var Tables = function (_React$Component) {
 
 exports.default = Tables;
 
-},{"../..":51,"./state.json":41,"react":1365}],41:[function(require,module,exports){
+},{"../..":52,"./state.json":41,"react":1367}],41:[function(require,module,exports){
 module.exports={
   "nodes": [
     {
@@ -6242,6 +6455,16 @@ var _extends = Object.assign || function (target) {
   }return target;
 };
 
+var _createClass = function () {
+  function defineProperties(target, props) {
+    for (var i = 0; i < props.length; i++) {
+      var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
+    }
+  }return function (Constructor, protoProps, staticProps) {
+    if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
+  };
+}();
+
 var _debug = require('debug');
 
 var _debug2 = _interopRequireDefault(_debug);
@@ -6262,9 +6485,9 @@ var _keycode = require('keycode');
 
 var _keycode2 = _interopRequireDefault(_keycode);
 
-var _types = require('../constants/types');
+var _transferTypes = require('../constants/transfer-types');
 
-var _types2 = _interopRequireDefault(_types);
+var _transferTypes2 = _interopRequireDefault(_transferTypes);
 
 var _base = require('../serializers/base-64');
 
@@ -6321,12 +6544,12 @@ function _classCallCheck(instance, Constructor) {
 function _possibleConstructorReturn(self, call) {
   if (!self) {
     throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-  }return call && ((typeof call === 'undefined' ? 'undefined' : _typeof(call)) === "object" || typeof call === "function") ? call : self;
+  }return call && ((typeof call === "undefined" ? "undefined" : _typeof(call)) === "object" || typeof call === "function") ? call : self;
 }
 
 function _inherits(subClass, superClass) {
   if (typeof superClass !== "function" && superClass !== null) {
-    throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === 'undefined' ? 'undefined' : _typeof(superClass)));
+    throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === "undefined" ? "undefined" : _typeof(superClass)));
   }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
 }
 
@@ -6522,18 +6745,90 @@ var Content = function (_React$Component) {
    * @param {Event} event
    */
 
-  /**
-   * Render the editor content.
-   *
-   * @return {Element}
-   */
+  _createClass(Content, [{
+    key: 'render',
 
-  /**
-   * Render a `node`.
-   *
-   * @param {Node} node
-   * @return {Element}
-   */
+    /**
+     * Render the editor content.
+     *
+     * @return {Element}
+     */
+
+    value: function render() {
+      var _this2 = this;
+
+      var props = this.props;
+      var className = props.className,
+          readOnly = props.readOnly,
+          state = props.state,
+          tabIndex = props.tabIndex,
+          role = props.role;
+      var document = state.document;
+
+      var children = document.nodes.map(function (node) {
+        return _this2.renderNode(node);
+      }).toArray();
+
+      var style = _extends({
+        // Prevent the default outline styles.
+        outline: 'none',
+        // Preserve adjacent whitespace and new lines.
+        whiteSpace: 'pre-wrap',
+        // Allow words to break if they are too long.
+        wordWrap: 'break-word'
+      }, readOnly ? {} : { WebkitUserModify: 'read-write-plaintext-only' }, props.style);
+
+      // COMPAT: In Firefox, spellchecking can remove entire wrapping elements
+      // including inline ones like `<a>`, which is jarring for the user but also
+      // causes the DOM to get into an irreconcilable state. (2016/09/01)
+      var spellCheck = _environment.IS_FIREFOX ? false : props.spellCheck;
+
+      debug('render', { props: props });
+
+      return _react2.default.createElement('div', {
+        'data-slate-editor': true,
+        key: this.tmp.forces,
+        ref: this.ref,
+        'data-key': document.key,
+        contentEditable: !readOnly,
+        suppressContentEditableWarning: true,
+        className: className,
+        onBeforeInput: this.onBeforeInput,
+        onBlur: this.onBlur,
+        onFocus: this.onFocus,
+        onCompositionEnd: this.onCompositionEnd,
+        onCompositionStart: this.onCompositionStart,
+        onCopy: this.onCopy,
+        onCut: this.onCut,
+        onDragEnd: this.onDragEnd,
+        onDragOver: this.onDragOver,
+        onDragStart: this.onDragStart,
+        onDrop: this.onDrop,
+        onInput: this.onInput,
+        onKeyDown: this.onKeyDown,
+        onKeyUp: this.onKeyUp,
+        onPaste: this.onPaste,
+        onSelect: this.onSelect,
+        autoCorrect: props.autoCorrect,
+        spellCheck: spellCheck,
+        style: style,
+        role: readOnly ? null : role || 'textbox',
+        tabIndex: tabIndex
+        // COMPAT: The Grammarly Chrome extension works by changing the DOM out
+        // from under `contenteditable` elements, which leads to weird behaviors
+        // so we have to disable it like this. (2017/04/24)
+        , 'data-gramm': false
+      }, children, this.props.children);
+    }
+
+    /**
+     * Render a `node`.
+     *
+     * @param {Node} node
+     * @return {Element}
+     */
+
+  }]);
 
   return Content;
 }(_react2.default.Component);
@@ -6573,40 +6868,40 @@ Content.defaultProps = {
 };
 
 var _initialiseProps = function _initialiseProps() {
-  var _this2 = this;
+  var _this3 = this;
 
   this.shouldComponentUpdate = function (props, state) {
     // If the readOnly state has changed, we need to re-render so that
     // the cursor will be added or removed again.
-    if (props.readOnly != _this2.props.readOnly) return true;
+    if (props.readOnly != _this3.props.readOnly) return true;
 
     // If the state has been transformed natively, never re-render, or else we
     // will end up duplicating content.
     if (props.state.isNative) return false;
 
-    return props.className != _this2.props.className || props.schema != _this2.props.schema || props.autoCorrect != _this2.props.autoCorrect || props.spellCheck != _this2.props.spellCheck || props.state != _this2.props.state || props.style != _this2.props.style;
+    return props.className != _this3.props.className || props.schema != _this3.props.schema || props.autoCorrect != _this3.props.autoCorrect || props.spellCheck != _this3.props.spellCheck || props.state != _this3.props.state || props.style != _this3.props.style;
   };
 
   this.componentDidMount = function () {
-    _this2.updateSelection();
+    _this3.updateSelection();
 
-    if (_this2.props.autoFocus) {
-      _this2.element.focus();
+    if (_this3.props.autoFocus) {
+      _this3.element.focus();
     }
   };
 
   this.componentDidUpdate = function () {
-    _this2.updateSelection();
+    _this3.updateSelection();
   };
 
   this.updateSelection = function () {
-    var _props = _this2.props,
+    var _props = _this3.props,
         editor = _props.editor,
         state = _props.state;
     var document = state.document,
         selection = state.selection;
 
-    var window = (0, _getWindow2.default)(_this2.element);
+    var window = (0, _getWindow2.default)(_this3.element);
     var native = window.getSelection();
 
     // If both selections are blurred, do nothing.
@@ -6615,9 +6910,9 @@ var _initialiseProps = function _initialiseProps() {
     // If the selection has been blurred, but is still inside the editor in the
     // DOM, blur it manually.
     if (selection.isBlurred) {
-      if (!_this2.isInEditor(native.anchorNode)) return;
+      if (!_this3.isInEditor(native.anchorNode)) return;
       native.removeAllRanges();
-      _this2.element.blur();
+      _this3.element.blur();
       debug('updateSelection', { selection: selection, native: native });
       return;
     }
@@ -6662,8 +6957,8 @@ var _initialiseProps = function _initialiseProps() {
       return false;
     });
 
-    var anchorSpan = _this2.element.querySelector('[data-offset-key="' + anchorKey + '-' + anchorIndex + '"]');
-    var focusSpan = _this2.element.querySelector('[data-offset-key="' + focusKey + '-' + focusIndex + '"]');
+    var anchorSpan = _this3.element.querySelector('[data-offset-key="' + anchorKey + '-' + anchorIndex + '"]');
+    var focusSpan = _this3.element.querySelector('[data-offset-key="' + focusKey + '-' + focusIndex + '"]');
     var anchorEl = (0, _findDeepestNode2.default)(anchorSpan);
     var focusEl = (0, _findDeepestNode2.default)(focusSpan);
 
@@ -6673,7 +6968,7 @@ var _initialiseProps = function _initialiseProps() {
     }
 
     // Otherwise, set the `isSelecting` flag and update the selection.
-    _this2.tmp.isSelecting = true;
+    _this3.tmp.isSelecting = true;
     native.removeAllRanges();
     var range = window.document.createRange();
     range.setStart(anchorEl, anchorOff);
@@ -6684,19 +6979,19 @@ var _initialiseProps = function _initialiseProps() {
     setTimeout(function () {
       // COMPAT: In Firefox, it's not enough to create a range, you also need to
       // focus the contenteditable element too. (2016/11/16)
-      if (_environment.IS_FIREFOX) _this2.element.focus();
-      _this2.tmp.isSelecting = false;
+      if (_environment.IS_FIREFOX) _this3.element.focus();
+      _this3.tmp.isSelecting = false;
     });
 
     debug('updateSelection', { selection: selection, native: native });
   };
 
   this.ref = function (element) {
-    _this2.element = element;
+    _this3.element = element;
   };
 
   this.isInEditor = function (target) {
-    var element = _this2.element;
+    var element = _this3.element;
     // COMPAT: Text nodes don't have `isContentEditable` property. So, when
     // `target` is a text node use its parent element for check.
 
@@ -6705,147 +7000,147 @@ var _initialiseProps = function _initialiseProps() {
   };
 
   this.onBeforeInput = function (event) {
-    if (_this2.props.readOnly) return;
-    if (!_this2.isInEditor(event.target)) return;
+    if (_this3.props.readOnly) return;
+    if (!_this3.isInEditor(event.target)) return;
 
     var data = {};
 
     debug('onBeforeInput', { event: event, data: data });
-    _this2.props.onBeforeInput(event, data);
+    _this3.props.onBeforeInput(event, data);
   };
 
   this.onBlur = function (event) {
-    if (_this2.props.readOnly) return;
-    if (_this2.tmp.isCopying) return;
-    if (!_this2.isInEditor(event.target)) return;
+    if (_this3.props.readOnly) return;
+    if (_this3.tmp.isCopying) return;
+    if (!_this3.isInEditor(event.target)) return;
 
     // If the active element is still the editor, the blur event is due to the
     // window itself being blurred (eg. when changing tabs) so we should ignore
     // the event, since we want to maintain focus when returning.
-    var window = (0, _getWindow2.default)(_this2.element);
-    if (window.document.activeElement == _this2.element) return;
+    var window = (0, _getWindow2.default)(_this3.element);
+    if (window.document.activeElement == _this3.element) return;
 
     var data = {};
 
     debug('onBlur', { event: event, data: data });
-    _this2.props.onBlur(event, data);
+    _this3.props.onBlur(event, data);
   };
 
   this.onFocus = function (event) {
-    if (_this2.props.readOnly) return;
-    if (_this2.tmp.isCopying) return;
-    if (!_this2.isInEditor(event.target)) return;
+    if (_this3.props.readOnly) return;
+    if (_this3.tmp.isCopying) return;
+    if (!_this3.isInEditor(event.target)) return;
 
     // COMPAT: If the editor has nested editable elements, the focus can go to
     // those elements. In Firefox, this must be prevented because it results in
     // issues with keyboard navigation. (2017/03/30)
-    if (_environment.IS_FIREFOX && event.target != _this2.element) {
-      _this2.element.focus();
+    if (_environment.IS_FIREFOX && event.target != _this3.element) {
+      _this3.element.focus();
       return;
     }
 
     var data = {};
 
     debug('onFocus', { event: event, data: data });
-    _this2.props.onFocus(event, data);
+    _this3.props.onFocus(event, data);
   };
 
   this.onChange = function (state) {
     debug('onChange', state);
-    _this2.props.onChange(state);
+    _this3.props.onChange(state);
   };
 
   this.onCompositionStart = function (event) {
-    if (!_this2.isInEditor(event.target)) return;
+    if (!_this3.isInEditor(event.target)) return;
 
-    _this2.tmp.isComposing = true;
-    _this2.tmp.compositions++;
+    _this3.tmp.isComposing = true;
+    _this3.tmp.compositions++;
 
     debug('onCompositionStart', { event: event });
   };
 
   this.onCompositionEnd = function (event) {
-    if (!_this2.isInEditor(event.target)) return;
+    if (!_this3.isInEditor(event.target)) return;
 
-    _this2.tmp.forces++;
-    var count = _this2.tmp.compositions;
+    _this3.tmp.forces++;
+    var count = _this3.tmp.compositions;
 
     // The `count` check here ensures that if another composition starts
     // before the timeout has closed out this one, we will abort unsetting the
     // `isComposing` flag, since a composition in still in affect.
     setTimeout(function () {
-      if (_this2.tmp.compositions > count) return;
-      _this2.tmp.isComposing = false;
+      if (_this3.tmp.compositions > count) return;
+      _this3.tmp.isComposing = false;
     });
 
     debug('onCompositionEnd', { event: event });
   };
 
   this.onCopy = function (event) {
-    if (!_this2.isInEditor(event.target)) return;
+    if (!_this3.isInEditor(event.target)) return;
     var window = (0, _getWindow2.default)(event.target);
 
-    _this2.tmp.isCopying = true;
+    _this3.tmp.isCopying = true;
     window.requestAnimationFrame(function () {
-      _this2.tmp.isCopying = false;
+      _this3.tmp.isCopying = false;
     });
 
-    var state = _this2.props.state;
+    var state = _this3.props.state;
 
     var data = {};
     data.type = 'fragment';
     data.fragment = state.fragment;
 
     debug('onCopy', { event: event, data: data });
-    _this2.props.onCopy(event, data);
+    _this3.props.onCopy(event, data);
   };
 
   this.onCut = function (event) {
-    if (_this2.props.readOnly) return;
-    if (!_this2.isInEditor(event.target)) return;
+    if (_this3.props.readOnly) return;
+    if (!_this3.isInEditor(event.target)) return;
     var window = (0, _getWindow2.default)(event.target);
 
-    _this2.tmp.isCopying = true;
+    _this3.tmp.isCopying = true;
     window.requestAnimationFrame(function () {
-      _this2.tmp.isCopying = false;
+      _this3.tmp.isCopying = false;
     });
 
-    var state = _this2.props.state;
+    var state = _this3.props.state;
 
     var data = {};
     data.type = 'fragment';
     data.fragment = state.fragment;
 
     debug('onCut', { event: event, data: data });
-    _this2.props.onCut(event, data);
+    _this3.props.onCut(event, data);
   };
 
   this.onDragEnd = function (event) {
-    if (!_this2.isInEditor(event.target)) return;
+    if (!_this3.isInEditor(event.target)) return;
 
-    _this2.tmp.isDragging = false;
-    _this2.tmp.isInternalDrag = null;
+    _this3.tmp.isDragging = false;
+    _this3.tmp.isInternalDrag = null;
 
     debug('onDragEnd', { event: event });
   };
 
   this.onDragOver = function (event) {
-    if (!_this2.isInEditor(event.target)) return;
+    if (!_this3.isInEditor(event.target)) return;
 
     event.preventDefault();
 
-    if (_this2.tmp.isDragging) return;
-    _this2.tmp.isDragging = true;
-    _this2.tmp.isInternalDrag = false;
+    if (_this3.tmp.isDragging) return;
+    _this3.tmp.isDragging = true;
+    _this3.tmp.isInternalDrag = false;
 
     debug('onDragOver', { event: event });
   };
 
   this.onDragStart = function (event) {
-    if (!_this2.isInEditor(event.target)) return;
+    if (!_this3.isInEditor(event.target)) return;
 
-    _this2.tmp.isDragging = true;
-    _this2.tmp.isInternalDrag = true;
+    _this3.tmp.isDragging = true;
+    _this3.tmp.isInternalDrag = true;
     var dataTransfer = event.nativeEvent.dataTransfer;
 
     var data = (0, _getTransferData2.default)(dataTransfer);
@@ -6853,24 +7148,24 @@ var _initialiseProps = function _initialiseProps() {
     // If it's a node being dragged, the data type is already set.
     if (data.type == 'node') return;
 
-    var state = _this2.props.state;
+    var state = _this3.props.state;
     var fragment = state.fragment;
 
     var encoded = _base2.default.serializeNode(fragment);
 
-    (0, _setTransferData2.default)(dataTransfer, _types2.default.FRAGMENT, encoded);
+    (0, _setTransferData2.default)(dataTransfer, _transferTypes2.default.FRAGMENT, encoded);
 
     debug('onDragStart', { event: event });
   };
 
   this.onDrop = function (event) {
-    if (_this2.props.readOnly) return;
-    if (!_this2.isInEditor(event.target)) return;
+    if (_this3.props.readOnly) return;
+    if (!_this3.isInEditor(event.target)) return;
 
     event.preventDefault();
 
     var window = (0, _getWindow2.default)(event.target);
-    var _props2 = _this2.props,
+    var _props2 = _this3.props,
         state = _props2.state,
         editor = _props2.editor;
     var nativeEvent = event.nativeEvent;
@@ -6918,21 +7213,21 @@ var _initialiseProps = function _initialiseProps() {
     }
 
     if (data.type == 'fragment' || data.type == 'node') {
-      data.isInternal = _this2.tmp.isInternalDrag;
+      data.isInternal = _this3.tmp.isInternalDrag;
     }
 
     debug('onDrop', { event: event, data: data });
-    _this2.props.onDrop(event, data);
+    _this3.props.onDrop(event, data);
   };
 
   this.onInput = function (event) {
-    if (_this2.tmp.isComposing) return;
-    if (_this2.props.state.isBlurred) return;
-    if (!_this2.isInEditor(event.target)) return;
+    if (_this3.tmp.isComposing) return;
+    if (_this3.props.state.isBlurred) return;
+    if (!_this3.isInEditor(event.target)) return;
     debug('onInput', { event: event });
 
     var window = (0, _getWindow2.default)(event.target);
-    var _props3 = _this2.props,
+    var _props3 = _this3.props,
         state = _props3.state,
         editor = _props3.editor;
 
@@ -6994,12 +7289,12 @@ var _initialiseProps = function _initialiseProps() {
     }).delete().insertText(textContent, marks).select(after).apply();
 
     // Change the current state.
-    _this2.onChange(next);
+    _this3.onChange(next);
   };
 
   this.onKeyDown = function (event) {
-    if (_this2.props.readOnly) return;
-    if (!_this2.isInEditor(event.target)) return;
+    if (_this3.props.readOnly) return;
+    if (!_this3.isInEditor(event.target)) return;
 
     var altKey = event.altKey,
         ctrlKey = event.ctrlKey,
@@ -7014,13 +7309,13 @@ var _initialiseProps = function _initialiseProps() {
     // "Paste and Match Style" commands, but isn't available on the event in a
     // normal paste event.
     if (key == 'shift') {
-      _this2.tmp.isShifting = true;
+      _this3.tmp.isShifting = true;
     }
 
     // When composing, these characters commit the composition but also move the
     // selection before we're able to handle it, so prevent their default,
     // selection-moving behavior.
-    if (_this2.tmp.isComposing && (key == 'left' || key == 'right' || key == 'up' || key == 'down')) {
+    if (_this3.tmp.isComposing && (key == 'left' || key == 'right' || key == 'up' || key == 'down')) {
       event.preventDefault();
       return;
     }
@@ -7045,7 +7340,7 @@ var _initialiseProps = function _initialiseProps() {
     }
 
     debug('onKeyDown', { event: event, data: data });
-    _this2.props.onKeyDown(event, data);
+    _this3.props.onKeyDown(event, data);
   };
 
   this.onKeyUp = function (event) {
@@ -7054,19 +7349,19 @@ var _initialiseProps = function _initialiseProps() {
     var key = (0, _keycode2.default)(which);
 
     if (key == 'shift') {
-      _this2.tmp.isShifting = false;
+      _this3.tmp.isShifting = false;
     }
   };
 
   this.onPaste = function (event) {
-    if (_this2.props.readOnly) return;
-    if (!_this2.isInEditor(event.target)) return;
+    if (_this3.props.readOnly) return;
+    if (!_this3.isInEditor(event.target)) return;
 
     var data = (0, _getTransferData2.default)(event.clipboardData);
 
     // Attach the `isShift` flag, so that people can use it to trigger "Paste
     // and Match Style" logic.
-    data.isShift = !!_this2.tmp.isShifting;
+    data.isShift = !!_this3.tmp.isShifting;
     debug('onPaste', { event: event, data: data });
 
     // COMPAT: In IE 11, only plain text can be retrieved from the event's
@@ -7077,23 +7372,23 @@ var _initialiseProps = function _initialiseProps() {
       (0, _getHtmlFromNativePaste2.default)(event.target, function (html) {
         // If pasted HTML can be retreived, it is added to the `data` object,
         // setting the `type` to `html`.
-        _this2.props.onPaste(event, html === undefined ? data : _extends({}, data, { html: html, type: 'html' }));
+        _this3.props.onPaste(event, html === undefined ? data : _extends({}, data, { html: html, type: 'html' }));
       });
     } else {
       event.preventDefault();
-      _this2.props.onPaste(event, data);
+      _this3.props.onPaste(event, data);
     }
   };
 
   this.onSelect = function (event) {
-    if (_this2.props.readOnly) return;
-    if (_this2.tmp.isCopying) return;
-    if (_this2.tmp.isComposing) return;
-    if (_this2.tmp.isSelecting) return;
-    if (!_this2.isInEditor(event.target)) return;
+    if (_this3.props.readOnly) return;
+    if (_this3.tmp.isCopying) return;
+    if (_this3.tmp.isComposing) return;
+    if (_this3.tmp.isSelecting) return;
+    if (!_this3.isInEditor(event.target)) return;
 
     var window = (0, _getWindow2.default)(event.target);
-    var _props4 = _this2.props,
+    var _props4 = _this3.props,
         state = _props4.state,
         editor = _props4.editor;
     var document = state.document,
@@ -7125,7 +7420,7 @@ var _initialiseProps = function _initialiseProps() {
         // already up to date, but we do want to update the native selection again
         // to make sure it is in sync.
         if (anchor.key == selection.anchorKey && anchor.offset == selection.anchorOffset && focus.key == selection.focusKey && focus.offset == selection.focusOffset && selection.isFocused) {
-          _this2.updateSelection();
+          _this3.updateSelection();
           return;
         }
 
@@ -7167,76 +7462,11 @@ var _initialiseProps = function _initialiseProps() {
       }
 
     debug('onSelect', { event: event, data: data });
-    _this2.props.onSelect(event, data);
-  };
-
-  this.render = function () {
-    var props = _this2.props;
-    var className = props.className,
-        readOnly = props.readOnly,
-        state = props.state,
-        tabIndex = props.tabIndex,
-        role = props.role;
-    var document = state.document;
-
-    var children = document.nodes.map(function (node) {
-      return _this2.renderNode(node);
-    }).toArray();
-
-    var style = _extends({
-      // Prevent the default outline styles.
-      outline: 'none',
-      // Preserve adjacent whitespace and new lines.
-      whiteSpace: 'pre-wrap',
-      // Allow words to break if they are too long.
-      wordWrap: 'break-word'
-    }, readOnly ? {} : { WebkitUserModify: 'read-write-plaintext-only' }, props.style);
-
-    // COMPAT: In Firefox, spellchecking can remove entire wrapping elements
-    // including inline ones like `<a>`, which is jarring for the user but also
-    // causes the DOM to get into an irreconcilable state. (2016/09/01)
-    var spellCheck = _environment.IS_FIREFOX ? false : props.spellCheck;
-
-    debug('render', { props: props });
-
-    return _react2.default.createElement('div', {
-      'data-slate-editor': true,
-      key: _this2.tmp.forces,
-      ref: _this2.ref,
-      'data-key': document.key,
-      contentEditable: !readOnly,
-      suppressContentEditableWarning: true,
-      className: className,
-      onBeforeInput: _this2.onBeforeInput,
-      onBlur: _this2.onBlur,
-      onFocus: _this2.onFocus,
-      onCompositionEnd: _this2.onCompositionEnd,
-      onCompositionStart: _this2.onCompositionStart,
-      onCopy: _this2.onCopy,
-      onCut: _this2.onCut,
-      onDragEnd: _this2.onDragEnd,
-      onDragOver: _this2.onDragOver,
-      onDragStart: _this2.onDragStart,
-      onDrop: _this2.onDrop,
-      onInput: _this2.onInput,
-      onKeyDown: _this2.onKeyDown,
-      onKeyUp: _this2.onKeyUp,
-      onPaste: _this2.onPaste,
-      onSelect: _this2.onSelect,
-      autoCorrect: props.autoCorrect,
-      spellCheck: spellCheck,
-      style: style,
-      role: readOnly ? null : role || 'textbox',
-      tabIndex: tabIndex
-      // COMPAT: The Grammarly Chrome extension works by changing the DOM out
-      // from under `contenteditable` elements, which leads to weird behaviors
-      // so we have to disable it like this. (2017/04/24)
-      , 'data-gramm': false
-    }, children, _this2.props.children);
+    _this3.props.onSelect(event, data);
   };
 
   this.renderNode = function (node) {
-    var _props5 = _this2.props,
+    var _props5 = _this3.props,
         editor = _props5.editor,
         readOnly = _props5.readOnly,
         schema = _props5.schema,
@@ -7257,7 +7487,7 @@ var _initialiseProps = function _initialiseProps() {
 
 exports.default = Content;
 
-},{"../constants/environment":48,"../constants/types":50,"../models/selection":61,"../serializers/base-64":68,"../utils/extend-selection":82,"../utils/find-closest-node":83,"../utils/find-deepest-node":84,"../utils/get-html-from-native-paste":87,"../utils/get-point":88,"../utils/get-transfer-data":89,"../utils/set-transfer-data":98,"./node":45,"debug":104,"get-window":1146,"keycode":1163,"prop-types":1175,"react":1365}],43:[function(require,module,exports){
+},{"../constants/environment":48,"../constants/transfer-types":51,"../models/selection":62,"../serializers/base-64":69,"../utils/extend-selection":83,"../utils/find-closest-node":84,"../utils/find-deepest-node":85,"../utils/get-html-from-native-paste":88,"../utils/get-point":89,"../utils/get-transfer-data":90,"../utils/set-transfer-data":100,"./node":45,"debug":106,"get-window":1148,"keycode":1165,"prop-types":1177,"react":1367}],43:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -7275,6 +7505,16 @@ var _extends = Object.assign || function (target) {
     }
   }return target;
 };
+
+var _createClass = function () {
+  function defineProperties(target, props) {
+    for (var i = 0; i < props.length; i++) {
+      var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
+    }
+  }return function (Constructor, protoProps, staticProps) {
+    if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
+  };
+}();
 
 var _debug = require('debug');
 
@@ -7296,9 +7536,9 @@ var _stack = require('../models/stack');
 
 var _stack2 = _interopRequireDefault(_stack);
 
-var _state = require('../models/state');
+var _propTypes3 = require('../utils/prop-types');
 
-var _state2 = _interopRequireDefault(_state);
+var _propTypes4 = _interopRequireDefault(_propTypes3);
 
 var _noop = require('../utils/noop');
 
@@ -7323,12 +7563,12 @@ function _classCallCheck(instance, Constructor) {
 function _possibleConstructorReturn(self, call) {
   if (!self) {
     throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-  }return call && ((typeof call === 'undefined' ? 'undefined' : _typeof(call)) === "object" || typeof call === "function") ? call : self;
+  }return call && ((typeof call === "undefined" ? "undefined" : _typeof(call)) === "object" || typeof call === "function") ? call : self;
 }
 
 function _inherits(subClass, superClass) {
   if (typeof superClass !== "function" && superClass !== null) {
-    throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === 'undefined' ? 'undefined' : _typeof(superClass)));
+    throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === "undefined" ? "undefined" : _typeof(superClass)));
   }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
 }
 
@@ -7490,11 +7730,30 @@ var Editor = function (_React$Component) {
    * @param {State} state
    */
 
-  /**
-   * Render the editor.
-   *
-   * @return {Element}
-   */
+  _createClass(Editor, [{
+    key: 'render',
+
+    /**
+     * Render the editor.
+     *
+     * @return {Element}
+     */
+
+    value: function render() {
+      var props = this.props,
+          state = this.state;
+      var stack = state.stack;
+
+      var children = stack.renderPortal(state.state, this).map(function (child, i) {
+        return _react2.default.createElement(_reactPortal2.default, { key: i, isOpened: true }, child);
+      });
+
+      debug('render', { props: props, state: state });
+
+      var tree = stack.render(state.state, this, _extends({}, props, { children: children }));
+      return tree;
+    }
+  }]);
 
   return Editor;
 }(_react2.default.Component);
@@ -7519,7 +7778,7 @@ Editor.propTypes = {
   role: _propTypes2.default.string,
   schema: _propTypes2.default.object,
   spellCheck: _propTypes2.default.bool,
-  state: _propTypes2.default.instanceOf(_state2.default).isRequired,
+  state: _propTypes4.default.state.isRequired,
   style: _propTypes2.default.object,
   tabIndex: _propTypes2.default.number
 };
@@ -7623,21 +7882,6 @@ var _initialiseProps = function _initialiseProps() {
     if (state.document != document) onDocumentChange(state.document, state);
     if (state.selection != selection) onSelectionChange(state.selection, state);
   };
-
-  this.render = function () {
-    var props = _this2.props,
-        state = _this2.state;
-    var stack = state.stack;
-
-    var children = stack.renderPortal(state.state, _this2).map(function (child, i) {
-      return _react2.default.createElement(_reactPortal2.default, { key: i, isOpened: true }, child);
-    });
-
-    debug('render', { props: props, state: state });
-
-    var tree = stack.render(state.state, _this2, _extends({}, props, { children: children }));
-    return tree;
-  };
 };
 
 var _iteratorNormalCompletion2 = true;
@@ -7673,7 +7917,7 @@ try {
 
 exports.default = Editor;
 
-},{"../models/stack":62,"../models/state":63,"../utils/noop":93,"debug":104,"prop-types":1175,"react":1365,"react-portal":1315}],44:[function(require,module,exports){
+},{"../models/stack":63,"../utils/noop":94,"../utils/prop-types":98,"debug":106,"prop-types":1177,"react":1367,"react-portal":1317}],44:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -7954,7 +8198,7 @@ Leaf.propTypes = {
 };
 exports.default = Leaf;
 
-},{"../constants/environment":48,"../utils/find-deepest-node":84,"../utils/offset-key":96,"debug":104,"prop-types":1175,"react":1365,"react-dom":1178}],45:[function(require,module,exports){
+},{"../constants/environment":48,"../utils/find-deepest-node":85,"../utils/offset-key":97,"debug":106,"prop-types":1177,"react":1367,"react-dom":1180}],45:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -7962,6 +8206,16 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+
+var _createClass = function () {
+  function defineProperties(target, props) {
+    for (var i = 0; i < props.length; i++) {
+      var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
+    }
+  }return function (Constructor, protoProps, staticProps) {
+    if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
+  };
+}();
 
 var _debug = require('debug');
 
@@ -7979,9 +8233,9 @@ var _propTypes = require('prop-types');
 
 var _propTypes2 = _interopRequireDefault(_propTypes);
 
-var _types = require('../constants/types');
+var _transferTypes = require('../constants/transfer-types');
 
-var _types2 = _interopRequireDefault(_types);
+var _transferTypes2 = _interopRequireDefault(_transferTypes);
 
 var _base = require('../serializers/base-64');
 
@@ -8020,12 +8274,12 @@ function _classCallCheck(instance, Constructor) {
 function _possibleConstructorReturn(self, call) {
   if (!self) {
     throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-  }return call && ((typeof call === 'undefined' ? 'undefined' : _typeof(call)) === "object" || typeof call === "function") ? call : self;
+  }return call && ((typeof call === "undefined" ? "undefined" : _typeof(call)) === "object" || typeof call === "function") ? call : self;
 }
 
 function _inherits(subClass, superClass) {
   if (typeof superClass !== "function" && superClass !== null) {
-    throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === 'undefined' ? 'undefined' : _typeof(superClass)));
+    throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === "undefined" ? "undefined" : _typeof(superClass)));
   }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
 }
 
@@ -8125,40 +8379,54 @@ var Node = function (_React$Component) {
    * @param {Event} e
    */
 
-  /**
-   * Render.
-   *
-   * @return {Element}
-   */
+  _createClass(Node, [{
+    key: 'render',
 
-  /**
-   * Render a `child` node.
-   *
-   * @param {Node} child
-   * @return {Element}
-   */
+    /**
+     * Render.
+     *
+     * @return {Element}
+     */
 
-  /**
-   * Render an element `node`.
-   *
-   * @return {Element}
-   */
+    value: function render() {
+      var props = this.props;
+      var node = this.props.node;
 
-  /**
-   * Render a text node.
-   *
-   * @return {Element}
-   */
+      this.debug('render', { props: props });
 
-  /**
-   * Render a single leaf node given a `range` and `offset`.
-   *
-   * @param {List<Range>} ranges
-   * @param {Range} range
-   * @param {Number} index
-   * @param {Number} offset
-   * @return {Element} leaf
-   */
+      return node.kind == 'text' ? this.renderText() : this.renderElement();
+    }
+
+    /**
+     * Render a `child` node.
+     *
+     * @param {Node} child
+     * @return {Element}
+     */
+
+    /**
+     * Render an element `node`.
+     *
+     * @return {Element}
+     */
+
+    /**
+     * Render a text node.
+     *
+     * @return {Element}
+     */
+
+    /**
+     * Render a single leaf node given a `range` and `offset`.
+     *
+     * @param {List<Range>} ranges
+     * @param {Range} range
+     * @param {Number} index
+     * @param {Number} offset
+     * @return {Element} leaf
+     */
+
+  }]);
 
   return Node;
 }(_react2.default.Component);
@@ -8306,18 +8574,9 @@ var _initialiseProps = function _initialiseProps() {
     var encoded = _base2.default.serializeNode(node, { preserveKeys: true });
     var dataTransfer = e.nativeEvent.dataTransfer;
 
-    (0, _setTransferData2.default)(dataTransfer, _types2.default.NODE, encoded);
+    (0, _setTransferData2.default)(dataTransfer, _transferTypes2.default.NODE, encoded);
 
     _this2.debug('onDragStart', e);
-  };
-
-  this.render = function () {
-    var props = _this2.props;
-    var node = _this2.props.node;
-
-    _this2.debug('render', { props: props });
-
-    return node.kind == 'text' ? _this2.renderText() : _this2.renderElement();
   };
 
   this.renderNode = function (child) {
@@ -8429,7 +8688,7 @@ var _initialiseProps = function _initialiseProps() {
 
 exports.default = Node;
 
-},{"../constants/types":50,"../serializers/base-64":68,"../utils/scroll-to-selection":97,"../utils/set-transfer-data":98,"./leaf":44,"./void":47,"debug":104,"get-window":1146,"prop-types":1175,"react":1365,"react-dom":1178}],46:[function(require,module,exports){
+},{"../constants/transfer-types":51,"../serializers/base-64":69,"../utils/scroll-to-selection":99,"../utils/set-transfer-data":100,"./leaf":44,"./void":47,"debug":106,"get-window":1148,"prop-types":1177,"react":1367,"react-dom":1180}],46:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -8447,6 +8706,16 @@ var _extends = Object.assign || function (target) {
     }
   }return target;
 };
+
+var _createClass = function () {
+  function defineProperties(target, props) {
+    for (var i = 0; i < props.length; i++) {
+      var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
+    }
+  }return function (Constructor, protoProps, staticProps) {
+    if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
+  };
+}();
 
 var _react = require('react');
 
@@ -8469,12 +8738,12 @@ function _classCallCheck(instance, Constructor) {
 function _possibleConstructorReturn(self, call) {
   if (!self) {
     throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-  }return call && ((typeof call === 'undefined' ? 'undefined' : _typeof(call)) === "object" || typeof call === "function") ? call : self;
+  }return call && ((typeof call === "undefined" ? "undefined" : _typeof(call)) === "object" || typeof call === "function") ? call : self;
 }
 
 function _inherits(subClass, superClass) {
   if (typeof superClass !== "function" && superClass !== null) {
-    throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === 'undefined' ? 'undefined' : _typeof(superClass)));
+    throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === "undefined" ? "undefined" : _typeof(superClass)));
   }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
 }
 
@@ -8515,31 +8784,6 @@ var Placeholder = function (_React$Component) {
       } else {
         return true;
       }
-    }, _this.render = function () {
-      var isVisible = _this.isVisible();
-      if (!isVisible) return null;
-
-      var _this$props2 = _this.props,
-          children = _this$props2.children,
-          className = _this$props2.className;
-      var style = _this.props.style;
-
-      if (typeof children === 'string' && style == null && className == null) {
-        style = { opacity: '0.333' };
-      } else if (style == null) {
-        style = {};
-      }
-
-      var styles = _extends({
-        position: 'absolute',
-        top: '0px',
-        right: '0px',
-        bottom: '0px',
-        left: '0px',
-        pointerEvents: 'none'
-      }, style);
-
-      return _react2.default.createElement('span', { contentEditable: false, className: className, style: styles }, children);
     }, _temp), _possibleConstructorReturn(_this, _ret);
   }
 
@@ -8569,14 +8813,45 @@ var Placeholder = function (_React$Component) {
    * @return {Boolean}
    */
 
-  /**
-   * Render.
-   *
-   * If the placeholder is a string, and no `className` or `style` has been
-   * passed, give it a default style of lowered opacity.
-   *
-   * @return {Element}
-   */
+  _createClass(Placeholder, [{
+    key: 'render',
+
+    /**
+     * Render.
+     *
+     * If the placeholder is a string, and no `className` or `style` has been
+     * passed, give it a default style of lowered opacity.
+     *
+     * @return {Element}
+     */
+
+    value: function render() {
+      var isVisible = this.isVisible();
+      if (!isVisible) return null;
+
+      var _props = this.props,
+          children = _props.children,
+          className = _props.className;
+      var style = this.props.style;
+
+      if (typeof children === 'string' && style == null && className == null) {
+        style = { opacity: '0.333' };
+      } else if (style == null) {
+        style = {};
+      }
+
+      var styles = _extends({
+        position: 'absolute',
+        top: '0px',
+        right: '0px',
+        bottom: '0px',
+        left: '0px',
+        pointerEvents: 'none'
+      }, style);
+
+      return _react2.default.createElement('span', { contentEditable: false, className: className, style: styles }, children);
+    }
+  }]);
 
   return Placeholder;
 }(_react2.default.Component);
@@ -8601,7 +8876,7 @@ Placeholder.defaultProps = {
 };
 exports.default = Placeholder;
 
-},{"prop-types":1175,"react":1365}],47:[function(require,module,exports){
+},{"prop-types":1177,"react":1367}],47:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -8609,6 +8884,16 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+
+var _createClass = function () {
+  function defineProperties(target, props) {
+    for (var i = 0; i < props.length; i++) {
+      var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
+    }
+  }return function (Constructor, protoProps, staticProps) {
+    if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
+  };
+}();
 
 var _debug = require('debug');
 
@@ -8649,12 +8934,12 @@ function _classCallCheck(instance, Constructor) {
 function _possibleConstructorReturn(self, call) {
   if (!self) {
     throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-  }return call && ((typeof call === 'undefined' ? 'undefined' : _typeof(call)) === "object" || typeof call === "function") ? call : self;
+  }return call && ((typeof call === "undefined" ? "undefined" : _typeof(call)) === "object" || typeof call === "function") ? call : self;
 }
 
 function _inherits(subClass, superClass) {
   if (typeof superClass !== "function" && superClass !== null) {
-    throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === 'undefined' ? 'undefined' : _typeof(superClass)));
+    throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === "undefined" ? "undefined" : _typeof(superClass)));
   }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
 }
 
@@ -8734,26 +9019,59 @@ var Void = function (_React$Component) {
    * @param {Event} event
    */
 
-  /**
-   * Render.
-   *
-   * @return {Element}
-   */
+  _createClass(Void, [{
+    key: 'render',
 
-  /**
-   * Render a fake spacer leaf, which will catch the cursor when it the void
-   * node is navigated to with the arrow keys. Having this spacer there means
-   * the browser continues to manage the selection natively, so it keeps track
-   * of the right offset when moving across the block.
-   *
-   * @return {Element}
-   */
+    /**
+     * Render.
+     *
+     * @return {Element}
+     */
 
-  /**
-   * Render a fake leaf.
-   *
-   * @return {Element}
-   */
+    value: function render() {
+      var props = this.props;
+      var children = props.children,
+          node = props.node;
+
+      var Tag = void 0,
+          style = void 0;
+
+      // Make the outer wrapper relative, so the spacer can overlay it.
+      if (node.kind === 'block') {
+        Tag = 'div';
+        style = { position: 'relative' };
+      } else {
+        Tag = 'span';
+      }
+
+      this.debug('render', { props: props });
+
+      return _react2.default.createElement(Tag, {
+        'data-slate-void': true,
+        style: style,
+        onClick: this.onClick,
+        onDragEnter: this.onDragEnter,
+        onDragLeave: this.onDragLeave,
+        onDrop: this.onDrop
+      }, this.renderSpacer(), _react2.default.createElement(Tag, { contentEditable: this.state.editable }, children));
+    }
+
+    /**
+     * Render a fake spacer leaf, which will catch the cursor when it the void
+     * node is navigated to with the arrow keys. Having this spacer there means
+     * the browser continues to manage the selection natively, so it keeps track
+     * of the right offset when moving across the block.
+     *
+     * @return {Element}
+     */
+
+    /**
+     * Render a fake leaf.
+     *
+     * @return {Element}
+     */
+
+  }]);
 
   return Void;
 }(_react2.default.Component);
@@ -8834,34 +9152,6 @@ var _initialiseProps = function _initialiseProps() {
     _this2.setState({ dragCounter: 0, editable: false });
   };
 
-  this.render = function () {
-    var props = _this2.props;
-    var children = props.children,
-        node = props.node;
-
-    var Tag = void 0,
-        style = void 0;
-
-    // Make the outer wrapper relative, so the spacer can overlay it.
-    if (node.kind === 'block') {
-      Tag = 'div';
-      style = { position: 'relative' };
-    } else {
-      Tag = 'span';
-    }
-
-    _this2.debug('render', { props: props });
-
-    return _react2.default.createElement(Tag, {
-      'data-slate-void': true,
-      style: style,
-      onClick: _this2.onClick,
-      onDragEnter: _this2.onDragEnter,
-      onDragLeave: _this2.onDragLeave,
-      onDrop: _this2.onDrop
-    }, _this2.renderSpacer(), _react2.default.createElement(Tag, { contentEditable: _this2.state.editable }, children));
-  };
-
   this.renderSpacer = function () {
     var node = _this2.props.node;
 
@@ -8927,7 +9217,7 @@ var _initialiseProps = function _initialiseProps() {
 
 exports.default = Void;
 
-},{"../constants/environment":48,"../models/mark":57,"../utils/offset-key":96,"./leaf":44,"debug":104,"prop-types":1175,"react":1365}],48:[function(require,module,exports){
+},{"../constants/environment":48,"../models/mark":58,"../utils/offset-key":97,"./leaf":44,"debug":106,"prop-types":1177,"react":1367}],48:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -9078,7 +9368,7 @@ var IS_IE = exports.IS_IE = BROWSER === 'ie';
 var IS_MAC = exports.IS_MAC = OS === 'macos';
 var IS_WINDOWS = exports.IS_WINDOWS = OS === 'windows';
 
-},{"is-in-browser":1161}],49:[function(require,module,exports){
+},{"is-in-browser":1163}],49:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -9103,13 +9393,45 @@ var IS_DEV = typeof process !== 'undefined' && process.env && process.env.NODE_E
 exports.default = IS_DEV;
 
 }).call(this,require('_process'))
-},{"_process":1170}],50:[function(require,module,exports){
+},{"_process":1172}],50:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+/**
+ * Slate-specific item types.
+ *
+ * @type {Object}
+ */
 
+var MODEL_TYPES = {
+  STATE: '@@__SLATE_STATE__@@',
+  DOCUMENT: '@@__SLATE_DOCUMENT__@@',
+  BLOCK: '@@__SLATE_BLOCK__@@',
+  INLINE: '@@__SLATE_INLINE__@@',
+  TEXT: '@@__SLATE_TEXT__@@',
+  CHARACTER: '@@__SLATE_CHARACTER__@@',
+  MARK: '@@__SLATE_MARK__@@',
+  RANGE: '@@__SLATE_RANGE__@@',
+  SELECTION: '@@__SLATE_SELECTION__@@',
+  SCHEMA: '@@__SLATE_SCHEMA__@@'
+};
+
+/**
+ * Export.
+ *
+ * @type {Object}
+ */
+
+exports.default = MODEL_TYPES;
+
+},{}],51:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
 /**
  * Slate-specific data transfer types.
  *
@@ -9129,7 +9451,7 @@ var TYPES = {
 
 exports.default = TYPES;
 
-},{}],51:[function(require,module,exports){
+},{}],52:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -9291,7 +9613,7 @@ exports.default = {
   setKeyGenerator: _generateKey.setKeyGenerator
 };
 
-},{"./components/editor":43,"./components/placeholder":46,"./models/block":52,"./models/character":53,"./models/data":54,"./models/document":55,"./models/inline":56,"./models/mark":57,"./models/range":59,"./models/schema":60,"./models/selection":61,"./models/stack":62,"./models/state":63,"./models/text":64,"./serializers/html":69,"./serializers/plain":70,"./serializers/raw":71,"./transforms":77,"./utils/find-dom-node":85,"./utils/generate-key":86}],52:[function(require,module,exports){
+},{"./components/editor":43,"./components/placeholder":46,"./models/block":53,"./models/character":54,"./models/data":55,"./models/document":56,"./models/inline":57,"./models/mark":58,"./models/range":60,"./models/schema":61,"./models/selection":62,"./models/stack":63,"./models/state":64,"./models/text":65,"./serializers/html":70,"./serializers/plain":71,"./serializers/raw":72,"./transforms":78,"./utils/find-dom-node":86,"./utils/generate-key":87}],53:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -9312,10 +9634,6 @@ var _createClass = function () {
 
 require('./document');
 
-var _inline = require('./inline');
-
-var _inline2 = _interopRequireDefault(_inline);
-
 var _data = require('./data');
 
 var _data2 = _interopRequireDefault(_data);
@@ -9324,9 +9642,17 @@ var _node = require('./node');
 
 var _node2 = _interopRequireDefault(_node);
 
+var _inline = require('./inline');
+
+var _inline2 = _interopRequireDefault(_inline);
+
 var _text = require('./text');
 
 var _text2 = _interopRequireDefault(_text);
+
+var _modelTypes = require('../constants/model-types');
+
+var _modelTypes2 = _interopRequireDefault(_modelTypes);
 
 var _generateKey = require('../utils/generate-key');
 
@@ -9453,9 +9779,9 @@ var Block = function (_ref) {
     value: function create() {
       var properties = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-      if (properties instanceof Block) return properties;
-      if (properties instanceof _inline2.default) return properties;
-      if (properties instanceof _text2.default) return properties;
+      if (Block.isBlock(properties)) return properties;
+      if (_inline2.default.isInline(properties)) return properties;
+      if (_text2.default.isText(properties)) return properties;
       if (!properties.type) throw new Error('You must pass a block `type`.');
 
       properties.key = properties.key || (0, _generateKey2.default)();
@@ -9485,10 +9811,29 @@ var Block = function (_ref) {
       if (_immutable.List.isList(elements)) return elements;
       return new _immutable.List(elements.map(Block.create));
     }
+
+    /**
+     * Determines if the passed in paramter is a Slate Block or not
+     *
+     * @param {*} maybeBlock
+     * @return {Boolean}
+     */
+
+  }, {
+    key: 'isBlock',
+    value: function isBlock(maybeBlock) {
+      return !!(maybeBlock && maybeBlock[_modelTypes2.default.BLOCK]);
+    }
   }]);
 
   return Block;
 }(new _immutable.Record(DEFAULTS));
+
+/**
+ * Pseduo-symbol that shows this is a Slate Block
+ */
+
+Block.prototype[_modelTypes2.default.BLOCK] = true;
 
 /**
  * Mix in `Node` methods.
@@ -9506,7 +9851,7 @@ for (var method in _node2.default) {
 
 exports.default = Block;
 
-},{"../utils/generate-key":86,"./data":54,"./document":55,"./inline":56,"./node":58,"./text":64,"immutable":1157}],53:[function(require,module,exports){
+},{"../constants/model-types":50,"../utils/generate-key":87,"./data":55,"./document":56,"./inline":57,"./node":59,"./text":65,"immutable":1159}],54:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -9528,6 +9873,10 @@ var _createClass = function () {
 var _mark = require('./mark');
 
 var _mark2 = _interopRequireDefault(_mark);
+
+var _modelTypes = require('../constants/model-types');
+
+var _modelTypes2 = _interopRequireDefault(_modelTypes);
 
 var _immutable = require('immutable');
 
@@ -9604,7 +9953,7 @@ var Character = function (_ref) {
     value: function create() {
       var properties = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-      if (properties instanceof Character) return properties;
+      if (Character.isCharacter(properties)) return properties;
       properties.marks = _mark2.default.createSet(properties.marks);
       return new Character(properties);
     }
@@ -9642,10 +9991,29 @@ var Character = function (_ref) {
       var list = Character.createList(chars);
       return list;
     }
+
+    /**
+     * Determines if the passed in paramter is a Slate Character or not
+     *
+     * @param {*} maybeCharacter
+     * @return {Boolean}
+     */
+
+  }, {
+    key: 'isCharacter',
+    value: function isCharacter(maybeCharacter) {
+      return !!(maybeCharacter && maybeCharacter[_modelTypes2.default.CHARACTER]);
+    }
   }]);
 
   return Character;
 }(new _immutable.Record(DEFAULTS));
+
+/**
+ * Pseduo-symbol that shows this is a Slate Character
+ */
+
+Character.prototype[_modelTypes2.default.CHARACTER] = true;
 
 /**
  * Export.
@@ -9655,7 +10023,7 @@ var Character = function (_ref) {
 
 exports.default = Character;
 
-},{"./mark":57,"immutable":1157}],54:[function(require,module,exports){
+},{"../constants/model-types":50,"./mark":58,"immutable":1159}],55:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -9697,7 +10065,7 @@ var Data = {
 
 exports.default = Data;
 
-},{"immutable":1157}],55:[function(require,module,exports){
+},{"immutable":1159}],56:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -9729,6 +10097,10 @@ var _data2 = _interopRequireDefault(_data);
 var _node = require('./node');
 
 var _node2 = _interopRequireDefault(_node);
+
+var _modelTypes = require('../constants/model-types');
+
+var _modelTypes2 = _interopRequireDefault(_modelTypes);
 
 var _generateKey = require('../utils/generate-key');
 
@@ -9853,7 +10225,7 @@ var Document = function (_ref) {
     value: function create() {
       var properties = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-      if (properties instanceof Document) return properties;
+      if (Document.isDocument(properties)) return properties;
 
       properties.key = properties.key || (0, _generateKey2.default)();
       properties.data = _data2.default.create(properties.data);
@@ -9861,10 +10233,29 @@ var Document = function (_ref) {
 
       return new Document(properties);
     }
+
+    /**
+     * Determines if the passed in paramter is a Slate Document or not
+     *
+     * @param {*} maybeDocument
+     * @return {Boolean}
+     */
+
+  }, {
+    key: 'isDocument',
+    value: function isDocument(maybeDocument) {
+      return !!(maybeDocument && maybeDocument[_modelTypes2.default.DOCUMENT]);
+    }
   }]);
 
   return Document;
 }(new _immutable.Record(DEFAULTS));
+
+/**
+ * Pseduo-symbol that shows this is a Slate Document
+ */
+
+Document.prototype[_modelTypes2.default.DOCUMENT] = true;
 
 /**
  * Mix in `Node` methods.
@@ -9882,7 +10273,7 @@ for (var method in _node2.default) {
 
 exports.default = Document;
 
-},{"../utils/generate-key":86,"./block":52,"./data":54,"./inline":56,"./node":58,"immutable":1157}],56:[function(require,module,exports){
+},{"../constants/model-types":50,"../utils/generate-key":87,"./block":53,"./data":55,"./inline":57,"./node":59,"immutable":1159}],57:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -9901,11 +10292,11 @@ var _createClass = function () {
   };
 }();
 
+require('./document');
+
 var _block = require('./block');
 
 var _block2 = _interopRequireDefault(_block);
-
-require('./document');
 
 var _data = require('./data');
 
@@ -9918,6 +10309,10 @@ var _node2 = _interopRequireDefault(_node);
 var _text = require('./text');
 
 var _text2 = _interopRequireDefault(_text);
+
+var _modelTypes = require('../constants/model-types');
+
+var _modelTypes2 = _interopRequireDefault(_modelTypes);
 
 var _generateKey = require('../utils/generate-key');
 
@@ -10044,9 +10439,9 @@ var Inline = function (_ref) {
     value: function create() {
       var properties = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-      if (properties instanceof _block2.default) return properties;
-      if (properties instanceof Inline) return properties;
-      if (properties instanceof _text2.default) return properties;
+      if (_block2.default.isBlock(properties)) return properties;
+      if (Inline.isInline(properties)) return properties;
+      if (_text2.default.isText(properties)) return properties;
       if (!properties.type) throw new Error('You must pass an inline `type`.');
 
       properties.key = properties.key || (0, _generateKey2.default)();
@@ -10076,10 +10471,29 @@ var Inline = function (_ref) {
       if (_immutable.List.isList(elements)) return elements;
       return new _immutable.List(elements.map(Inline.create));
     }
+
+    /**
+     * Determines if the passed in paramter is a Slate Inline or not
+     *
+     * @param {*} maybeInline
+     * @return {Boolean}
+     */
+
+  }, {
+    key: 'isInline',
+    value: function isInline(maybeInline) {
+      return !!(maybeInline && maybeInline[_modelTypes2.default.INLINE]);
+    }
   }]);
 
   return Inline;
 }(new _immutable.Record(DEFAULTS));
+
+/**
+ * Pseduo-symbol that shows this is a Slate Inline
+ */
+
+Inline.prototype[_modelTypes2.default.INLINE] = true;
 
 /**
  * Mix in `Node` methods.
@@ -10097,7 +10511,7 @@ for (var method in _node2.default) {
 
 exports.default = Inline;
 
-},{"../utils/generate-key":86,"./block":52,"./data":54,"./document":55,"./node":58,"./text":64,"immutable":1157}],57:[function(require,module,exports){
+},{"../constants/model-types":50,"../utils/generate-key":87,"./block":53,"./data":55,"./document":56,"./node":59,"./text":65,"immutable":1159}],58:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -10123,6 +10537,10 @@ var _data2 = _interopRequireDefault(_data);
 var _memoize = require('../utils/memoize');
 
 var _memoize2 = _interopRequireDefault(_memoize);
+
+var _modelTypes = require('../constants/model-types');
+
+var _modelTypes2 = _interopRequireDefault(_modelTypes);
 
 var _immutable = require('immutable');
 
@@ -10192,8 +10610,6 @@ var Mark = function (_ref) {
 
     /**
      * Get the kind.
-     *
-     * @return {String}
      */
 
     get: function get() {
@@ -10212,7 +10628,7 @@ var Mark = function (_ref) {
     value: function create() {
       var properties = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-      if (properties instanceof Mark) return properties;
+      if (Mark.isMark(properties)) return properties;
       if (!properties.type) throw new Error('You must provide a `type` for the mark.');
       properties.data = _data2.default.create(properties.data);
       return new Mark(properties);
@@ -10233,10 +10649,29 @@ var Mark = function (_ref) {
       if (_immutable.Set.isSet(array)) return array;
       return new _immutable.Set(array.map(Mark.create));
     }
+
+    /**
+     * Determines if the passed in paramter is a Slate Mark or not
+     *
+     * @param {*} maybeMark
+     * @return {Boolean}
+     */
+
+  }, {
+    key: 'isMark',
+    value: function isMark(maybeMark) {
+      return !!(maybeMark && maybeMark[_modelTypes2.default.MARK]);
+    }
   }]);
 
   return Mark;
 }(new _immutable.Record(DEFAULTS));
+
+/**
+ * Pseduo-symbol that shows this is a Slate Mark
+ */
+
+Mark.prototype[_modelTypes2.default.MARK] = true;
 
 /**
  * Memoize read methods.
@@ -10254,7 +10689,7 @@ var Mark = function (_ref) {
 
 exports.default = Mark;
 
-},{"../utils/memoize":92,"./data":54,"immutable":1157}],58:[function(require,module,exports){
+},{"../constants/model-types":50,"../utils/memoize":93,"./data":55,"immutable":1159}],59:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -10541,11 +10976,22 @@ var Node = {
    */
 
   getBlocksAtRangeAsArray: function getBlocksAtRangeAsArray(range) {
-    var _this = this;
+    range = range.normalize(this);
+    var _range = range,
+        startKey = _range.startKey,
+        endKey = _range.endKey;
 
-    return this.getTextsAtRangeAsArray(range).map(function (text) {
-      return _this.getClosestBlock(text.key);
-    });
+    var startBlock = this.getClosestBlock(startKey);
+
+    // PERF: the most common case is when the range is in a single block node,
+    // where we can avoid a lot of iterating of the tree.
+    if (startKey == endKey) return [startBlock];
+
+    var endBlock = this.getClosestBlock(endKey);
+    var blocks = this.getBlocksAsArray();
+    var start = blocks.indexOf(startBlock);
+    var end = blocks.indexOf(endBlock);
+    return blocks.slice(start, end + 1);
   },
 
   /**
@@ -11064,10 +11510,10 @@ var Node = {
    */
 
   getInlinesAtRangeAsArray: function getInlinesAtRangeAsArray(range) {
-    var _this2 = this;
+    var _this = this;
 
     return this.getTextsAtRangeAsArray(range).map(function (text) {
-      return _this2.getClosestInline(text.key);
+      return _this.getClosestInline(text.key);
     }).filter(function (exists) {
       return exists;
     });
@@ -11206,9 +11652,9 @@ var Node = {
 
   getMarksAtRangeAsArray: function getMarksAtRangeAsArray(range) {
     range = range.normalize(this);
-    var _range = range,
-        startKey = _range.startKey,
-        startOffset = _range.startOffset;
+    var _range2 = range,
+        startKey = _range2.startKey,
+        startOffset = _range2.startOffset;
 
     // If the range is collapsed at the start of the node, check the previous.
 
@@ -11381,9 +11827,9 @@ var Node = {
       throw new Error('The range must be collapsed to calculcate its offset.');
     }
 
-    var _range2 = range,
-        startKey = _range2.startKey,
-        startOffset = _range2.startOffset;
+    var _range3 = range,
+        startKey = _range3.startKey,
+        startOffset = _range3.startOffset;
 
     return this.getOffset(startKey) + startOffset;
   },
@@ -11588,9 +12034,9 @@ var Node = {
 
   getTextsAtRangeAsArray: function getTextsAtRangeAsArray(range) {
     range = range.normalize(this);
-    var _range3 = range,
-        startKey = _range3.startKey,
-        endKey = _range3.endKey;
+    var _range4 = range,
+        startKey = _range4.startKey,
+        endKey = _range4.endKey;
 
     var startText = this.getDescendant(startKey);
 
@@ -11755,12 +12201,12 @@ var Node = {
    */
 
   mapChildren: function mapChildren(iterator) {
-    var _this3 = this;
+    var _this2 = this;
 
     var nodes = this.nodes;
 
     nodes.forEach(function (node, i) {
-      var ret = iterator(node, i, _this3.nodes);
+      var ret = iterator(node, i, _this2.nodes);
       if (ret != node) nodes = nodes.set(ret.key, ret);
     });
 
@@ -11776,14 +12222,14 @@ var Node = {
    */
 
   mapDescendants: function mapDescendants(iterator) {
-    var _this4 = this;
+    var _this3 = this;
 
     var nodes = this.nodes;
 
     nodes.forEach(function (node, i) {
       var ret = node;
       if (ret.kind != 'text') ret = ret.mapDescendants(iterator);
-      ret = iterator(ret, i, _this4.nodes);
+      ret = iterator(ret, i, _this3.nodes);
       if (ret == node) return;
 
       var index = nodes.indexOf(node);
@@ -12151,8 +12597,8 @@ var Node = {
     range = range.normalize(this);
     if (range.isExpanded) throw new Error();
 
-    var _range4 = range,
-        startKey = _range4.startKey;
+    var _range5 = range,
+        startKey = _range5.startKey;
 
     var start = this.getFurthestInline(startKey) || this.getDescendant(startKey);
     return range.isAtStartOf(start) || range.isAtEndOf(start);
@@ -12179,7 +12625,7 @@ var Node = {
 
 exports.default = Node;
 
-},{"../utils/generate-key":86,"../utils/is-in-range":90,"../utils/memoize":92,"../utils/normalize":95,"../utils/warn":100,"./document":55,"direction":106,"immutable":1157}],59:[function(require,module,exports){
+},{"../utils/generate-key":87,"../utils/is-in-range":91,"../utils/memoize":93,"../utils/normalize":96,"../utils/warn":102,"./document":56,"direction":108,"immutable":1159}],60:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -12205,6 +12651,10 @@ var _character2 = _interopRequireDefault(_character);
 var _mark = require('./mark');
 
 var _mark2 = _interopRequireDefault(_mark);
+
+var _modelTypes = require('../constants/model-types');
+
+var _modelTypes2 = _interopRequireDefault(_modelTypes);
 
 var _immutable = require('immutable');
 
@@ -12300,15 +12750,34 @@ var Range = function (_ref) {
     value: function create() {
       var properties = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-      if (properties instanceof Range) return properties;
+      if (Range.isRange(properties)) return properties;
       properties.text = properties.text;
       properties.marks = _mark2.default.createSet(properties.marks);
       return new Range(properties);
+    }
+
+    /**
+     * Determines if the passed in paramter is a Slate Range or not
+     *
+     * @param {*} maybeRange
+     * @return {Boolean}
+     */
+
+  }, {
+    key: 'isRange',
+    value: function isRange(maybeRange) {
+      return !!(maybeRange && maybeRange[_modelTypes2.default.RANGE]);
     }
   }]);
 
   return Range;
 }(new _immutable.Record(DEFAULTS));
+
+/**
+ * Pseduo-symbol that shows this is a Slate Range
+ */
+
+Range.prototype[_modelTypes2.default.RANGE] = true;
 
 /**
  * Export.
@@ -12318,7 +12787,7 @@ var Range = function (_ref) {
 
 exports.default = Range;
 
-},{"./character":53,"./mark":57,"immutable":1157}],60:[function(require,module,exports){
+},{"../constants/model-types":50,"./character":54,"./mark":58,"immutable":1159}],61:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -12348,6 +12817,10 @@ var _isReactComponent2 = _interopRequireDefault(_isReactComponent);
 var _typeOf = require('type-of');
 
 var _typeOf2 = _interopRequireDefault(_typeOf);
+
+var _modelTypes = require('../constants/model-types');
+
+var _modelTypes2 = _interopRequireDefault(_modelTypes);
 
 var _immutable = require('immutable');
 
@@ -12532,8 +13005,21 @@ var Schema = function (_ref) {
     value: function create() {
       var properties = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-      if (properties instanceof Schema) return properties;
+      if (Schema.isSchema(properties)) return properties;
       return new Schema(normalizeProperties(properties));
+    }
+
+    /**
+     * Determines if the passed in paramter is a Slate Schema or not
+     *
+     * @param {*} maybeSchema
+     * @return {Boolean}
+     */
+
+  }, {
+    key: 'isSchema',
+    value: function isSchema(maybeSchema) {
+      return !!(maybeSchema && maybeSchema[_modelTypes2.default.SCHEMA]);
     }
   }]);
 
@@ -12653,6 +13139,12 @@ function normalizeMarkComponent(render) {
 }
 
 /**
+ * Pseduo-symbol that shows this is a Slate Schema
+ */
+
+Schema.prototype[_modelTypes2.default.SCHEMA] = true;
+
+/**
  * Export.
  *
  * @type {Schema}
@@ -12660,7 +13152,7 @@ function normalizeMarkComponent(render) {
 
 exports.default = Schema;
 
-},{"../utils/is-react-component":91,"immutable":1157,"react":1365,"type-of":1374}],61:[function(require,module,exports){
+},{"../constants/model-types":50,"../utils/is-react-component":92,"immutable":1159,"react":1367,"type-of":1376}],62:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -12708,6 +13200,10 @@ var _createClass = function () {
 var _warn = require('../utils/warn');
 
 var _warn2 = _interopRequireDefault(_warn);
+
+var _modelTypes = require('../constants/model-types');
+
+var _modelTypes2 = _interopRequireDefault(_modelTypes);
 
 var _immutable = require('immutable');
 
@@ -13583,13 +14079,32 @@ var Selection = function (_ref) {
     value: function create() {
       var properties = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-      if (properties instanceof Selection) return properties;
+      if (Selection.isSelection(properties)) return properties;
       return new Selection(properties);
+    }
+
+    /**
+     * Determines if the passed in paramter is a Slate Selection or not
+     *
+     * @param {*} maybeSelection
+     * @return {Boolean}
+     */
+
+  }, {
+    key: 'isSelection',
+    value: function isSelection(maybeSelection) {
+      return !!(maybeSelection && maybeSelection[_modelTypes2.default.SELECTION]);
     }
   }]);
 
   return Selection;
 }(new _immutable.Record(DEFAULTS));
+
+/**
+ * Pseduo-symbol that shows this is a Slate Selection
+ */
+
+Selection.prototype[_modelTypes2.default.SELECTION] = true;
 
 /**
  * Mix in some "move" convenience methods.
@@ -13685,7 +14200,7 @@ function getLast(node) {
 
 exports.default = Selection;
 
-},{"../utils/warn":100,"immutable":1157}],62:[function(require,module,exports){
+},{"../constants/model-types":50,"../utils/warn":102,"immutable":1159}],63:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -14099,7 +14614,7 @@ try {
 }
 
 function assertState(value) {
-  if (value instanceof _state2.default) return;
+  if (_state2.default.isState(value)) return;
   throw new Error('A plugin returned an unexpected state value: ' + value);
 }
 
@@ -14178,7 +14693,7 @@ function resolvePlugins(props) {
 
 exports.default = Stack;
 
-},{"../plugins/core":66,"./schema":60,"./state":63,"debug":104,"immutable":1157}],63:[function(require,module,exports){
+},{"../plugins/core":67,"./schema":61,"./state":64,"debug":106,"immutable":1159}],64:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -14222,6 +14737,10 @@ var _selection2 = _interopRequireDefault(_selection);
 var _transform = require('./transform');
 
 var _transform2 = _interopRequireDefault(_transform);
+
+var _modelTypes = require('../constants/model-types');
+
+var _modelTypes2 = _interopRequireDefault(_modelTypes);
 
 var _immutable = require('immutable');
 
@@ -14764,7 +15283,7 @@ var State = function (_ref) {
       var properties = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
       var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
-      if (properties instanceof State) return properties;
+      if (State.isState(properties)) return properties;
 
       var document = _document2.default.create(properties.document);
       var selection = _selection2.default.create(properties.selection);
@@ -14810,10 +15329,29 @@ var State = function (_ref) {
 
       return options.normalize === false ? state : state.transform().normalize(_core2.default).apply({ save: false });
     }
+
+    /**
+     * Determines if the passed in paramter is a Slate State or not
+     *
+     * @param {*} maybeState
+     * @return {Boolean}
+     */
+
+  }, {
+    key: 'isState',
+    value: function isState(maybeState) {
+      return !!(maybeState && maybeState[_modelTypes2.default.STATE]);
+    }
   }]);
 
   return State;
 }(new _immutable.Record(DEFAULTS));
+
+/**
+ * Pseduo-symbol that shows this is a Slate State
+ */
+
+State.prototype[_modelTypes2.default.STATE] = true;
 
 /**
  * Export.
@@ -14821,7 +15359,7 @@ var State = function (_ref) {
 
 exports.default = State;
 
-},{"../schemas/core":67,"./document":55,"./selection":61,"./transform":65,"immutable":1157}],64:[function(require,module,exports){
+},{"../constants/model-types":50,"../schemas/core":68,"./document":56,"./selection":62,"./transform":66,"immutable":1159}],65:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -14851,6 +15389,10 @@ var _mark2 = _interopRequireDefault(_mark);
 var _range = require('./range');
 
 var _range2 = _interopRequireDefault(_range);
+
+var _modelTypes = require('../constants/model-types');
+
+var _modelTypes2 = _interopRequireDefault(_modelTypes);
 
 var _memoize = require('../utils/memoize');
 
@@ -15317,7 +15859,7 @@ var Text = function (_ref) {
     value: function create() {
       var properties = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-      if (properties instanceof Text) return properties;
+      if (Text.isText(properties)) return properties;
       properties.key = properties.key || (0, _generateKey2.default)();
       properties.characters = _character2.default.createList(properties.characters);
       return new Text(properties);
@@ -15372,10 +15914,29 @@ var Text = function (_ref) {
       if (_immutable.List.isList(elements)) return elements;
       return new _immutable.List(elements.map(Text.create));
     }
+
+    /**
+     * Determines if the passed in paramter is a Slate Text or not
+     *
+     * @param {*} maybeText
+     * @return {Boolean}
+     */
+
+  }, {
+    key: 'isText',
+    value: function isText(maybeText) {
+      return !!(maybeText && maybeText[_modelTypes2.default.TEXT]);
+    }
   }]);
 
   return Text;
 }(new _immutable.Record(DEFAULTS));
+
+/**
+ * Pseudo-symbol that shows this is a Slate Text
+ */
+
+Text.prototype[_modelTypes2.default.TEXT] = true;
 
 /**
  * Memoize read methods.
@@ -15397,7 +15958,7 @@ var Text = function (_ref) {
 
 exports.default = Text;
 
-},{"../utils/generate-key":86,"../utils/memoize":92,"./character":53,"./mark":57,"./range":59,"immutable":1157}],65:[function(require,module,exports){
+},{"../constants/model-types":50,"../utils/generate-key":87,"../utils/memoize":93,"./character":54,"./mark":58,"./range":60,"immutable":1159}],66:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -15636,7 +16197,7 @@ function isContiguousRemoves(operations, previous) {
 
 exports.default = Transform;
 
-},{"../transforms":77,"debug":104}],66:[function(require,module,exports){
+},{"../transforms":78,"debug":106}],67:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -16666,7 +17227,7 @@ function Plugin() {
 
 exports.default = Plugin;
 
-},{"../components/content":42,"../components/placeholder":46,"../constants/environment":48,"../models/character":53,"../serializers/base-64":68,"../utils/find-dom-node":85,"../utils/get-point":88,"debug":104,"get-window":1146,"react":1365}],67:[function(require,module,exports){
+},{"../components/content":42,"../components/placeholder":46,"../constants/environment":48,"../models/character":54,"../serializers/base-64":69,"../utils/find-dom-node":86,"../utils/get-point":89,"debug":106,"get-window":1148,"react":1367}],68:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -17023,7 +17584,7 @@ var SCHEMA = _schema2.default.create({ rules: rules });
 
 exports.default = SCHEMA;
 
-},{"../models/schema":60,"../models/text":64,"immutable":1157}],68:[function(require,module,exports){
+},{"../models/schema":61,"../models/text":65,"immutable":1159}],69:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -17129,7 +17690,7 @@ exports.default = {
   serializeNode: serializeNode
 };
 
-},{"./raw":71}],69:[function(require,module,exports){
+},{"./raw":72}],70:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -17654,7 +18215,7 @@ function addKey(element) {
 
 exports.default = Html;
 
-},{"./raw":71,"immutable":1157,"react":1365,"react-dom/server":1308,"type-of":1374}],70:[function(require,module,exports){
+},{"./raw":72,"immutable":1159,"react":1367,"react-dom/server":1310,"type-of":1376}],71:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -17728,7 +18289,7 @@ exports.default = {
   serialize: serialize
 };
 
-},{"../serializers/raw":71}],71:[function(require,module,exports){
+},{"../serializers/raw":72}],72:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -18512,7 +19073,7 @@ var Raw = {
 
 exports.default = Raw;
 
-},{"../models/block":52,"../models/character":53,"../models/document":55,"../models/inline":56,"../models/mark":57,"../models/selection":61,"../models/state":63,"../models/text":64,"is-empty":1159}],72:[function(require,module,exports){
+},{"../models/block":53,"../models/character":54,"../models/document":56,"../models/inline":57,"../models/mark":58,"../models/selection":62,"../models/state":64,"../models/text":65,"is-empty":1161}],73:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -19114,7 +19675,7 @@ function splitNode(state, operation) {
 
 exports.default = Transforms;
 
-},{"../utils/warn":100,"debug":104}],73:[function(require,module,exports){
+},{"../utils/warn":102,"debug":106}],74:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -19650,7 +20211,7 @@ Transforms.wrapText = function (transform, prefix) {
 
 exports.default = Transforms;
 
-},{"../utils/normalize":95}],74:[function(require,module,exports){
+},{"../utils/normalize":96}],75:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -21062,7 +21623,7 @@ Transforms.wrapTextAtRange = function (transform, range, prefix) {
 
 exports.default = Transforms;
 
-},{"../schemas/core":67,"../utils/normalize":95,"../utils/string":99,"immutable":1157}],75:[function(require,module,exports){
+},{"../schemas/core":68,"../utils/normalize":96,"../utils/string":101,"immutable":1159}],76:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -21561,7 +22122,7 @@ Transforms.wrapBlockByKey = function (transform, key, block, options) {
 
 exports.default = Transforms;
 
-},{"../schemas/core":67,"../utils/normalize":95}],76:[function(require,module,exports){
+},{"../schemas/core":68,"../utils/normalize":96}],77:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -21602,7 +22163,7 @@ Transforms.call = function (transform, fn) {
 
 exports.default = Transforms;
 
-},{}],77:[function(require,module,exports){
+},{}],78:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -21667,7 +22228,7 @@ function _interopRequireDefault(obj) {
 
 exports.default = _extends({}, _applyOperation2.default, _atCurrentRange2.default, _atRange2.default, _byKey2.default, _call2.default, _normalize2.default, _onHistory2.default, _onSelection2.default, _operations2.default);
 
-},{"./apply-operation":72,"./at-current-range":73,"./at-range":74,"./by-key":75,"./call":76,"./normalize":78,"./on-history":79,"./on-selection":80,"./operations":81}],78:[function(require,module,exports){
+},{"./apply-operation":73,"./at-current-range":74,"./at-range":75,"./by-key":76,"./call":77,"./normalize":79,"./on-history":80,"./on-selection":81,"./operations":82}],79:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -21922,7 +22483,7 @@ function normalizeNode(transform, node, schema) {
  */
 
 function assertSchema(schema) {
-  if (schema instanceof _schema2.default) {
+  if (_schema2.default.isSchema(schema)) {
     return;
   } else if (schema == null) {
     throw new Error('You must pass a `schema` object.');
@@ -21939,7 +22500,7 @@ function assertSchema(schema) {
 
 exports.default = Transforms;
 
-},{"../models/schema":60,"../utils/normalize":95,"../utils/warn":100,"immutable":1157}],79:[function(require,module,exports){
+},{"../models/schema":61,"../utils/normalize":96,"../utils/warn":102,"immutable":1159}],80:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -22083,7 +22644,7 @@ Transforms.undo = function (transform) {
 
 exports.default = Transforms;
 
-},{}],80:[function(require,module,exports){
+},{}],81:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -22316,7 +22877,7 @@ DEPRECATED_TRANSFORMS.forEach(function (_ref) {
 
 exports.default = Transforms;
 
-},{"../utils/warn":100}],81:[function(require,module,exports){
+},{"../utils/warn":102}],82:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -22865,7 +23426,7 @@ Transforms.splitNodeOperation = function (transform, path, count) {
 
 exports.default = Transforms;
 
-},{"../utils/normalize":95}],82:[function(require,module,exports){
+},{"../utils/normalize":96}],83:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -22918,7 +23479,7 @@ function extendSelection(selection, el, offset) {
 
 exports.default = extendSelection;
 
-},{}],83:[function(require,module,exports){
+},{}],84:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -22956,7 +23517,7 @@ function findClosestNode(node, selector) {
 
 exports.default = findClosestNode;
 
-},{}],84:[function(require,module,exports){
+},{}],85:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -22982,7 +23543,7 @@ function findDeepestNode(element) {
 
 exports.default = findDeepestNode;
 
-},{}],85:[function(require,module,exports){
+},{}],86:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -23014,7 +23575,7 @@ function findDOMNode(node) {
 
 exports.default = findDOMNode;
 
-},{}],86:[function(require,module,exports){
+},{}],87:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -23084,7 +23645,7 @@ exports.default = generateKey;
 exports.setKeyGenerator = setKeyGenerator;
 exports.resetKeyGenerator = resetKeyGenerator;
 
-},{}],87:[function(require,module,exports){
+},{}],88:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -23138,7 +23699,7 @@ function getHtmlFromNativePaste(component, callback) {
 
 exports.default = getHtmlFromNativePaste;
 
-},{"react-dom":1178}],88:[function(require,module,exports){
+},{"react-dom":1180}],89:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -23194,7 +23755,7 @@ function getPoint(element, offset, state, editor) {
 
 exports.default = getPoint;
 
-},{"./offset-key":96}],89:[function(require,module,exports){
+},{"./offset-key":97}],90:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -23231,9 +23792,9 @@ var _base = require('../serializers/base-64');
 
 var _base2 = _interopRequireDefault(_base);
 
-var _types = require('../constants/types');
+var _transferTypes = require('../constants/transfer-types');
 
-var _types2 = _interopRequireDefault(_types);
+var _transferTypes2 = _interopRequireDefault(_transferTypes);
 
 function _interopRequireDefault(obj) {
   return obj && obj.__esModule ? obj : { default: obj };
@@ -23255,8 +23816,8 @@ var FRAGMENT_MATCHER = / data-slate-fragment="([^\s]+)"/;
  */
 
 function getTransferData(transfer) {
-  var fragment = getType(transfer, _types2.default.FRAGMENT);
-  var node = getType(transfer, _types2.default.NODE);
+  var fragment = getType(transfer, _transferTypes2.default.FRAGMENT);
+  var node = getType(transfer, _transferTypes2.default.NODE);
   var html = getType(transfer, 'text/html');
   var rich = getType(transfer, 'text/rtf');
   var text = getType(transfer, 'text/plain');
@@ -23280,8 +23841,8 @@ function getTransferData(transfer) {
   if (text) {
     var embeddedTypes = getEmbeddedTypes(text);
 
-    if (embeddedTypes[_types2.default.FRAGMENT]) fragment = embeddedTypes[_types2.default.FRAGMENT];
-    if (embeddedTypes[_types2.default.NODE]) node = embeddedTypes[_types2.default.NODE];
+    if (embeddedTypes[_transferTypes2.default.FRAGMENT]) fragment = embeddedTypes[_transferTypes2.default.FRAGMENT];
+    if (embeddedTypes[_transferTypes2.default.NODE]) node = embeddedTypes[_transferTypes2.default.NODE];
     if (embeddedTypes['text/plain']) text = embeddedTypes['text/plain'];
   }
 
@@ -23389,7 +23950,7 @@ function getType(transfer, type) {
 
 exports.default = getTransferData;
 
-},{"../constants/types":50,"../serializers/base-64":68}],90:[function(require,module,exports){
+},{"../constants/transfer-types":51,"../serializers/base-64":69}],91:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -23430,7 +23991,7 @@ function isInRange(index, text, range) {
 
 exports.default = isInRange;
 
-},{}],91:[function(require,module,exports){
+},{}],92:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -23456,7 +24017,7 @@ function isReactComponent(object) {
 
 exports.default = isReactComponent;
 
-},{}],92:[function(require,module,exports){
+},{}],93:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -23741,7 +24302,7 @@ exports.default = memoize;
 exports.__clear = __clear;
 exports.__enable = __enable;
 
-},{"../constants/is-dev":49,"es6-map":146}],93:[function(require,module,exports){
+},{"../constants/is-dev":49,"es6-map":148}],94:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -23764,7 +24325,7 @@ function noop() {}
 
 exports.default = noop;
 
-},{}],94:[function(require,module,exports){
+},{}],95:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -23857,7 +24418,7 @@ function getEditableChild(parent, index, direction) {
 
 exports.default = normalizeNodeAndOffset;
 
-},{}],95:[function(require,module,exports){
+},{}],96:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -23912,7 +24473,7 @@ function _interopRequireDefault(obj) {
  */
 
 function block(value) {
-  if (value instanceof _block2.default) return value;
+  if (_block2.default.isBlock(value)) return value;
 
   switch ((0, _typeOf2.default)(value)) {
     case 'string':
@@ -23932,7 +24493,7 @@ function block(value) {
  */
 
 function inline(value) {
-  if (value instanceof _inline2.default) return value;
+  if (_inline2.default.isInline(value)) return value;
 
   switch ((0, _typeOf2.default)(value)) {
     case 'string':
@@ -23955,10 +24516,10 @@ function key(value) {
   if ((0, _typeOf2.default)(value) == 'string') return value;
 
   (0, _warn2.default)('An object was passed to a Node method instead of a `key` string. This was previously supported, but is being deprecated because it can have a negative impact on performance. The object in question was:', value);
-  if (value instanceof _block2.default) return value.key;
-  if (value instanceof _document2.default) return value.key;
-  if (value instanceof _inline2.default) return value.key;
-  if (value instanceof _text2.default) return value.key;
+  if (_block2.default.isBlock(value)) return value.key;
+  if (_document2.default.isDocument(value)) return value.key;
+  if (_inline2.default.isInline(value)) return value.key;
+  if (_text2.default.isText(value)) return value.key;
 
   throw new Error('Invalid `key` argument! It must be either a block, an inline, a text, or a string. You passed: "' + value + '".');
 }
@@ -23971,7 +24532,7 @@ function key(value) {
  */
 
 function mark(value) {
-  if (value instanceof _mark2.default) return value;
+  if (_mark2.default.isMark(value)) return value;
 
   switch ((0, _typeOf2.default)(value)) {
     case 'string':
@@ -24060,7 +24621,7 @@ function nodeProperties() {
  */
 
 function selection(value) {
-  if (value instanceof _selection2.default) return value;
+  if (_selection2.default.isSelection(value)) return value;
 
   switch ((0, _typeOf2.default)(value)) {
     case 'object':
@@ -24118,7 +24679,7 @@ exports.default = {
   selectionProperties: selectionProperties
 };
 
-},{"../models/block":52,"../models/data":54,"../models/document":55,"../models/inline":56,"../models/mark":57,"../models/selection":61,"../models/text":64,"./warn":100,"type-of":1374}],96:[function(require,module,exports){
+},{"../models/block":53,"../models/data":55,"../models/document":56,"../models/inline":57,"../models/mark":58,"../models/selection":62,"../models/text":65,"./warn":102,"type-of":1376}],97:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24341,7 +24902,200 @@ exports.default = {
   stringify: stringify
 };
 
-},{"./find-closest-node":83,"./normalize-node-and-offset":94}],97:[function(require,module,exports){
+},{"./find-closest-node":84,"./normalize-node-and-offset":95}],98:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _block = require('../models/block');
+
+var _block2 = _interopRequireDefault(_block);
+
+var _character = require('../models/character');
+
+var _character2 = _interopRequireDefault(_character);
+
+var _document = require('../models/document');
+
+var _document2 = _interopRequireDefault(_document);
+
+var _inline = require('../models/inline');
+
+var _inline2 = _interopRequireDefault(_inline);
+
+var _mark = require('../models/mark');
+
+var _mark2 = _interopRequireDefault(_mark);
+
+var _range = require('../models/range');
+
+var _range2 = _interopRequireDefault(_range);
+
+var _schema = require('../models/schema');
+
+var _schema2 = _interopRequireDefault(_schema);
+
+var _selection = require('../models/selection');
+
+var _selection2 = _interopRequireDefault(_selection);
+
+var _state = require('../models/state');
+
+var _state2 = _interopRequireDefault(_state);
+
+var _text = require('../models/text');
+
+var _text2 = _interopRequireDefault(_text);
+
+function _interopRequireDefault(obj) {
+  return obj && obj.__esModule ? obj : { default: obj };
+}
+
+/**
+ * HOC Function that takes in a predicate prop type function, and allows an isRequired chain
+ *
+ * @param {Function} predicate
+ * @return {Function}
+ */
+
+function createChainablePropType(predicate) {
+  function propType(props, propName, componentName) {
+    if (props[propName] == null) return;
+
+    return predicate(props, propName, componentName);
+  }
+
+  propType.isRequired = function (props, propName, componentName) {
+    if (props[propName] == null) return new Error('Required prop `' + propName + '` was not specified in `' + componentName + '`.');
+
+    return predicate(props, propName, componentName);
+  };
+
+  return propType;
+}
+
+/**
+ * Exported Slate proptype that checks if a prop is a Slate Block
+ *
+ * @type {Function}
+ */
+
+var block = createChainablePropType(function (props, propName, componentName) {
+  return !_block2.default.isBlock(props[propName]) ? new Error(propName + ' in ' + componentName + ' is not a Slate Block') : null;
+});
+
+/**
+ * Exported Slate proptype that checks if a prop is a Slate Character
+ *
+ * @type {Function}
+ */
+
+var character = createChainablePropType(function (props, propName, componentName) {
+  return !_character2.default.isCharacter(props[propName]) ? new Error(propName + ' in ' + componentName + ' is not a Slate Character') : null;
+});
+
+/**
+ * Exported Slate proptype that checks if a prop is a Slate Document
+ *
+ * @type {Function}
+ */
+
+var document = createChainablePropType(function (props, propName, componentName) {
+  return !_document2.default.isDocument(props[propName]) ? new Error(propName + ' in ' + componentName + ' is not a Slate Document') : null;
+});
+
+/**
+ * Exported Slate proptype that checks if a prop is a Slate Inline
+ *
+ * @type {Function}
+ */
+
+var inline = createChainablePropType(function (props, propName, componentName) {
+  return !_inline2.default.isInline(props[propName]) ? new Error(propName + ' in ' + componentName + ' is not a Slate Inline') : null;
+});
+
+/**
+ * Exported Slate proptype that checks if a prop is a Slate Mark
+ *
+ * @type {Function}
+ */
+
+var mark = createChainablePropType(function (props, propName, componentName) {
+  return !_mark2.default.isMark(props[propName]) ? new Error(propName + ' in ' + componentName + ' is not a Slate Mark') : null;
+});
+
+/**
+ * Exported Slate proptype that checks if a prop is a Slate Range
+ *
+ * @type {Function}
+ */
+
+var range = createChainablePropType(function (props, propName, componentName) {
+  return !_range2.default.isRange(props[propName]) ? new Error(propName + ' in ' + componentName + ' is not a Slate Range') : null;
+});
+
+/**
+ * Exported Slate proptype that checks if a prop is a Slate Schema
+ *
+ * @type {Function}
+ */
+
+var schema = createChainablePropType(function (props, propName, componentName) {
+  return !_schema2.default.isSchema(props[propName]) ? new Error(propName + ' in ' + componentName + ' is not a Slate Schema') : null;
+});
+
+/**
+ * Exported Slate proptype that checks if a prop is a Slate Selection
+ *
+ * @type {Function}
+ */
+
+var selection = createChainablePropType(function (props, propName, componentName) {
+  return !_selection2.default.isSelection(props[propName]) ? new Error(propName + ' in ' + componentName + ' is not a Slate Selection') : null;
+});
+
+/**
+ * Exported Slate proptype that checks if a prop is a Slate State
+ *
+ * @type {Function}
+ */
+
+var state = createChainablePropType(function (props, propName, componentName) {
+  return !_state2.default.isState(props[propName]) ? new Error(propName + ' in ' + componentName + ' is not a Slate State ' + props[propName]) : null;
+});
+
+/**
+ * Exported Slate proptype that checks if a prop is a Slate Text
+ *
+ * @type {Function}
+ */
+
+var text = createChainablePropType(function (props, propName, componentName) {
+  return !_text2.default.isText(props[propName]) ? new Error(propName + ' in ' + componentName + ' is not a Slate Text') : null;
+});
+
+/**
+ * Exported Slate proptypes
+ *
+ * @type {Object}
+ */
+
+exports.default = {
+  block: block,
+  character: character,
+  document: document,
+  inline: inline,
+  mark: mark,
+  range: range,
+  schema: schema,
+  selection: selection,
+  state: state,
+  text: text
+};
+
+},{"../models/block":53,"../models/character":54,"../models/document":56,"../models/inline":57,"../models/mark":58,"../models/range":60,"../models/schema":61,"../models/selection":62,"../models/state":64,"../models/text":65}],99:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24396,7 +25150,7 @@ function scrollToSelection(selection) {
 
 exports.default = scrollToSelection;
 
-},{"get-window":1146,"selection-is-backward":1367}],98:[function(require,module,exports){
+},{"get-window":1148,"selection-is-backward":1369}],100:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24445,7 +25199,7 @@ function setTransferData(dataTransfer, type, content) {
 
 exports.default = setTransferData;
 
-},{}],99:[function(require,module,exports){
+},{}],101:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24648,7 +25402,7 @@ exports.default = {
   getWordOffsetForward: getWordOffsetForward
 };
 
-},{"esrever":158}],100:[function(require,module,exports){
+},{"esrever":160}],102:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24694,7 +25448,7 @@ function warn(message) {
 
 exports.default = warn;
 
-},{"../constants/is-dev":49}],101:[function(require,module,exports){
+},{"../constants/is-dev":49}],103:[function(require,module,exports){
 /**
  * toString ref.
  */
@@ -24742,7 +25496,7 @@ function isBuffer(obj) {
     ))
 }
 
-},{}],102:[function(require,module,exports){
+},{}],104:[function(require,module,exports){
 'use strict';
 
 var copy             = require('es5-ext/object/copy')
@@ -24776,7 +25530,7 @@ module.exports = function (props/*, options*/) {
 	return map(props, function (desc, name) { return define(name, desc, options); });
 };
 
-},{"es5-ext/object/copy":119,"es5-ext/object/map":127,"es5-ext/object/normalize-options":128,"es5-ext/object/valid-callable":133,"es5-ext/object/valid-value":134}],103:[function(require,module,exports){
+},{"es5-ext/object/copy":121,"es5-ext/object/map":129,"es5-ext/object/normalize-options":130,"es5-ext/object/valid-callable":135,"es5-ext/object/valid-value":136}],105:[function(require,module,exports){
 'use strict';
 
 var assign        = require('es5-ext/object/assign')
@@ -24841,7 +25595,7 @@ d.gs = function (dscr, get, set/*, options*/) {
 	return !options ? desc : assign(normalizeOpts(options), desc);
 };
 
-},{"es5-ext/object/assign":116,"es5-ext/object/is-callable":122,"es5-ext/object/normalize-options":128,"es5-ext/string/#/contains":135}],104:[function(require,module,exports){
+},{"es5-ext/object/assign":118,"es5-ext/object/is-callable":124,"es5-ext/object/normalize-options":130,"es5-ext/string/#/contains":137}],106:[function(require,module,exports){
 (function (process){
 /**
  * This is the web browser implementation of `debug()`.
@@ -25030,7 +25784,7 @@ function localstorage() {
 }
 
 }).call(this,require('_process'))
-},{"./debug":105,"_process":1170}],105:[function(require,module,exports){
+},{"./debug":107,"_process":1172}],107:[function(require,module,exports){
 
 /**
  * This is the common logic for both the Node.js and web browser
@@ -25234,7 +25988,7 @@ function coerce(val) {
   return val;
 }
 
-},{"ms":1164}],106:[function(require,module,exports){
+},{"ms":1166}],108:[function(require,module,exports){
 'use strict';
 
 var GROUP_LEFT_TO_RIGHT,
@@ -25307,7 +26061,7 @@ function direction(value) {
 
 module.exports = direction;
 
-},{}],107:[function(require,module,exports){
+},{}],109:[function(require,module,exports){
 // Inspired by Google Closure:
 // http://closure-library.googlecode.com/svn/docs/
 // closure_goog_array_array.js.html#goog.array.clear
@@ -25321,7 +26075,7 @@ module.exports = function () {
 	return this;
 };
 
-},{"../../object/valid-value":134}],108:[function(require,module,exports){
+},{"../../object/valid-value":136}],110:[function(require,module,exports){
 'use strict';
 
 var toPosInt = require('../../number/to-pos-integer')
@@ -25352,7 +26106,7 @@ module.exports = function (searchElement/*, fromIndex*/) {
 	return -1;
 };
 
-},{"../../number/to-pos-integer":114,"../../object/valid-value":134}],109:[function(require,module,exports){
+},{"../../number/to-pos-integer":116,"../../object/valid-value":136}],111:[function(require,module,exports){
 'use strict';
 
 var toString = Object.prototype.toString
@@ -25361,14 +26115,14 @@ var toString = Object.prototype.toString
 
 module.exports = function (x) { return (toString.call(x) === id); };
 
-},{}],110:[function(require,module,exports){
+},{}],112:[function(require,module,exports){
 'use strict';
 
 module.exports = require('./is-implemented')()
 	? Math.sign
 	: require('./shim');
 
-},{"./is-implemented":111,"./shim":112}],111:[function(require,module,exports){
+},{"./is-implemented":113,"./shim":114}],113:[function(require,module,exports){
 'use strict';
 
 module.exports = function () {
@@ -25377,7 +26131,7 @@ module.exports = function () {
 	return ((sign(10) === 1) && (sign(-20) === -1));
 };
 
-},{}],112:[function(require,module,exports){
+},{}],114:[function(require,module,exports){
 'use strict';
 
 module.exports = function (value) {
@@ -25386,7 +26140,7 @@ module.exports = function (value) {
 	return (value > 0) ? 1 : -1;
 };
 
-},{}],113:[function(require,module,exports){
+},{}],115:[function(require,module,exports){
 'use strict';
 
 var sign = require('../math/sign')
@@ -25400,7 +26154,7 @@ module.exports = function (value) {
 	return sign(value) * floor(abs(value));
 };
 
-},{"../math/sign":110}],114:[function(require,module,exports){
+},{"../math/sign":112}],116:[function(require,module,exports){
 'use strict';
 
 var toInteger = require('./to-integer')
@@ -25409,7 +26163,7 @@ var toInteger = require('./to-integer')
 
 module.exports = function (value) { return max(0, toInteger(value)); };
 
-},{"./to-integer":113}],115:[function(require,module,exports){
+},{"./to-integer":115}],117:[function(require,module,exports){
 // Internal method, used by iteration functions.
 // Calls a function for each key-value pair found in object
 // Optionally takes compareFn to iterate object in specific order
@@ -25440,14 +26194,14 @@ module.exports = function (method, defVal) {
 	};
 };
 
-},{"./valid-callable":133,"./valid-value":134}],116:[function(require,module,exports){
+},{"./valid-callable":135,"./valid-value":136}],118:[function(require,module,exports){
 'use strict';
 
 module.exports = require('./is-implemented')()
 	? Object.assign
 	: require('./shim');
 
-},{"./is-implemented":117,"./shim":118}],117:[function(require,module,exports){
+},{"./is-implemented":119,"./shim":120}],119:[function(require,module,exports){
 'use strict';
 
 module.exports = function () {
@@ -25458,7 +26212,7 @@ module.exports = function () {
 	return (obj.foo + obj.bar + obj.trzy) === 'razdwatrzy';
 };
 
-},{}],118:[function(require,module,exports){
+},{}],120:[function(require,module,exports){
 'use strict';
 
 var keys  = require('../keys')
@@ -25482,7 +26236,7 @@ module.exports = function (dest, src/*, …srcn*/) {
 	return dest;
 };
 
-},{"../keys":124,"../valid-value":134}],119:[function(require,module,exports){
+},{"../keys":126,"../valid-value":136}],121:[function(require,module,exports){
 'use strict';
 
 var assign = require('./assign')
@@ -25494,7 +26248,7 @@ module.exports = function (obj) {
 	return assign({}, obj);
 };
 
-},{"./assign":116,"./valid-value":134}],120:[function(require,module,exports){
+},{"./assign":118,"./valid-value":136}],122:[function(require,module,exports){
 // Workaround for http://code.google.com/p/v8/issues/detail?id=2804
 
 'use strict';
@@ -25532,19 +26286,19 @@ module.exports = (function () {
 	};
 }());
 
-},{"./set-prototype-of/is-implemented":131,"./set-prototype-of/shim":132}],121:[function(require,module,exports){
+},{"./set-prototype-of/is-implemented":133,"./set-prototype-of/shim":134}],123:[function(require,module,exports){
 'use strict';
 
 module.exports = require('./_iterate')('forEach');
 
-},{"./_iterate":115}],122:[function(require,module,exports){
+},{"./_iterate":117}],124:[function(require,module,exports){
 // Deprecated
 
 'use strict';
 
 module.exports = function (obj) { return typeof obj === 'function'; };
 
-},{}],123:[function(require,module,exports){
+},{}],125:[function(require,module,exports){
 'use strict';
 
 var map = { 'function': true, object: true };
@@ -25553,14 +26307,14 @@ module.exports = function (x) {
 	return ((x != null) && map[typeof x]) || false;
 };
 
-},{}],124:[function(require,module,exports){
+},{}],126:[function(require,module,exports){
 'use strict';
 
 module.exports = require('./is-implemented')()
 	? Object.keys
 	: require('./shim');
 
-},{"./is-implemented":125,"./shim":126}],125:[function(require,module,exports){
+},{"./is-implemented":127,"./shim":128}],127:[function(require,module,exports){
 'use strict';
 
 module.exports = function () {
@@ -25570,7 +26324,7 @@ module.exports = function () {
 	} catch (e) { return false; }
 };
 
-},{}],126:[function(require,module,exports){
+},{}],128:[function(require,module,exports){
 'use strict';
 
 var keys = Object.keys;
@@ -25579,7 +26333,7 @@ module.exports = function (object) {
 	return keys(object == null ? object : Object(object));
 };
 
-},{}],127:[function(require,module,exports){
+},{}],129:[function(require,module,exports){
 'use strict';
 
 var callable = require('./valid-callable')
@@ -25596,7 +26350,7 @@ module.exports = function (obj, cb/*, thisArg*/) {
 	return o;
 };
 
-},{"./for-each":121,"./valid-callable":133}],128:[function(require,module,exports){
+},{"./for-each":123,"./valid-callable":135}],130:[function(require,module,exports){
 'use strict';
 
 var forEach = Array.prototype.forEach, create = Object.create;
@@ -25615,7 +26369,7 @@ module.exports = function (options/*, …options*/) {
 	return result;
 };
 
-},{}],129:[function(require,module,exports){
+},{}],131:[function(require,module,exports){
 'use strict';
 
 var forEach = Array.prototype.forEach, create = Object.create;
@@ -25626,14 +26380,14 @@ module.exports = function (arg/*, …args*/) {
 	return set;
 };
 
-},{}],130:[function(require,module,exports){
+},{}],132:[function(require,module,exports){
 'use strict';
 
 module.exports = require('./is-implemented')()
 	? Object.setPrototypeOf
 	: require('./shim');
 
-},{"./is-implemented":131,"./shim":132}],131:[function(require,module,exports){
+},{"./is-implemented":133,"./shim":134}],133:[function(require,module,exports){
 'use strict';
 
 var create = Object.create, getPrototypeOf = Object.getPrototypeOf
@@ -25646,7 +26400,7 @@ module.exports = function (/*customCreate*/) {
 	return getPrototypeOf(setPrototypeOf(customCreate(null), x)) === x;
 };
 
-},{}],132:[function(require,module,exports){
+},{}],134:[function(require,module,exports){
 // Big thanks to @WebReflection for sorting this out
 // https://gist.github.com/WebReflection/5593554
 
@@ -25721,7 +26475,7 @@ module.exports = (function (status) {
 
 require('../create');
 
-},{"../create":120,"../is-object":123,"../valid-value":134}],133:[function(require,module,exports){
+},{"../create":122,"../is-object":125,"../valid-value":136}],135:[function(require,module,exports){
 'use strict';
 
 module.exports = function (fn) {
@@ -25729,7 +26483,7 @@ module.exports = function (fn) {
 	return fn;
 };
 
-},{}],134:[function(require,module,exports){
+},{}],136:[function(require,module,exports){
 'use strict';
 
 module.exports = function (value) {
@@ -25737,14 +26491,14 @@ module.exports = function (value) {
 	return value;
 };
 
-},{}],135:[function(require,module,exports){
+},{}],137:[function(require,module,exports){
 'use strict';
 
 module.exports = require('./is-implemented')()
 	? String.prototype.contains
 	: require('./shim');
 
-},{"./is-implemented":136,"./shim":137}],136:[function(require,module,exports){
+},{"./is-implemented":138,"./shim":139}],138:[function(require,module,exports){
 'use strict';
 
 var str = 'razdwatrzy';
@@ -25754,7 +26508,7 @@ module.exports = function () {
 	return ((str.contains('dwa') === true) && (str.contains('foo') === false));
 };
 
-},{}],137:[function(require,module,exports){
+},{}],139:[function(require,module,exports){
 'use strict';
 
 var indexOf = String.prototype.indexOf;
@@ -25763,7 +26517,7 @@ module.exports = function (searchString/*, position*/) {
 	return indexOf.call(this, searchString, arguments[1]) > -1;
 };
 
-},{}],138:[function(require,module,exports){
+},{}],140:[function(require,module,exports){
 'use strict';
 
 var toString = Object.prototype.toString
@@ -25775,7 +26529,7 @@ module.exports = function (x) {
 		((x instanceof String) || (toString.call(x) === id))) || false;
 };
 
-},{}],139:[function(require,module,exports){
+},{}],141:[function(require,module,exports){
 'use strict';
 
 var setPrototypeOf = require('es5-ext/object/set-prototype-of')
@@ -25807,7 +26561,7 @@ ArrayIterator.prototype = Object.create(Iterator.prototype, {
 	toString: d(function () { return '[object Array Iterator]'; })
 });
 
-},{"./":142,"d":103,"es5-ext/object/set-prototype-of":130,"es5-ext/string/#/contains":135}],140:[function(require,module,exports){
+},{"./":144,"d":105,"es5-ext/object/set-prototype-of":132,"es5-ext/string/#/contains":137}],142:[function(require,module,exports){
 'use strict';
 
 var isArguments = require('es5-ext/function/is-arguments')
@@ -25855,7 +26609,7 @@ module.exports = function (iterable, cb/*, thisArg*/) {
 	}
 };
 
-},{"./get":141,"es5-ext/function/is-arguments":109,"es5-ext/object/valid-callable":133,"es5-ext/string/is-string":138}],141:[function(require,module,exports){
+},{"./get":143,"es5-ext/function/is-arguments":111,"es5-ext/object/valid-callable":135,"es5-ext/string/is-string":140}],143:[function(require,module,exports){
 'use strict';
 
 var isArguments    = require('es5-ext/function/is-arguments')
@@ -25872,7 +26626,7 @@ module.exports = function (obj) {
 	return new ArrayIterator(obj);
 };
 
-},{"./array":139,"./string":144,"./valid-iterable":145,"es5-ext/function/is-arguments":109,"es5-ext/string/is-string":138,"es6-symbol":152}],142:[function(require,module,exports){
+},{"./array":141,"./string":146,"./valid-iterable":147,"es5-ext/function/is-arguments":111,"es5-ext/string/is-string":140,"es6-symbol":154}],144:[function(require,module,exports){
 'use strict';
 
 var clear    = require('es5-ext/array/#/clear')
@@ -25964,7 +26718,7 @@ defineProperty(Iterator.prototype, Symbol.iterator, d(function () {
 }));
 defineProperty(Iterator.prototype, Symbol.toStringTag, d('', 'Iterator'));
 
-},{"d":103,"d/auto-bind":102,"es5-ext/array/#/clear":107,"es5-ext/object/assign":116,"es5-ext/object/valid-callable":133,"es5-ext/object/valid-value":134,"es6-symbol":152}],143:[function(require,module,exports){
+},{"d":105,"d/auto-bind":104,"es5-ext/array/#/clear":109,"es5-ext/object/assign":118,"es5-ext/object/valid-callable":135,"es5-ext/object/valid-value":136,"es6-symbol":154}],145:[function(require,module,exports){
 'use strict';
 
 var isArguments    = require('es5-ext/function/is-arguments')
@@ -25981,7 +26735,7 @@ module.exports = function (value) {
 	return (typeof value[iteratorSymbol] === 'function');
 };
 
-},{"es5-ext/function/is-arguments":109,"es5-ext/string/is-string":138,"es6-symbol":152}],144:[function(require,module,exports){
+},{"es5-ext/function/is-arguments":111,"es5-ext/string/is-string":140,"es6-symbol":154}],146:[function(require,module,exports){
 // Thanks @mathiasbynens
 // http://mathiasbynens.be/notes/javascript-unicode#iterating-over-symbols
 
@@ -26020,7 +26774,7 @@ StringIterator.prototype = Object.create(Iterator.prototype, {
 	toString: d(function () { return '[object String Iterator]'; })
 });
 
-},{"./":142,"d":103,"es5-ext/object/set-prototype-of":130}],145:[function(require,module,exports){
+},{"./":144,"d":105,"es5-ext/object/set-prototype-of":132}],147:[function(require,module,exports){
 'use strict';
 
 var isIterable = require('./is-iterable');
@@ -26030,12 +26784,12 @@ module.exports = function (value) {
 	return value;
 };
 
-},{"./is-iterable":143}],146:[function(require,module,exports){
+},{"./is-iterable":145}],148:[function(require,module,exports){
 'use strict';
 
 module.exports = require('./is-implemented')() ? Map : require('./polyfill');
 
-},{"./is-implemented":147,"./polyfill":151}],147:[function(require,module,exports){
+},{"./is-implemented":149,"./polyfill":153}],149:[function(require,module,exports){
 'use strict';
 
 module.exports = function () {
@@ -26069,7 +26823,7 @@ module.exports = function () {
 	return true;
 };
 
-},{}],148:[function(require,module,exports){
+},{}],150:[function(require,module,exports){
 // Exports true if environment provides native `Map` implementation,
 // whatever that is.
 
@@ -26080,13 +26834,13 @@ module.exports = (function () {
 	return (Object.prototype.toString.call(new Map()) === '[object Map]');
 }());
 
-},{}],149:[function(require,module,exports){
+},{}],151:[function(require,module,exports){
 'use strict';
 
 module.exports = require('es5-ext/object/primitive-set')('key',
 	'value', 'key+value');
 
-},{"es5-ext/object/primitive-set":129}],150:[function(require,module,exports){
+},{"es5-ext/object/primitive-set":131}],152:[function(require,module,exports){
 'use strict';
 
 var setPrototypeOf    = require('es5-ext/object/set-prototype-of')
@@ -26126,7 +26880,7 @@ MapIterator.prototype = Object.create(Iterator.prototype, {
 Object.defineProperty(MapIterator.prototype, toStringTagSymbol,
 	d('c', 'Map Iterator'));
 
-},{"./iterator-kinds":149,"d":103,"es5-ext/object/set-prototype-of":130,"es6-iterator":142,"es6-symbol":152}],151:[function(require,module,exports){
+},{"./iterator-kinds":151,"d":105,"es5-ext/object/set-prototype-of":132,"es6-iterator":144,"es6-symbol":154}],153:[function(require,module,exports){
 'use strict';
 
 var clear          = require('es5-ext/array/#/clear')
@@ -26232,12 +26986,12 @@ Object.defineProperty(MapPoly.prototype, Symbol.iterator, d(function () {
 }));
 Object.defineProperty(MapPoly.prototype, Symbol.toStringTag, d('c', 'Map'));
 
-},{"./is-native-implemented":148,"./lib/iterator":150,"d":103,"es5-ext/array/#/clear":107,"es5-ext/array/#/e-index-of":108,"es5-ext/object/set-prototype-of":130,"es5-ext/object/valid-callable":133,"es5-ext/object/valid-value":134,"es6-iterator/for-of":140,"es6-iterator/valid-iterable":145,"es6-symbol":152,"event-emitter":159}],152:[function(require,module,exports){
+},{"./is-native-implemented":150,"./lib/iterator":152,"d":105,"es5-ext/array/#/clear":109,"es5-ext/array/#/e-index-of":110,"es5-ext/object/set-prototype-of":132,"es5-ext/object/valid-callable":135,"es5-ext/object/valid-value":136,"es6-iterator/for-of":142,"es6-iterator/valid-iterable":147,"es6-symbol":154,"event-emitter":161}],154:[function(require,module,exports){
 'use strict';
 
 module.exports = require('./is-implemented')() ? Symbol : require('./polyfill');
 
-},{"./is-implemented":153,"./polyfill":155}],153:[function(require,module,exports){
+},{"./is-implemented":155,"./polyfill":157}],155:[function(require,module,exports){
 'use strict';
 
 var validTypes = { object: true, symbol: true };
@@ -26256,7 +27010,7 @@ module.exports = function () {
 	return true;
 };
 
-},{}],154:[function(require,module,exports){
+},{}],156:[function(require,module,exports){
 'use strict';
 
 module.exports = function (x) {
@@ -26267,7 +27021,7 @@ module.exports = function (x) {
 	return (x[x.constructor.toStringTag] === 'Symbol');
 };
 
-},{}],155:[function(require,module,exports){
+},{}],157:[function(require,module,exports){
 // ES2015 Symbol polyfill for environments that do not (or partially) support it
 
 'use strict';
@@ -26387,7 +27141,7 @@ defineProperty(HiddenSymbol.prototype, SymbolPolyfill.toStringTag,
 defineProperty(HiddenSymbol.prototype, SymbolPolyfill.toPrimitive,
 	d('c', SymbolPolyfill.prototype[SymbolPolyfill.toPrimitive]));
 
-},{"./validate-symbol":156,"d":103}],156:[function(require,module,exports){
+},{"./validate-symbol":158,"d":105}],158:[function(require,module,exports){
 'use strict';
 
 var isSymbol = require('./is-symbol');
@@ -26397,7 +27151,7 @@ module.exports = function (value) {
 	return value;
 };
 
-},{"./is-symbol":154}],157:[function(require,module,exports){
+},{"./is-symbol":156}],159:[function(require,module,exports){
 /**
  * @file Exports a simple function that will escape a string literal for use as
  * an argument in the standard JS RegExp constructor.
@@ -26457,7 +27211,7 @@ Object.defineProperty(
 
 module.exports = escapeRegexString;
 
-},{}],158:[function(require,module,exports){
+},{}],160:[function(require,module,exports){
 (function (global){
 /*! https://mths.be/esrever v0.2.0 by @mathias */
 ;(function(root) {
@@ -26533,7 +27287,7 @@ module.exports = escapeRegexString;
 }(this));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],159:[function(require,module,exports){
+},{}],161:[function(require,module,exports){
 'use strict';
 
 var d        = require('d')
@@ -26667,12 +27421,12 @@ module.exports = exports = function (o) {
 };
 exports.methods = methods;
 
-},{"d":103,"es5-ext/object/valid-callable":133}],160:[function(require,module,exports){
+},{"d":105,"es5-ext/object/valid-callable":135}],162:[function(require,module,exports){
 // since we are requiring the top level of faker, load all locales by default
 var Faker = require('./lib');
 var faker = new Faker({ locales: require('./lib/locales') });
 module['exports'] = faker;
-},{"./lib":170,"./lib/locales":172}],161:[function(require,module,exports){
+},{"./lib":172,"./lib/locales":174}],163:[function(require,module,exports){
 /**
  *
  * @namespace faker.address
@@ -26900,7 +27654,7 @@ function Address (faker) {
 
 module.exports = Address;
 
-},{}],162:[function(require,module,exports){
+},{}],164:[function(require,module,exports){
 /**
  *
  * @namespace faker.commerce
@@ -27021,7 +27775,7 @@ var Commerce = function (faker) {
 
 module['exports'] = Commerce;
 
-},{}],163:[function(require,module,exports){
+},{}],165:[function(require,module,exports){
 /**
  *
  * @namespace faker.company
@@ -27146,7 +27900,7 @@ var Company = function (faker) {
 }
 
 module['exports'] = Company;
-},{}],164:[function(require,module,exports){
+},{}],166:[function(require,module,exports){
 /**
  *
  * @namespace faker.date
@@ -27280,7 +28034,7 @@ var _Date = function (faker) {
 };
 
 module['exports'] = _Date;
-},{}],165:[function(require,module,exports){
+},{}],167:[function(require,module,exports){
 /*
   fake.js - generator method for combining faker methods based on string input
 
@@ -27389,7 +28143,7 @@ function Fake (faker) {
 }
 
 module['exports'] = Fake;
-},{}],166:[function(require,module,exports){
+},{}],168:[function(require,module,exports){
 /**
  *
  * @namespace faker.finance
@@ -27546,7 +28300,7 @@ var Finance = function (faker) {
 
 module['exports'] = Finance;
 
-},{}],167:[function(require,module,exports){
+},{}],169:[function(require,module,exports){
 /**
  *
  * @namespace faker.hacker
@@ -27632,7 +28386,7 @@ var Hacker = function (faker) {
 };
 
 module['exports'] = Hacker;
-},{}],168:[function(require,module,exports){
+},{}],170:[function(require,module,exports){
 /**
  *
  * @namespace faker.helpers
@@ -27892,7 +28646,7 @@ String.prototype.capitalize = function () { //v1.0
 
 module['exports'] = Helpers;
 
-},{}],169:[function(require,module,exports){
+},{}],171:[function(require,module,exports){
 /**
  *
  * @namespace faker.image
@@ -28091,7 +28845,7 @@ var Image = function (faker) {
 }
 
 module["exports"] = Image;
-},{}],170:[function(require,module,exports){
+},{}],172:[function(require,module,exports){
 /*
 
    this index.js file is used for including the faker library as a CommonJS module, instead of a bundle
@@ -28232,7 +28986,7 @@ Faker.prototype.seed = function(value) {
 }
 module['exports'] = Faker;
 
-},{"./address":161,"./commerce":162,"./company":163,"./date":164,"./fake":165,"./finance":166,"./hacker":167,"./helpers":168,"./image":169,"./internet":171,"./lorem":1113,"./name":1114,"./phone_number":1115,"./random":1116,"./system":1117}],171:[function(require,module,exports){
+},{"./address":163,"./commerce":164,"./company":165,"./date":166,"./fake":167,"./finance":168,"./hacker":169,"./helpers":170,"./image":171,"./internet":173,"./lorem":1115,"./name":1116,"./phone_number":1117,"./random":1118,"./system":1119}],173:[function(require,module,exports){
 var password_generator = require('../vendor/password-generator.js'),
     random_ua = require('../vendor/user-agent');
 
@@ -28584,7 +29338,7 @@ var Internet = function (faker) {
 
 module["exports"] = Internet;
 
-},{"../vendor/password-generator.js":1119,"../vendor/user-agent":1120}],172:[function(require,module,exports){
+},{"../vendor/password-generator.js":1121,"../vendor/user-agent":1122}],174:[function(require,module,exports){
 exports['de'] = require('./locales/de');
 exports['de_AT'] = require('./locales/de_AT');
 exports['de_CH'] = require('./locales/de_CH');
@@ -28621,7 +29375,7 @@ exports['vi'] = require('./locales/vi');
 exports['zh_CN'] = require('./locales/zh_CN');
 exports['zh_TW'] = require('./locales/zh_TW');
 
-},{"./locales/de":193,"./locales/de_AT":226,"./locales/de_CH":245,"./locales/en":320,"./locales/en_AU":352,"./locales/en_BORK":360,"./locales/en_CA":368,"./locales/en_GB":381,"./locales/en_IE":391,"./locales/en_IND":403,"./locales/en_US":415,"./locales/en_au_ocker":435,"./locales/es":467,"./locales/es_MX":511,"./locales/fa":530,"./locales/fr":556,"./locales/fr_CA":576,"./locales/ge":602,"./locales/id_ID":631,"./locales/it":668,"./locales/ja":690,"./locales/ko":711,"./locales/nb_NO":741,"./locales/nep":761,"./locales/nl":785,"./locales/pl":825,"./locales/pt_BR":854,"./locales/ru":891,"./locales/sk":931,"./locales/sv":978,"./locales/tr":1004,"./locales/uk":1037,"./locales/vi":1064,"./locales/zh_CN":1087,"./locales/zh_TW":1106}],173:[function(require,module,exports){
+},{"./locales/de":195,"./locales/de_AT":228,"./locales/de_CH":247,"./locales/en":322,"./locales/en_AU":354,"./locales/en_BORK":362,"./locales/en_CA":370,"./locales/en_GB":383,"./locales/en_IE":393,"./locales/en_IND":405,"./locales/en_US":417,"./locales/en_au_ocker":437,"./locales/es":469,"./locales/es_MX":513,"./locales/fa":532,"./locales/fr":558,"./locales/fr_CA":578,"./locales/ge":604,"./locales/id_ID":633,"./locales/it":670,"./locales/ja":692,"./locales/ko":713,"./locales/nb_NO":743,"./locales/nep":763,"./locales/nl":787,"./locales/pl":827,"./locales/pt_BR":856,"./locales/ru":893,"./locales/sk":933,"./locales/sv":980,"./locales/tr":1006,"./locales/uk":1039,"./locales/vi":1066,"./locales/zh_CN":1089,"./locales/zh_TW":1108}],175:[function(require,module,exports){
 module["exports"] = [
   "###",
   "##",
@@ -28631,7 +29385,7 @@ module["exports"] = [
   "##c"
 ];
 
-},{}],174:[function(require,module,exports){
+},{}],176:[function(require,module,exports){
 module["exports"] = [
   "#{city_prefix} #{Name.first_name}#{city_suffix}",
   "#{city_prefix} #{Name.first_name}",
@@ -28639,7 +29393,7 @@ module["exports"] = [
   "#{Name.last_name}#{city_suffix}"
 ];
 
-},{}],175:[function(require,module,exports){
+},{}],177:[function(require,module,exports){
 module["exports"] = [
   "Nord",
   "Ost",
@@ -28650,7 +29404,7 @@ module["exports"] = [
   "Bad"
 ];
 
-},{}],176:[function(require,module,exports){
+},{}],178:[function(require,module,exports){
 module["exports"] = [
   "stadt",
   "dorf",
@@ -28659,7 +29413,7 @@ module["exports"] = [
   "burg"
 ];
 
-},{}],177:[function(require,module,exports){
+},{}],179:[function(require,module,exports){
 module["exports"] = [
   "Ägypten",
   "Äquatorialguinea",
@@ -28900,12 +29654,12 @@ module["exports"] = [
   "Zypern"
 ];
 
-},{}],178:[function(require,module,exports){
+},{}],180:[function(require,module,exports){
 module["exports"] = [
   "Deutschland"
 ];
 
-},{}],179:[function(require,module,exports){
+},{}],181:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.city_prefix = require("./city_prefix");
@@ -28922,20 +29676,20 @@ address.street_name = require("./street_name");
 address.street_address = require("./street_address");
 address.default_country = require("./default_country");
 
-},{"./building_number":173,"./city":174,"./city_prefix":175,"./city_suffix":176,"./country":177,"./default_country":178,"./postcode":180,"./secondary_address":181,"./state":182,"./state_abbr":183,"./street_address":184,"./street_name":185,"./street_root":186}],180:[function(require,module,exports){
+},{"./building_number":175,"./city":176,"./city_prefix":177,"./city_suffix":178,"./country":179,"./default_country":180,"./postcode":182,"./secondary_address":183,"./state":184,"./state_abbr":185,"./street_address":186,"./street_name":187,"./street_root":188}],182:[function(require,module,exports){
 module["exports"] = [
   "#####",
   "#####"
 ];
 
-},{}],181:[function(require,module,exports){
+},{}],183:[function(require,module,exports){
 module["exports"] = [
   "Apt. ###",
   "Zimmer ###",
   "# OG"
 ];
 
-},{}],182:[function(require,module,exports){
+},{}],184:[function(require,module,exports){
 module["exports"] = [
   "Baden-Württemberg",
   "Bayern",
@@ -28955,7 +29709,7 @@ module["exports"] = [
   "Thüringen"
 ];
 
-},{}],183:[function(require,module,exports){
+},{}],185:[function(require,module,exports){
 module["exports"] = [
   "BW",
   "BY",
@@ -28975,17 +29729,17 @@ module["exports"] = [
   "TH"
 ];
 
-},{}],184:[function(require,module,exports){
+},{}],186:[function(require,module,exports){
 module["exports"] = [
   "#{street_name} #{building_number}"
 ];
 
-},{}],185:[function(require,module,exports){
+},{}],187:[function(require,module,exports){
 module["exports"] = [
   "#{street_root}"
 ];
 
-},{}],186:[function(require,module,exports){
+},{}],188:[function(require,module,exports){
 module["exports"] = [
   "Ackerweg",
   "Adalbert-Stifter-Str.",
@@ -30020,25 +30774,25 @@ module["exports"] = [
   "Zur alten Fabrik"
 ];
 
-},{}],187:[function(require,module,exports){
+},{}],189:[function(require,module,exports){
 module["exports"] = [
   "+49-1##-#######",
   "+49-1###-########"
 ];
 
-},{}],188:[function(require,module,exports){
+},{}],190:[function(require,module,exports){
 var cell_phone = {};
 module['exports'] = cell_phone;
 cell_phone.formats = require("./formats");
 
-},{"./formats":187}],189:[function(require,module,exports){
+},{"./formats":189}],191:[function(require,module,exports){
 var company = {};
 module['exports'] = company;
 company.suffix = require("./suffix");
 company.legal_form = require("./legal_form");
 company.name = require("./name");
 
-},{"./legal_form":190,"./name":191,"./suffix":192}],190:[function(require,module,exports){
+},{"./legal_form":192,"./name":193,"./suffix":194}],192:[function(require,module,exports){
 module["exports"] = [
   "GmbH",
   "AG",
@@ -30049,16 +30803,16 @@ module["exports"] = [
   "OHG"
 ];
 
-},{}],191:[function(require,module,exports){
+},{}],193:[function(require,module,exports){
 module["exports"] = [
   "#{Name.last_name} #{suffix}",
   "#{Name.last_name}-#{Name.last_name}",
   "#{Name.last_name}, #{Name.last_name} und #{Name.last_name}"
 ];
 
-},{}],192:[function(require,module,exports){
-arguments[4][190][0].apply(exports,arguments)
-},{"dup":190}],193:[function(require,module,exports){
+},{}],194:[function(require,module,exports){
+arguments[4][192][0].apply(exports,arguments)
+},{"dup":192}],195:[function(require,module,exports){
 var de = {};
 module['exports'] = de;
 de.title = "German";
@@ -30069,7 +30823,7 @@ de.lorem = require("./lorem");
 de.name = require("./name");
 de.phone_number = require("./phone_number");
 de.cell_phone = require("./cell_phone");
-},{"./address":179,"./cell_phone":188,"./company":189,"./internet":196,"./lorem":197,"./name":200,"./phone_number":206}],194:[function(require,module,exports){
+},{"./address":181,"./cell_phone":190,"./company":191,"./internet":198,"./lorem":199,"./name":202,"./phone_number":208}],196:[function(require,module,exports){
 module["exports"] = [
   "com",
   "info",
@@ -30080,25 +30834,25 @@ module["exports"] = [
   "ch"
 ];
 
-},{}],195:[function(require,module,exports){
+},{}],197:[function(require,module,exports){
 module["exports"] = [
   "gmail.com",
   "yahoo.com",
   "hotmail.com"
 ];
 
-},{}],196:[function(require,module,exports){
+},{}],198:[function(require,module,exports){
 var internet = {};
 module['exports'] = internet;
 internet.free_email = require("./free_email");
 internet.domain_suffix = require("./domain_suffix");
 
-},{"./domain_suffix":194,"./free_email":195}],197:[function(require,module,exports){
+},{"./domain_suffix":196,"./free_email":197}],199:[function(require,module,exports){
 var lorem = {};
 module['exports'] = lorem;
 lorem.words = require("./words");
 
-},{"./words":198}],198:[function(require,module,exports){
+},{"./words":200}],200:[function(require,module,exports){
 module["exports"] = [
   "alias",
   "consequatur",
@@ -30351,7 +31105,7 @@ module["exports"] = [
   "repellat"
 ];
 
-},{}],199:[function(require,module,exports){
+},{}],201:[function(require,module,exports){
 module["exports"] = [
   "Aaron",
   "Abdul",
@@ -31510,7 +32264,7 @@ module["exports"] = [
   "Zoé"
 ];
 
-},{}],200:[function(require,module,exports){
+},{}],202:[function(require,module,exports){
 var name = {};
 module['exports'] = name;
 name.first_name = require("./first_name");
@@ -31519,7 +32273,7 @@ name.prefix = require("./prefix");
 name.nobility_title_prefix = require("./nobility_title_prefix");
 name.name = require("./name");
 
-},{"./first_name":199,"./last_name":201,"./name":202,"./nobility_title_prefix":203,"./prefix":204}],201:[function(require,module,exports){
+},{"./first_name":201,"./last_name":203,"./name":204,"./nobility_title_prefix":205,"./prefix":206}],203:[function(require,module,exports){
 module["exports"] = [
   "Abel",
   "Abicht",
@@ -33212,7 +33966,7 @@ module["exports"] = [
   "Überacker"
 ];
 
-},{}],202:[function(require,module,exports){
+},{}],204:[function(require,module,exports){
 module["exports"] = [
   "#{prefix} #{first_name} #{last_name}",
   "#{first_name} #{nobility_title_prefix} #{last_name}",
@@ -33222,7 +33976,7 @@ module["exports"] = [
   "#{first_name} #{last_name}"
 ];
 
-},{}],203:[function(require,module,exports){
+},{}],205:[function(require,module,exports){
 module["exports"] = [
   "zu",
   "von",
@@ -33230,7 +33984,7 @@ module["exports"] = [
   "von der"
 ];
 
-},{}],204:[function(require,module,exports){
+},{}],206:[function(require,module,exports){
 module["exports"] = [
   "Hr.",
   "Fr.",
@@ -33238,7 +33992,7 @@ module["exports"] = [
   "Prof. Dr."
 ];
 
-},{}],205:[function(require,module,exports){
+},{}],207:[function(require,module,exports){
 module["exports"] = [
   "(0###) #########",
   "(0####) #######",
@@ -33246,19 +34000,19 @@ module["exports"] = [
   "+49-####-########"
 ];
 
-},{}],206:[function(require,module,exports){
+},{}],208:[function(require,module,exports){
 var phone_number = {};
 module['exports'] = phone_number;
 phone_number.formats = require("./formats");
 
-},{"./formats":205}],207:[function(require,module,exports){
-arguments[4][173][0].apply(exports,arguments)
-},{"dup":173}],208:[function(require,module,exports){
+},{"./formats":207}],209:[function(require,module,exports){
+arguments[4][175][0].apply(exports,arguments)
+},{"dup":175}],210:[function(require,module,exports){
 module["exports"] = [
   "#{city_name}"
 ];
 
-},{}],209:[function(require,module,exports){
+},{}],211:[function(require,module,exports){
 module["exports"] = [
   "Aigen im Mühlkreis",
   "Allerheiligen bei Wildon",
@@ -33380,14 +34134,14 @@ module["exports"] = [
   "Übersbach"
 ];
 
-},{}],210:[function(require,module,exports){
-arguments[4][177][0].apply(exports,arguments)
-},{"dup":177}],211:[function(require,module,exports){
+},{}],212:[function(require,module,exports){
+arguments[4][179][0].apply(exports,arguments)
+},{"dup":179}],213:[function(require,module,exports){
 module["exports"] = [
   "Österreich"
 ];
 
-},{}],212:[function(require,module,exports){
+},{}],214:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.country = require("./country");
@@ -33403,14 +34157,14 @@ address.street_name = require("./street_name");
 address.street_address = require("./street_address");
 address.default_country = require("./default_country");
 
-},{"./building_number":207,"./city":208,"./city_name":209,"./country":210,"./default_country":211,"./postcode":213,"./secondary_address":214,"./state":215,"./state_abbr":216,"./street_address":217,"./street_name":218,"./street_root":219}],213:[function(require,module,exports){
+},{"./building_number":209,"./city":210,"./city_name":211,"./country":212,"./default_country":213,"./postcode":215,"./secondary_address":216,"./state":217,"./state_abbr":218,"./street_address":219,"./street_name":220,"./street_root":221}],215:[function(require,module,exports){
 module["exports"] = [
   "####"
 ];
 
-},{}],214:[function(require,module,exports){
-arguments[4][181][0].apply(exports,arguments)
-},{"dup":181}],215:[function(require,module,exports){
+},{}],216:[function(require,module,exports){
+arguments[4][183][0].apply(exports,arguments)
+},{"dup":183}],217:[function(require,module,exports){
 module["exports"] = [
   "Burgenland",
   "Kärnten",
@@ -33423,7 +34177,7 @@ module["exports"] = [
   "Wien"
 ];
 
-},{}],216:[function(require,module,exports){
+},{}],218:[function(require,module,exports){
 module["exports"] = [
   "Bgld.",
   "Ktn.",
@@ -33436,11 +34190,11 @@ module["exports"] = [
   "W"
 ];
 
-},{}],217:[function(require,module,exports){
-arguments[4][184][0].apply(exports,arguments)
-},{"dup":184}],218:[function(require,module,exports){
-arguments[4][185][0].apply(exports,arguments)
-},{"dup":185}],219:[function(require,module,exports){
+},{}],219:[function(require,module,exports){
+arguments[4][186][0].apply(exports,arguments)
+},{"dup":186}],220:[function(require,module,exports){
+arguments[4][187][0].apply(exports,arguments)
+},{"dup":187}],221:[function(require,module,exports){
 module["exports"] = [
   "Ahorn",
   "Ahorngasse (St. Andrä)",
@@ -33642,7 +34396,7 @@ module["exports"] = [
   "Ötzbruck"
 ];
 
-},{}],220:[function(require,module,exports){
+},{}],222:[function(require,module,exports){
 module["exports"] = [
   "+43-6##-#######",
   "06##-########",
@@ -33650,17 +34404,17 @@ module["exports"] = [
   "06##########"
 ];
 
-},{}],221:[function(require,module,exports){
-arguments[4][188][0].apply(exports,arguments)
-},{"./formats":220,"dup":188}],222:[function(require,module,exports){
-arguments[4][189][0].apply(exports,arguments)
-},{"./legal_form":223,"./name":224,"./suffix":225,"dup":189}],223:[function(require,module,exports){
+},{}],223:[function(require,module,exports){
 arguments[4][190][0].apply(exports,arguments)
-},{"dup":190}],224:[function(require,module,exports){
+},{"./formats":222,"dup":190}],224:[function(require,module,exports){
 arguments[4][191][0].apply(exports,arguments)
-},{"dup":191}],225:[function(require,module,exports){
-arguments[4][190][0].apply(exports,arguments)
-},{"dup":190}],226:[function(require,module,exports){
+},{"./legal_form":225,"./name":226,"./suffix":227,"dup":191}],225:[function(require,module,exports){
+arguments[4][192][0].apply(exports,arguments)
+},{"dup":192}],226:[function(require,module,exports){
+arguments[4][193][0].apply(exports,arguments)
+},{"dup":193}],227:[function(require,module,exports){
+arguments[4][192][0].apply(exports,arguments)
+},{"dup":192}],228:[function(require,module,exports){
 var de_AT = {};
 module['exports'] = de_AT;
 de_AT.title = "German (Austria)";
@@ -33671,7 +34425,7 @@ de_AT.name = require("./name");
 de_AT.phone_number = require("./phone_number");
 de_AT.cell_phone = require("./cell_phone");
 
-},{"./address":212,"./cell_phone":221,"./company":222,"./internet":229,"./name":231,"./phone_number":237}],227:[function(require,module,exports){
+},{"./address":214,"./cell_phone":223,"./company":224,"./internet":231,"./name":233,"./phone_number":239}],229:[function(require,module,exports){
 module["exports"] = [
   "com",
   "info",
@@ -33683,27 +34437,27 @@ module["exports"] = [
   "at"
 ];
 
-},{}],228:[function(require,module,exports){
-arguments[4][195][0].apply(exports,arguments)
-},{"dup":195}],229:[function(require,module,exports){
-arguments[4][196][0].apply(exports,arguments)
-},{"./domain_suffix":227,"./free_email":228,"dup":196}],230:[function(require,module,exports){
-arguments[4][199][0].apply(exports,arguments)
-},{"dup":199}],231:[function(require,module,exports){
-arguments[4][200][0].apply(exports,arguments)
-},{"./first_name":230,"./last_name":232,"./name":233,"./nobility_title_prefix":234,"./prefix":235,"dup":200}],232:[function(require,module,exports){
+},{}],230:[function(require,module,exports){
+arguments[4][197][0].apply(exports,arguments)
+},{"dup":197}],231:[function(require,module,exports){
+arguments[4][198][0].apply(exports,arguments)
+},{"./domain_suffix":229,"./free_email":230,"dup":198}],232:[function(require,module,exports){
 arguments[4][201][0].apply(exports,arguments)
 },{"dup":201}],233:[function(require,module,exports){
 arguments[4][202][0].apply(exports,arguments)
-},{"dup":202}],234:[function(require,module,exports){
+},{"./first_name":232,"./last_name":234,"./name":235,"./nobility_title_prefix":236,"./prefix":237,"dup":202}],234:[function(require,module,exports){
 arguments[4][203][0].apply(exports,arguments)
 },{"dup":203}],235:[function(require,module,exports){
+arguments[4][204][0].apply(exports,arguments)
+},{"dup":204}],236:[function(require,module,exports){
+arguments[4][205][0].apply(exports,arguments)
+},{"dup":205}],237:[function(require,module,exports){
 module["exports"] = [
   "Dr.",
   "Prof. Dr."
 ];
 
-},{}],236:[function(require,module,exports){
+},{}],238:[function(require,module,exports){
 module["exports"] = [
   "01 #######",
   "01#######",
@@ -33715,9 +34469,9 @@ module["exports"] = [
   "+43 ########"
 ];
 
-},{}],237:[function(require,module,exports){
-arguments[4][206][0].apply(exports,arguments)
-},{"./formats":236,"dup":206}],238:[function(require,module,exports){
+},{}],239:[function(require,module,exports){
+arguments[4][208][0].apply(exports,arguments)
+},{"./formats":238,"dup":208}],240:[function(require,module,exports){
 module["exports"] = [
   "CH",
   "CH",
@@ -33731,19 +34485,19 @@ module["exports"] = [
   "VN"
 ];
 
-},{}],239:[function(require,module,exports){
+},{}],241:[function(require,module,exports){
 module["exports"] = [
   "Schweiz"
 ];
 
-},{}],240:[function(require,module,exports){
+},{}],242:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.country_code = require("./country_code");
 address.postcode = require("./postcode");
 address.default_country = require("./default_country");
 
-},{"./country_code":238,"./default_country":239,"./postcode":241}],241:[function(require,module,exports){
+},{"./country_code":240,"./default_country":241,"./postcode":243}],243:[function(require,module,exports){
 module["exports"] = [
   "1###",
   "2###",
@@ -33756,15 +34510,15 @@ module["exports"] = [
   "9###"
 ];
 
-},{}],242:[function(require,module,exports){
+},{}],244:[function(require,module,exports){
 var company = {};
 module['exports'] = company;
 company.suffix = require("./suffix");
 company.name = require("./name");
 
-},{"./name":243,"./suffix":244}],243:[function(require,module,exports){
-arguments[4][191][0].apply(exports,arguments)
-},{"dup":191}],244:[function(require,module,exports){
+},{"./name":245,"./suffix":246}],245:[function(require,module,exports){
+arguments[4][193][0].apply(exports,arguments)
+},{"dup":193}],246:[function(require,module,exports){
 module["exports"] = [
   "AG",
   "GmbH",
@@ -33776,7 +34530,7 @@ module["exports"] = [
   "Inc."
 ];
 
-},{}],245:[function(require,module,exports){
+},{}],247:[function(require,module,exports){
 var de_CH = {};
 module['exports'] = de_CH;
 de_CH.title = "German (Switzerland)";
@@ -33786,7 +34540,7 @@ de_CH.internet = require("./internet");
 de_CH.name = require("./name");
 de_CH.phone_number = require("./phone_number");
 
-},{"./address":240,"./company":242,"./internet":247,"./name":249,"./phone_number":254}],246:[function(require,module,exports){
+},{"./address":242,"./company":244,"./internet":249,"./name":251,"./phone_number":256}],248:[function(require,module,exports){
 module["exports"] = [
   "com",
   "net",
@@ -33799,12 +34553,12 @@ module["exports"] = [
   "ch"
 ];
 
-},{}],247:[function(require,module,exports){
+},{}],249:[function(require,module,exports){
 var internet = {};
 module['exports'] = internet;
 internet.domain_suffix = require("./domain_suffix");
 
-},{"./domain_suffix":246}],248:[function(require,module,exports){
+},{"./domain_suffix":248}],250:[function(require,module,exports){
 module["exports"] = [
     "Adolf",
     "Adrian",
@@ -34145,7 +34899,7 @@ module["exports"] = [
 
 ];
 
-},{}],249:[function(require,module,exports){
+},{}],251:[function(require,module,exports){
 var name = {};
 module['exports'] = name;
 name.first_name = require("./first_name");
@@ -34153,7 +34907,7 @@ name.last_name = require("./last_name");
 name.prefix = require("./prefix");
 name.name = require("./name");
 
-},{"./first_name":248,"./last_name":250,"./name":251,"./prefix":252}],250:[function(require,module,exports){
+},{"./first_name":250,"./last_name":252,"./name":253,"./prefix":254}],252:[function(require,module,exports){
 module["exports"] = [
     "Ackermann",
     "Aebi",
@@ -34366,7 +35120,7 @@ module["exports"] = [
     "Zürcher"
 ];
 
-},{}],251:[function(require,module,exports){
+},{}],253:[function(require,module,exports){
 module["exports"] = [
   "#{first_name} #{last_name}",
   "#{first_name} #{last_name}",
@@ -34376,14 +35130,14 @@ module["exports"] = [
   "#{first_name} #{last_name}"
 ];
 
-},{}],252:[function(require,module,exports){
+},{}],254:[function(require,module,exports){
 module["exports"] = [
   "Hr.",
   "Fr.",
   "Dr."
 ];
 
-},{}],253:[function(require,module,exports){
+},{}],255:[function(require,module,exports){
 module["exports"] = [
   "0800 ### ###",
   "0800 ## ## ##",
@@ -34396,18 +35150,18 @@ module["exports"] = [
   "0041 79 ### ## ##"
 ];
 
-},{}],254:[function(require,module,exports){
-arguments[4][206][0].apply(exports,arguments)
-},{"./formats":253,"dup":206}],255:[function(require,module,exports){
+},{}],256:[function(require,module,exports){
+arguments[4][208][0].apply(exports,arguments)
+},{"./formats":255,"dup":208}],257:[function(require,module,exports){
 module["exports"] = [
   "#####",
   "####",
   "###"
 ];
 
-},{}],256:[function(require,module,exports){
-arguments[4][174][0].apply(exports,arguments)
-},{"dup":174}],257:[function(require,module,exports){
+},{}],258:[function(require,module,exports){
+arguments[4][176][0].apply(exports,arguments)
+},{"dup":176}],259:[function(require,module,exports){
 module["exports"] = [
   "North",
   "East",
@@ -34418,7 +35172,7 @@ module["exports"] = [
   "Port"
 ];
 
-},{}],258:[function(require,module,exports){
+},{}],260:[function(require,module,exports){
 module["exports"] = [
   "town",
   "ton",
@@ -34441,7 +35195,7 @@ module["exports"] = [
   "shire"
 ];
 
-},{}],259:[function(require,module,exports){
+},{}],261:[function(require,module,exports){
 module["exports"] = [
   "Afghanistan",
   "Albania",
@@ -34690,7 +35444,7 @@ module["exports"] = [
   "Zimbabwe"
 ];
 
-},{}],260:[function(require,module,exports){
+},{}],262:[function(require,module,exports){
 module["exports"] = [
   "AD",
   "AE",
@@ -34944,7 +35698,7 @@ module["exports"] = [
   "ZW"
 ];
 
-},{}],261:[function(require,module,exports){
+},{}],263:[function(require,module,exports){
 module["exports"] = [
   "Avon",
   "Bedfordshire",
@@ -34954,12 +35708,12 @@ module["exports"] = [
   "Cambridgeshire"
 ];
 
-},{}],262:[function(require,module,exports){
+},{}],264:[function(require,module,exports){
 module["exports"] = [
   "United States of America"
 ];
 
-},{}],263:[function(require,module,exports){
+},{}],265:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.city_prefix = require("./city_prefix");
@@ -34980,21 +35734,21 @@ address.street_name = require("./street_name");
 address.street_address = require("./street_address");
 address.default_country = require("./default_country");
 
-},{"./building_number":255,"./city":256,"./city_prefix":257,"./city_suffix":258,"./country":259,"./country_code":260,"./county":261,"./default_country":262,"./postcode":264,"./postcode_by_state":265,"./secondary_address":266,"./state":267,"./state_abbr":268,"./street_address":269,"./street_name":270,"./street_suffix":271,"./time_zone":272}],264:[function(require,module,exports){
+},{"./building_number":257,"./city":258,"./city_prefix":259,"./city_suffix":260,"./country":261,"./country_code":262,"./county":263,"./default_country":264,"./postcode":266,"./postcode_by_state":267,"./secondary_address":268,"./state":269,"./state_abbr":270,"./street_address":271,"./street_name":272,"./street_suffix":273,"./time_zone":274}],266:[function(require,module,exports){
 module["exports"] = [
   "#####",
   "#####-####"
 ];
 
-},{}],265:[function(require,module,exports){
-arguments[4][264][0].apply(exports,arguments)
-},{"dup":264}],266:[function(require,module,exports){
+},{}],267:[function(require,module,exports){
+arguments[4][266][0].apply(exports,arguments)
+},{"dup":266}],268:[function(require,module,exports){
 module["exports"] = [
   "Apt. ###",
   "Suite ###"
 ];
 
-},{}],267:[function(require,module,exports){
+},{}],269:[function(require,module,exports){
 module["exports"] = [
   "Alabama",
   "Alaska",
@@ -35048,7 +35802,7 @@ module["exports"] = [
   "Wyoming"
 ];
 
-},{}],268:[function(require,module,exports){
+},{}],270:[function(require,module,exports){
 module["exports"] = [
   "AL",
   "AK",
@@ -35102,18 +35856,18 @@ module["exports"] = [
   "WY"
 ];
 
-},{}],269:[function(require,module,exports){
+},{}],271:[function(require,module,exports){
 module["exports"] = [
   "#{building_number} #{street_name}"
 ];
 
-},{}],270:[function(require,module,exports){
+},{}],272:[function(require,module,exports){
 module["exports"] = [
   "#{Name.first_name} #{street_suffix}",
   "#{Name.last_name} #{street_suffix}"
 ];
 
-},{}],271:[function(require,module,exports){
+},{}],273:[function(require,module,exports){
 module["exports"] = [
   "Alley",
   "Avenue",
@@ -35342,7 +36096,7 @@ module["exports"] = [
   "Wells"
 ];
 
-},{}],272:[function(require,module,exports){
+},{}],274:[function(require,module,exports){
 module["exports"] = [
   "Pacific/Midway",
   "Pacific/Pago_Pago",
@@ -35489,20 +36243,20 @@ module["exports"] = [
   "Pacific/Apia"
 ];
 
-},{}],273:[function(require,module,exports){
+},{}],275:[function(require,module,exports){
 module["exports"] = [
   "#{Name.name}",
   "#{Company.name}"
 ];
 
-},{}],274:[function(require,module,exports){
+},{}],276:[function(require,module,exports){
 var app = {};
 module['exports'] = app;
 app.name = require("./name");
 app.version = require("./version");
 app.author = require("./author");
 
-},{"./author":273,"./name":275,"./version":276}],275:[function(require,module,exports){
+},{"./author":275,"./name":277,"./version":278}],277:[function(require,module,exports){
 module["exports"] = [
   "Redhold",
   "Treeflex",
@@ -35568,7 +36322,7 @@ module["exports"] = [
   "Keylex"
 ];
 
-},{}],276:[function(require,module,exports){
+},{}],278:[function(require,module,exports){
 module["exports"] = [
   "0.#.#",
   "0.##",
@@ -35577,7 +36331,7 @@ module["exports"] = [
   "#.#.#"
 ];
 
-},{}],277:[function(require,module,exports){
+},{}],279:[function(require,module,exports){
 module["exports"] = [
   "2011-10-12",
   "2012-11-12",
@@ -35585,7 +36339,7 @@ module["exports"] = [
   "2013-9-12"
 ];
 
-},{}],278:[function(require,module,exports){
+},{}],280:[function(require,module,exports){
 module["exports"] = [
   "1234-2121-1221-1211",
   "1212-1221-1121-1234",
@@ -35593,7 +36347,7 @@ module["exports"] = [
   "1228-1221-1221-1431"
 ];
 
-},{}],279:[function(require,module,exports){
+},{}],281:[function(require,module,exports){
 module["exports"] = [
   "visa",
   "mastercard",
@@ -35601,14 +36355,14 @@ module["exports"] = [
   "discover"
 ];
 
-},{}],280:[function(require,module,exports){
+},{}],282:[function(require,module,exports){
 var business = {};
 module['exports'] = business;
 business.credit_card_numbers = require("./credit_card_numbers");
 business.credit_card_expiry_dates = require("./credit_card_expiry_dates");
 business.credit_card_types = require("./credit_card_types");
 
-},{"./credit_card_expiry_dates":277,"./credit_card_numbers":278,"./credit_card_types":279}],281:[function(require,module,exports){
+},{"./credit_card_expiry_dates":279,"./credit_card_numbers":280,"./credit_card_types":281}],283:[function(require,module,exports){
 module["exports"] = [
   "###-###-####",
   "(###) ###-####",
@@ -35616,9 +36370,9 @@ module["exports"] = [
   "###.###.####"
 ];
 
-},{}],282:[function(require,module,exports){
-arguments[4][188][0].apply(exports,arguments)
-},{"./formats":281,"dup":188}],283:[function(require,module,exports){
+},{}],284:[function(require,module,exports){
+arguments[4][190][0].apply(exports,arguments)
+},{"./formats":283,"dup":190}],285:[function(require,module,exports){
 module["exports"] = [
   "red",
   "green",
@@ -35653,7 +36407,7 @@ module["exports"] = [
   "silver"
 ];
 
-},{}],284:[function(require,module,exports){
+},{}],286:[function(require,module,exports){
 module["exports"] = [
   "Books",
   "Movies",
@@ -35679,14 +36433,14 @@ module["exports"] = [
   "Industrial"
 ];
 
-},{}],285:[function(require,module,exports){
+},{}],287:[function(require,module,exports){
 var commerce = {};
 module['exports'] = commerce;
 commerce.color = require("./color");
 commerce.department = require("./department");
 commerce.product_name = require("./product_name");
 
-},{"./color":283,"./department":284,"./product_name":286}],286:[function(require,module,exports){
+},{"./color":285,"./department":286,"./product_name":288}],288:[function(require,module,exports){
 module["exports"] = {
   "adjective": [
     "Small",
@@ -35748,7 +36502,7 @@ module["exports"] = {
   ]
 };
 
-},{}],287:[function(require,module,exports){
+},{}],289:[function(require,module,exports){
 module["exports"] = [
   "Adaptive",
   "Advanced",
@@ -35852,7 +36606,7 @@ module["exports"] = [
   "Vision-oriented"
 ];
 
-},{}],288:[function(require,module,exports){
+},{}],290:[function(require,module,exports){
 module["exports"] = [
   "clicks-and-mortar",
   "value-added",
@@ -35921,7 +36675,7 @@ module["exports"] = [
   "rich"
 ];
 
-},{}],289:[function(require,module,exports){
+},{}],291:[function(require,module,exports){
 module["exports"] = [
   "synergies",
   "web-readiness",
@@ -35969,7 +36723,7 @@ module["exports"] = [
   "methodologies"
 ];
 
-},{}],290:[function(require,module,exports){
+},{}],292:[function(require,module,exports){
 module["exports"] = [
   "implement",
   "utilize",
@@ -36033,7 +36787,7 @@ module["exports"] = [
   "recontextualize"
 ];
 
-},{}],291:[function(require,module,exports){
+},{}],293:[function(require,module,exports){
 module["exports"] = [
   "24 hour",
   "24/7",
@@ -36138,7 +36892,7 @@ module["exports"] = [
   "zero tolerance"
 ];
 
-},{}],292:[function(require,module,exports){
+},{}],294:[function(require,module,exports){
 var company = {};
 module['exports'] = company;
 company.suffix = require("./suffix");
@@ -36150,14 +36904,14 @@ company.bs_adjective = require("./bs_adjective");
 company.bs_noun = require("./bs_noun");
 company.name = require("./name");
 
-},{"./adjective":287,"./bs_adjective":288,"./bs_noun":289,"./bs_verb":290,"./descriptor":291,"./name":293,"./noun":294,"./suffix":295}],293:[function(require,module,exports){
+},{"./adjective":289,"./bs_adjective":290,"./bs_noun":291,"./bs_verb":292,"./descriptor":293,"./name":295,"./noun":296,"./suffix":297}],295:[function(require,module,exports){
 module["exports"] = [
   "#{Name.last_name} #{suffix}",
   "#{Name.last_name}-#{Name.last_name}",
   "#{Name.last_name}, #{Name.last_name} and #{Name.last_name}"
 ];
 
-},{}],294:[function(require,module,exports){
+},{}],296:[function(require,module,exports){
 module["exports"] = [
   "ability",
   "access",
@@ -36265,7 +37019,7 @@ module["exports"] = [
   "workforce"
 ];
 
-},{}],295:[function(require,module,exports){
+},{}],297:[function(require,module,exports){
 module["exports"] = [
   "Inc",
   "and Sons",
@@ -36273,19 +37027,19 @@ module["exports"] = [
   "Group"
 ];
 
-},{}],296:[function(require,module,exports){
+},{}],298:[function(require,module,exports){
 module["exports"] = [
   "/34##-######-####L/",
   "/37##-######-####L/"
 ];
 
-},{}],297:[function(require,module,exports){
+},{}],299:[function(require,module,exports){
 module["exports"] = [
   "/30[0-5]#-######-###L/",
   "/368#-######-###L/"
 ];
 
-},{}],298:[function(require,module,exports){
+},{}],300:[function(require,module,exports){
 module["exports"] = [
   "/6011-####-####-###L/",
   "/65##-####-####-###L/",
@@ -36295,7 +37049,7 @@ module["exports"] = [
   "/64[4-9]#-62##-####-####-###L/"
 ];
 
-},{}],299:[function(require,module,exports){
+},{}],301:[function(require,module,exports){
 var credit_card = {};
 module['exports'] = credit_card;
 credit_card.visa = require("./visa");
@@ -36309,14 +37063,14 @@ credit_card.solo = require("./solo");
 credit_card.maestro = require("./maestro");
 credit_card.laser = require("./laser");
 
-},{"./american_express":296,"./diners_club":297,"./discover":298,"./jcb":300,"./laser":301,"./maestro":302,"./mastercard":303,"./solo":304,"./switch":305,"./visa":306}],300:[function(require,module,exports){
+},{"./american_express":298,"./diners_club":299,"./discover":300,"./jcb":302,"./laser":303,"./maestro":304,"./mastercard":305,"./solo":306,"./switch":307,"./visa":308}],302:[function(require,module,exports){
 module["exports"] = [
   "/3528-####-####-###L/",
   "/3529-####-####-###L/",
   "/35[3-8]#-####-####-###L/"
 ];
 
-},{}],301:[function(require,module,exports){
+},{}],303:[function(require,module,exports){
 module["exports"] = [
   "/6304###########L/",
   "/6706###########L/",
@@ -36328,46 +37082,46 @@ module["exports"] = [
   "/6709#########{5,6}L/"
 ];
 
-},{}],302:[function(require,module,exports){
+},{}],304:[function(require,module,exports){
 module["exports"] = [
   "/50#{9,16}L/",
   "/5[6-8]#{9,16}L/",
   "/56##{9,16}L/"
 ];
 
-},{}],303:[function(require,module,exports){
+},{}],305:[function(require,module,exports){
 module["exports"] = [
   "/5[1-5]##-####-####-###L/",
   "/6771-89##-####-###L/"
 ];
 
-},{}],304:[function(require,module,exports){
+},{}],306:[function(require,module,exports){
 module["exports"] = [
   "/6767-####-####-###L/",
   "/6767-####-####-####-#L/",
   "/6767-####-####-####-##L/"
 ];
 
-},{}],305:[function(require,module,exports){
+},{}],307:[function(require,module,exports){
 module["exports"] = [
   "/6759-####-####-###L/",
   "/6759-####-####-####-#L/",
   "/6759-####-####-####-##L/"
 ];
 
-},{}],306:[function(require,module,exports){
+},{}],308:[function(require,module,exports){
 module["exports"] = [
   "/4###########L/",
   "/4###-####-####-###L/"
 ];
 
-},{}],307:[function(require,module,exports){
+},{}],309:[function(require,module,exports){
 var date = {};
 module["exports"] = date;
 date.month = require("./month");
 date.weekday = require("./weekday");
 
-},{"./month":308,"./weekday":309}],308:[function(require,module,exports){
+},{"./month":310,"./weekday":311}],310:[function(require,module,exports){
 // Source: http://unicode.org/cldr/trac/browser/tags/release-27/common/main/en.xml#L1799
 module["exports"] = {
   wide: [
@@ -36432,7 +37186,7 @@ module["exports"] = {
   ]
 };
 
-},{}],309:[function(require,module,exports){
+},{}],311:[function(require,module,exports){
 // Source: http://unicode.org/cldr/trac/browser/tags/release-27/common/main/en.xml#L1847
 module["exports"] = {
   wide: [
@@ -36477,7 +37231,7 @@ module["exports"] = {
   ]
 };
 
-},{}],310:[function(require,module,exports){
+},{}],312:[function(require,module,exports){
 module["exports"] = [
   "Checking",
   "Savings",
@@ -36489,7 +37243,7 @@ module["exports"] = [
   "Personal Loan"
 ];
 
-},{}],311:[function(require,module,exports){
+},{}],313:[function(require,module,exports){
 module["exports"] = {
   "UAE Dirham": {
     "code": "AED",
@@ -37169,14 +37923,14 @@ module["exports"] = {
   }
 };
 
-},{}],312:[function(require,module,exports){
+},{}],314:[function(require,module,exports){
 var finance = {};
 module['exports'] = finance;
 finance.account_type = require("./account_type");
 finance.transaction_type = require("./transaction_type");
 finance.currency = require("./currency");
 
-},{"./account_type":310,"./currency":311,"./transaction_type":313}],313:[function(require,module,exports){
+},{"./account_type":312,"./currency":313,"./transaction_type":315}],315:[function(require,module,exports){
 module["exports"] = [
   "deposit",
   "withdrawal",
@@ -37184,7 +37938,7 @@ module["exports"] = [
   "invoice"
 ];
 
-},{}],314:[function(require,module,exports){
+},{}],316:[function(require,module,exports){
 module["exports"] = [
   "TCP",
   "HTTP",
@@ -37217,7 +37971,7 @@ module["exports"] = [
   "JBOD"
 ];
 
-},{}],315:[function(require,module,exports){
+},{}],317:[function(require,module,exports){
 module["exports"] = [
   "auxiliary",
   "primary",
@@ -37239,7 +37993,7 @@ module["exports"] = [
   "mobile"
 ];
 
-},{}],316:[function(require,module,exports){
+},{}],318:[function(require,module,exports){
 var hacker = {};
 module['exports'] = hacker;
 hacker.abbreviation = require("./abbreviation");
@@ -37248,7 +38002,7 @@ hacker.noun = require("./noun");
 hacker.verb = require("./verb");
 hacker.ingverb = require("./ingverb");
 
-},{"./abbreviation":314,"./adjective":315,"./ingverb":317,"./noun":318,"./verb":319}],317:[function(require,module,exports){
+},{"./abbreviation":316,"./adjective":317,"./ingverb":319,"./noun":320,"./verb":321}],319:[function(require,module,exports){
 module["exports"] = [
   "backing up",
   "bypassing",
@@ -37268,7 +38022,7 @@ module["exports"] = [
   "parsing"
 ];
 
-},{}],318:[function(require,module,exports){
+},{}],320:[function(require,module,exports){
 module["exports"] = [
   "driver",
   "protocol",
@@ -37296,7 +38050,7 @@ module["exports"] = [
   "matrix"
 ];
 
-},{}],319:[function(require,module,exports){
+},{}],321:[function(require,module,exports){
 module["exports"] = [
   "back up",
   "bypass",
@@ -37318,7 +38072,7 @@ module["exports"] = [
   "parse"
 ];
 
-},{}],320:[function(require,module,exports){
+},{}],322:[function(require,module,exports){
 var en = {};
 module['exports'] = en;
 en.title = "English";
@@ -37340,7 +38094,7 @@ en.finance = require("./finance");
 en.date = require("./date");
 en.system = require("./system");
 
-},{"./address":263,"./app":274,"./business":280,"./cell_phone":282,"./commerce":285,"./company":292,"./credit_card":299,"./date":307,"./finance":312,"./hacker":316,"./internet":325,"./lorem":326,"./name":330,"./phone_number":337,"./system":338,"./team":341}],321:[function(require,module,exports){
+},{"./address":265,"./app":276,"./business":282,"./cell_phone":284,"./commerce":287,"./company":294,"./credit_card":301,"./date":309,"./finance":314,"./hacker":318,"./internet":327,"./lorem":328,"./name":332,"./phone_number":339,"./system":340,"./team":343}],323:[function(require,module,exports){
 module["exports"] = [
   "https://s3.amazonaws.com/uifaces/faces/twitter/jarjan/128.jpg",
   "https://s3.amazonaws.com/uifaces/faces/twitter/mahdif/128.jpg",
@@ -38610,7 +39364,7 @@ module["exports"] = [
   "https://s3.amazonaws.com/uifaces/faces/twitter/areandacom/128.jpg"
 ];
 
-},{}],322:[function(require,module,exports){
+},{}],324:[function(require,module,exports){
 module["exports"] = [
   "com",
   "biz",
@@ -38620,16 +39374,16 @@ module["exports"] = [
   "org"
 ];
 
-},{}],323:[function(require,module,exports){
+},{}],325:[function(require,module,exports){
 module["exports"] = [
   "example.org",
   "example.com",
   "example.net"
 ];
 
-},{}],324:[function(require,module,exports){
-arguments[4][195][0].apply(exports,arguments)
-},{"dup":195}],325:[function(require,module,exports){
+},{}],326:[function(require,module,exports){
+arguments[4][197][0].apply(exports,arguments)
+},{"dup":197}],327:[function(require,module,exports){
 var internet = {};
 module['exports'] = internet;
 internet.free_email = require("./free_email");
@@ -38637,13 +39391,13 @@ internet.example_email = require("./example_email");
 internet.domain_suffix = require("./domain_suffix");
 internet.avatar_uri = require("./avatar_uri");
 
-},{"./avatar_uri":321,"./domain_suffix":322,"./example_email":323,"./free_email":324}],326:[function(require,module,exports){
+},{"./avatar_uri":323,"./domain_suffix":324,"./example_email":325,"./free_email":326}],328:[function(require,module,exports){
 var lorem = {};
 module['exports'] = lorem;
 lorem.words = require("./words");
 lorem.supplemental = require("./supplemental");
 
-},{"./supplemental":327,"./words":328}],327:[function(require,module,exports){
+},{"./supplemental":329,"./words":330}],329:[function(require,module,exports){
 module["exports"] = [
   "abbas",
   "abduco",
@@ -39487,9 +40241,9 @@ module["exports"] = [
   "xiphias"
 ];
 
-},{}],328:[function(require,module,exports){
-arguments[4][198][0].apply(exports,arguments)
-},{"dup":198}],329:[function(require,module,exports){
+},{}],330:[function(require,module,exports){
+arguments[4][200][0].apply(exports,arguments)
+},{"dup":200}],331:[function(require,module,exports){
 module["exports"] = [
   "Aaliyah",
   "Aaron",
@@ -42500,7 +43254,7 @@ module["exports"] = [
   "Zula"
 ];
 
-},{}],330:[function(require,module,exports){
+},{}],332:[function(require,module,exports){
 var name = {};
 module['exports'] = name;
 name.first_name = require("./first_name");
@@ -42510,7 +43264,7 @@ name.suffix = require("./suffix");
 name.title = require("./title");
 name.name = require("./name");
 
-},{"./first_name":329,"./last_name":331,"./name":332,"./prefix":333,"./suffix":334,"./title":335}],331:[function(require,module,exports){
+},{"./first_name":331,"./last_name":333,"./name":334,"./prefix":335,"./suffix":336,"./title":337}],333:[function(require,module,exports){
 module["exports"] = [
   "Abbott",
   "Abernathy",
@@ -42988,7 +43742,7 @@ module["exports"] = [
   "Zulauf"
 ];
 
-},{}],332:[function(require,module,exports){
+},{}],334:[function(require,module,exports){
 module["exports"] = [
   "#{prefix} #{first_name} #{last_name}",
   "#{first_name} #{last_name} #{suffix}",
@@ -42998,7 +43752,7 @@ module["exports"] = [
   "#{first_name} #{last_name}"
 ];
 
-},{}],333:[function(require,module,exports){
+},{}],335:[function(require,module,exports){
 module["exports"] = [
   "Mr.",
   "Mrs.",
@@ -43007,7 +43761,7 @@ module["exports"] = [
   "Dr."
 ];
 
-},{}],334:[function(require,module,exports){
+},{}],336:[function(require,module,exports){
 module["exports"] = [
   "Jr.",
   "Sr.",
@@ -43022,7 +43776,7 @@ module["exports"] = [
   "DVM"
 ];
 
-},{}],335:[function(require,module,exports){
+},{}],337:[function(require,module,exports){
 module["exports"] = {
   "descriptor": [
     "Lead",
@@ -43116,7 +43870,7 @@ module["exports"] = {
   ]
 };
 
-},{}],336:[function(require,module,exports){
+},{}],338:[function(require,module,exports){
 module["exports"] = [
   "###-###-####",
   "(###) ###-####",
@@ -43140,13 +43894,13 @@ module["exports"] = [
   "###.###.#### x#####"
 ];
 
-},{}],337:[function(require,module,exports){
-arguments[4][206][0].apply(exports,arguments)
-},{"./formats":336,"dup":206}],338:[function(require,module,exports){
+},{}],339:[function(require,module,exports){
+arguments[4][208][0].apply(exports,arguments)
+},{"./formats":338,"dup":208}],340:[function(require,module,exports){
 var system = {};
 module['exports'] = system;
 system.mimeTypes = require("./mimeTypes");
-},{"./mimeTypes":339}],339:[function(require,module,exports){
+},{"./mimeTypes":341}],341:[function(require,module,exports){
 /*
 
 The MIT License (MIT)
@@ -49728,7 +50482,7 @@ module['exports'] = {
     "compressible": true
   }
 }
-},{}],340:[function(require,module,exports){
+},{}],342:[function(require,module,exports){
 module["exports"] = [
   "ants",
   "bats",
@@ -49799,30 +50553,30 @@ module["exports"] = [
   "druids"
 ];
 
-},{}],341:[function(require,module,exports){
+},{}],343:[function(require,module,exports){
 var team = {};
 module['exports'] = team;
 team.creature = require("./creature");
 team.name = require("./name");
 
-},{"./creature":340,"./name":342}],342:[function(require,module,exports){
+},{"./creature":342,"./name":344}],344:[function(require,module,exports){
 module["exports"] = [
   "#{Address.state} #{creature}"
 ];
 
-},{}],343:[function(require,module,exports){
+},{}],345:[function(require,module,exports){
 module["exports"] = [
   "####",
   "###",
   "##"
 ];
 
-},{}],344:[function(require,module,exports){
+},{}],346:[function(require,module,exports){
 module["exports"] = [
   "Australia"
 ];
 
-},{}],345:[function(require,module,exports){
+},{}],347:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.state_abbr = require("./state_abbr");
@@ -49832,7 +50586,7 @@ address.building_number = require("./building_number");
 address.street_suffix = require("./street_suffix");
 address.default_country = require("./default_country");
 
-},{"./building_number":343,"./default_country":344,"./postcode":346,"./state":347,"./state_abbr":348,"./street_suffix":349}],346:[function(require,module,exports){
+},{"./building_number":345,"./default_country":346,"./postcode":348,"./state":349,"./state_abbr":350,"./street_suffix":351}],348:[function(require,module,exports){
 module["exports"] = [
   "0###",
   "2###",
@@ -49843,7 +50597,7 @@ module["exports"] = [
   "7###"
 ];
 
-},{}],347:[function(require,module,exports){
+},{}],349:[function(require,module,exports){
 module["exports"] = [
   "New South Wales",
   "Queensland",
@@ -49855,7 +50609,7 @@ module["exports"] = [
   "Victoria"
 ];
 
-},{}],348:[function(require,module,exports){
+},{}],350:[function(require,module,exports){
 module["exports"] = [
   "NSW",
   "QLD",
@@ -49867,7 +50621,7 @@ module["exports"] = [
   "VIC"
 ];
 
-},{}],349:[function(require,module,exports){
+},{}],351:[function(require,module,exports){
 module["exports"] = [
   "Avenue",
   "Boulevard",
@@ -49908,12 +50662,12 @@ module["exports"] = [
   "Way"
 ];
 
-},{}],350:[function(require,module,exports){
+},{}],352:[function(require,module,exports){
 var company = {};
 module['exports'] = company;
 company.suffix = require("./suffix");
 
-},{"./suffix":351}],351:[function(require,module,exports){
+},{"./suffix":353}],353:[function(require,module,exports){
 module["exports"] = [
   "Pty Ltd",
   "and Sons",
@@ -49923,7 +50677,7 @@ module["exports"] = [
   "Partners"
 ];
 
-},{}],352:[function(require,module,exports){
+},{}],354:[function(require,module,exports){
 var en_AU = {};
 module['exports'] = en_AU;
 en_AU.title = "Australia (English)";
@@ -49933,7 +50687,7 @@ en_AU.internet = require("./internet");
 en_AU.address = require("./address");
 en_AU.phone_number = require("./phone_number");
 
-},{"./address":345,"./company":350,"./internet":354,"./name":356,"./phone_number":359}],353:[function(require,module,exports){
+},{"./address":347,"./company":352,"./internet":356,"./name":358,"./phone_number":361}],355:[function(require,module,exports){
 module["exports"] = [
   "com.au",
   "com",
@@ -49943,9 +50697,9 @@ module["exports"] = [
   "org"
 ];
 
-},{}],354:[function(require,module,exports){
-arguments[4][247][0].apply(exports,arguments)
-},{"./domain_suffix":353,"dup":247}],355:[function(require,module,exports){
+},{}],356:[function(require,module,exports){
+arguments[4][249][0].apply(exports,arguments)
+},{"./domain_suffix":355,"dup":249}],357:[function(require,module,exports){
 module["exports"] = [
   "William",
   "Jack",
@@ -50149,13 +50903,13 @@ module["exports"] = [
   "Kiara"
 ];
 
-},{}],356:[function(require,module,exports){
+},{}],358:[function(require,module,exports){
 var name = {};
 module['exports'] = name;
 name.first_name = require("./first_name");
 name.last_name = require("./last_name");
 
-},{"./first_name":355,"./last_name":357}],357:[function(require,module,exports){
+},{"./first_name":357,"./last_name":359}],359:[function(require,module,exports){
 module["exports"] = [
   "Smith",
   "Jones",
@@ -50445,7 +51199,7 @@ module["exports"] = [
   "Wolf"
 ];
 
-},{}],358:[function(require,module,exports){
+},{}],360:[function(require,module,exports){
 module["exports"] = [
   "0# #### ####",
   "+61 # #### ####",
@@ -50453,17 +51207,17 @@ module["exports"] = [
   "+61 4## ### ###"
 ];
 
-},{}],359:[function(require,module,exports){
-arguments[4][206][0].apply(exports,arguments)
-},{"./formats":358,"dup":206}],360:[function(require,module,exports){
+},{}],361:[function(require,module,exports){
+arguments[4][208][0].apply(exports,arguments)
+},{"./formats":360,"dup":208}],362:[function(require,module,exports){
 var en_BORK = {};
 module['exports'] = en_BORK;
 en_BORK.title = "Bork (English)";
 en_BORK.lorem = require("./lorem");
 
-},{"./lorem":361}],361:[function(require,module,exports){
-arguments[4][197][0].apply(exports,arguments)
-},{"./words":362,"dup":197}],362:[function(require,module,exports){
+},{"./lorem":363}],363:[function(require,module,exports){
+arguments[4][199][0].apply(exports,arguments)
+},{"./words":364,"dup":199}],364:[function(require,module,exports){
 module["exports"] = [
   "Boot",
   "I",
@@ -50570,12 +51324,12 @@ module["exports"] = [
   "zeere-a"
 ];
 
-},{}],363:[function(require,module,exports){
+},{}],365:[function(require,module,exports){
 module["exports"] = [
   "Canada"
 ];
 
-},{}],364:[function(require,module,exports){
+},{}],366:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.state = require("./state");
@@ -50583,12 +51337,12 @@ address.state_abbr = require("./state_abbr");
 address.default_country = require("./default_country");
 address.postcode = require('./postcode.js');
 
-},{"./default_country":363,"./postcode.js":365,"./state":366,"./state_abbr":367}],365:[function(require,module,exports){
+},{"./default_country":365,"./postcode.js":367,"./state":368,"./state_abbr":369}],367:[function(require,module,exports){
 module["exports"] = [
   "?#? #?#"
 ];
 
-},{}],366:[function(require,module,exports){
+},{}],368:[function(require,module,exports){
 module["exports"] = [
   "Alberta",
   "British Columbia",
@@ -50605,7 +51359,7 @@ module["exports"] = [
   "Yukon"
 ];
 
-},{}],367:[function(require,module,exports){
+},{}],369:[function(require,module,exports){
 module["exports"] = [
   "AB",
   "BC",
@@ -50622,7 +51376,7 @@ module["exports"] = [
   "YT"
 ];
 
-},{}],368:[function(require,module,exports){
+},{}],370:[function(require,module,exports){
 var en_CA = {};
 module['exports'] = en_CA;
 en_CA.title = "Canada (English)";
@@ -50630,7 +51384,7 @@ en_CA.address = require("./address");
 en_CA.internet = require("./internet");
 en_CA.phone_number = require("./phone_number");
 
-},{"./address":364,"./internet":371,"./phone_number":373}],369:[function(require,module,exports){
+},{"./address":366,"./internet":373,"./phone_number":375}],371:[function(require,module,exports){
 module["exports"] = [
   "ca",
   "com",
@@ -50641,16 +51395,16 @@ module["exports"] = [
   "org"
 ];
 
-},{}],370:[function(require,module,exports){
+},{}],372:[function(require,module,exports){
 module["exports"] = [
   "gmail.com",
   "yahoo.ca",
   "hotmail.com"
 ];
 
-},{}],371:[function(require,module,exports){
-arguments[4][196][0].apply(exports,arguments)
-},{"./domain_suffix":369,"./free_email":370,"dup":196}],372:[function(require,module,exports){
+},{}],373:[function(require,module,exports){
+arguments[4][198][0].apply(exports,arguments)
+},{"./domain_suffix":371,"./free_email":372,"dup":198}],374:[function(require,module,exports){
 module["exports"] = [
   "###-###-####",
   "(###)###-####",
@@ -50670,9 +51424,9 @@ module["exports"] = [
   "###.###.#### x#####"
 ];
 
-},{}],373:[function(require,module,exports){
-arguments[4][206][0].apply(exports,arguments)
-},{"./formats":372,"dup":206}],374:[function(require,module,exports){
+},{}],375:[function(require,module,exports){
+arguments[4][208][0].apply(exports,arguments)
+},{"./formats":374,"dup":208}],376:[function(require,module,exports){
 module["exports"] = [
   "Avon",
   "Bedfordshire",
@@ -50746,7 +51500,7 @@ module["exports"] = [
   "Worcestershire"
 ];
 
-},{}],375:[function(require,module,exports){
+},{}],377:[function(require,module,exports){
 module["exports"] = [
   "England",
   "Scotland",
@@ -50754,7 +51508,7 @@ module["exports"] = [
   "Northern Ireland"
 ];
 
-},{}],376:[function(require,module,exports){
+},{}],378:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.county = require("./county");
@@ -50762,15 +51516,15 @@ address.uk_country = require("./uk_country");
 address.default_country = require("./default_country");
 address.postcode = require("./postcode");
 
-},{"./county":374,"./default_country":375,"./postcode":377,"./uk_country":378}],377:[function(require,module,exports){
+},{"./county":376,"./default_country":377,"./postcode":379,"./uk_country":380}],379:[function(require,module,exports){
 module["exports"] = [
   "??# #??",
   "??## #??",
 ];
 
-},{}],378:[function(require,module,exports){
-arguments[4][375][0].apply(exports,arguments)
-},{"dup":375}],379:[function(require,module,exports){
+},{}],380:[function(require,module,exports){
+arguments[4][377][0].apply(exports,arguments)
+},{"dup":377}],381:[function(require,module,exports){
 module["exports"] = [
   "074## ######",
   "075## ######",
@@ -50780,9 +51534,9 @@ module["exports"] = [
   "079## ######"
 ];
 
-},{}],380:[function(require,module,exports){
-arguments[4][188][0].apply(exports,arguments)
-},{"./formats":379,"dup":188}],381:[function(require,module,exports){
+},{}],382:[function(require,module,exports){
+arguments[4][190][0].apply(exports,arguments)
+},{"./formats":381,"dup":190}],383:[function(require,module,exports){
 var en_GB = {};
 module['exports'] = en_GB;
 en_GB.title = "Great Britain (English)";
@@ -50791,7 +51545,7 @@ en_GB.internet = require("./internet");
 en_GB.phone_number = require("./phone_number");
 en_GB.cell_phone = require("./cell_phone");
 
-},{"./address":376,"./cell_phone":380,"./internet":383,"./phone_number":385}],382:[function(require,module,exports){
+},{"./address":378,"./cell_phone":382,"./internet":385,"./phone_number":387}],384:[function(require,module,exports){
 module["exports"] = [
   "co.uk",
   "com",
@@ -50800,9 +51554,9 @@ module["exports"] = [
   "name"
 ];
 
-},{}],383:[function(require,module,exports){
-arguments[4][247][0].apply(exports,arguments)
-},{"./domain_suffix":382,"dup":247}],384:[function(require,module,exports){
+},{}],385:[function(require,module,exports){
+arguments[4][249][0].apply(exports,arguments)
+},{"./domain_suffix":384,"dup":249}],386:[function(require,module,exports){
 module["exports"] = [
   "01#### #####",
   "01### ######",
@@ -50821,9 +51575,9 @@ module["exports"] = [
   "0800 ######"
 ];
 
-},{}],385:[function(require,module,exports){
-arguments[4][206][0].apply(exports,arguments)
-},{"./formats":384,"dup":206}],386:[function(require,module,exports){
+},{}],387:[function(require,module,exports){
+arguments[4][208][0].apply(exports,arguments)
+},{"./formats":386,"dup":208}],388:[function(require,module,exports){
 module["exports"] = [
   "Carlow",
   "Cavan",
@@ -50853,18 +51607,18 @@ module["exports"] = [
   "Wicklow"
 ];
 
-},{}],387:[function(require,module,exports){
+},{}],389:[function(require,module,exports){
 module["exports"] = [
   "Ireland"
 ];
 
-},{}],388:[function(require,module,exports){
+},{}],390:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.county = require("./county");
 address.default_country = require("./default_country");
 
-},{"./county":386,"./default_country":387}],389:[function(require,module,exports){
+},{"./county":388,"./default_country":389}],391:[function(require,module,exports){
 module["exports"] = [
   "082 ### ####",
   "083 ### ####",
@@ -50874,9 +51628,9 @@ module["exports"] = [
   "089 ### ####"
 ];
 
-},{}],390:[function(require,module,exports){
-arguments[4][188][0].apply(exports,arguments)
-},{"./formats":389,"dup":188}],391:[function(require,module,exports){
+},{}],392:[function(require,module,exports){
+arguments[4][190][0].apply(exports,arguments)
+},{"./formats":391,"dup":190}],393:[function(require,module,exports){
 var en_IE = {};
 module['exports'] = en_IE;
 en_IE.title = "Ireland (English)";
@@ -50885,7 +51639,7 @@ en_IE.internet = require("./internet");
 en_IE.phone_number = require("./phone_number");
 en_IE.cell_phone = require("./cell_phone");
 
-},{"./address":388,"./cell_phone":390,"./internet":393,"./phone_number":395}],392:[function(require,module,exports){
+},{"./address":390,"./cell_phone":392,"./internet":395,"./phone_number":397}],394:[function(require,module,exports){
 module["exports"] = [
   "ie",
   "com",
@@ -50894,9 +51648,9 @@ module["exports"] = [
   "eu"
 ];
 
-},{}],393:[function(require,module,exports){
-arguments[4][247][0].apply(exports,arguments)
-},{"./domain_suffix":392,"dup":247}],394:[function(require,module,exports){
+},{}],395:[function(require,module,exports){
+arguments[4][249][0].apply(exports,arguments)
+},{"./domain_suffix":394,"dup":249}],396:[function(require,module,exports){
 module["exports"] = [
   "01 #######",
   "021 #######",
@@ -50949,9 +51703,9 @@ module["exports"] = [
   "099 #######"
 ];
 
-},{}],395:[function(require,module,exports){
-arguments[4][206][0].apply(exports,arguments)
-},{"./formats":394,"dup":206}],396:[function(require,module,exports){
+},{}],397:[function(require,module,exports){
+arguments[4][208][0].apply(exports,arguments)
+},{"./formats":396,"dup":208}],398:[function(require,module,exports){
 module["exports"] = [
   "India",
   "Indian Republic",
@@ -50959,7 +51713,7 @@ module["exports"] = [
   "Hindustan"
 ];
 
-},{}],397:[function(require,module,exports){
+},{}],399:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.postcode = require("./postcode");
@@ -50967,9 +51721,9 @@ address.state = require("./state");
 address.state_abbr = require("./state_abbr");
 address.default_country = require("./default_country");
 
-},{"./default_country":396,"./postcode":398,"./state":399,"./state_abbr":400}],398:[function(require,module,exports){
-arguments[4][365][0].apply(exports,arguments)
-},{"dup":365}],399:[function(require,module,exports){
+},{"./default_country":398,"./postcode":400,"./state":401,"./state_abbr":402}],400:[function(require,module,exports){
+arguments[4][367][0].apply(exports,arguments)
+},{"dup":367}],401:[function(require,module,exports){
 module["exports"] = [
   "Andra Pradesh",
   "Arunachal Pradesh",
@@ -51008,7 +51762,7 @@ module["exports"] = [
   "Pondicherry"
 ];
 
-},{}],400:[function(require,module,exports){
+},{}],402:[function(require,module,exports){
 module["exports"] = [
   "AP",
   "AR",
@@ -51047,9 +51801,9 @@ module["exports"] = [
   "PY"
 ];
 
-},{}],401:[function(require,module,exports){
-arguments[4][350][0].apply(exports,arguments)
-},{"./suffix":402,"dup":350}],402:[function(require,module,exports){
+},{}],403:[function(require,module,exports){
+arguments[4][352][0].apply(exports,arguments)
+},{"./suffix":404,"dup":352}],404:[function(require,module,exports){
 module["exports"] = [
   "Pvt Ltd",
   "Limited",
@@ -51060,7 +51814,7 @@ module["exports"] = [
   "Brothers"
 ];
 
-},{}],403:[function(require,module,exports){
+},{}],405:[function(require,module,exports){
 var en_IND = {};
 module['exports'] = en_IND;
 en_IND.title = "India (English)";
@@ -51070,7 +51824,7 @@ en_IND.internet = require("./internet");
 en_IND.company = require("./company");
 en_IND.phone_number = require("./phone_number");
 
-},{"./address":397,"./company":401,"./internet":406,"./name":408,"./phone_number":411}],404:[function(require,module,exports){
+},{"./address":399,"./company":403,"./internet":408,"./name":410,"./phone_number":413}],406:[function(require,module,exports){
 module["exports"] = [
   "in",
   "com",
@@ -51082,16 +51836,16 @@ module["exports"] = [
   "co.in"
 ];
 
-},{}],405:[function(require,module,exports){
+},{}],407:[function(require,module,exports){
 module["exports"] = [
   "gmail.com",
   "yahoo.co.in",
   "hotmail.com"
 ];
 
-},{}],406:[function(require,module,exports){
-arguments[4][196][0].apply(exports,arguments)
-},{"./domain_suffix":404,"./free_email":405,"dup":196}],407:[function(require,module,exports){
+},{}],408:[function(require,module,exports){
+arguments[4][198][0].apply(exports,arguments)
+},{"./domain_suffix":406,"./free_email":407,"dup":198}],409:[function(require,module,exports){
 module["exports"] = [
   "Aadrika",
   "Aanandinii",
@@ -51857,9 +52611,9 @@ module["exports"] = [
   "Yogesh"
 ];
 
-},{}],408:[function(require,module,exports){
-arguments[4][356][0].apply(exports,arguments)
-},{"./first_name":407,"./last_name":409,"dup":356}],409:[function(require,module,exports){
+},{}],410:[function(require,module,exports){
+arguments[4][358][0].apply(exports,arguments)
+},{"./first_name":409,"./last_name":411,"dup":358}],411:[function(require,module,exports){
 module["exports"] = [
   "Abbott",
   "Achari",
@@ -51952,29 +52706,29 @@ module["exports"] = [
   "Verma"
 ];
 
-},{}],410:[function(require,module,exports){
+},{}],412:[function(require,module,exports){
 module["exports"] = [
   "+91###-###-####",
   "+91##########",
   "+91-###-#######"
 ];
 
-},{}],411:[function(require,module,exports){
-arguments[4][206][0].apply(exports,arguments)
-},{"./formats":410,"dup":206}],412:[function(require,module,exports){
+},{}],413:[function(require,module,exports){
+arguments[4][208][0].apply(exports,arguments)
+},{"./formats":412,"dup":208}],414:[function(require,module,exports){
 module["exports"] = [
   "United States",
   "United States of America",
   "USA"
 ];
 
-},{}],413:[function(require,module,exports){
+},{}],415:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.default_country = require("./default_country");
 address.postcode_by_state = require("./postcode_by_state");
 
-},{"./default_country":412,"./postcode_by_state":414}],414:[function(require,module,exports){
+},{"./default_country":414,"./postcode_by_state":416}],416:[function(require,module,exports){
 module["exports"] = {
   "AL": "350##",
   "AK": "995##",
@@ -52030,7 +52784,7 @@ module["exports"] = {
   "WY": "831##"
 };
 
-},{}],415:[function(require,module,exports){
+},{}],417:[function(require,module,exports){
 var en_US = {};
 module['exports'] = en_US;
 en_US.title = "United States (English)";
@@ -52038,7 +52792,7 @@ en_US.internet = require("./internet");
 en_US.address = require("./address");
 en_US.phone_number = require("./phone_number");
 
-},{"./address":413,"./internet":417,"./phone_number":420}],416:[function(require,module,exports){
+},{"./address":415,"./internet":419,"./phone_number":422}],418:[function(require,module,exports){
 module["exports"] = [
   "com",
   "us",
@@ -52049,9 +52803,9 @@ module["exports"] = [
   "org"
 ];
 
-},{}],417:[function(require,module,exports){
-arguments[4][247][0].apply(exports,arguments)
-},{"./domain_suffix":416,"dup":247}],418:[function(require,module,exports){
+},{}],419:[function(require,module,exports){
+arguments[4][249][0].apply(exports,arguments)
+},{"./domain_suffix":418,"dup":249}],420:[function(require,module,exports){
 module["exports"] = [
   "201",
   "202",
@@ -52338,22 +53092,22 @@ module["exports"] = [
   "989"
 ];
 
-},{}],419:[function(require,module,exports){
-arguments[4][418][0].apply(exports,arguments)
-},{"dup":418}],420:[function(require,module,exports){
+},{}],421:[function(require,module,exports){
+arguments[4][420][0].apply(exports,arguments)
+},{"dup":420}],422:[function(require,module,exports){
 var phone_number = {};
 module['exports'] = phone_number;
 phone_number.area_code = require("./area_code");
 phone_number.exchange_code = require("./exchange_code");
 
-},{"./area_code":418,"./exchange_code":419}],421:[function(require,module,exports){
-arguments[4][343][0].apply(exports,arguments)
-},{"dup":343}],422:[function(require,module,exports){
+},{"./area_code":420,"./exchange_code":421}],423:[function(require,module,exports){
+arguments[4][345][0].apply(exports,arguments)
+},{"dup":345}],424:[function(require,module,exports){
 module["exports"] = [
   "#{city_prefix}"
 ];
 
-},{}],423:[function(require,module,exports){
+},{}],425:[function(require,module,exports){
 module["exports"] = [
   "Bondi",
   "Burleigh Heads",
@@ -52369,9 +53123,9 @@ module["exports"] = [
   "Yarra Valley"
 ];
 
-},{}],424:[function(require,module,exports){
-arguments[4][344][0].apply(exports,arguments)
-},{"dup":344}],425:[function(require,module,exports){
+},{}],426:[function(require,module,exports){
+arguments[4][346][0].apply(exports,arguments)
+},{"dup":346}],427:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.street_root = require("./street_root");
@@ -52386,9 +53140,9 @@ address.building_number = require("./building_number");
 address.street_suffix = require("./street_suffix");
 address.default_country = require("./default_country");
 
-},{"./building_number":421,"./city":422,"./city_prefix":423,"./default_country":424,"./postcode":426,"./region":427,"./state":428,"./state_abbr":429,"./street_name":430,"./street_root":431,"./street_suffix":432}],426:[function(require,module,exports){
-arguments[4][346][0].apply(exports,arguments)
-},{"dup":346}],427:[function(require,module,exports){
+},{"./building_number":423,"./city":424,"./city_prefix":425,"./default_country":426,"./postcode":428,"./region":429,"./state":430,"./state_abbr":431,"./street_name":432,"./street_root":433,"./street_suffix":434}],428:[function(require,module,exports){
+arguments[4][348][0].apply(exports,arguments)
+},{"dup":348}],429:[function(require,module,exports){
 module["exports"] = [
   "South East Queensland",
   "Wide Bay Burnett",
@@ -52399,13 +53153,13 @@ module["exports"] = [
   "Barossa"
 ];
 
-},{}],428:[function(require,module,exports){
-arguments[4][347][0].apply(exports,arguments)
-},{"dup":347}],429:[function(require,module,exports){
-arguments[4][348][0].apply(exports,arguments)
-},{"dup":348}],430:[function(require,module,exports){
-arguments[4][185][0].apply(exports,arguments)
-},{"dup":185}],431:[function(require,module,exports){
+},{}],430:[function(require,module,exports){
+arguments[4][349][0].apply(exports,arguments)
+},{"dup":349}],431:[function(require,module,exports){
+arguments[4][350][0].apply(exports,arguments)
+},{"dup":350}],432:[function(require,module,exports){
+arguments[4][187][0].apply(exports,arguments)
+},{"dup":187}],433:[function(require,module,exports){
 module["exports"] = [
   "Ramsay Street",
   "Bonnie Doon",
@@ -52413,13 +53167,13 @@ module["exports"] = [
   "Queen Street"
 ];
 
-},{}],432:[function(require,module,exports){
-arguments[4][349][0].apply(exports,arguments)
-},{"dup":349}],433:[function(require,module,exports){
-arguments[4][350][0].apply(exports,arguments)
-},{"./suffix":434,"dup":350}],434:[function(require,module,exports){
+},{}],434:[function(require,module,exports){
 arguments[4][351][0].apply(exports,arguments)
 },{"dup":351}],435:[function(require,module,exports){
+arguments[4][352][0].apply(exports,arguments)
+},{"./suffix":436,"dup":352}],436:[function(require,module,exports){
+arguments[4][353][0].apply(exports,arguments)
+},{"dup":353}],437:[function(require,module,exports){
 var en_au_ocker = {};
 module['exports'] = en_au_ocker;
 en_au_ocker.title = "Australia Ocker (English)";
@@ -52429,11 +53183,11 @@ en_au_ocker.internet = require("./internet");
 en_au_ocker.address = require("./address");
 en_au_ocker.phone_number = require("./phone_number");
 
-},{"./address":425,"./company":433,"./internet":437,"./name":439,"./phone_number":443}],436:[function(require,module,exports){
-arguments[4][353][0].apply(exports,arguments)
-},{"dup":353}],437:[function(require,module,exports){
-arguments[4][247][0].apply(exports,arguments)
-},{"./domain_suffix":436,"dup":247}],438:[function(require,module,exports){
+},{"./address":427,"./company":435,"./internet":439,"./name":441,"./phone_number":445}],438:[function(require,module,exports){
+arguments[4][355][0].apply(exports,arguments)
+},{"dup":355}],439:[function(require,module,exports){
+arguments[4][249][0].apply(exports,arguments)
+},{"./domain_suffix":438,"dup":249}],440:[function(require,module,exports){
 module["exports"] = [
   "Charlotte",
   "Ava",
@@ -52541,14 +53295,14 @@ module["exports"] = [
   "Sean"
 ];
 
-},{}],439:[function(require,module,exports){
+},{}],441:[function(require,module,exports){
 var name = {};
 module['exports'] = name;
 name.first_name = require("./first_name");
 name.last_name = require("./last_name");
 name.ocker_first_name = require("./ocker_first_name");
 
-},{"./first_name":438,"./last_name":440,"./ocker_first_name":441}],440:[function(require,module,exports){
+},{"./first_name":440,"./last_name":442,"./ocker_first_name":443}],442:[function(require,module,exports){
 module["exports"] = [
   "Smith",
   "Jones",
@@ -52576,7 +53330,7 @@ module["exports"] = [
   "LeQuesne"
 ];
 
-},{}],441:[function(require,module,exports){
+},{}],443:[function(require,module,exports){
 module["exports"] = [
   "Bazza",
   "Bluey",
@@ -52586,11 +53340,11 @@ module["exports"] = [
   "Shazza"
 ];
 
-},{}],442:[function(require,module,exports){
-arguments[4][358][0].apply(exports,arguments)
-},{"dup":358}],443:[function(require,module,exports){
-arguments[4][206][0].apply(exports,arguments)
-},{"./formats":442,"dup":206}],444:[function(require,module,exports){
+},{}],444:[function(require,module,exports){
+arguments[4][360][0].apply(exports,arguments)
+},{"dup":360}],445:[function(require,module,exports){
+arguments[4][208][0].apply(exports,arguments)
+},{"./formats":444,"dup":208}],446:[function(require,module,exports){
 module["exports"] = [
   " s/n.",
   ", #",
@@ -52599,9 +53353,9 @@ module["exports"] = [
   " ##"
 ];
 
-},{}],445:[function(require,module,exports){
-arguments[4][422][0].apply(exports,arguments)
-},{"dup":422}],446:[function(require,module,exports){
+},{}],447:[function(require,module,exports){
+arguments[4][424][0].apply(exports,arguments)
+},{"dup":424}],448:[function(require,module,exports){
 module["exports"] = [
   "Parla",
   "Telde",
@@ -52734,7 +53488,7 @@ module["exports"] = [
   "Inca"
 ];
 
-},{}],447:[function(require,module,exports){
+},{}],449:[function(require,module,exports){
 module["exports"] = [
   "Afganistán",
   "Albania",
@@ -52918,12 +53672,12 @@ module["exports"] = [
   "Zimbabwe"
 ];
 
-},{}],448:[function(require,module,exports){
+},{}],450:[function(require,module,exports){
 module["exports"] = [
   "España"
 ];
 
-},{}],449:[function(require,module,exports){
+},{}],451:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.city_prefix = require("./city_prefix");
@@ -52941,12 +53695,12 @@ address.street_name = require("./street_name");
 address.street_address = require("./street_address");
 address.default_country = require("./default_country");
 
-},{"./building_number":444,"./city":445,"./city_prefix":446,"./country":447,"./default_country":448,"./postcode":450,"./province":451,"./secondary_address":452,"./state":453,"./state_abbr":454,"./street_address":455,"./street_name":456,"./street_suffix":457,"./time_zone":458}],450:[function(require,module,exports){
+},{"./building_number":446,"./city":447,"./city_prefix":448,"./country":449,"./default_country":450,"./postcode":452,"./province":453,"./secondary_address":454,"./state":455,"./state_abbr":456,"./street_address":457,"./street_name":458,"./street_suffix":459,"./time_zone":460}],452:[function(require,module,exports){
 module["exports"] = [
   "#####"
 ];
 
-},{}],451:[function(require,module,exports){
+},{}],453:[function(require,module,exports){
 module["exports"] = [
   "Álava",
   "Albacete",
@@ -53000,13 +53754,13 @@ module["exports"] = [
   "Zaragoza"
 ];
 
-},{}],452:[function(require,module,exports){
+},{}],454:[function(require,module,exports){
 module["exports"] = [
   "Esc. ###",
   "Puerta ###"
 ];
 
-},{}],453:[function(require,module,exports){
+},{}],455:[function(require,module,exports){
 module["exports"] = [
   "Andalucía",
   "Aragón",
@@ -53027,7 +53781,7 @@ module["exports"] = [
   "Región de Murcia"
 ];
 
-},{}],454:[function(require,module,exports){
+},{}],456:[function(require,module,exports){
 module["exports"] = [
   "And",
   "Ara",
@@ -53048,19 +53802,19 @@ module["exports"] = [
   "Mur"
 ];
 
-},{}],455:[function(require,module,exports){
+},{}],457:[function(require,module,exports){
 module["exports"] = [
   "#{street_name}#{building_number}",
   "#{street_name}#{building_number} #{secondary_address}"
 ];
 
-},{}],456:[function(require,module,exports){
+},{}],458:[function(require,module,exports){
 module["exports"] = [
   "#{street_suffix} #{Name.first_name}",
   "#{street_suffix} #{Name.first_name} #{Name.last_name}"
 ];
 
-},{}],457:[function(require,module,exports){
+},{}],459:[function(require,module,exports){
 module["exports"] = [
   "Aldea",
   "Apartamento",
@@ -53134,7 +53888,7 @@ module["exports"] = [
   "Vía Pública"
 ];
 
-},{}],458:[function(require,module,exports){
+},{}],460:[function(require,module,exports){
 module["exports"] = [
   "Pacífico/Midway",
   "Pacífico/Pago_Pago",
@@ -53281,7 +54035,7 @@ module["exports"] = [
   "Pacífico/Apia"
 ];
 
-},{}],459:[function(require,module,exports){
+},{}],461:[function(require,module,exports){
 module["exports"] = [
   "6##-###-###",
   "6##.###.###",
@@ -53289,9 +54043,9 @@ module["exports"] = [
   "6########"
 ];
 
-},{}],460:[function(require,module,exports){
-arguments[4][188][0].apply(exports,arguments)
-},{"./formats":459,"dup":188}],461:[function(require,module,exports){
+},{}],462:[function(require,module,exports){
+arguments[4][190][0].apply(exports,arguments)
+},{"./formats":461,"dup":190}],463:[function(require,module,exports){
 module["exports"] = [
   "Adaptativo",
   "Avanzado",
@@ -53380,7 +54134,7 @@ module["exports"] = [
   "Visionario"
 ];
 
-},{}],462:[function(require,module,exports){
+},{}],464:[function(require,module,exports){
 module["exports"] = [
   "24 horas",
   "24/7",
@@ -53465,7 +54219,7 @@ module["exports"] = [
   "tolerancia cero"
 ];
 
-},{}],463:[function(require,module,exports){
+},{}],465:[function(require,module,exports){
 var company = {};
 module['exports'] = company;
 company.suffix = require("./suffix");
@@ -53474,7 +54228,7 @@ company.descriptor = require("./descriptor");
 company.adjective = require("./adjective");
 company.name = require("./name");
 
-},{"./adjective":461,"./descriptor":462,"./name":464,"./noun":465,"./suffix":466}],464:[function(require,module,exports){
+},{"./adjective":463,"./descriptor":464,"./name":466,"./noun":467,"./suffix":468}],466:[function(require,module,exports){
 module["exports"] = [
   "#{Name.last_name} #{suffix}",
   "#{Name.last_name} y #{Name.last_name}",
@@ -53482,7 +54236,7 @@ module["exports"] = [
   "#{Name.last_name}, #{Name.last_name} y #{Name.last_name} Asociados"
 ];
 
-},{}],465:[function(require,module,exports){
+},{}],467:[function(require,module,exports){
 module["exports"] = [
   "habilidad",
   "acceso",
@@ -53579,7 +54333,7 @@ module["exports"] = [
   "fuerza de trabajo"
 ];
 
-},{}],466:[function(require,module,exports){
+},{}],468:[function(require,module,exports){
 module["exports"] = [
   "S.L.",
   "e Hijos",
@@ -53587,7 +54341,7 @@ module["exports"] = [
   "Hermanos"
 ];
 
-},{}],467:[function(require,module,exports){
+},{}],469:[function(require,module,exports){
 var es = {};
 module['exports'] = es;
 es.title = "Spanish";
@@ -53598,7 +54352,7 @@ es.name = require("./name");
 es.phone_number = require("./phone_number");
 es.cell_phone = require("./cell_phone");
 
-},{"./address":449,"./cell_phone":460,"./company":463,"./internet":470,"./name":472,"./phone_number":479}],468:[function(require,module,exports){
+},{"./address":451,"./cell_phone":462,"./company":465,"./internet":472,"./name":474,"./phone_number":481}],470:[function(require,module,exports){
 module["exports"] = [
   "com",
   "es",
@@ -53607,11 +54361,11 @@ module["exports"] = [
   "org"
 ];
 
-},{}],469:[function(require,module,exports){
-arguments[4][195][0].apply(exports,arguments)
-},{"dup":195}],470:[function(require,module,exports){
-arguments[4][196][0].apply(exports,arguments)
-},{"./domain_suffix":468,"./free_email":469,"dup":196}],471:[function(require,module,exports){
+},{}],471:[function(require,module,exports){
+arguments[4][197][0].apply(exports,arguments)
+},{"dup":197}],472:[function(require,module,exports){
+arguments[4][198][0].apply(exports,arguments)
+},{"./domain_suffix":470,"./free_email":471,"dup":198}],473:[function(require,module,exports){
 module["exports"] = [
   "Adán",
   "Agustín",
@@ -53827,9 +54581,9 @@ module["exports"] = [
   "Yolanda"
 ];
 
-},{}],472:[function(require,module,exports){
-arguments[4][330][0].apply(exports,arguments)
-},{"./first_name":471,"./last_name":473,"./name":474,"./prefix":475,"./suffix":476,"./title":477,"dup":330}],473:[function(require,module,exports){
+},{}],474:[function(require,module,exports){
+arguments[4][332][0].apply(exports,arguments)
+},{"./first_name":473,"./last_name":475,"./name":476,"./prefix":477,"./suffix":478,"./title":479,"dup":332}],475:[function(require,module,exports){
 module["exports"] = [
   "Abeyta",
   "Abrego",
@@ -54471,7 +55225,7 @@ module["exports"] = [
   "Zúñiga"
 ];
 
-},{}],474:[function(require,module,exports){
+},{}],476:[function(require,module,exports){
 module["exports"] = [
   "#{prefix} #{first_name} #{last_name} #{last_name}",
   "#{first_name} #{last_name} #{last_name}",
@@ -54480,16 +55234,16 @@ module["exports"] = [
   "#{first_name} #{last_name} #{last_name}"
 ];
 
-},{}],475:[function(require,module,exports){
+},{}],477:[function(require,module,exports){
 module["exports"] = [
   "Sr.",
   "Sra.",
   "Sta."
 ];
 
-},{}],476:[function(require,module,exports){
-arguments[4][334][0].apply(exports,arguments)
-},{"dup":334}],477:[function(require,module,exports){
+},{}],478:[function(require,module,exports){
+arguments[4][336][0].apply(exports,arguments)
+},{"dup":336}],479:[function(require,module,exports){
 module["exports"] = {
   "descriptor": [
     "Jefe",
@@ -54581,7 +55335,7 @@ module["exports"] = {
   ]
 };
 
-},{}],478:[function(require,module,exports){
+},{}],480:[function(require,module,exports){
 module["exports"] = [
   "9##-###-###",
   "9##.###.###",
@@ -54589,9 +55343,9 @@ module["exports"] = [
   "9########"
 ];
 
-},{}],479:[function(require,module,exports){
-arguments[4][206][0].apply(exports,arguments)
-},{"./formats":478,"dup":206}],480:[function(require,module,exports){
+},{}],481:[function(require,module,exports){
+arguments[4][208][0].apply(exports,arguments)
+},{"./formats":480,"dup":208}],482:[function(require,module,exports){
 module["exports"] = [
   " s/n.",
   ", #",
@@ -54602,9 +55356,9 @@ module["exports"] = [
   " ####"
 ];
 
-},{}],481:[function(require,module,exports){
-arguments[4][422][0].apply(exports,arguments)
-},{"dup":422}],482:[function(require,module,exports){
+},{}],483:[function(require,module,exports){
+arguments[4][424][0].apply(exports,arguments)
+},{"dup":424}],484:[function(require,module,exports){
 module["exports"] = [
   "Aguascalientes",
   "Apodaca",
@@ -54738,9 +55492,9 @@ module["exports"] = [
   "Zitacuaro"
 ];
 
-},{}],483:[function(require,module,exports){
-arguments[4][258][0].apply(exports,arguments)
-},{"dup":258}],484:[function(require,module,exports){
+},{}],485:[function(require,module,exports){
+arguments[4][260][0].apply(exports,arguments)
+},{"dup":260}],486:[function(require,module,exports){
 module["exports"] = [
   "Afganistán",
   "Albania",
@@ -54924,12 +55678,12 @@ module["exports"] = [
   "Zimbabwe"
 ];
 
-},{}],485:[function(require,module,exports){
+},{}],487:[function(require,module,exports){
 module["exports"] = [
   "México"
 ];
 
-},{}],486:[function(require,module,exports){
+},{}],488:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.city_prefix = require("./city_prefix");
@@ -54947,16 +55701,16 @@ address.street = require("./street");
 address.street_name = require("./street_name");
 address.street_address = require("./street_address");
 address.default_country = require("./default_country");
-},{"./building_number":480,"./city":481,"./city_prefix":482,"./city_suffix":483,"./country":484,"./default_country":485,"./postcode":487,"./secondary_address":488,"./state":489,"./state_abbr":490,"./street":491,"./street_address":492,"./street_name":493,"./street_suffix":494,"./time_zone":495}],487:[function(require,module,exports){
-arguments[4][450][0].apply(exports,arguments)
-},{"dup":450}],488:[function(require,module,exports){
+},{"./building_number":482,"./city":483,"./city_prefix":484,"./city_suffix":485,"./country":486,"./default_country":487,"./postcode":489,"./secondary_address":490,"./state":491,"./state_abbr":492,"./street":493,"./street_address":494,"./street_name":495,"./street_suffix":496,"./time_zone":497}],489:[function(require,module,exports){
+arguments[4][452][0].apply(exports,arguments)
+},{"dup":452}],490:[function(require,module,exports){
 module["exports"] = [
   "Esc. ###",
   "Puerta ###",
   "Edificio #"
 ];
 
-},{}],489:[function(require,module,exports){
+},{}],491:[function(require,module,exports){
 module["exports"] = [
   "Aguascalientes",
   "Baja California Norte",
@@ -54991,7 +55745,7 @@ module["exports"] = [
   "Zacatecas"
 ];
 
-},{}],490:[function(require,module,exports){
+},{}],492:[function(require,module,exports){
 module["exports"] = [
   "AS",
   "BC",
@@ -55027,7 +55781,7 @@ module["exports"] = [
   "ZS"
 ];
 
-},{}],491:[function(require,module,exports){
+},{}],493:[function(require,module,exports){
 module["exports"] = [
 	"20 de Noviembre",
 	"Cinco de Mayo",
@@ -55069,9 +55823,9 @@ module["exports"] = [
 	"Jalisco",
 	"Avena"
 ];
-},{}],492:[function(require,module,exports){
-arguments[4][455][0].apply(exports,arguments)
-},{"dup":455}],493:[function(require,module,exports){
+},{}],494:[function(require,module,exports){
+arguments[4][457][0].apply(exports,arguments)
+},{"dup":457}],495:[function(require,module,exports){
 module["exports"] = [
   "#{street_suffix} #{Name.first_name}",
   "#{street_suffix} #{Name.first_name} #{Name.last_name}",
@@ -55082,9 +55836,9 @@ module["exports"] = [
 
 ];
 
-},{}],494:[function(require,module,exports){
-arguments[4][457][0].apply(exports,arguments)
-},{"dup":457}],495:[function(require,module,exports){
+},{}],496:[function(require,module,exports){
+arguments[4][459][0].apply(exports,arguments)
+},{"dup":459}],497:[function(require,module,exports){
 module["exports"] = [
   "Pacífico/Midway",
   "Pacífico/Pago_Pago",
@@ -55230,7 +55984,7 @@ module["exports"] = [
   "Pacífico/Apia"
 ];
 
-},{}],496:[function(require,module,exports){
+},{}],498:[function(require,module,exports){
 module["exports"] = [
   "5##-###-###",
   "5##.###.###",
@@ -55238,9 +55992,9 @@ module["exports"] = [
   "5########"
 ];
 
-},{}],497:[function(require,module,exports){
-arguments[4][188][0].apply(exports,arguments)
-},{"./formats":496,"dup":188}],498:[function(require,module,exports){
+},{}],499:[function(require,module,exports){
+arguments[4][190][0].apply(exports,arguments)
+},{"./formats":498,"dup":190}],500:[function(require,module,exports){
 module["exports"] = [
    "rojo",
    "verde",
@@ -55275,7 +56029,7 @@ module["exports"] = [
    "plata"
 ];
 
-},{}],499:[function(require,module,exports){
+},{}],501:[function(require,module,exports){
 module["exports"] = [
    "Libros",
    "Películas",
@@ -55301,9 +56055,9 @@ module["exports"] = [
    "Industrial"
 ];
 
-},{}],500:[function(require,module,exports){
-arguments[4][285][0].apply(exports,arguments)
-},{"./color":498,"./department":499,"./product_name":501,"dup":285}],501:[function(require,module,exports){
+},{}],502:[function(require,module,exports){
+arguments[4][287][0].apply(exports,arguments)
+},{"./color":500,"./department":501,"./product_name":503,"dup":287}],503:[function(require,module,exports){
 module["exports"] = {
 "adjective": [
      "Pequeño",
@@ -55364,9 +56118,9 @@ module["exports"] = {
   ]
 };
 
-},{}],502:[function(require,module,exports){
-arguments[4][461][0].apply(exports,arguments)
-},{"dup":461}],503:[function(require,module,exports){
+},{}],504:[function(require,module,exports){
+arguments[4][463][0].apply(exports,arguments)
+},{"dup":463}],505:[function(require,module,exports){
 module["exports"] = [
   "Clics y mortero",
   "Valor añadido",
@@ -55435,7 +56189,7 @@ module["exports"] = [
   "Ricos"
 ];
 
-},{}],504:[function(require,module,exports){
+},{}],506:[function(require,module,exports){
 module["exports"] = [
    "sinergias",
    "web-readiness",
@@ -55483,7 +56237,7 @@ module["exports"] = [
    "metodologías"
 ];
 
-},{}],505:[function(require,module,exports){
+},{}],507:[function(require,module,exports){
 module["exports"] = [
    "poner en práctica",
    "utilizar",
@@ -55547,9 +56301,9 @@ module["exports"] = [
    "recontextualizar"
 ]
 
-},{}],506:[function(require,module,exports){
-arguments[4][462][0].apply(exports,arguments)
-},{"dup":462}],507:[function(require,module,exports){
+},{}],508:[function(require,module,exports){
+arguments[4][464][0].apply(exports,arguments)
+},{"dup":464}],509:[function(require,module,exports){
 var company = {};
 module['exports'] = company;
 company.suffix = require("./suffix");
@@ -55561,13 +56315,13 @@ company.name = require("./name");
 company.bs_adjective = require("./bs_adjective");
 company.bs_noun = require("./bs_noun");
 
-},{"./adjective":502,"./bs_adjective":503,"./bs_noun":504,"./bs_verb":505,"./descriptor":506,"./name":508,"./noun":509,"./suffix":510}],508:[function(require,module,exports){
-arguments[4][464][0].apply(exports,arguments)
-},{"dup":464}],509:[function(require,module,exports){
-arguments[4][465][0].apply(exports,arguments)
-},{"dup":465}],510:[function(require,module,exports){
+},{"./adjective":504,"./bs_adjective":505,"./bs_noun":506,"./bs_verb":507,"./descriptor":508,"./name":510,"./noun":511,"./suffix":512}],510:[function(require,module,exports){
 arguments[4][466][0].apply(exports,arguments)
 },{"dup":466}],511:[function(require,module,exports){
+arguments[4][467][0].apply(exports,arguments)
+},{"dup":467}],512:[function(require,module,exports){
+arguments[4][468][0].apply(exports,arguments)
+},{"dup":468}],513:[function(require,module,exports){
 var es_MX = {};
 module['exports'] = es_MX;
 es_MX.title = "Spanish Mexico";
@@ -55581,7 +56335,7 @@ es_MX.cell_phone = require("./cell_phone");
 es_MX.lorem = require("./lorem");
 es_MX.commerce = require("./commerce");
 es_MX.team = require("./team");
-},{"./address":486,"./cell_phone":497,"./commerce":500,"./company":507,"./internet":514,"./lorem":515,"./name":519,"./phone_number":526,"./team":528}],512:[function(require,module,exports){
+},{"./address":488,"./cell_phone":499,"./commerce":502,"./company":509,"./internet":516,"./lorem":517,"./name":521,"./phone_number":528,"./team":530}],514:[function(require,module,exports){
 module["exports"] = [
   "com",
   "mx",
@@ -55591,7 +56345,7 @@ module["exports"] = [
   "gob.mx"
 ];
 
-},{}],513:[function(require,module,exports){
+},{}],515:[function(require,module,exports){
 module["exports"] = [
   "gmail.com",
   "yahoo.com",
@@ -55600,13 +56354,13 @@ module["exports"] = [
   "corpfolder.com"
 ];
 
-},{}],514:[function(require,module,exports){
-arguments[4][196][0].apply(exports,arguments)
-},{"./domain_suffix":512,"./free_email":513,"dup":196}],515:[function(require,module,exports){
-arguments[4][326][0].apply(exports,arguments)
-},{"./supplemental":516,"./words":517,"dup":326}],516:[function(require,module,exports){
-arguments[4][327][0].apply(exports,arguments)
-},{"dup":327}],517:[function(require,module,exports){
+},{}],516:[function(require,module,exports){
+arguments[4][198][0].apply(exports,arguments)
+},{"./domain_suffix":514,"./free_email":515,"dup":198}],517:[function(require,module,exports){
+arguments[4][328][0].apply(exports,arguments)
+},{"./supplemental":518,"./words":519,"dup":328}],518:[function(require,module,exports){
+arguments[4][329][0].apply(exports,arguments)
+},{"dup":329}],519:[function(require,module,exports){
 module["exports"] = [
 "Abacalero",
 "Abacería",
@@ -55878,7 +56632,7 @@ module["exports"] = [
 "Incrustación"
 ];
 
-},{}],518:[function(require,module,exports){
+},{}],520:[function(require,module,exports){
 module["exports"] = [
 "Aarón",
 "Abraham",
@@ -56185,9 +56939,9 @@ module["exports"] = [
 "Yaretzi",
 "Zoe"
 ]
-},{}],519:[function(require,module,exports){
-arguments[4][330][0].apply(exports,arguments)
-},{"./first_name":518,"./last_name":520,"./name":521,"./prefix":522,"./suffix":523,"./title":524,"dup":330}],520:[function(require,module,exports){
+},{}],521:[function(require,module,exports){
+arguments[4][332][0].apply(exports,arguments)
+},{"./first_name":520,"./last_name":522,"./name":523,"./prefix":524,"./suffix":525,"./title":526,"dup":332}],522:[function(require,module,exports){
 module["exports"] = [
   "Abeyta",
 "Abrego",
@@ -56878,7 +57632,7 @@ module["exports"] = [
 "Zúñiga"
 ];
 
-},{}],521:[function(require,module,exports){
+},{}],523:[function(require,module,exports){
 module["exports"] = [
   "#{prefix} #{first_name} #{last_name} #{last_name}",
   "#{first_name} #{last_name} de #{last_name}",
@@ -56887,9 +57641,9 @@ module["exports"] = [
   "#{first_name} #{last_name} #{last_name}"
 ];
 
-},{}],522:[function(require,module,exports){
-arguments[4][475][0].apply(exports,arguments)
-},{"dup":475}],523:[function(require,module,exports){
+},{}],524:[function(require,module,exports){
+arguments[4][477][0].apply(exports,arguments)
+},{"dup":477}],525:[function(require,module,exports){
 module["exports"] = [
   "Jr.",
   "Sr.",
@@ -56908,7 +57662,7 @@ module["exports"] = [
   "Mtro."
 ];
 
-},{}],524:[function(require,module,exports){
+},{}],526:[function(require,module,exports){
  module["exports"] = {
   "descriptor": [
     "Jefe",
@@ -57005,7 +57759,7 @@ module["exports"] = [
   ]
 };
 
-},{}],525:[function(require,module,exports){
+},{}],527:[function(require,module,exports){
 module["exports"] = [
   "5###-###-###",
   "5##.###.###",
@@ -57013,9 +57767,9 @@ module["exports"] = [
   "5########"
 ];
 
-},{}],526:[function(require,module,exports){
-arguments[4][206][0].apply(exports,arguments)
-},{"./formats":525,"dup":206}],527:[function(require,module,exports){
+},{}],528:[function(require,module,exports){
+arguments[4][208][0].apply(exports,arguments)
+},{"./formats":527,"dup":208}],529:[function(require,module,exports){
 module["exports"] = [
   "hormigas",
    "murciélagos",
@@ -57086,17 +57840,17 @@ module["exports"] = [
    "druidas"
 ];
 
-},{}],528:[function(require,module,exports){
-arguments[4][341][0].apply(exports,arguments)
-},{"./creature":527,"./name":529,"dup":341}],529:[function(require,module,exports){
-arguments[4][342][0].apply(exports,arguments)
-},{"dup":342}],530:[function(require,module,exports){
+},{}],530:[function(require,module,exports){
+arguments[4][343][0].apply(exports,arguments)
+},{"./creature":529,"./name":531,"dup":343}],531:[function(require,module,exports){
+arguments[4][344][0].apply(exports,arguments)
+},{"dup":344}],532:[function(require,module,exports){
 var fa = {};
 module['exports'] = fa;
 fa.title = "Farsi";
 fa.name = require("./name");
 
-},{"./name":532}],531:[function(require,module,exports){
+},{"./name":534}],533:[function(require,module,exports){
 module["exports"] = [
   "آبان دخت",
   "آبتین",
@@ -57822,14 +58576,14 @@ module["exports"] = [
   "یوشیتا"
 ];
 
-},{}],532:[function(require,module,exports){
+},{}],534:[function(require,module,exports){
 var name = {};
 module['exports'] = name;
 name.first_name = require("./first_name");
 name.last_name = require("./last_name");
 name.prefix = require("./prefix");
 
-},{"./first_name":531,"./last_name":533,"./prefix":534}],533:[function(require,module,exports){
+},{"./first_name":533,"./last_name":535,"./prefix":536}],535:[function(require,module,exports){
 module["exports"] = [
   "عارف",
   "عاشوری",
@@ -57977,14 +58731,14 @@ module["exports"] = [
   "یلدا"
 ];
 
-},{}],534:[function(require,module,exports){
+},{}],536:[function(require,module,exports){
 module["exports"] = [
   "آقای",
   "خانم",
   "دکتر"
 ];
 
-},{}],535:[function(require,module,exports){
+},{}],537:[function(require,module,exports){
 module["exports"] = [
   "####",
   "###",
@@ -57992,9 +58746,9 @@ module["exports"] = [
   "#"
 ];
 
-},{}],536:[function(require,module,exports){
-arguments[4][208][0].apply(exports,arguments)
-},{"dup":208}],537:[function(require,module,exports){
+},{}],538:[function(require,module,exports){
+arguments[4][210][0].apply(exports,arguments)
+},{"dup":210}],539:[function(require,module,exports){
 module["exports"] = [
   "Paris",
   "Marseille",
@@ -58098,12 +58852,12 @@ module["exports"] = [
   "Cholet"
 ];
 
-},{}],538:[function(require,module,exports){
+},{}],540:[function(require,module,exports){
 module["exports"] = [
   "France"
 ];
 
-},{}],539:[function(require,module,exports){
+},{}],541:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.building_number = require("./building_number");
@@ -58118,15 +58872,15 @@ address.street_name = require("./street_name");
 address.street_address = require("./street_address");
 address.default_country = require("./default_country");
 
-},{"./building_number":535,"./city":536,"./city_name":537,"./default_country":538,"./postcode":540,"./secondary_address":541,"./state":542,"./street_address":543,"./street_name":544,"./street_prefix":545,"./street_suffix":546}],540:[function(require,module,exports){
-arguments[4][450][0].apply(exports,arguments)
-},{"dup":450}],541:[function(require,module,exports){
+},{"./building_number":537,"./city":538,"./city_name":539,"./default_country":540,"./postcode":542,"./secondary_address":543,"./state":544,"./street_address":545,"./street_name":546,"./street_prefix":547,"./street_suffix":548}],542:[function(require,module,exports){
+arguments[4][452][0].apply(exports,arguments)
+},{"dup":452}],543:[function(require,module,exports){
 module["exports"] = [
   "Apt. ###",
   "# étage"
 ];
 
-},{}],542:[function(require,module,exports){
+},{}],544:[function(require,module,exports){
 module["exports"] = [
   "Alsace",
   "Aquitaine",
@@ -58152,14 +58906,14 @@ module["exports"] = [
   "Rhône-Alpes"
 ];
 
-},{}],543:[function(require,module,exports){
-arguments[4][269][0].apply(exports,arguments)
-},{"dup":269}],544:[function(require,module,exports){
+},{}],545:[function(require,module,exports){
+arguments[4][271][0].apply(exports,arguments)
+},{"dup":271}],546:[function(require,module,exports){
 module["exports"] = [
   "#{street_prefix} #{street_suffix}"
 ];
 
-},{}],545:[function(require,module,exports){
+},{}],547:[function(require,module,exports){
 module["exports"] = [
   "Allée, Voie",
   "Rue",
@@ -58171,7 +58925,7 @@ module["exports"] = [
   "Place"
 ];
 
-},{}],546:[function(require,module,exports){
+},{}],548:[function(require,module,exports){
 module["exports"] = [
   "de l'Abbaye",
   "Adolphe Mille",
@@ -58241,11 +58995,7 @@ module["exports"] = [
   "Zadkine"
 ];
 
-},{}],547:[function(require,module,exports){
-arguments[4][287][0].apply(exports,arguments)
-},{"dup":287}],548:[function(require,module,exports){
-arguments[4][288][0].apply(exports,arguments)
-},{"dup":288}],549:[function(require,module,exports){
+},{}],549:[function(require,module,exports){
 arguments[4][289][0].apply(exports,arguments)
 },{"dup":289}],550:[function(require,module,exports){
 arguments[4][290][0].apply(exports,arguments)
@@ -58253,15 +59003,19 @@ arguments[4][290][0].apply(exports,arguments)
 arguments[4][291][0].apply(exports,arguments)
 },{"dup":291}],552:[function(require,module,exports){
 arguments[4][292][0].apply(exports,arguments)
-},{"./adjective":547,"./bs_adjective":548,"./bs_noun":549,"./bs_verb":550,"./descriptor":551,"./name":553,"./noun":554,"./suffix":555,"dup":292}],553:[function(require,module,exports){
+},{"dup":292}],553:[function(require,module,exports){
+arguments[4][293][0].apply(exports,arguments)
+},{"dup":293}],554:[function(require,module,exports){
+arguments[4][294][0].apply(exports,arguments)
+},{"./adjective":549,"./bs_adjective":550,"./bs_noun":551,"./bs_verb":552,"./descriptor":553,"./name":555,"./noun":556,"./suffix":557,"dup":294}],555:[function(require,module,exports){
 module["exports"] = [
   "#{Name.last_name} #{suffix}",
   "#{Name.last_name} et #{Name.last_name}"
 ];
 
-},{}],554:[function(require,module,exports){
-arguments[4][294][0].apply(exports,arguments)
-},{"dup":294}],555:[function(require,module,exports){
+},{}],556:[function(require,module,exports){
+arguments[4][296][0].apply(exports,arguments)
+},{"dup":296}],557:[function(require,module,exports){
 module["exports"] = [
   "SARL",
   "SA",
@@ -58273,7 +59027,7 @@ module["exports"] = [
   "EI"
 ];
 
-},{}],556:[function(require,module,exports){
+},{}],558:[function(require,module,exports){
 var fr = {};
 module['exports'] = fr;
 fr.title = "French";
@@ -58284,7 +59038,7 @@ fr.lorem = require("./lorem");
 fr.name = require("./name");
 fr.phone_number = require("./phone_number");
 
-},{"./address":539,"./company":552,"./internet":559,"./lorem":560,"./name":564,"./phone_number":570}],557:[function(require,module,exports){
+},{"./address":541,"./company":554,"./internet":561,"./lorem":562,"./name":566,"./phone_number":572}],559:[function(require,module,exports){
 module["exports"] = [
   "com",
   "fr",
@@ -58295,22 +59049,22 @@ module["exports"] = [
   "org"
 ];
 
-},{}],558:[function(require,module,exports){
+},{}],560:[function(require,module,exports){
 module["exports"] = [
   "gmail.com",
   "yahoo.fr",
   "hotmail.fr"
 ];
 
-},{}],559:[function(require,module,exports){
-arguments[4][196][0].apply(exports,arguments)
-},{"./domain_suffix":557,"./free_email":558,"dup":196}],560:[function(require,module,exports){
-arguments[4][326][0].apply(exports,arguments)
-},{"./supplemental":561,"./words":562,"dup":326}],561:[function(require,module,exports){
-arguments[4][327][0].apply(exports,arguments)
-},{"dup":327}],562:[function(require,module,exports){
+},{}],561:[function(require,module,exports){
 arguments[4][198][0].apply(exports,arguments)
-},{"dup":198}],563:[function(require,module,exports){
+},{"./domain_suffix":559,"./free_email":560,"dup":198}],562:[function(require,module,exports){
+arguments[4][328][0].apply(exports,arguments)
+},{"./supplemental":563,"./words":564,"dup":328}],563:[function(require,module,exports){
+arguments[4][329][0].apply(exports,arguments)
+},{"dup":329}],564:[function(require,module,exports){
+arguments[4][200][0].apply(exports,arguments)
+},{"dup":200}],565:[function(require,module,exports){
 module["exports"] = [
   "Enzo",
   "Lucas",
@@ -58403,7 +59157,7 @@ module["exports"] = [
   "Mélissa"
 ];
 
-},{}],564:[function(require,module,exports){
+},{}],566:[function(require,module,exports){
 var name = {};
 module['exports'] = name;
 name.first_name = require("./first_name");
@@ -58412,7 +59166,7 @@ name.prefix = require("./prefix");
 name.title = require("./title");
 name.name = require("./name");
 
-},{"./first_name":563,"./last_name":565,"./name":566,"./prefix":567,"./title":568}],565:[function(require,module,exports){
+},{"./first_name":565,"./last_name":567,"./name":568,"./prefix":569,"./title":570}],567:[function(require,module,exports){
 module["exports"] = [
   "Martin",
   "Bernard",
@@ -58566,14 +59320,14 @@ module["exports"] = [
   "Cousin"
 ];
 
-},{}],566:[function(require,module,exports){
+},{}],568:[function(require,module,exports){
 module["exports"] = [
   "#{prefix} #{first_name} #{last_name}",
   "#{first_name} #{last_name}",
   "#{last_name} #{first_name}"
 ];
 
-},{}],567:[function(require,module,exports){
+},{}],569:[function(require,module,exports){
 module["exports"] = [
   "M",
   "Mme",
@@ -58582,7 +59336,7 @@ module["exports"] = [
   "Prof"
 ];
 
-},{}],568:[function(require,module,exports){
+},{}],570:[function(require,module,exports){
 module["exports"] = {
   "job": [
     "Superviseur",
@@ -58606,7 +59360,7 @@ module["exports"] = {
   ]
 };
 
-},{}],569:[function(require,module,exports){
+},{}],571:[function(require,module,exports){
 module["exports"] = [
   "01########",
   "02########",
@@ -58624,15 +59378,15 @@ module["exports"] = [
   "+33 7########"
 ];
 
-},{}],570:[function(require,module,exports){
-arguments[4][206][0].apply(exports,arguments)
-},{"./formats":569,"dup":206}],571:[function(require,module,exports){
-arguments[4][363][0].apply(exports,arguments)
-},{"dup":363}],572:[function(require,module,exports){
-arguments[4][397][0].apply(exports,arguments)
-},{"./default_country":571,"./postcode":573,"./state":574,"./state_abbr":575,"dup":397}],573:[function(require,module,exports){
+},{}],572:[function(require,module,exports){
+arguments[4][208][0].apply(exports,arguments)
+},{"./formats":571,"dup":208}],573:[function(require,module,exports){
 arguments[4][365][0].apply(exports,arguments)
 },{"dup":365}],574:[function(require,module,exports){
+arguments[4][399][0].apply(exports,arguments)
+},{"./default_country":573,"./postcode":575,"./state":576,"./state_abbr":577,"dup":399}],575:[function(require,module,exports){
+arguments[4][367][0].apply(exports,arguments)
+},{"dup":367}],576:[function(require,module,exports){
 module["exports"] = [
   "Alberta",
   "Colombie-Britannique",
@@ -58649,7 +59403,7 @@ module["exports"] = [
   "Yukon"
 ];
 
-},{}],575:[function(require,module,exports){
+},{}],577:[function(require,module,exports){
 module["exports"] = [
   "AB",
   "BC",
@@ -58666,7 +59420,7 @@ module["exports"] = [
   "YK"
 ];
 
-},{}],576:[function(require,module,exports){
+},{}],578:[function(require,module,exports){
 var fr_CA = {};
 module['exports'] = fr_CA;
 fr_CA.title = "Canada (French)";
@@ -58674,7 +59428,7 @@ fr_CA.address = require("./address");
 fr_CA.internet = require("./internet");
 fr_CA.phone_number = require("./phone_number");
 
-},{"./address":572,"./internet":579,"./phone_number":581}],577:[function(require,module,exports){
+},{"./address":574,"./internet":581,"./phone_number":583}],579:[function(require,module,exports){
 module["exports"] = [
   "qc.ca",
   "ca",
@@ -58686,27 +59440,27 @@ module["exports"] = [
   "org"
 ];
 
-},{}],578:[function(require,module,exports){
-arguments[4][370][0].apply(exports,arguments)
-},{"dup":370}],579:[function(require,module,exports){
-arguments[4][196][0].apply(exports,arguments)
-},{"./domain_suffix":577,"./free_email":578,"dup":196}],580:[function(require,module,exports){
+},{}],580:[function(require,module,exports){
+arguments[4][372][0].apply(exports,arguments)
+},{"dup":372}],581:[function(require,module,exports){
+arguments[4][198][0].apply(exports,arguments)
+},{"./domain_suffix":579,"./free_email":580,"dup":198}],582:[function(require,module,exports){
 module["exports"] = [
   "### ###-####",
   "1 ### ###-####",
   "### ###-####, poste ###"
 ];
 
-},{}],581:[function(require,module,exports){
-arguments[4][206][0].apply(exports,arguments)
-},{"./formats":580,"dup":206}],582:[function(require,module,exports){
+},{}],583:[function(require,module,exports){
+arguments[4][208][0].apply(exports,arguments)
+},{"./formats":582,"dup":208}],584:[function(require,module,exports){
 module["exports"] = [
   "###",
   "##",
   "#"
 ];
 
-},{}],583:[function(require,module,exports){
+},{}],585:[function(require,module,exports){
 module["exports"] = [
   "#{city_prefix} #{Name.first_name}#{city_suffix}",
   "#{city_prefix} #{Name.first_name}",
@@ -58716,7 +59470,7 @@ module["exports"] = [
   "#{Name.last_name}#{city_suffix}"
 ];
 
-},{}],584:[function(require,module,exports){
+},{}],586:[function(require,module,exports){
 module["exports"] = [
   "აბასთუმანი",
   "აბაშა",
@@ -58808,7 +59562,7 @@ module["exports"] = [
   "ხულო"
 ];
 
-},{}],585:[function(require,module,exports){
+},{}],587:[function(require,module,exports){
 module["exports"] = [
   "ახალი",
   "ძველი",
@@ -58816,7 +59570,7 @@ module["exports"] = [
   "ქვემო"
 ];
 
-},{}],586:[function(require,module,exports){
+},{}],588:[function(require,module,exports){
 module["exports"] = [
   "სოფელი",
   "ძირი",
@@ -58824,7 +59578,7 @@ module["exports"] = [
   "დაბა"
 ];
 
-},{}],587:[function(require,module,exports){
+},{}],589:[function(require,module,exports){
 module["exports"] = [
   "ავსტრალია",
   "ავსტრია",
@@ -59141,12 +59895,12 @@ module["exports"] = [
   "ჰონკონგი"
 ];
 
-},{}],588:[function(require,module,exports){
+},{}],590:[function(require,module,exports){
 module["exports"] = [
   "საქართველო"
 ];
 
-},{}],589:[function(require,module,exports){
+},{}],591:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.city_prefix = require("./city_prefix");
@@ -59163,25 +59917,25 @@ address.street_name = require("./street_name");
 address.street_address = require("./street_address");
 address.default_country = require("./default_country");
 
-},{"./building_number":582,"./city":583,"./city_name":584,"./city_prefix":585,"./city_suffix":586,"./country":587,"./default_country":588,"./postcode":590,"./secondary_address":591,"./street_address":592,"./street_name":593,"./street_suffix":594,"./street_title":595}],590:[function(require,module,exports){
+},{"./building_number":584,"./city":585,"./city_name":586,"./city_prefix":587,"./city_suffix":588,"./country":589,"./default_country":590,"./postcode":592,"./secondary_address":593,"./street_address":594,"./street_name":595,"./street_suffix":596,"./street_title":597}],592:[function(require,module,exports){
 module["exports"] = [
   "01##"
 ];
 
-},{}],591:[function(require,module,exports){
+},{}],593:[function(require,module,exports){
 module["exports"] = [
   "კორპ. ##",
   "შენობა ###"
 ];
 
-},{}],592:[function(require,module,exports){
-arguments[4][184][0].apply(exports,arguments)
-},{"dup":184}],593:[function(require,module,exports){
+},{}],594:[function(require,module,exports){
+arguments[4][186][0].apply(exports,arguments)
+},{"dup":186}],595:[function(require,module,exports){
 module["exports"] = [
   "#{street_title} #{street_suffix}"
 ];
 
-},{}],594:[function(require,module,exports){
+},{}],596:[function(require,module,exports){
 module["exports"] = [
   "გამზ.",
   "გამზირი",
@@ -59191,7 +59945,7 @@ module["exports"] = [
   "ხეივანი"
 ];
 
-},{}],595:[function(require,module,exports){
+},{}],597:[function(require,module,exports){
 module["exports"] = [
   "აბაშიძის",
   "აბესაძის",
@@ -59611,7 +60365,7 @@ module["exports"] = [
   "ჯორჯიაშვილის"
 ];
 
-},{}],596:[function(require,module,exports){
+},{}],598:[function(require,module,exports){
 module["exports"] = [
   "(+995 32) 2-##-##-##",
   "032-2-##-##-##",
@@ -59624,16 +60378,16 @@ module["exports"] = [
   "2 ### ###"
 ];
 
-},{}],597:[function(require,module,exports){
-arguments[4][188][0].apply(exports,arguments)
-},{"./formats":596,"dup":188}],598:[function(require,module,exports){
+},{}],599:[function(require,module,exports){
+arguments[4][190][0].apply(exports,arguments)
+},{"./formats":598,"dup":190}],600:[function(require,module,exports){
 var company = {};
 module['exports'] = company;
 company.prefix = require("./prefix");
 company.suffix = require("./suffix");
 company.name = require("./name");
 
-},{"./name":599,"./prefix":600,"./suffix":601}],599:[function(require,module,exports){
+},{"./name":601,"./prefix":602,"./suffix":603}],601:[function(require,module,exports){
 module["exports"] = [
   "#{prefix} #{Name.first_name}",
   "#{prefix} #{Name.last_name}",
@@ -59642,7 +60396,7 @@ module["exports"] = [
   "#{prefix} #{Name.last_name}-#{Name.last_name}"
 ];
 
-},{}],600:[function(require,module,exports){
+},{}],602:[function(require,module,exports){
 module["exports"] = [
   "შპს",
   "სს",
@@ -59650,7 +60404,7 @@ module["exports"] = [
   "სსიპ"
 ];
 
-},{}],601:[function(require,module,exports){
+},{}],603:[function(require,module,exports){
 module["exports"] = [
   "ჯგუფი",
   "და კომპანია",
@@ -59658,7 +60412,7 @@ module["exports"] = [
   "გრუპი"
 ];
 
-},{}],602:[function(require,module,exports){
+},{}],604:[function(require,module,exports){
 var ge = {};
 module['exports'] = ge;
 ge.title = "Georgian";
@@ -59670,7 +60424,7 @@ ge.company = require("./company");
 ge.phone_number = require("./phone_number");
 ge.cell_phone = require("./cell_phone");
 
-},{"./address":589,"./cell_phone":597,"./company":598,"./internet":605,"./name":607,"./phone_number":613}],603:[function(require,module,exports){
+},{"./address":591,"./cell_phone":599,"./company":600,"./internet":607,"./name":609,"./phone_number":615}],605:[function(require,module,exports){
 module["exports"] = [
   "ge",
   "com",
@@ -59680,16 +60434,16 @@ module["exports"] = [
   "org.ge"
 ];
 
-},{}],604:[function(require,module,exports){
+},{}],606:[function(require,module,exports){
 module["exports"] = [
   "gmail.com",
   "yahoo.com",
   "posta.ge"
 ];
 
-},{}],605:[function(require,module,exports){
-arguments[4][196][0].apply(exports,arguments)
-},{"./domain_suffix":603,"./free_email":604,"dup":196}],606:[function(require,module,exports){
+},{}],607:[function(require,module,exports){
+arguments[4][198][0].apply(exports,arguments)
+},{"./domain_suffix":605,"./free_email":606,"dup":198}],608:[function(require,module,exports){
 module["exports"] = [
   "აგული",
   "აგუნა",
@@ -60192,9 +60946,9 @@ module["exports"] = [
   "ჰამლეტ"
 ];
 
-},{}],607:[function(require,module,exports){
-arguments[4][564][0].apply(exports,arguments)
-},{"./first_name":606,"./last_name":608,"./name":609,"./prefix":610,"./title":611,"dup":564}],608:[function(require,module,exports){
+},{}],609:[function(require,module,exports){
+arguments[4][566][0].apply(exports,arguments)
+},{"./first_name":608,"./last_name":610,"./name":611,"./prefix":612,"./title":613,"dup":566}],610:[function(require,module,exports){
 module["exports"] = [
   "აბაზაძე",
   "აბაშიძე",
@@ -60367,7 +61121,7 @@ module["exports"] = [
   "ჯუღაშვილი"
 ];
 
-},{}],609:[function(require,module,exports){
+},{}],611:[function(require,module,exports){
 module["exports"] = [
   "#{prefix} #{first_name} #{last_name}",
   "#{first_name} #{last_name}",
@@ -60377,7 +61131,7 @@ module["exports"] = [
   "#{first_name} #{last_name}"
 ];
 
-},{}],610:[function(require,module,exports){
+},{}],612:[function(require,module,exports){
 module["exports"] = [
   "ბ-ნი",
   "ბატონი",
@@ -60385,7 +61139,7 @@ module["exports"] = [
   "ქალბატონი"
 ];
 
-},{}],611:[function(require,module,exports){
+},{}],613:[function(require,module,exports){
 module["exports"] = {
   "descriptor": [
     "გენერალური",
@@ -60463,7 +61217,7 @@ module["exports"] = {
   ]
 };
 
-},{}],612:[function(require,module,exports){
+},{}],614:[function(require,module,exports){
 module["exports"] = [
   "5##-###-###",
   "5########",
@@ -60487,17 +61241,17 @@ module["exports"] = [
   "(+995) 5## ### ###"
 ];
 
-},{}],613:[function(require,module,exports){
-arguments[4][206][0].apply(exports,arguments)
-},{"./formats":612,"dup":206}],614:[function(require,module,exports){
+},{}],615:[function(require,module,exports){
+arguments[4][208][0].apply(exports,arguments)
+},{"./formats":614,"dup":208}],616:[function(require,module,exports){
 module["exports"] = [  
   "##",
   "#"
 ];
 
-},{}],615:[function(require,module,exports){
-arguments[4][208][0].apply(exports,arguments)
-},{"dup":208}],616:[function(require,module,exports){
+},{}],617:[function(require,module,exports){
+arguments[4][210][0].apply(exports,arguments)
+},{"dup":210}],618:[function(require,module,exports){
 module["exports"] = [
   "Airmadidi",
   "Ampana",
@@ -60727,12 +61481,12 @@ module["exports"] = [
   "Tabanan",
   "Bangli"
 ];
-},{}],617:[function(require,module,exports){
+},{}],619:[function(require,module,exports){
 module["exports"] = [
   "Indonesia"
 ];
 
-},{}],618:[function(require,module,exports){
+},{}],620:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.building_number = require("./building_number");
@@ -60745,11 +61499,11 @@ address.street_name = require("./street_name");
 address.street_address = require("./street_address");
 address.default_country = require("./default_country");
 
-},{"./building_number":614,"./city":615,"./city_name":616,"./default_country":617,"./postcode":619,"./state":620,"./street_address":621,"./street_name":622,"./street_prefix":623}],619:[function(require,module,exports){
+},{"./building_number":616,"./city":617,"./city_name":618,"./default_country":619,"./postcode":621,"./state":622,"./street_address":623,"./street_name":624,"./street_prefix":625}],621:[function(require,module,exports){
 module["exports"] = [
   "#####"
 ];
-},{}],620:[function(require,module,exports){
+},{}],622:[function(require,module,exports){
 module["exports"] = [
   "Aceh",
   "Sumatera Utara",
@@ -60786,16 +61540,16 @@ module["exports"] = [
   "Papua Barat",
   "Papua"
 ];
-},{}],621:[function(require,module,exports){
+},{}],623:[function(require,module,exports){
 module["exports"] = [
   "#{street_name} no #{building_number}"
 ];
-},{}],622:[function(require,module,exports){
+},{}],624:[function(require,module,exports){
 module["exports"] = [
   "#{street_prefix} #{Name.first_name}",
   "#{street_prefix} #{Name.last_name}"
 ];
-},{}],623:[function(require,module,exports){
+},{}],625:[function(require,module,exports){
 module["exports"] = [
   "Ds.",
   "Dk.",
@@ -60806,16 +61560,16 @@ module["exports"] = [
   "Ki.",
   "Psr."
 ];
-},{}],624:[function(require,module,exports){
-arguments[4][598][0].apply(exports,arguments)
-},{"./name":625,"./prefix":626,"./suffix":627,"dup":598}],625:[function(require,module,exports){
+},{}],626:[function(require,module,exports){
+arguments[4][600][0].apply(exports,arguments)
+},{"./name":627,"./prefix":628,"./suffix":629,"dup":600}],627:[function(require,module,exports){
 module["exports"] = [
   "#{prefix} #{Name.last_name}",
   "#{Name.last_name} #{suffix}",
   "#{prefix} #{Name.last_name} #{suffix}"
 ];
 
-},{}],626:[function(require,module,exports){
+},{}],628:[function(require,module,exports){
 module["exports"] = [
   "PT",
   "CV",
@@ -60823,74 +61577,74 @@ module["exports"] = [
   "PD",
   "Perum"
 ];
-},{}],627:[function(require,module,exports){
+},{}],629:[function(require,module,exports){
 module["exports"] = [
   "(Persero) Tbk",
   "Tbk"
 ];
-},{}],628:[function(require,module,exports){
-arguments[4][307][0].apply(exports,arguments)
-},{"./month":629,"./weekday":630,"dup":307}],629:[function(require,module,exports){
-module["exports"] = {
-  wide: [
-    "Januari",
-    "Februari",
-    "Maret",
-    "April",
-    "Mei",
-    "Juni",
-    "Juli",
-    "Agustus",
-    "September",
-    "Oktober",
-    "November",
-    "Desember"
-  ],
-  wide_context: [
-    "Januari",
-    "Februari",
-    "Maret",
-    "April",
-    "Mei",
-    "Juni",
-    "Juli",
-    "Agustus",
-    "September",
-    "Oktober",
-    "November",
-    "Desember"
-  ],
-  abbr: [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "Mei",
-    "Jun",
-    "Jul",
-    "Ags",
-    "Sep",
-    "Okt",
-    "Nov",
-    "Des"
-  ],
-  abbr_context: [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "Mei",
-    "Jun",
-    "Jul",
-    "Ags",
-    "Sep",
-    "Okt",
-    "Nov",
-    "Des"
-  ]
-};
-
 },{}],630:[function(require,module,exports){
+arguments[4][309][0].apply(exports,arguments)
+},{"./month":631,"./weekday":632,"dup":309}],631:[function(require,module,exports){
+module["exports"] = {
+  wide: [
+    "Januari",
+    "Februari",
+    "Maret",
+    "April",
+    "Mei",
+    "Juni",
+    "Juli",
+    "Agustus",
+    "September",
+    "Oktober",
+    "November",
+    "Desember"
+  ],
+  wide_context: [
+    "Januari",
+    "Februari",
+    "Maret",
+    "April",
+    "Mei",
+    "Juni",
+    "Juli",
+    "Agustus",
+    "September",
+    "Oktober",
+    "November",
+    "Desember"
+  ],
+  abbr: [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "Mei",
+    "Jun",
+    "Jul",
+    "Ags",
+    "Sep",
+    "Okt",
+    "Nov",
+    "Des"
+  ],
+  abbr_context: [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "Mei",
+    "Jun",
+    "Jul",
+    "Ags",
+    "Sep",
+    "Okt",
+    "Nov",
+    "Des"
+  ]
+};
+
+},{}],632:[function(require,module,exports){
 module["exports"] = {
   wide: [
     "Minggu",
@@ -60930,7 +61684,7 @@ module["exports"] = {
   ]
 };
 
-},{}],631:[function(require,module,exports){
+},{}],633:[function(require,module,exports){
 var id = {};
 module['exports'] = id;
 id.title = "Indonesia";
@@ -60941,7 +61695,7 @@ id.date = require("./date");
 id.name = require("./name");
 id.phone_number = require("./phone_number");
 
-},{"./address":618,"./company":624,"./date":628,"./internet":634,"./name":637,"./phone_number":644}],632:[function(require,module,exports){
+},{"./address":620,"./company":626,"./date":630,"./internet":636,"./name":639,"./phone_number":646}],634:[function(require,module,exports){
 module["exports"] = [
   "com",
   "net",
@@ -60964,16 +61718,16 @@ module["exports"] = [
   "biz.id",
   "desa.id"
 ];
-},{}],633:[function(require,module,exports){
+},{}],635:[function(require,module,exports){
 module["exports"] = [
   'gmail.com',
   'yahoo.com',
   'gmail.co.id',
   'yahoo.co.id'
 ];
-},{}],634:[function(require,module,exports){
-arguments[4][196][0].apply(exports,arguments)
-},{"./domain_suffix":632,"./free_email":633,"dup":196}],635:[function(require,module,exports){
+},{}],636:[function(require,module,exports){
+arguments[4][198][0].apply(exports,arguments)
+},{"./domain_suffix":634,"./free_email":635,"dup":198}],637:[function(require,module,exports){
 module["exports"] = [
   "Ade",
   "Agnes",
@@ -61197,7 +61951,7 @@ module["exports"] = [
   "Zelda",
   "Zelaya"
 ];
-},{}],636:[function(require,module,exports){
+},{}],638:[function(require,module,exports){
 module["exports"] = [
   "Agustina",
   "Andriani",
@@ -61269,7 +62023,7 @@ module["exports"] = [
   "Wastuti",
   "Zulaika"
 ];
-},{}],637:[function(require,module,exports){
+},{}],639:[function(require,module,exports){
 var name = {};
 module['exports'] = name;
 name.male_first_name = require("./male_first_name");
@@ -61280,7 +62034,7 @@ name.prefix = require("./prefix");
 name.suffix = require("./suffix");
 name.name = require("./name");
 
-},{"./female_first_name":635,"./female_last_name":636,"./male_first_name":638,"./male_last_name":639,"./name":640,"./prefix":641,"./suffix":642}],638:[function(require,module,exports){
+},{"./female_first_name":637,"./female_last_name":638,"./male_first_name":640,"./male_last_name":641,"./name":642,"./prefix":643,"./suffix":644}],640:[function(require,module,exports){
 module["exports"] = [
   "Abyasa",
   "Ade",
@@ -61777,7 +62531,7 @@ module["exports"] = [
   "Yono",
   "Yoga"
 ];
-},{}],639:[function(require,module,exports){
+},{}],641:[function(require,module,exports){
 module["exports"] = [
   "Adriansyah",
   "Ardianto",
@@ -61886,7 +62640,7 @@ module["exports"] = [
   "Wasita",
   "Zulkarnain"
 ];
-},{}],640:[function(require,module,exports){
+},{}],642:[function(require,module,exports){
 module["exports"] = [
   "#{male_first_name} #{male_last_name}",
   "#{male_last_name} #{male_first_name}",
@@ -61897,9 +62651,9 @@ module["exports"] = [
   "#{female_first_name} #{female_first_name} #{female_last_name}"
 ];
 
-},{}],641:[function(require,module,exports){
+},{}],643:[function(require,module,exports){
 module["exports"] = [];
-},{}],642:[function(require,module,exports){
+},{}],644:[function(require,module,exports){
 module["exports"] = [
   "S.Ked",
   "S.Gz",
@@ -61922,7 +62676,7 @@ module["exports"] = [
   "M.Farm",
   "M.Ak"
 ];
-},{}],643:[function(require,module,exports){
+},{}],645:[function(require,module,exports){
 module["exports"] = [
   "02# #### ###",
   "02## #### ###",
@@ -61963,11 +62717,11 @@ module["exports"] = [
   "(+62) 8## #### ####",
   "(+62) 9## #### ####"
 ];
-},{}],644:[function(require,module,exports){
-arguments[4][206][0].apply(exports,arguments)
-},{"./formats":643,"dup":206}],645:[function(require,module,exports){
-arguments[4][582][0].apply(exports,arguments)
-},{"dup":582}],646:[function(require,module,exports){
+},{}],646:[function(require,module,exports){
+arguments[4][208][0].apply(exports,arguments)
+},{"./formats":645,"dup":208}],647:[function(require,module,exports){
+arguments[4][584][0].apply(exports,arguments)
+},{"dup":584}],648:[function(require,module,exports){
 module["exports"] = [
   "#{city_prefix} #{Name.first_name} #{city_suffix}",
   "#{city_prefix} #{Name.first_name}",
@@ -61975,7 +62729,7 @@ module["exports"] = [
   "#{Name.last_name} #{city_suffix}"
 ];
 
-},{}],647:[function(require,module,exports){
+},{}],649:[function(require,module,exports){
 module["exports"] = [
   "San",
   "Borgo",
@@ -61984,7 +62738,7 @@ module["exports"] = [
   "Settimo"
 ];
 
-},{}],648:[function(require,module,exports){
+},{}],650:[function(require,module,exports){
 module["exports"] = [
   "a mare",
   "lido",
@@ -62000,7 +62754,7 @@ module["exports"] = [
   "sardo"
 ];
 
-},{}],649:[function(require,module,exports){
+},{}],651:[function(require,module,exports){
 module["exports"] = [
   "Afghanistan",
   "Albania",
@@ -62245,12 +62999,12 @@ module["exports"] = [
   "Zimbabwe"
 ];
 
-},{}],650:[function(require,module,exports){
+},{}],652:[function(require,module,exports){
 module["exports"] = [
   "Italia"
 ];
 
-},{}],651:[function(require,module,exports){
+},{}],653:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.city_prefix = require("./city_prefix");
@@ -62267,15 +63021,15 @@ address.street_name = require("./street_name");
 address.street_address = require("./street_address");
 address.default_country = require("./default_country");
 
-},{"./building_number":645,"./city":646,"./city_prefix":647,"./city_suffix":648,"./country":649,"./default_country":650,"./postcode":652,"./secondary_address":653,"./state":654,"./state_abbr":655,"./street_address":656,"./street_name":657,"./street_suffix":658}],652:[function(require,module,exports){
-arguments[4][450][0].apply(exports,arguments)
-},{"dup":450}],653:[function(require,module,exports){
+},{"./building_number":647,"./city":648,"./city_prefix":649,"./city_suffix":650,"./country":651,"./default_country":652,"./postcode":654,"./secondary_address":655,"./state":656,"./state_abbr":657,"./street_address":658,"./street_name":659,"./street_suffix":660}],654:[function(require,module,exports){
+arguments[4][452][0].apply(exports,arguments)
+},{"dup":452}],655:[function(require,module,exports){
 module["exports"] = [
   "Appartamento ##",
   "Piano #"
 ];
 
-},{}],654:[function(require,module,exports){
+},{}],656:[function(require,module,exports){
 module["exports"] = [
   "Agrigento",
   "Alessandria",
@@ -62389,7 +63143,7 @@ module["exports"] = [
   "Viterbo"
 ];
 
-},{}],655:[function(require,module,exports){
+},{}],657:[function(require,module,exports){
 module["exports"] = [
   "AG",
   "AL",
@@ -62503,19 +63257,19 @@ module["exports"] = [
   "VT"
 ];
 
-},{}],656:[function(require,module,exports){
+},{}],658:[function(require,module,exports){
 module["exports"] = [
   "#{street_name} #{building_number}",
   "#{street_name} #{building_number}, #{secondary_address}"
 ];
 
-},{}],657:[function(require,module,exports){
+},{}],659:[function(require,module,exports){
 module["exports"] = [
   "#{street_suffix} #{Name.first_name}",
   "#{street_suffix} #{Name.last_name}"
 ];
 
-},{}],658:[function(require,module,exports){
+},{}],660:[function(require,module,exports){
 module["exports"] = [
   "Piazza",
   "Strada",
@@ -62526,7 +63280,7 @@ module["exports"] = [
   "Incrocio"
 ];
 
-},{}],659:[function(require,module,exports){
+},{}],661:[function(require,module,exports){
 module["exports"] = [
   "24 ore",
   "24/7",
@@ -62600,7 +63354,7 @@ module["exports"] = [
   "valore aggiunto"
 ];
 
-},{}],660:[function(require,module,exports){
+},{}],662:[function(require,module,exports){
 module["exports"] = [
   "valore aggiunto",
   "verticalizzate",
@@ -62650,7 +63404,7 @@ module["exports"] = [
   "ricche"
 ];
 
-},{}],661:[function(require,module,exports){
+},{}],663:[function(require,module,exports){
 module["exports"] = [
   "partnerships",
   "comunità",
@@ -62680,7 +63434,7 @@ module["exports"] = [
   "metodologie"
 ];
 
-},{}],662:[function(require,module,exports){
+},{}],664:[function(require,module,exports){
 module["exports"] = [
   "implementate",
   "utilizzo",
@@ -62712,7 +63466,7 @@ module["exports"] = [
   "ricontestualizzate"
 ];
 
-},{}],663:[function(require,module,exports){
+},{}],665:[function(require,module,exports){
 module["exports"] = [
   "adattiva",
   "avanzata",
@@ -62773,7 +63527,7 @@ module["exports"] = [
   "visionaria"
 ];
 
-},{}],664:[function(require,module,exports){
+},{}],666:[function(require,module,exports){
 var company = {};
 module['exports'] = company;
 company.suffix = require("./suffix");
@@ -62785,14 +63539,14 @@ company.bs_verb = require("./bs_verb");
 company.bs_adjective = require("./bs_adjective");
 company.name = require("./name");
 
-},{"./adjective":659,"./bs_adjective":660,"./bs_noun":661,"./bs_verb":662,"./descriptor":663,"./name":665,"./noun":666,"./suffix":667}],665:[function(require,module,exports){
+},{"./adjective":661,"./bs_adjective":662,"./bs_noun":663,"./bs_verb":664,"./descriptor":665,"./name":667,"./noun":668,"./suffix":669}],667:[function(require,module,exports){
 module["exports"] = [
   "#{Name.last_name} #{suffix}",
   "#{Name.last_name}-#{Name.last_name} #{suffix}",
   "#{Name.last_name}, #{Name.last_name} e #{Name.last_name} #{suffix}"
 ];
 
-},{}],666:[function(require,module,exports){
+},{}],668:[function(require,module,exports){
 module["exports"] = [
   "Abilità",
   "Access",
@@ -62885,7 +63639,7 @@ module["exports"] = [
   "Forza lavoro"
 ];
 
-},{}],667:[function(require,module,exports){
+},{}],669:[function(require,module,exports){
 module["exports"] = [
   "SPA",
   "e figli",
@@ -62893,7 +63647,7 @@ module["exports"] = [
   "s.r.l."
 ];
 
-},{}],668:[function(require,module,exports){
+},{}],670:[function(require,module,exports){
 var it = {};
 module['exports'] = it;
 it.title = "Italian";
@@ -62903,7 +63657,7 @@ it.internet = require("./internet");
 it.name = require("./name");
 it.phone_number = require("./phone_number");
 
-},{"./address":651,"./company":664,"./internet":671,"./name":673,"./phone_number":679}],669:[function(require,module,exports){
+},{"./address":653,"./company":666,"./internet":673,"./name":675,"./phone_number":681}],671:[function(require,module,exports){
 module["exports"] = [
   "com",
   "com",
@@ -62915,7 +63669,7 @@ module["exports"] = [
   "it"
 ];
 
-},{}],670:[function(require,module,exports){
+},{}],672:[function(require,module,exports){
 module["exports"] = [
   "gmail.com",
   "yahoo.com",
@@ -62925,9 +63679,9 @@ module["exports"] = [
   "yahoo.it"
 ];
 
-},{}],671:[function(require,module,exports){
-arguments[4][196][0].apply(exports,arguments)
-},{"./domain_suffix":669,"./free_email":670,"dup":196}],672:[function(require,module,exports){
+},{}],673:[function(require,module,exports){
+arguments[4][198][0].apply(exports,arguments)
+},{"./domain_suffix":671,"./free_email":672,"dup":198}],674:[function(require,module,exports){
 module["exports"] = [
   "Aaron",
   "Akira",
@@ -63293,7 +64047,7 @@ module["exports"] = [
   "Zelida"
 ];
 
-},{}],673:[function(require,module,exports){
+},{}],675:[function(require,module,exports){
 var name = {};
 module['exports'] = name;
 name.first_name = require("./first_name");
@@ -63302,7 +64056,7 @@ name.prefix = require("./prefix");
 name.suffix = require("./suffix");
 name.name = require("./name");
 
-},{"./first_name":672,"./last_name":674,"./name":675,"./prefix":676,"./suffix":677}],674:[function(require,module,exports){
+},{"./first_name":674,"./last_name":676,"./name":677,"./prefix":678,"./suffix":679}],676:[function(require,module,exports){
 module["exports"] = [
   "Amato",
   "Barbieri",
@@ -63406,9 +64160,9 @@ module["exports"] = [
   "Vitali"
 ];
 
-},{}],675:[function(require,module,exports){
-arguments[4][609][0].apply(exports,arguments)
-},{"dup":609}],676:[function(require,module,exports){
+},{}],677:[function(require,module,exports){
+arguments[4][611][0].apply(exports,arguments)
+},{"dup":611}],678:[function(require,module,exports){
 module["exports"] = [
   "Sig.",
   "Dott.",
@@ -63416,10 +64170,10 @@ module["exports"] = [
   "Ing."
 ];
 
-},{}],677:[function(require,module,exports){
+},{}],679:[function(require,module,exports){
 module["exports"] = [];
 
-},{}],678:[function(require,module,exports){
+},{}],680:[function(require,module,exports){
 module["exports"] = [
   "+## ### ## ## ####",
   "+## ## #######",
@@ -63434,9 +64188,9 @@ module["exports"] = [
   "+39 3## ### ###"
 ];
 
-},{}],679:[function(require,module,exports){
-arguments[4][206][0].apply(exports,arguments)
-},{"./formats":678,"dup":206}],680:[function(require,module,exports){
+},{}],681:[function(require,module,exports){
+arguments[4][208][0].apply(exports,arguments)
+},{"./formats":680,"dup":208}],682:[function(require,module,exports){
 module["exports"] = [
   "#{city_prefix}#{Name.first_name}#{city_suffix}",
   "#{Name.first_name}#{city_suffix}",
@@ -63444,7 +64198,7 @@ module["exports"] = [
   "#{Name.last_name}#{city_suffix}"
 ];
 
-},{}],681:[function(require,module,exports){
+},{}],683:[function(require,module,exports){
 module["exports"] = [
   "北",
   "東",
@@ -63455,7 +64209,7 @@ module["exports"] = [
   "港"
 ];
 
-},{}],682:[function(require,module,exports){
+},{}],684:[function(require,module,exports){
 module["exports"] = [
   "市",
   "区",
@@ -63463,7 +64217,7 @@ module["exports"] = [
   "村"
 ];
 
-},{}],683:[function(require,module,exports){
+},{}],685:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.postcode = require("./postcode");
@@ -63474,12 +64228,12 @@ address.city_suffix = require("./city_suffix");
 address.city = require("./city");
 address.street_name = require("./street_name");
 
-},{"./city":680,"./city_prefix":681,"./city_suffix":682,"./postcode":684,"./state":685,"./state_abbr":686,"./street_name":687}],684:[function(require,module,exports){
+},{"./city":682,"./city_prefix":683,"./city_suffix":684,"./postcode":686,"./state":687,"./state_abbr":688,"./street_name":689}],686:[function(require,module,exports){
 module["exports"] = [
   "###-####"
 ];
 
-},{}],685:[function(require,module,exports){
+},{}],687:[function(require,module,exports){
 module["exports"] = [
   "北海道",
   "青森県",
@@ -63530,7 +64284,7 @@ module["exports"] = [
   "沖縄県"
 ];
 
-},{}],686:[function(require,module,exports){
+},{}],688:[function(require,module,exports){
 module["exports"] = [
   "1",
   "2",
@@ -63581,22 +64335,22 @@ module["exports"] = [
   "47"
 ];
 
-},{}],687:[function(require,module,exports){
+},{}],689:[function(require,module,exports){
 module["exports"] = [
   "#{Name.first_name}#{street_suffix}",
   "#{Name.last_name}#{street_suffix}"
 ];
 
-},{}],688:[function(require,module,exports){
+},{}],690:[function(require,module,exports){
 module["exports"] = [
   "090-####-####",
   "080-####-####",
   "070-####-####"
 ];
 
-},{}],689:[function(require,module,exports){
-arguments[4][188][0].apply(exports,arguments)
-},{"./formats":688,"dup":188}],690:[function(require,module,exports){
+},{}],691:[function(require,module,exports){
+arguments[4][190][0].apply(exports,arguments)
+},{"./formats":690,"dup":190}],692:[function(require,module,exports){
 var ja = {};
 module['exports'] = ja;
 ja.title = "Japanese";
@@ -63605,7 +64359,7 @@ ja.phone_number = require("./phone_number");
 ja.cell_phone = require("./cell_phone");
 ja.name = require("./name");
 
-},{"./address":683,"./cell_phone":689,"./name":692,"./phone_number":696}],691:[function(require,module,exports){
+},{"./address":685,"./cell_phone":691,"./name":694,"./phone_number":698}],693:[function(require,module,exports){
 module["exports"] = [
   "大翔",
   "蓮",
@@ -63630,14 +64384,14 @@ module["exports"] = [
   "美咲"
 ];
 
-},{}],692:[function(require,module,exports){
+},{}],694:[function(require,module,exports){
 var name = {};
 module['exports'] = name;
 name.last_name = require("./last_name");
 name.first_name = require("./first_name");
 name.name = require("./name");
 
-},{"./first_name":691,"./last_name":693,"./name":694}],693:[function(require,module,exports){
+},{"./first_name":693,"./last_name":695,"./name":696}],695:[function(require,module,exports){
 module["exports"] = [
   "佐藤",
   "鈴木",
@@ -63661,12 +64415,12 @@ module["exports"] = [
   "清水"
 ];
 
-},{}],694:[function(require,module,exports){
+},{}],696:[function(require,module,exports){
 module["exports"] = [
   "#{last_name} #{first_name}"
 ];
 
-},{}],695:[function(require,module,exports){
+},{}],697:[function(require,module,exports){
 module["exports"] = [
   "0####-#-####",
   "0###-##-####",
@@ -63674,14 +64428,14 @@ module["exports"] = [
   "0#-####-####"
 ];
 
-},{}],696:[function(require,module,exports){
-arguments[4][206][0].apply(exports,arguments)
-},{"./formats":695,"dup":206}],697:[function(require,module,exports){
+},{}],698:[function(require,module,exports){
+arguments[4][208][0].apply(exports,arguments)
+},{"./formats":697,"dup":208}],699:[function(require,module,exports){
 module["exports"] = [
   "#{city_name}#{city_suffix}"
 ];
 
-},{}],698:[function(require,module,exports){
+},{}],700:[function(require,module,exports){
 module["exports"] = [
   "강릉",
   "양양",
@@ -63713,14 +64467,14 @@ module["exports"] = [
   "수성"
 ];
 
-},{}],699:[function(require,module,exports){
+},{}],701:[function(require,module,exports){
 module["exports"] = [
   "구",
   "시",
   "군"
 ];
 
-},{}],700:[function(require,module,exports){
+},{}],702:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.postcode = require("./postcode");
@@ -63733,12 +64487,12 @@ address.street_root = require("./street_root");
 address.street_suffix = require("./street_suffix");
 address.street_name = require("./street_name");
 
-},{"./city":697,"./city_name":698,"./city_suffix":699,"./postcode":701,"./state":702,"./state_abbr":703,"./street_name":704,"./street_root":705,"./street_suffix":706}],701:[function(require,module,exports){
+},{"./city":699,"./city_name":700,"./city_suffix":701,"./postcode":703,"./state":704,"./state_abbr":705,"./street_name":706,"./street_root":707,"./street_suffix":708}],703:[function(require,module,exports){
 module["exports"] = [
   "###-###"
 ];
 
-},{}],702:[function(require,module,exports){
+},{}],704:[function(require,module,exports){
 module["exports"] = [
   "강원",
   "경기",
@@ -63759,14 +64513,14 @@ module["exports"] = [
   "세종"
 ];
 
-},{}],703:[function(require,module,exports){
-arguments[4][702][0].apply(exports,arguments)
-},{"dup":702}],704:[function(require,module,exports){
+},{}],705:[function(require,module,exports){
+arguments[4][704][0].apply(exports,arguments)
+},{"dup":704}],706:[function(require,module,exports){
 module["exports"] = [
   "#{street_root}#{street_suffix}"
 ];
 
-},{}],705:[function(require,module,exports){
+},{}],707:[function(require,module,exports){
 module["exports"] = [
   "상계",
   "화곡",
@@ -63798,33 +64552,33 @@ module["exports"] = [
   "동탄"
 ];
 
-},{}],706:[function(require,module,exports){
+},{}],708:[function(require,module,exports){
 module["exports"] = [
   "읍",
   "면",
   "동"
 ];
 
-},{}],707:[function(require,module,exports){
+},{}],709:[function(require,module,exports){
 var company = {};
 module['exports'] = company;
 company.suffix = require("./suffix");
 company.prefix = require("./prefix");
 company.name = require("./name");
 
-},{"./name":708,"./prefix":709,"./suffix":710}],708:[function(require,module,exports){
+},{"./name":710,"./prefix":711,"./suffix":712}],710:[function(require,module,exports){
 module["exports"] = [
   "#{prefix} #{Name.first_name}",
   "#{Name.first_name} #{suffix}"
 ];
 
-},{}],709:[function(require,module,exports){
+},{}],711:[function(require,module,exports){
 module["exports"] = [
   "주식회사",
   "한국"
 ];
 
-},{}],710:[function(require,module,exports){
+},{}],712:[function(require,module,exports){
 module["exports"] = [
   "연구소",
   "게임즈",
@@ -63834,7 +64588,7 @@ module["exports"] = [
   "코리아"
 ];
 
-},{}],711:[function(require,module,exports){
+},{}],713:[function(require,module,exports){
 var ko = {};
 module['exports'] = ko;
 ko.title = "Korean";
@@ -63845,7 +64599,7 @@ ko.internet = require("./internet");
 ko.lorem = require("./lorem");
 ko.name = require("./name");
 
-},{"./address":700,"./company":707,"./internet":714,"./lorem":715,"./name":718,"./phone_number":722}],712:[function(require,module,exports){
+},{"./address":702,"./company":709,"./internet":716,"./lorem":717,"./name":720,"./phone_number":724}],714:[function(require,module,exports){
 module["exports"] = [
   "co.kr",
   "com",
@@ -63857,7 +64611,7 @@ module["exports"] = [
   "org"
 ];
 
-},{}],713:[function(require,module,exports){
+},{}],715:[function(require,module,exports){
 module["exports"] = [
   "gmail.com",
   "yahoo.co.kr",
@@ -63865,11 +64619,11 @@ module["exports"] = [
   "naver.com"
 ];
 
-},{}],714:[function(require,module,exports){
-arguments[4][196][0].apply(exports,arguments)
-},{"./domain_suffix":712,"./free_email":713,"dup":196}],715:[function(require,module,exports){
-arguments[4][197][0].apply(exports,arguments)
-},{"./words":716,"dup":197}],716:[function(require,module,exports){
+},{}],716:[function(require,module,exports){
+arguments[4][198][0].apply(exports,arguments)
+},{"./domain_suffix":714,"./free_email":715,"dup":198}],717:[function(require,module,exports){
+arguments[4][199][0].apply(exports,arguments)
+},{"./words":718,"dup":199}],718:[function(require,module,exports){
 module["exports"] = [
   "국가는",
   "법률이",
@@ -64001,7 +64755,7 @@ module["exports"] = [
   "가진다."
 ];
 
-},{}],717:[function(require,module,exports){
+},{}],719:[function(require,module,exports){
 module["exports"] = [
   "서연",
   "민서",
@@ -64026,9 +64780,9 @@ module["exports"] = [
   "은주"
 ];
 
-},{}],718:[function(require,module,exports){
-arguments[4][692][0].apply(exports,arguments)
-},{"./first_name":717,"./last_name":719,"./name":720,"dup":692}],719:[function(require,module,exports){
+},{}],720:[function(require,module,exports){
+arguments[4][694][0].apply(exports,arguments)
+},{"./first_name":719,"./last_name":721,"./name":722,"dup":694}],721:[function(require,module,exports){
 module["exports"] = [
   "김",
   "이",
@@ -64052,29 +64806,29 @@ module["exports"] = [
   "홍"
 ];
 
-},{}],720:[function(require,module,exports){
-arguments[4][694][0].apply(exports,arguments)
-},{"dup":694}],721:[function(require,module,exports){
+},{}],722:[function(require,module,exports){
+arguments[4][696][0].apply(exports,arguments)
+},{"dup":696}],723:[function(require,module,exports){
 module["exports"] = [
   "0#-#####-####",
   "0##-###-####",
   "0##-####-####"
 ];
 
-},{}],722:[function(require,module,exports){
-arguments[4][206][0].apply(exports,arguments)
-},{"./formats":721,"dup":206}],723:[function(require,module,exports){
+},{}],724:[function(require,module,exports){
+arguments[4][208][0].apply(exports,arguments)
+},{"./formats":723,"dup":208}],725:[function(require,module,exports){
 module["exports"] = [
   "#",
   "##"
 ];
 
-},{}],724:[function(require,module,exports){
+},{}],726:[function(require,module,exports){
 module["exports"] = [
   "#{city_root}#{city_suffix}"
 ];
 
-},{}],725:[function(require,module,exports){
+},{}],727:[function(require,module,exports){
 module["exports"] = [
   "Fet",
   "Gjes",
@@ -64095,7 +64849,7 @@ module["exports"] = [
   "Vest"
 ];
 
-},{}],726:[function(require,module,exports){
+},{}],728:[function(require,module,exports){
 module["exports"] = [
   "berg",
   "borg",
@@ -64127,7 +64881,7 @@ module["exports"] = [
   "ås"
 ];
 
-},{}],727:[function(require,module,exports){
+},{}],729:[function(require,module,exports){
 module["exports"] = [
   "sgate",
   "svei",
@@ -64137,12 +64891,12 @@ module["exports"] = [
   "veien"
 ];
 
-},{}],728:[function(require,module,exports){
+},{}],730:[function(require,module,exports){
 module["exports"] = [
   "Norge"
 ];
 
-},{}],729:[function(require,module,exports){
+},{}],731:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.city_root = require("./city_root");
@@ -64160,7 +64914,7 @@ address.street_name = require("./street_name");
 address.street_address = require("./street_address");
 address.default_country = require("./default_country");
 
-},{"./building_number":723,"./city":724,"./city_root":725,"./city_suffix":726,"./common_street_suffix":727,"./default_country":728,"./postcode":730,"./secondary_address":731,"./state":732,"./street_address":733,"./street_name":734,"./street_prefix":735,"./street_root":736,"./street_suffix":737}],730:[function(require,module,exports){
+},{"./building_number":725,"./city":726,"./city_root":727,"./city_suffix":728,"./common_street_suffix":729,"./default_country":730,"./postcode":732,"./secondary_address":733,"./state":734,"./street_address":735,"./street_name":736,"./street_prefix":737,"./street_root":738,"./street_suffix":739}],732:[function(require,module,exports){
 module["exports"] = [
   "####",
   "####",
@@ -64168,21 +64922,21 @@ module["exports"] = [
   "0###"
 ];
 
-},{}],731:[function(require,module,exports){
+},{}],733:[function(require,module,exports){
 module["exports"] = [
   "Leil. ###",
   "Oppgang A",
   "Oppgang B"
 ];
 
-},{}],732:[function(require,module,exports){
+},{}],734:[function(require,module,exports){
 module["exports"] = [
   ""
 ];
 
-},{}],733:[function(require,module,exports){
-arguments[4][184][0].apply(exports,arguments)
-},{"dup":184}],734:[function(require,module,exports){
+},{}],735:[function(require,module,exports){
+arguments[4][186][0].apply(exports,arguments)
+},{"dup":186}],736:[function(require,module,exports){
 module["exports"] = [
   "#{street_root}#{street_suffix}",
   "#{street_prefix} #{street_root}#{street_suffix}",
@@ -64190,7 +64944,7 @@ module["exports"] = [
   "#{Name.last_name}#{common_street_suffix}"
 ];
 
-},{}],735:[function(require,module,exports){
+},{}],737:[function(require,module,exports){
 module["exports"] = [
   "Øvre",
   "Nedre",
@@ -64200,7 +64954,7 @@ module["exports"] = [
   "Vestre"
 ];
 
-},{}],736:[function(require,module,exports){
+},{}],738:[function(require,module,exports){
 module["exports"] = [
   "Eike",
   "Bjørke",
@@ -64237,7 +64991,7 @@ module["exports"] = [
   "Sjø"
 ];
 
-},{}],737:[function(require,module,exports){
+},{}],739:[function(require,module,exports){
 module["exports"] = [
   "alléen",
   "bakken",
@@ -64287,16 +65041,16 @@ module["exports"] = [
   "åsen"
 ];
 
-},{}],738:[function(require,module,exports){
-arguments[4][242][0].apply(exports,arguments)
-},{"./name":739,"./suffix":740,"dup":242}],739:[function(require,module,exports){
+},{}],740:[function(require,module,exports){
+arguments[4][244][0].apply(exports,arguments)
+},{"./name":741,"./suffix":742,"dup":244}],741:[function(require,module,exports){
 module["exports"] = [
   "#{Name.last_name} #{suffix}",
   "#{Name.last_name}-#{Name.last_name}",
   "#{Name.last_name}, #{Name.last_name} og #{Name.last_name}"
 ];
 
-},{}],740:[function(require,module,exports){
+},{}],742:[function(require,module,exports){
 module["exports"] = [
   "Gruppen",
   "AS",
@@ -64306,7 +65060,7 @@ module["exports"] = [
   "og Sønner"
 ];
 
-},{}],741:[function(require,module,exports){
+},{}],743:[function(require,module,exports){
 var nb_NO = {};
 module['exports'] = nb_NO;
 nb_NO.title = "Norwegian";
@@ -64316,7 +65070,7 @@ nb_NO.internet = require("./internet");
 nb_NO.name = require("./name");
 nb_NO.phone_number = require("./phone_number");
 
-},{"./address":729,"./company":738,"./internet":743,"./name":746,"./phone_number":753}],742:[function(require,module,exports){
+},{"./address":731,"./company":740,"./internet":745,"./name":748,"./phone_number":755}],744:[function(require,module,exports){
 module["exports"] = [
   "no",
   "com",
@@ -64324,9 +65078,9 @@ module["exports"] = [
   "org"
 ];
 
-},{}],743:[function(require,module,exports){
-arguments[4][247][0].apply(exports,arguments)
-},{"./domain_suffix":742,"dup":247}],744:[function(require,module,exports){
+},{}],745:[function(require,module,exports){
+arguments[4][249][0].apply(exports,arguments)
+},{"./domain_suffix":744,"dup":249}],746:[function(require,module,exports){
 module["exports"] = [
   "Emma",
   "Sara",
@@ -64380,7 +65134,7 @@ module["exports"] = [
   "Madeleine"
 ];
 
-},{}],745:[function(require,module,exports){
+},{}],747:[function(require,module,exports){
 module["exports"] = [
   "Emma",
   "Sara",
@@ -64484,7 +65238,7 @@ module["exports"] = [
   "Aksel"
 ];
 
-},{}],746:[function(require,module,exports){
+},{}],748:[function(require,module,exports){
 var name = {};
 module['exports'] = name;
 name.first_name = require("./first_name");
@@ -64495,7 +65249,7 @@ name.prefix = require("./prefix");
 name.suffix = require("./suffix");
 name.name = require("./name");
 
-},{"./feminine_name":744,"./first_name":745,"./last_name":747,"./masculine_name":748,"./name":749,"./prefix":750,"./suffix":751}],747:[function(require,module,exports){
+},{"./feminine_name":746,"./first_name":747,"./last_name":749,"./masculine_name":750,"./name":751,"./prefix":752,"./suffix":753}],749:[function(require,module,exports){
 module["exports"] = [
   "Johansen",
   "Hansen",
@@ -64599,7 +65353,7 @@ module["exports"] = [
   "Edvardsen"
 ];
 
-},{}],748:[function(require,module,exports){
+},{}],750:[function(require,module,exports){
 module["exports"] = [
   "Markus",
   "Mathias",
@@ -64653,7 +65407,7 @@ module["exports"] = [
   "Aksel"
 ];
 
-},{}],749:[function(require,module,exports){
+},{}],751:[function(require,module,exports){
 module["exports"] = [
   "#{prefix} #{first_name} #{last_name}",
   "#{first_name} #{last_name} #{suffix}",
@@ -64663,13 +65417,13 @@ module["exports"] = [
   "#{first_name} #{last_name}"
 ];
 
-},{}],750:[function(require,module,exports){
+},{}],752:[function(require,module,exports){
 module["exports"] = [
   "Dr.",
   "Prof."
 ];
 
-},{}],751:[function(require,module,exports){
+},{}],753:[function(require,module,exports){
 module["exports"] = [
   "Jr.",
   "Sr.",
@@ -64680,7 +65434,7 @@ module["exports"] = [
   "V"
 ];
 
-},{}],752:[function(require,module,exports){
+},{}],754:[function(require,module,exports){
 module["exports"] = [
   "########",
   "## ## ## ##",
@@ -64688,9 +65442,9 @@ module["exports"] = [
   "+47 ## ## ## ##"
 ];
 
-},{}],753:[function(require,module,exports){
-arguments[4][206][0].apply(exports,arguments)
-},{"./formats":752,"dup":206}],754:[function(require,module,exports){
+},{}],755:[function(require,module,exports){
+arguments[4][208][0].apply(exports,arguments)
+},{"./formats":754,"dup":208}],756:[function(require,module,exports){
 module["exports"] = [
   "Bhaktapur",
   "Biratnagar",
@@ -64710,12 +65464,12 @@ module["exports"] = [
   "Pokhara"
 ];
 
-},{}],755:[function(require,module,exports){
+},{}],757:[function(require,module,exports){
 module["exports"] = [
   "Nepal"
 ];
 
-},{}],756:[function(require,module,exports){
+},{}],758:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.postcode = require("./postcode");
@@ -64723,12 +65477,12 @@ address.state = require("./state");
 address.city = require("./city");
 address.default_country = require("./default_country");
 
-},{"./city":754,"./default_country":755,"./postcode":757,"./state":758}],757:[function(require,module,exports){
+},{"./city":756,"./default_country":757,"./postcode":759,"./state":760}],759:[function(require,module,exports){
 module["exports"] = [
   0
 ];
 
-},{}],758:[function(require,module,exports){
+},{}],760:[function(require,module,exports){
 module["exports"] = [
   "Baglung",
   "Banke",
@@ -64785,9 +65539,9 @@ module["exports"] = [
   "Terhathum"
 ];
 
-},{}],759:[function(require,module,exports){
-arguments[4][350][0].apply(exports,arguments)
-},{"./suffix":760,"dup":350}],760:[function(require,module,exports){
+},{}],761:[function(require,module,exports){
+arguments[4][352][0].apply(exports,arguments)
+},{"./suffix":762,"dup":352}],762:[function(require,module,exports){
 module["exports"] = [
   "Pvt Ltd",
   "Group",
@@ -64795,7 +65549,7 @@ module["exports"] = [
   "Limited"
 ];
 
-},{}],761:[function(require,module,exports){
+},{}],763:[function(require,module,exports){
 var nep = {};
 module['exports'] = nep;
 nep.title = "Nepalese";
@@ -64805,7 +65559,7 @@ nep.internet = require("./internet");
 nep.company = require("./company");
 nep.phone_number = require("./phone_number");
 
-},{"./address":756,"./company":759,"./internet":764,"./name":766,"./phone_number":769}],762:[function(require,module,exports){
+},{"./address":758,"./company":761,"./internet":766,"./name":768,"./phone_number":771}],764:[function(require,module,exports){
 module["exports"] = [
   "np",
   "com",
@@ -64814,7 +65568,7 @@ module["exports"] = [
   "org"
 ];
 
-},{}],763:[function(require,module,exports){
+},{}],765:[function(require,module,exports){
 module["exports"] = [
   "worldlink.com.np",
   "gmail.com",
@@ -64822,9 +65576,9 @@ module["exports"] = [
   "hotmail.com"
 ];
 
-},{}],764:[function(require,module,exports){
-arguments[4][196][0].apply(exports,arguments)
-},{"./domain_suffix":762,"./free_email":763,"dup":196}],765:[function(require,module,exports){
+},{}],766:[function(require,module,exports){
+arguments[4][198][0].apply(exports,arguments)
+},{"./domain_suffix":764,"./free_email":765,"dup":198}],767:[function(require,module,exports){
 module["exports"] = [
   "Aarav",
   "Ajita",
@@ -64883,9 +65637,9 @@ module["exports"] = [
   "Sushant"
 ];
 
-},{}],766:[function(require,module,exports){
-arguments[4][356][0].apply(exports,arguments)
-},{"./first_name":765,"./last_name":767,"dup":356}],767:[function(require,module,exports){
+},{}],768:[function(require,module,exports){
+arguments[4][358][0].apply(exports,arguments)
+},{"./first_name":767,"./last_name":769,"dup":358}],769:[function(require,module,exports){
 module["exports"] = [
   "Adhikari",
   "Aryal",
@@ -64928,16 +65682,16 @@ module["exports"] = [
   "Thapa"
 ];
 
-},{}],768:[function(require,module,exports){
+},{}],770:[function(require,module,exports){
 module["exports"] = [
   "##-#######",
   "+977-#-#######",
   "+977########"
 ];
 
-},{}],769:[function(require,module,exports){
-arguments[4][206][0].apply(exports,arguments)
-},{"./formats":768,"dup":206}],770:[function(require,module,exports){
+},{}],771:[function(require,module,exports){
+arguments[4][208][0].apply(exports,arguments)
+},{"./formats":770,"dup":208}],772:[function(require,module,exports){
 module["exports"] = [
   "#",
   "##",
@@ -64950,7 +65704,7 @@ module["exports"] = [
   "### III"
 ];
 
-},{}],771:[function(require,module,exports){
+},{}],773:[function(require,module,exports){
 module["exports"] = [
   "#{Name.first_name}#{city_suffix}",
   "#{Name.last_name}#{city_suffix}",
@@ -64958,7 +65712,7 @@ module["exports"] = [
   "#{city_prefix} #{Name.last_name}#{city_suffix}"
 ];
 
-},{}],772:[function(require,module,exports){
+},{}],774:[function(require,module,exports){
 module["exports"] = [
   "Noord",
   "Oost",
@@ -64968,7 +65722,7 @@ module["exports"] = [
   "Oud"
 ];
 
-},{}],773:[function(require,module,exports){
+},{}],775:[function(require,module,exports){
 module["exports"] = [
   "dam",
   "berg",
@@ -65001,7 +65755,7 @@ module["exports"] = [
   "meer"
 ];
 
-},{}],774:[function(require,module,exports){
+},{}],776:[function(require,module,exports){
 module["exports"] = [
   "Afghanistan",
   "Akrotiri",
@@ -65261,12 +66015,12 @@ module["exports"] = [
   "Zwitserland"
 ];
 
-},{}],775:[function(require,module,exports){
+},{}],777:[function(require,module,exports){
 module["exports"] = [
   "Nederland"
 ];
 
-},{}],776:[function(require,module,exports){
+},{}],778:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.city_prefix = require("./city_prefix");
@@ -65282,19 +66036,19 @@ address.postcode = require("./postcode");
 address.state = require("./state");
 address.default_country = require("./default_country");
 
-},{"./building_number":770,"./city":771,"./city_prefix":772,"./city_suffix":773,"./country":774,"./default_country":775,"./postcode":777,"./secondary_address":778,"./state":779,"./street_address":780,"./street_name":781,"./street_suffix":782}],777:[function(require,module,exports){
+},{"./building_number":772,"./city":773,"./city_prefix":774,"./city_suffix":775,"./country":776,"./default_country":777,"./postcode":779,"./secondary_address":780,"./state":781,"./street_address":782,"./street_name":783,"./street_suffix":784}],779:[function(require,module,exports){
 module["exports"] = [
   "#### ??"
 ];
 
-},{}],778:[function(require,module,exports){
+},{}],780:[function(require,module,exports){
 module["exports"] = [
   "1 hoog",
   "2 hoog",
   "3 hoog"
 ];
 
-},{}],779:[function(require,module,exports){
+},{}],781:[function(require,module,exports){
 module["exports"] = [
   "Noord-Holland",
   "Zuid-Holland",
@@ -65310,11 +66064,11 @@ module["exports"] = [
   "Flevoland"
 ];
 
-},{}],780:[function(require,module,exports){
-arguments[4][184][0].apply(exports,arguments)
-},{"dup":184}],781:[function(require,module,exports){
-arguments[4][687][0].apply(exports,arguments)
-},{"dup":687}],782:[function(require,module,exports){
+},{}],782:[function(require,module,exports){
+arguments[4][186][0].apply(exports,arguments)
+},{"dup":186}],783:[function(require,module,exports){
+arguments[4][689][0].apply(exports,arguments)
+},{"dup":689}],784:[function(require,module,exports){
 module["exports"] = [
   "straat",
   "laan",
@@ -65323,9 +66077,9 @@ module["exports"] = [
   "park"
 ];
 
-},{}],783:[function(require,module,exports){
-arguments[4][350][0].apply(exports,arguments)
-},{"./suffix":784,"dup":350}],784:[function(require,module,exports){
+},{}],785:[function(require,module,exports){
+arguments[4][352][0].apply(exports,arguments)
+},{"./suffix":786,"dup":352}],786:[function(require,module,exports){
 module["exports"] = [
   "BV",
   "V.O.F.",
@@ -65333,7 +66087,7 @@ module["exports"] = [
   "en Zonen"
 ];
 
-},{}],785:[function(require,module,exports){
+},{}],787:[function(require,module,exports){
 var nl = {};
 module['exports'] = nl;
 nl.title = "Dutch";
@@ -65344,7 +66098,7 @@ nl.lorem = require("./lorem");
 nl.name = require("./name");
 nl.phone_number = require("./phone_number");
 
-},{"./address":776,"./company":783,"./internet":788,"./lorem":789,"./name":793,"./phone_number":800}],786:[function(require,module,exports){
+},{"./address":778,"./company":785,"./internet":790,"./lorem":791,"./name":795,"./phone_number":802}],788:[function(require,module,exports){
 module["exports"] = [
   "nl",
   "com",
@@ -65352,17 +66106,17 @@ module["exports"] = [
   "org"
 ];
 
-},{}],787:[function(require,module,exports){
-arguments[4][195][0].apply(exports,arguments)
-},{"dup":195}],788:[function(require,module,exports){
-arguments[4][196][0].apply(exports,arguments)
-},{"./domain_suffix":786,"./free_email":787,"dup":196}],789:[function(require,module,exports){
-arguments[4][326][0].apply(exports,arguments)
-},{"./supplemental":790,"./words":791,"dup":326}],790:[function(require,module,exports){
-arguments[4][327][0].apply(exports,arguments)
-},{"dup":327}],791:[function(require,module,exports){
+},{}],789:[function(require,module,exports){
+arguments[4][197][0].apply(exports,arguments)
+},{"dup":197}],790:[function(require,module,exports){
 arguments[4][198][0].apply(exports,arguments)
-},{"dup":198}],792:[function(require,module,exports){
+},{"./domain_suffix":788,"./free_email":789,"dup":198}],791:[function(require,module,exports){
+arguments[4][328][0].apply(exports,arguments)
+},{"./supplemental":792,"./words":793,"dup":328}],792:[function(require,module,exports){
+arguments[4][329][0].apply(exports,arguments)
+},{"dup":329}],793:[function(require,module,exports){
+arguments[4][200][0].apply(exports,arguments)
+},{"dup":200}],794:[function(require,module,exports){
 module["exports"] = [
   "Amber",
   "Anna",
@@ -65416,7 +66170,7 @@ module["exports"] = [
   "Tom"
 ];
 
-},{}],793:[function(require,module,exports){
+},{}],795:[function(require,module,exports){
 var name = {};
 module['exports'] = name;
 name.first_name = require("./first_name");
@@ -65426,7 +66180,7 @@ name.prefix = require("./prefix");
 name.suffix = require("./suffix");
 name.name = require("./name");
 
-},{"./first_name":792,"./last_name":794,"./name":795,"./prefix":796,"./suffix":797,"./tussenvoegsel":798}],794:[function(require,module,exports){
+},{"./first_name":794,"./last_name":796,"./name":797,"./prefix":798,"./suffix":799,"./tussenvoegsel":800}],796:[function(require,module,exports){
 module["exports"] = [
   "Bakker",
   "Beek",
@@ -65480,7 +66234,7 @@ module["exports"] = [
   "Wit"
 ];
 
-},{}],795:[function(require,module,exports){
+},{}],797:[function(require,module,exports){
 module["exports"] = [
   "#{prefix} #{first_name} #{last_name}",
   "#{first_name} #{last_name} #{suffix}",
@@ -65490,7 +66244,7 @@ module["exports"] = [
   "#{first_name} #{tussenvoegsel} #{last_name}"
 ];
 
-},{}],796:[function(require,module,exports){
+},{}],798:[function(require,module,exports){
 module["exports"] = [
   "Dhr.",
   "Mevr. Dr.",
@@ -65499,9 +66253,9 @@ module["exports"] = [
   "Prof."
 ];
 
-},{}],797:[function(require,module,exports){
-arguments[4][751][0].apply(exports,arguments)
-},{"dup":751}],798:[function(require,module,exports){
+},{}],799:[function(require,module,exports){
+arguments[4][753][0].apply(exports,arguments)
+},{"dup":753}],800:[function(require,module,exports){
 module["exports"] = [
   "van",
   "van de",
@@ -65512,7 +66266,7 @@ module["exports"] = [
   "den"
 ];
 
-},{}],799:[function(require,module,exports){
+},{}],801:[function(require,module,exports){
 module["exports"] = [
   "(####) ######",
   "##########",
@@ -65520,13 +66274,13 @@ module["exports"] = [
   "06 #### ####"
 ];
 
-},{}],800:[function(require,module,exports){
-arguments[4][206][0].apply(exports,arguments)
-},{"./formats":799,"dup":206}],801:[function(require,module,exports){
-arguments[4][255][0].apply(exports,arguments)
-},{"dup":255}],802:[function(require,module,exports){
+},{}],802:[function(require,module,exports){
 arguments[4][208][0].apply(exports,arguments)
-},{"dup":208}],803:[function(require,module,exports){
+},{"./formats":801,"dup":208}],803:[function(require,module,exports){
+arguments[4][257][0].apply(exports,arguments)
+},{"dup":257}],804:[function(require,module,exports){
+arguments[4][210][0].apply(exports,arguments)
+},{"dup":210}],805:[function(require,module,exports){
 module["exports"] = [
   "Aleksandrów Kujawski",
   "Aleksandrów Łódzki",
@@ -66438,7 +67192,7 @@ module["exports"] = [
   "Żywiec"
 ];
 
-},{}],804:[function(require,module,exports){
+},{}],806:[function(require,module,exports){
 module["exports"] = [
   "Afganistan",
   "Albania",
@@ -66641,12 +67395,12 @@ module["exports"] = [
   "Zjednoczone Emiraty Arabskie"
 ];
 
-},{}],805:[function(require,module,exports){
+},{}],807:[function(require,module,exports){
 module["exports"] = [
   "Polska"
 ];
 
-},{}],806:[function(require,module,exports){
+},{}],808:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.country = require("./country");
@@ -66662,14 +67416,14 @@ address.street_name = require("./street_name");
 address.street_address = require("./street_address");
 address.default_country = require("./default_country");
 
-},{"./building_number":801,"./city":802,"./city_name":803,"./country":804,"./default_country":805,"./postcode":807,"./secondary_address":808,"./state":809,"./state_abbr":810,"./street_address":811,"./street_name":812,"./street_prefix":813}],807:[function(require,module,exports){
+},{"./building_number":803,"./city":804,"./city_name":805,"./country":806,"./default_country":807,"./postcode":809,"./secondary_address":810,"./state":811,"./state_abbr":812,"./street_address":813,"./street_name":814,"./street_prefix":815}],809:[function(require,module,exports){
 module["exports"] = [
   "##-###"
 ];
 
-},{}],808:[function(require,module,exports){
-arguments[4][266][0].apply(exports,arguments)
-},{"dup":266}],809:[function(require,module,exports){
+},{}],810:[function(require,module,exports){
+arguments[4][268][0].apply(exports,arguments)
+},{"dup":268}],811:[function(require,module,exports){
 module["exports"] = [
   "Dolnośląskie",
   "Kujawsko-pomorskie",
@@ -66689,7 +67443,7 @@ module["exports"] = [
   "Zachodniopomorskie"
 ];
 
-},{}],810:[function(require,module,exports){
+},{}],812:[function(require,module,exports){
 module["exports"] = [
   "DŚ",
   "KP",
@@ -66709,20 +67463,20 @@ module["exports"] = [
   "ZP"
 ];
 
-},{}],811:[function(require,module,exports){
-arguments[4][184][0].apply(exports,arguments)
-},{"dup":184}],812:[function(require,module,exports){
+},{}],813:[function(require,module,exports){
+arguments[4][186][0].apply(exports,arguments)
+},{"dup":186}],814:[function(require,module,exports){
 module["exports"] = [
   "#{street_prefix} #{Name.last_name}"
 ];
 
-},{}],813:[function(require,module,exports){
+},{}],815:[function(require,module,exports){
 module["exports"] = [
   "ul.",
   "al."
 ];
 
-},{}],814:[function(require,module,exports){
+},{}],816:[function(require,module,exports){
 module["exports"] = [
   "50-###-##-##",
   "51-###-##-##",
@@ -66738,19 +67492,19 @@ module["exports"] = [
   "88-###-##-##"
 ];
 
-},{}],815:[function(require,module,exports){
-arguments[4][188][0].apply(exports,arguments)
-},{"./formats":814,"dup":188}],816:[function(require,module,exports){
-arguments[4][287][0].apply(exports,arguments)
-},{"dup":287}],817:[function(require,module,exports){
-arguments[4][288][0].apply(exports,arguments)
-},{"dup":288}],818:[function(require,module,exports){
+},{}],817:[function(require,module,exports){
+arguments[4][190][0].apply(exports,arguments)
+},{"./formats":816,"dup":190}],818:[function(require,module,exports){
 arguments[4][289][0].apply(exports,arguments)
 },{"dup":289}],819:[function(require,module,exports){
 arguments[4][290][0].apply(exports,arguments)
 },{"dup":290}],820:[function(require,module,exports){
 arguments[4][291][0].apply(exports,arguments)
 },{"dup":291}],821:[function(require,module,exports){
+arguments[4][292][0].apply(exports,arguments)
+},{"dup":292}],822:[function(require,module,exports){
+arguments[4][293][0].apply(exports,arguments)
+},{"dup":293}],823:[function(require,module,exports){
 var company = {};
 module['exports'] = company;
 company.suffix = require("./suffix");
@@ -66762,13 +67516,13 @@ company.bs_adjective = require("./bs_adjective");
 company.bs_noun = require("./bs_noun");
 company.name = require("./name");
 
-},{"./adjetive":816,"./bs_adjective":817,"./bs_noun":818,"./bs_verb":819,"./descriptor":820,"./name":822,"./noun":823,"./suffix":824}],822:[function(require,module,exports){
-arguments[4][293][0].apply(exports,arguments)
-},{"dup":293}],823:[function(require,module,exports){
-arguments[4][294][0].apply(exports,arguments)
-},{"dup":294}],824:[function(require,module,exports){
+},{"./adjetive":818,"./bs_adjective":819,"./bs_noun":820,"./bs_verb":821,"./descriptor":822,"./name":824,"./noun":825,"./suffix":826}],824:[function(require,module,exports){
 arguments[4][295][0].apply(exports,arguments)
 },{"dup":295}],825:[function(require,module,exports){
+arguments[4][296][0].apply(exports,arguments)
+},{"dup":296}],826:[function(require,module,exports){
+arguments[4][297][0].apply(exports,arguments)
+},{"dup":297}],827:[function(require,module,exports){
 var pl = {};
 module['exports'] = pl;
 pl.title = "Polish";
@@ -66780,7 +67534,7 @@ pl.lorem = require("./lorem");
 pl.phone_number = require("./phone_number");
 pl.cell_phone = require("./cell_phone");
 
-},{"./address":806,"./cell_phone":815,"./company":821,"./internet":828,"./lorem":829,"./name":833,"./phone_number":839}],826:[function(require,module,exports){
+},{"./address":808,"./cell_phone":817,"./company":823,"./internet":830,"./lorem":831,"./name":835,"./phone_number":841}],828:[function(require,module,exports){
 module["exports"] = [
   "com",
   "pl",
@@ -66789,17 +67543,17 @@ module["exports"] = [
   "org"
 ];
 
-},{}],827:[function(require,module,exports){
-arguments[4][195][0].apply(exports,arguments)
-},{"dup":195}],828:[function(require,module,exports){
-arguments[4][196][0].apply(exports,arguments)
-},{"./domain_suffix":826,"./free_email":827,"dup":196}],829:[function(require,module,exports){
-arguments[4][326][0].apply(exports,arguments)
-},{"./supplemental":830,"./words":831,"dup":326}],830:[function(require,module,exports){
-arguments[4][327][0].apply(exports,arguments)
-},{"dup":327}],831:[function(require,module,exports){
+},{}],829:[function(require,module,exports){
+arguments[4][197][0].apply(exports,arguments)
+},{"dup":197}],830:[function(require,module,exports){
 arguments[4][198][0].apply(exports,arguments)
-},{"dup":198}],832:[function(require,module,exports){
+},{"./domain_suffix":828,"./free_email":829,"dup":198}],831:[function(require,module,exports){
+arguments[4][328][0].apply(exports,arguments)
+},{"./supplemental":832,"./words":833,"dup":328}],832:[function(require,module,exports){
+arguments[4][329][0].apply(exports,arguments)
+},{"dup":329}],833:[function(require,module,exports){
+arguments[4][200][0].apply(exports,arguments)
+},{"dup":200}],834:[function(require,module,exports){
 module["exports"] = [
   "Aaron",
   "Abraham",
@@ -67212,9 +67966,9 @@ module["exports"] = [
   "Zoe"
 ];
 
-},{}],833:[function(require,module,exports){
-arguments[4][564][0].apply(exports,arguments)
-},{"./first_name":832,"./last_name":834,"./name":835,"./prefix":836,"./title":837,"dup":564}],834:[function(require,module,exports){
+},{}],835:[function(require,module,exports){
+arguments[4][566][0].apply(exports,arguments)
+},{"./first_name":834,"./last_name":836,"./name":837,"./prefix":838,"./title":839,"dup":566}],836:[function(require,module,exports){
 module["exports"] = [
   "Adamczak",
   "Adamczyk",
@@ -67922,17 +68676,17 @@ module["exports"] = [
   "Żyła"
 ];
 
-},{}],835:[function(require,module,exports){
-arguments[4][609][0].apply(exports,arguments)
-},{"dup":609}],836:[function(require,module,exports){
+},{}],837:[function(require,module,exports){
+arguments[4][611][0].apply(exports,arguments)
+},{"dup":611}],838:[function(require,module,exports){
 module["exports"] = [
   "Pan",
   "Pani"
 ];
 
-},{}],837:[function(require,module,exports){
-arguments[4][335][0].apply(exports,arguments)
-},{"dup":335}],838:[function(require,module,exports){
+},{}],839:[function(require,module,exports){
+arguments[4][337][0].apply(exports,arguments)
+},{"dup":337}],840:[function(require,module,exports){
 module["exports"] = [
   "12-###-##-##",
   "13-###-##-##",
@@ -67985,11 +68739,11 @@ module["exports"] = [
   "95-###-##-##"
 ];
 
-},{}],839:[function(require,module,exports){
-arguments[4][206][0].apply(exports,arguments)
-},{"./formats":838,"dup":206}],840:[function(require,module,exports){
-arguments[4][255][0].apply(exports,arguments)
-},{"dup":255}],841:[function(require,module,exports){
+},{}],841:[function(require,module,exports){
+arguments[4][208][0].apply(exports,arguments)
+},{"./formats":840,"dup":208}],842:[function(require,module,exports){
+arguments[4][257][0].apply(exports,arguments)
+},{"dup":257}],843:[function(require,module,exports){
 module["exports"] = [
   "Nova",
   "Velha",
@@ -67998,7 +68752,7 @@ module["exports"] = [
   "Município de"
 ];
 
-},{}],842:[function(require,module,exports){
+},{}],844:[function(require,module,exports){
 module["exports"] = [
   "do Descoberto",
   "de Nossa Senhora",
@@ -68006,7 +68760,7 @@ module["exports"] = [
   "do Sul"
 ];
 
-},{}],843:[function(require,module,exports){
+},{}],845:[function(require,module,exports){
 module["exports"] = [
   "Afeganistão",
   "Albânia",
@@ -68247,12 +69001,12 @@ module["exports"] = [
   "Zimbábue"
 ];
 
-},{}],844:[function(require,module,exports){
+},{}],846:[function(require,module,exports){
 module["exports"] = [
   "Brasil"
 ];
 
-},{}],845:[function(require,module,exports){
+},{}],847:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.city_prefix = require("./city_prefix");
@@ -68266,13 +69020,13 @@ address.state = require("./state");
 address.state_abbr = require("./state_abbr");
 address.default_country = require("./default_country");
 
-},{"./building_number":840,"./city_prefix":841,"./city_suffix":842,"./country":843,"./default_country":844,"./postcode":846,"./secondary_address":847,"./state":848,"./state_abbr":849,"./street_suffix":850}],846:[function(require,module,exports){
+},{"./building_number":842,"./city_prefix":843,"./city_suffix":844,"./country":845,"./default_country":846,"./postcode":848,"./secondary_address":849,"./state":850,"./state_abbr":851,"./street_suffix":852}],848:[function(require,module,exports){
 module["exports"] = [
   "#####",
   "#####-###"
 ];
 
-},{}],847:[function(require,module,exports){
+},{}],849:[function(require,module,exports){
 module["exports"] = [
   "Apto. ###",
   "Sobrado ##",
@@ -68281,7 +69035,7 @@ module["exports"] = [
   "Quadra ##"
 ];
 
-},{}],848:[function(require,module,exports){
+},{}],850:[function(require,module,exports){
 module["exports"] = [
   "Acre",
   "Alagoas",
@@ -68312,7 +69066,7 @@ module["exports"] = [
   "Tocantins"
 ];
 
-},{}],849:[function(require,module,exports){
+},{}],851:[function(require,module,exports){
 module["exports"] = [
   "AC",
   "AL",
@@ -68340,7 +69094,7 @@ module["exports"] = [
   "SP"
 ];
 
-},{}],850:[function(require,module,exports){
+},{}],852:[function(require,module,exports){
 module["exports"] = [
   "Rua",
   "Avenida",
@@ -68352,16 +69106,16 @@ module["exports"] = [
   "Rodovia"
 ];
 
-},{}],851:[function(require,module,exports){
-arguments[4][242][0].apply(exports,arguments)
-},{"./name":852,"./suffix":853,"dup":242}],852:[function(require,module,exports){
+},{}],853:[function(require,module,exports){
+arguments[4][244][0].apply(exports,arguments)
+},{"./name":854,"./suffix":855,"dup":244}],854:[function(require,module,exports){
 module["exports"] = [
   "#{Name.last_name} #{suffix}",
   "#{Name.last_name}-#{Name.last_name}",
   "#{Name.last_name}, #{Name.last_name} e #{Name.last_name}"
 ];
 
-},{}],853:[function(require,module,exports){
+},{}],855:[function(require,module,exports){
 module["exports"] = [
   "S.A.",
   "LTDA",
@@ -68369,7 +69123,7 @@ module["exports"] = [
   "Comércio"
 ];
 
-},{}],854:[function(require,module,exports){
+},{}],856:[function(require,module,exports){
 var pt_BR = {};
 module['exports'] = pt_BR;
 pt_BR.title = "Portuguese (Brazil)";
@@ -68380,7 +69134,7 @@ pt_BR.lorem = require("./lorem");
 pt_BR.name = require("./name");
 pt_BR.phone_number = require("./phone_number");
 
-},{"./address":845,"./company":851,"./internet":857,"./lorem":858,"./name":861,"./phone_number":866}],855:[function(require,module,exports){
+},{"./address":847,"./company":853,"./internet":859,"./lorem":860,"./name":863,"./phone_number":868}],857:[function(require,module,exports){
 module["exports"] = [
   "br",
   "com",
@@ -68391,7 +69145,7 @@ module["exports"] = [
   "org"
 ];
 
-},{}],856:[function(require,module,exports){
+},{}],858:[function(require,module,exports){
 module["exports"] = [
   "gmail.com",
   "yahoo.com",
@@ -68400,13 +69154,13 @@ module["exports"] = [
   "bol.com.br"
 ];
 
-},{}],857:[function(require,module,exports){
-arguments[4][196][0].apply(exports,arguments)
-},{"./domain_suffix":855,"./free_email":856,"dup":196}],858:[function(require,module,exports){
-arguments[4][197][0].apply(exports,arguments)
-},{"./words":859,"dup":197}],859:[function(require,module,exports){
+},{}],859:[function(require,module,exports){
 arguments[4][198][0].apply(exports,arguments)
-},{"dup":198}],860:[function(require,module,exports){
+},{"./domain_suffix":857,"./free_email":858,"dup":198}],860:[function(require,module,exports){
+arguments[4][199][0].apply(exports,arguments)
+},{"./words":861,"dup":199}],861:[function(require,module,exports){
+arguments[4][200][0].apply(exports,arguments)
+},{"dup":200}],862:[function(require,module,exports){
 module["exports"] = [
   "Alessandro",
   "Alessandra",
@@ -68501,7 +69255,7 @@ module["exports"] = [
   "Warley"
 ];
 
-},{}],861:[function(require,module,exports){
+},{}],863:[function(require,module,exports){
 var name = {};
 module['exports'] = name;
 name.first_name = require("./first_name");
@@ -68509,7 +69263,7 @@ name.last_name = require("./last_name");
 name.prefix = require("./prefix");
 name.suffix = require("./suffix");
 
-},{"./first_name":860,"./last_name":862,"./prefix":863,"./suffix":864}],862:[function(require,module,exports){
+},{"./first_name":862,"./last_name":864,"./prefix":865,"./suffix":866}],864:[function(require,module,exports){
 module["exports"] = [
   "Silva",
   "Souza",
@@ -68535,7 +69289,7 @@ module["exports"] = [
   "Albuquerque"
 ];
 
-},{}],863:[function(require,module,exports){
+},{}],865:[function(require,module,exports){
 module["exports"] = [
   "Sr.",
   "Sra.",
@@ -68543,33 +69297,33 @@ module["exports"] = [
   "Dr."
 ];
 
-},{}],864:[function(require,module,exports){
+},{}],866:[function(require,module,exports){
 module["exports"] = [
   "Jr.",
   "Neto",
   "Filho"
 ];
 
-},{}],865:[function(require,module,exports){
+},{}],867:[function(require,module,exports){
 module["exports"] = [
   "(##) ####-####",
   "+55 (##) ####-####",
   "(##) #####-####"
 ];
 
-},{}],866:[function(require,module,exports){
-arguments[4][206][0].apply(exports,arguments)
-},{"./formats":865,"dup":206}],867:[function(require,module,exports){
+},{}],868:[function(require,module,exports){
+arguments[4][208][0].apply(exports,arguments)
+},{"./formats":867,"dup":208}],869:[function(require,module,exports){
 module["exports"] = [
   "###"
 ];
 
-},{}],868:[function(require,module,exports){
+},{}],870:[function(require,module,exports){
 module["exports"] = [
   "#{Address.city_name}"
 ];
 
-},{}],869:[function(require,module,exports){
+},{}],871:[function(require,module,exports){
 module["exports"] = [
   "Москва",
   "Владимир",
@@ -68619,7 +69373,7 @@ module["exports"] = [
   "Сочи"
 ];
 
-},{}],870:[function(require,module,exports){
+},{}],872:[function(require,module,exports){
 module["exports"] = [
   "Австралия",
   "Австрия",
@@ -68833,12 +69587,12 @@ module["exports"] = [
   "Япония"
 ];
 
-},{}],871:[function(require,module,exports){
+},{}],873:[function(require,module,exports){
 module["exports"] = [
   "Россия"
 ];
 
-},{}],872:[function(require,module,exports){
+},{}],874:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.country = require("./country");
@@ -68854,17 +69608,17 @@ address.street_name = require("./street_name");
 address.street_address = require("./street_address");
 address.default_country = require("./default_country");
 
-},{"./building_number":867,"./city":868,"./city_name":869,"./country":870,"./default_country":871,"./postcode":873,"./secondary_address":874,"./state":875,"./street_address":876,"./street_name":877,"./street_suffix":878,"./street_title":879}],873:[function(require,module,exports){
+},{"./building_number":869,"./city":870,"./city_name":871,"./country":872,"./default_country":873,"./postcode":875,"./secondary_address":876,"./state":877,"./street_address":878,"./street_name":879,"./street_suffix":880,"./street_title":881}],875:[function(require,module,exports){
 module["exports"] = [
   "######"
 ];
 
-},{}],874:[function(require,module,exports){
+},{}],876:[function(require,module,exports){
 module["exports"] = [
   "кв. ###"
 ];
 
-},{}],875:[function(require,module,exports){
+},{}],877:[function(require,module,exports){
 module["exports"] = [
   "Республика Адыгея",
   "Республика Башкортостан",
@@ -68954,18 +69708,18 @@ module["exports"] = [
   "Чеченская Республика"
 ];
 
-},{}],876:[function(require,module,exports){
+},{}],878:[function(require,module,exports){
 module["exports"] = [
   "#{street_name}, #{building_number}"
 ];
 
-},{}],877:[function(require,module,exports){
+},{}],879:[function(require,module,exports){
 module["exports"] = [
   "#{street_suffix} #{Address.street_title}",
   "#{Address.street_title} #{street_suffix}"
 ];
 
-},{}],878:[function(require,module,exports){
+},{}],880:[function(require,module,exports){
 module["exports"] = [
   "ул.",
   "улица",
@@ -68975,7 +69729,7 @@ module["exports"] = [
   "пл."
 ];
 
-},{}],879:[function(require,module,exports){
+},{}],881:[function(require,module,exports){
 module["exports"] = [
   "Советская",
   "Молодежная",
@@ -69080,7 +69834,7 @@ module["exports"] = [
   "Майская"
 ];
 
-},{}],880:[function(require,module,exports){
+},{}],882:[function(require,module,exports){
 module["exports"] = [
   "красный",
   "зеленый",
@@ -69115,7 +69869,7 @@ module["exports"] = [
   "серебряный"
 ];
 
-},{}],881:[function(require,module,exports){
+},{}],883:[function(require,module,exports){
 module["exports"] = [
   "Книги",
   "Фильмы",
@@ -69140,9 +69894,9 @@ module["exports"] = [
   "промышленное"
 ];
 
-},{}],882:[function(require,module,exports){
-arguments[4][285][0].apply(exports,arguments)
-},{"./color":880,"./department":881,"./product_name":883,"dup":285}],883:[function(require,module,exports){
+},{}],884:[function(require,module,exports){
+arguments[4][287][0].apply(exports,arguments)
+},{"./color":882,"./department":883,"./product_name":885,"dup":287}],885:[function(require,module,exports){
 module["exports"] = {
   "adjective": [
     "Маленький",
@@ -69178,9 +69932,9 @@ module["exports"] = {
   ]
 };
 
-},{}],884:[function(require,module,exports){
-arguments[4][598][0].apply(exports,arguments)
-},{"./name":885,"./prefix":886,"./suffix":887,"dup":598}],885:[function(require,module,exports){
+},{}],886:[function(require,module,exports){
+arguments[4][600][0].apply(exports,arguments)
+},{"./name":887,"./prefix":888,"./suffix":889,"dup":600}],887:[function(require,module,exports){
 module["exports"] = [
   "#{prefix} #{Name.female_first_name}",
   "#{prefix} #{Name.male_first_name}",
@@ -69192,7 +69946,7 @@ module["exports"] = [
   "#{prefix} #{Address.city_name}#{suffix}#{suffix}#{suffix}"
 ];
 
-},{}],886:[function(require,module,exports){
+},{}],888:[function(require,module,exports){
 module["exports"] = [
   "ИП",
   "ООО",
@@ -69203,7 +69957,7 @@ module["exports"] = [
   "ОП"
 ];
 
-},{}],887:[function(require,module,exports){
+},{}],889:[function(require,module,exports){
 module["exports"] = [
   "Снаб",
   "Торг",
@@ -69212,9 +69966,9 @@ module["exports"] = [
   "Сбыт"
 ];
 
-},{}],888:[function(require,module,exports){
-arguments[4][307][0].apply(exports,arguments)
-},{"./month":889,"./weekday":890,"dup":307}],889:[function(require,module,exports){
+},{}],890:[function(require,module,exports){
+arguments[4][309][0].apply(exports,arguments)
+},{"./month":891,"./weekday":892,"dup":309}],891:[function(require,module,exports){
 // source: http://unicode.org/cldr/trac/browser/tags/release-27/common/main/ru.xml#L1734
 module["exports"] = {
   wide: [
@@ -69275,7 +70029,7 @@ module["exports"] = {
   ]
 };
 
-},{}],890:[function(require,module,exports){
+},{}],892:[function(require,module,exports){
 // source: http://unicode.org/cldr/trac/browser/tags/release-27/common/main/ru.xml#L1825
 module["exports"] = {
   wide: [
@@ -69316,7 +70070,7 @@ module["exports"] = {
   ]
 };
 
-},{}],891:[function(require,module,exports){
+},{}],893:[function(require,module,exports){
 var ru = {};
 module['exports'] = ru;
 ru.title = "Russian";
@@ -69329,7 +70083,7 @@ ru.commerce = require("./commerce");
 ru.company = require("./company");
 ru.date = require("./date");
 
-},{"./address":872,"./commerce":882,"./company":884,"./date":888,"./internet":894,"./name":898,"./phone_number":906}],892:[function(require,module,exports){
+},{"./address":874,"./commerce":884,"./company":886,"./date":890,"./internet":896,"./name":900,"./phone_number":908}],894:[function(require,module,exports){
 module["exports"] = [
   "com",
   "ru",
@@ -69339,7 +70093,7 @@ module["exports"] = [
   "org"
 ];
 
-},{}],893:[function(require,module,exports){
+},{}],895:[function(require,module,exports){
 module["exports"] = [
   "yandex.ru",
   "ya.ru",
@@ -69349,9 +70103,9 @@ module["exports"] = [
   "hotmail.com"
 ];
 
-},{}],894:[function(require,module,exports){
-arguments[4][196][0].apply(exports,arguments)
-},{"./domain_suffix":892,"./free_email":893,"dup":196}],895:[function(require,module,exports){
+},{}],896:[function(require,module,exports){
+arguments[4][198][0].apply(exports,arguments)
+},{"./domain_suffix":894,"./free_email":895,"dup":198}],897:[function(require,module,exports){
 module["exports"] = [
   "Анна",
   "Алёна",
@@ -69411,7 +70165,7 @@ module["exports"] = [
   "Юлия"
 ];
 
-},{}],896:[function(require,module,exports){
+},{}],898:[function(require,module,exports){
 module["exports"] = [
   "Смирнова",
   "Иванова",
@@ -69665,7 +70419,7 @@ module["exports"] = [
   "Турова"
 ];
 
-},{}],897:[function(require,module,exports){
+},{}],899:[function(require,module,exports){
 module["exports"] = [
   "Александровна",
   "Алексеевна",
@@ -69720,7 +70474,7 @@ module["exports"] = [
   "Ярославовна"
 ];
 
-},{}],898:[function(require,module,exports){
+},{}],900:[function(require,module,exports){
 var name = {};
 module['exports'] = name;
 name.male_first_name = require("./male_first_name");
@@ -69733,7 +70487,7 @@ name.prefix = require("./prefix");
 name.suffix = require("./suffix");
 name.name = require("./name");
 
-},{"./female_first_name":895,"./female_last_name":896,"./female_middle_name":897,"./male_first_name":899,"./male_last_name":900,"./male_middle_name":901,"./name":902,"./prefix":903,"./suffix":904}],899:[function(require,module,exports){
+},{"./female_first_name":897,"./female_last_name":898,"./female_middle_name":899,"./male_first_name":901,"./male_last_name":902,"./male_middle_name":903,"./name":904,"./prefix":905,"./suffix":906}],901:[function(require,module,exports){
 module["exports"] = [
   "Александр",
   "Алексей",
@@ -69789,7 +70543,7 @@ module["exports"] = [
   "Ярослав"
 ];
 
-},{}],900:[function(require,module,exports){
+},{}],902:[function(require,module,exports){
 module["exports"] = [
   "Смирнов",
   "Иванов",
@@ -70043,7 +70797,7 @@ module["exports"] = [
   "Туров"
 ];
 
-},{}],901:[function(require,module,exports){
+},{}],903:[function(require,module,exports){
 module["exports"] = [
   "Александрович",
   "Алексеевич",
@@ -70099,7 +70853,7 @@ module["exports"] = [
   "Ярославович"
 ];
 
-},{}],902:[function(require,module,exports){
+},{}],904:[function(require,module,exports){
 module["exports"] = [
   "#{male_first_name} #{male_last_name}",
   "#{male_last_name} #{male_first_name}",
@@ -70111,27 +70865,27 @@ module["exports"] = [
   "#{female_last_name} #{female_first_name} #{female_middle_name}"
 ];
 
-},{}],903:[function(require,module,exports){
-arguments[4][677][0].apply(exports,arguments)
-},{"dup":677}],904:[function(require,module,exports){
-arguments[4][677][0].apply(exports,arguments)
-},{"dup":677}],905:[function(require,module,exports){
+},{}],905:[function(require,module,exports){
+arguments[4][679][0].apply(exports,arguments)
+},{"dup":679}],906:[function(require,module,exports){
+arguments[4][679][0].apply(exports,arguments)
+},{"dup":679}],907:[function(require,module,exports){
 module["exports"] = [
   "(9##)###-##-##"
 ];
 
-},{}],906:[function(require,module,exports){
-arguments[4][206][0].apply(exports,arguments)
-},{"./formats":905,"dup":206}],907:[function(require,module,exports){
+},{}],908:[function(require,module,exports){
+arguments[4][208][0].apply(exports,arguments)
+},{"./formats":907,"dup":208}],909:[function(require,module,exports){
 module["exports"] = [
   "#",
   "##",
   "###"
 ];
 
-},{}],908:[function(require,module,exports){
-arguments[4][208][0].apply(exports,arguments)
-},{"dup":208}],909:[function(require,module,exports){
+},{}],910:[function(require,module,exports){
+arguments[4][210][0].apply(exports,arguments)
+},{"dup":210}],911:[function(require,module,exports){
 module["exports"] = [
   "Bánovce nad Bebravou",
   "Banská Bystrica",
@@ -70214,11 +70968,11 @@ module["exports"] = [
   "Zvolen"
 ];
 
-},{}],910:[function(require,module,exports){
-arguments[4][257][0].apply(exports,arguments)
-},{"dup":257}],911:[function(require,module,exports){
-arguments[4][258][0].apply(exports,arguments)
-},{"dup":258}],912:[function(require,module,exports){
+},{}],912:[function(require,module,exports){
+arguments[4][259][0].apply(exports,arguments)
+},{"dup":259}],913:[function(require,module,exports){
+arguments[4][260][0].apply(exports,arguments)
+},{"dup":260}],914:[function(require,module,exports){
 module["exports"] = [
   "Afganistan",
   "Afgánsky islamský štát",
@@ -70604,12 +71358,12 @@ module["exports"] = [
   "Zimbabwianska republika"
 ];
 
-},{}],913:[function(require,module,exports){
+},{}],915:[function(require,module,exports){
 module["exports"] = [
   "Slovensko"
 ];
 
-},{}],914:[function(require,module,exports){
+},{}],916:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.city_prefix = require("./city_prefix");
@@ -70628,20 +71382,20 @@ address.street_name = require("./street_name");
 address.street_address = require("./street_address");
 address.default_country = require("./default_country");
 
-},{"./building_number":907,"./city":908,"./city_name":909,"./city_prefix":910,"./city_suffix":911,"./country":912,"./default_country":913,"./postcode":915,"./secondary_address":916,"./state":917,"./state_abbr":918,"./street":919,"./street_address":920,"./street_name":921,"./time_zone":922}],915:[function(require,module,exports){
+},{"./building_number":909,"./city":910,"./city_name":911,"./city_prefix":912,"./city_suffix":913,"./country":914,"./default_country":915,"./postcode":917,"./secondary_address":918,"./state":919,"./state_abbr":920,"./street":921,"./street_address":922,"./street_name":923,"./time_zone":924}],917:[function(require,module,exports){
 module["exports"] = [
   "#####",
   "### ##",
   "## ###"
 ];
 
-},{}],916:[function(require,module,exports){
-arguments[4][266][0].apply(exports,arguments)
-},{"dup":266}],917:[function(require,module,exports){
-arguments[4][677][0].apply(exports,arguments)
-},{"dup":677}],918:[function(require,module,exports){
-arguments[4][677][0].apply(exports,arguments)
-},{"dup":677}],919:[function(require,module,exports){
+},{}],918:[function(require,module,exports){
+arguments[4][268][0].apply(exports,arguments)
+},{"dup":268}],919:[function(require,module,exports){
+arguments[4][679][0].apply(exports,arguments)
+},{"dup":679}],920:[function(require,module,exports){
+arguments[4][679][0].apply(exports,arguments)
+},{"dup":679}],921:[function(require,module,exports){
 module["exports"] = [
   "Adámiho",
   "Ahoj",
@@ -71805,18 +72559,18 @@ module["exports"] = [
   "Župné námestie"
 ];
 
-},{}],920:[function(require,module,exports){
-arguments[4][184][0].apply(exports,arguments)
-},{"dup":184}],921:[function(require,module,exports){
+},{}],922:[function(require,module,exports){
+arguments[4][186][0].apply(exports,arguments)
+},{"dup":186}],923:[function(require,module,exports){
 module["exports"] = [
   "#{street}"
 ];
 
-},{}],922:[function(require,module,exports){
-arguments[4][272][0].apply(exports,arguments)
-},{"dup":272}],923:[function(require,module,exports){
-arguments[4][287][0].apply(exports,arguments)
-},{"dup":287}],924:[function(require,module,exports){
+},{}],924:[function(require,module,exports){
+arguments[4][274][0].apply(exports,arguments)
+},{"dup":274}],925:[function(require,module,exports){
+arguments[4][289][0].apply(exports,arguments)
+},{"dup":289}],926:[function(require,module,exports){
 module["exports"] = [
   "clicks-and-mortar",
   "value-added",
@@ -71929,11 +72683,11 @@ module["exports"] = [
   "methodologies"
 ];
 
-},{}],925:[function(require,module,exports){
-arguments[4][290][0].apply(exports,arguments)
-},{"dup":290}],926:[function(require,module,exports){
-arguments[4][291][0].apply(exports,arguments)
-},{"dup":291}],927:[function(require,module,exports){
+},{}],927:[function(require,module,exports){
+arguments[4][292][0].apply(exports,arguments)
+},{"dup":292}],928:[function(require,module,exports){
+arguments[4][293][0].apply(exports,arguments)
+},{"dup":293}],929:[function(require,module,exports){
 var company = {};
 module['exports'] = company;
 company.suffix = require("./suffix");
@@ -71944,23 +72698,23 @@ company.bs_verb = require("./bs_verb");
 company.bs_noun = require("./bs_noun");
 company.name = require("./name");
 
-},{"./adjective":923,"./bs_noun":924,"./bs_verb":925,"./descriptor":926,"./name":928,"./noun":929,"./suffix":930}],928:[function(require,module,exports){
+},{"./adjective":925,"./bs_noun":926,"./bs_verb":927,"./descriptor":928,"./name":930,"./noun":931,"./suffix":932}],930:[function(require,module,exports){
 module["exports"] = [
   "#{Name.last_name} #{suffix}",
   "#{Name.last_name} #{suffix}",
   "#{Name.man_last_name} a #{Name.man_last_name} #{suffix}"
 ];
 
-},{}],929:[function(require,module,exports){
-arguments[4][294][0].apply(exports,arguments)
-},{"dup":294}],930:[function(require,module,exports){
+},{}],931:[function(require,module,exports){
+arguments[4][296][0].apply(exports,arguments)
+},{"dup":296}],932:[function(require,module,exports){
 module["exports"] = [
   "s.r.o.",
   "a.s.",
   "v.o.s."
 ];
 
-},{}],931:[function(require,module,exports){
+},{}],933:[function(require,module,exports){
 var sk = {};
 module['exports'] = sk;
 sk.title = "Slovakian";
@@ -71971,7 +72725,7 @@ sk.lorem = require("./lorem");
 sk.name = require("./name");
 sk.phone_number = require("./phone_number");
 
-},{"./address":914,"./company":927,"./internet":934,"./lorem":935,"./name":940,"./phone_number":948}],932:[function(require,module,exports){
+},{"./address":916,"./company":929,"./internet":936,"./lorem":937,"./name":942,"./phone_number":950}],934:[function(require,module,exports){
 module["exports"] = [
   "sk",
   "com",
@@ -71980,22 +72734,22 @@ module["exports"] = [
   "org"
 ];
 
-},{}],933:[function(require,module,exports){
+},{}],935:[function(require,module,exports){
 module["exports"] = [
   "gmail.com",
   "zoznam.sk",
   "azet.sk"
 ];
 
-},{}],934:[function(require,module,exports){
-arguments[4][196][0].apply(exports,arguments)
-},{"./domain_suffix":932,"./free_email":933,"dup":196}],935:[function(require,module,exports){
-arguments[4][326][0].apply(exports,arguments)
-},{"./supplemental":936,"./words":937,"dup":326}],936:[function(require,module,exports){
-arguments[4][327][0].apply(exports,arguments)
-},{"dup":327}],937:[function(require,module,exports){
+},{}],936:[function(require,module,exports){
 arguments[4][198][0].apply(exports,arguments)
-},{"dup":198}],938:[function(require,module,exports){
+},{"./domain_suffix":934,"./free_email":935,"dup":198}],937:[function(require,module,exports){
+arguments[4][328][0].apply(exports,arguments)
+},{"./supplemental":938,"./words":939,"dup":328}],938:[function(require,module,exports){
+arguments[4][329][0].apply(exports,arguments)
+},{"dup":329}],939:[function(require,module,exports){
+arguments[4][200][0].apply(exports,arguments)
+},{"dup":200}],940:[function(require,module,exports){
 module["exports"] = [
   "Alexandra",
   "Karina",
@@ -72199,7 +72953,7 @@ module["exports"] = [
   "Milada"
 ];
 
-},{}],939:[function(require,module,exports){
+},{}],941:[function(require,module,exports){
 module["exports"] = [
   "Antalová",
   "Babková",
@@ -72454,7 +73208,7 @@ module["exports"] = [
   "Šťastná"
 ];
 
-},{}],940:[function(require,module,exports){
+},{}],942:[function(require,module,exports){
 var name = {};
 module['exports'] = name;
 name.male_first_name = require("./male_first_name");
@@ -72466,7 +73220,7 @@ name.suffix = require("./suffix");
 name.title = require("./title");
 name.name = require("./name");
 
-},{"./female_first_name":938,"./female_last_name":939,"./male_first_name":941,"./male_last_name":942,"./name":943,"./prefix":944,"./suffix":945,"./title":946}],941:[function(require,module,exports){
+},{"./female_first_name":940,"./female_last_name":941,"./male_first_name":943,"./male_last_name":944,"./name":945,"./prefix":946,"./suffix":947,"./title":948}],943:[function(require,module,exports){
 module["exports"] = [
   "Drahoslav",
   "Severín",
@@ -72662,7 +73416,7 @@ module["exports"] = [
   "Silvester"
 ];
 
-},{}],942:[function(require,module,exports){
+},{}],944:[function(require,module,exports){
 module["exports"] = [
   "Antal",
   "Babka",
@@ -72923,7 +73677,7 @@ module["exports"] = [
   "Šťastný"
 ];
 
-},{}],943:[function(require,module,exports){
+},{}],945:[function(require,module,exports){
 module["exports"] = [
   "#{prefix} #{man_first_name} #{man_last_name}",
   "#{prefix} #{woman_first_name} #{woman_last_name}",
@@ -72937,7 +73691,7 @@ module["exports"] = [
   "#{woman_first_name} #{woman_last_name}"
 ];
 
-},{}],944:[function(require,module,exports){
+},{}],946:[function(require,module,exports){
 module["exports"] = [
   "Ing.",
   "Mgr.",
@@ -72945,14 +73699,14 @@ module["exports"] = [
   "MUDr."
 ];
 
-},{}],945:[function(require,module,exports){
+},{}],947:[function(require,module,exports){
 module["exports"] = [
   "Phd."
 ];
 
-},{}],946:[function(require,module,exports){
-arguments[4][335][0].apply(exports,arguments)
-},{"dup":335}],947:[function(require,module,exports){
+},{}],948:[function(require,module,exports){
+arguments[4][337][0].apply(exports,arguments)
+},{"dup":337}],949:[function(require,module,exports){
 module["exports"] = [
   "09## ### ###",
   "0## #### ####",
@@ -72960,16 +73714,16 @@ module["exports"] = [
   "+421 ### ### ###"
 ];
 
-},{}],948:[function(require,module,exports){
-arguments[4][206][0].apply(exports,arguments)
-},{"./formats":947,"dup":206}],949:[function(require,module,exports){
-arguments[4][582][0].apply(exports,arguments)
-},{"dup":582}],950:[function(require,module,exports){
+},{}],950:[function(require,module,exports){
+arguments[4][208][0].apply(exports,arguments)
+},{"./formats":949,"dup":208}],951:[function(require,module,exports){
+arguments[4][584][0].apply(exports,arguments)
+},{"dup":584}],952:[function(require,module,exports){
 module["exports"] = [
   "#{city_prefix}#{city_suffix}"
 ];
 
-},{}],951:[function(require,module,exports){
+},{}],953:[function(require,module,exports){
 module["exports"] = [
   "Söder",
   "Norr",
@@ -72998,7 +73752,7 @@ module["exports"] = [
   "Ny"
 ];
 
-},{}],952:[function(require,module,exports){
+},{}],954:[function(require,module,exports){
 module["exports"] = [
   "stad",
   "land",
@@ -73021,13 +73775,13 @@ module["exports"] = [
   "vik"
 ];
 
-},{}],953:[function(require,module,exports){
+},{}],955:[function(require,module,exports){
 module["exports"] = [
   "s Väg",
   "s Gata"
 ];
 
-},{}],954:[function(require,module,exports){
+},{}],956:[function(require,module,exports){
 module["exports"] = [
   "Ryssland",
   "Kanada",
@@ -73236,12 +73990,12 @@ module["exports"] = [
   "Vatikanstaten"
 ];
 
-},{}],955:[function(require,module,exports){
+},{}],957:[function(require,module,exports){
 module["exports"] = [
   "Sverige"
 ];
 
-},{}],956:[function(require,module,exports){
+},{}],958:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.city_prefix = require("./city_prefix");
@@ -73260,15 +74014,15 @@ address.secondary_address = require("./secondary_address");
 address.street_address = require("./street_address");
 address.default_country = require("./default_country");
 
-},{"./building_number":949,"./city":950,"./city_prefix":951,"./city_suffix":952,"./common_street_suffix":953,"./country":954,"./default_country":955,"./postcode":957,"./secondary_address":958,"./state":959,"./street_address":960,"./street_name":961,"./street_prefix":962,"./street_root":963,"./street_suffix":964}],957:[function(require,module,exports){
-arguments[4][450][0].apply(exports,arguments)
-},{"dup":450}],958:[function(require,module,exports){
+},{"./building_number":951,"./city":952,"./city_prefix":953,"./city_suffix":954,"./common_street_suffix":955,"./country":956,"./default_country":957,"./postcode":959,"./secondary_address":960,"./state":961,"./street_address":962,"./street_name":963,"./street_prefix":964,"./street_root":965,"./street_suffix":966}],959:[function(require,module,exports){
+arguments[4][452][0].apply(exports,arguments)
+},{"dup":452}],960:[function(require,module,exports){
 module["exports"] = [
   "Lgh. ###",
   "Hus ###"
 ];
 
-},{}],959:[function(require,module,exports){
+},{}],961:[function(require,module,exports){
 module["exports"] = [
   "Blekinge",
   "Dalarna",
@@ -73295,11 +74049,11 @@ module["exports"] = [
   "Östergötland"
 ];
 
-},{}],960:[function(require,module,exports){
-arguments[4][184][0].apply(exports,arguments)
-},{"dup":184}],961:[function(require,module,exports){
-arguments[4][734][0].apply(exports,arguments)
-},{"dup":734}],962:[function(require,module,exports){
+},{}],962:[function(require,module,exports){
+arguments[4][186][0].apply(exports,arguments)
+},{"dup":186}],963:[function(require,module,exports){
+arguments[4][736][0].apply(exports,arguments)
+},{"dup":736}],964:[function(require,module,exports){
 module["exports"] = [
   "Västra",
   "Östra",
@@ -73309,7 +74063,7 @@ module["exports"] = [
   "Undre"
 ];
 
-},{}],963:[function(require,module,exports){
+},{}],965:[function(require,module,exports){
 module["exports"] = [
   "Björk",
   "Järnvägs",
@@ -73341,7 +74095,7 @@ module["exports"] = [
   "Asp"
 ];
 
-},{}],964:[function(require,module,exports){
+},{}],966:[function(require,module,exports){
 module["exports"] = [
   "vägen",
   "gatan",
@@ -73350,25 +74104,25 @@ module["exports"] = [
   "allén"
 ];
 
-},{}],965:[function(require,module,exports){
+},{}],967:[function(require,module,exports){
 module["exports"] = [
   56,
   62,
   59
 ];
 
-},{}],966:[function(require,module,exports){
+},{}],968:[function(require,module,exports){
 module["exports"] = [
   "#{common_cell_prefix}-###-####"
 ];
 
-},{}],967:[function(require,module,exports){
+},{}],969:[function(require,module,exports){
 var cell_phone = {};
 module['exports'] = cell_phone;
 cell_phone.common_cell_prefix = require("./common_cell_prefix");
 cell_phone.formats = require("./formats");
 
-},{"./common_cell_prefix":965,"./formats":966}],968:[function(require,module,exports){
+},{"./common_cell_prefix":967,"./formats":968}],970:[function(require,module,exports){
 module["exports"] = [
   "vit",
   "silver",
@@ -73387,7 +74141,7 @@ module["exports"] = [
   "korall"
 ];
 
-},{}],969:[function(require,module,exports){
+},{}],971:[function(require,module,exports){
 module["exports"] = [
   "Böcker",
   "Filmer",
@@ -73408,9 +74162,9 @@ module["exports"] = [
   "Sport"
 ];
 
-},{}],970:[function(require,module,exports){
-arguments[4][285][0].apply(exports,arguments)
-},{"./color":968,"./department":969,"./product_name":971,"dup":285}],971:[function(require,module,exports){
+},{}],972:[function(require,module,exports){
+arguments[4][287][0].apply(exports,arguments)
+},{"./color":970,"./department":971,"./product_name":973,"dup":287}],973:[function(require,module,exports){
 module["exports"] = {
   "adjective": [
     "Liten",
@@ -73448,16 +74202,16 @@ module["exports"] = {
   ]
 };
 
-},{}],972:[function(require,module,exports){
-arguments[4][242][0].apply(exports,arguments)
-},{"./name":973,"./suffix":974,"dup":242}],973:[function(require,module,exports){
+},{}],974:[function(require,module,exports){
+arguments[4][244][0].apply(exports,arguments)
+},{"./name":975,"./suffix":976,"dup":244}],975:[function(require,module,exports){
 module["exports"] = [
   "#{Name.last_name} #{suffix}",
   "#{Name.last_name}-#{Name.last_name}",
   "#{Name.last_name}, #{Name.last_name} #{suffix}"
 ];
 
-},{}],974:[function(require,module,exports){
+},{}],976:[function(require,module,exports){
 module["exports"] = [
   "Gruppen",
   "AB",
@@ -73468,9 +74222,9 @@ module["exports"] = [
   "Aktiebolag"
 ];
 
-},{}],975:[function(require,module,exports){
-arguments[4][307][0].apply(exports,arguments)
-},{"./month":976,"./weekday":977,"dup":307}],976:[function(require,module,exports){
+},{}],977:[function(require,module,exports){
+arguments[4][309][0].apply(exports,arguments)
+},{"./month":978,"./weekday":979,"dup":309}],978:[function(require,module,exports){
 // Source: http://unicode.org/cldr/trac/browser/tags/release-27/common/main/en.xml#L1799
 module["exports"] = {
   wide: [
@@ -73503,7 +74257,7 @@ module["exports"] = {
   ]
 };
 
-},{}],977:[function(require,module,exports){
+},{}],979:[function(require,module,exports){
 // Source: http://unicode.org/cldr/trac/browser/tags/release-27/common/main/en.xml#L1847
 module["exports"] = {
   wide: [
@@ -73526,7 +74280,7 @@ module["exports"] = {
   ]
 };
 
-},{}],978:[function(require,module,exports){
+},{}],980:[function(require,module,exports){
 var sv = {};
 module['exports'] = sv;
 sv.title = "Swedish";
@@ -73540,7 +74294,7 @@ sv.commerce = require("./commerce");
 sv.team = require("./team");
 sv.date = require("./date");
 
-},{"./address":956,"./cell_phone":967,"./commerce":970,"./company":972,"./date":975,"./internet":980,"./name":983,"./phone_number":989,"./team":990}],979:[function(require,module,exports){
+},{"./address":958,"./cell_phone":969,"./commerce":972,"./company":974,"./date":977,"./internet":982,"./name":985,"./phone_number":991,"./team":992}],981:[function(require,module,exports){
 module["exports"] = [
   "se",
   "nu",
@@ -73549,9 +74303,9 @@ module["exports"] = [
   "org"
 ];
 
-},{}],980:[function(require,module,exports){
-arguments[4][247][0].apply(exports,arguments)
-},{"./domain_suffix":979,"dup":247}],981:[function(require,module,exports){
+},{}],982:[function(require,module,exports){
+arguments[4][249][0].apply(exports,arguments)
+},{"./domain_suffix":981,"dup":249}],983:[function(require,module,exports){
 module["exports"] = [
   "Erik",
   "Lars",
@@ -73565,7 +74319,7 @@ module["exports"] = [
   "Hans"
 ];
 
-},{}],982:[function(require,module,exports){
+},{}],984:[function(require,module,exports){
 module["exports"] = [
   "Maria",
   "Anna",
@@ -73579,7 +74333,7 @@ module["exports"] = [
   "Marie"
 ];
 
-},{}],983:[function(require,module,exports){
+},{}],985:[function(require,module,exports){
 var name = {};
 module['exports'] = name;
 name.first_name_women = require("./first_name_women");
@@ -73589,7 +74343,7 @@ name.prefix = require("./prefix");
 name.title = require("./title");
 name.name = require("./name");
 
-},{"./first_name_men":981,"./first_name_women":982,"./last_name":984,"./name":985,"./prefix":986,"./title":987}],984:[function(require,module,exports){
+},{"./first_name_men":983,"./first_name_women":984,"./last_name":986,"./name":987,"./prefix":988,"./title":989}],986:[function(require,module,exports){
 module["exports"] = [
   "Johansson",
   "Andersson",
@@ -73603,7 +74357,7 @@ module["exports"] = [
   "Gustafsson"
 ];
 
-},{}],985:[function(require,module,exports){
+},{}],987:[function(require,module,exports){
 module["exports"] = [
   "#{first_name_women} #{last_name}",
   "#{first_name_men} #{last_name}",
@@ -73615,35 +74369,35 @@ module["exports"] = [
   "#{prefix} #{first_name_women} #{last_name}"
 ];
 
-},{}],986:[function(require,module,exports){
+},{}],988:[function(require,module,exports){
 module["exports"] = [
   "Dr.",
   "Prof.",
   "PhD."
 ];
 
-},{}],987:[function(require,module,exports){
-arguments[4][335][0].apply(exports,arguments)
-},{"dup":335}],988:[function(require,module,exports){
+},{}],989:[function(require,module,exports){
+arguments[4][337][0].apply(exports,arguments)
+},{"dup":337}],990:[function(require,module,exports){
 module["exports"] = [
   "####-#####",
   "####-######"
 ];
 
-},{}],989:[function(require,module,exports){
-arguments[4][206][0].apply(exports,arguments)
-},{"./formats":988,"dup":206}],990:[function(require,module,exports){
+},{}],991:[function(require,module,exports){
+arguments[4][208][0].apply(exports,arguments)
+},{"./formats":990,"dup":208}],992:[function(require,module,exports){
 var team = {};
 module['exports'] = team;
 team.suffix = require("./suffix");
 team.name = require("./name");
 
-},{"./name":991,"./suffix":992}],991:[function(require,module,exports){
+},{"./name":993,"./suffix":994}],993:[function(require,module,exports){
 module["exports"] = [
   "#{Address.city} #{suffix}"
 ];
 
-},{}],992:[function(require,module,exports){
+},{}],994:[function(require,module,exports){
 module["exports"] = [
   "IF",
   "FF",
@@ -73660,9 +74414,9 @@ module["exports"] = [
   "IK"
 ];
 
-},{}],993:[function(require,module,exports){
-arguments[4][173][0].apply(exports,arguments)
-},{"dup":173}],994:[function(require,module,exports){
+},{}],995:[function(require,module,exports){
+arguments[4][175][0].apply(exports,arguments)
+},{"dup":175}],996:[function(require,module,exports){
 module["exports"] = [
   "Adana",
   "Adıyaman",
@@ -73747,7 +74501,7 @@ module["exports"] = [
   "Düzce"
 ];
 
-},{}],995:[function(require,module,exports){
+},{}],997:[function(require,module,exports){
 module["exports"] = [
   "Afganistan",
   "Almanya",
@@ -73987,12 +74741,12 @@ module["exports"] = [
   "Zimbabve"
 ];
 
-},{}],996:[function(require,module,exports){
+},{}],998:[function(require,module,exports){
 module["exports"] = [
   "Türkiye"
 ];
 
-},{}],997:[function(require,module,exports){
+},{}],999:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.city = require("./city");
@@ -74004,13 +74758,13 @@ address.building_number = require("./building_number");
 address.street_name = require("./street_name");
 address.street_address = require("./street_address");
 
-},{"./building_number":993,"./city":994,"./country":995,"./default_country":996,"./postcode":998,"./street_address":999,"./street_name":1000,"./street_root":1001}],998:[function(require,module,exports){
-arguments[4][450][0].apply(exports,arguments)
-},{"dup":450}],999:[function(require,module,exports){
-arguments[4][184][0].apply(exports,arguments)
-},{"dup":184}],1000:[function(require,module,exports){
-arguments[4][185][0].apply(exports,arguments)
-},{"dup":185}],1001:[function(require,module,exports){
+},{"./building_number":995,"./city":996,"./country":997,"./default_country":998,"./postcode":1000,"./street_address":1001,"./street_name":1002,"./street_root":1003}],1000:[function(require,module,exports){
+arguments[4][452][0].apply(exports,arguments)
+},{"dup":452}],1001:[function(require,module,exports){
+arguments[4][186][0].apply(exports,arguments)
+},{"dup":186}],1002:[function(require,module,exports){
+arguments[4][187][0].apply(exports,arguments)
+},{"dup":187}],1003:[function(require,module,exports){
 module["exports"] = [
   "Atatürk Bulvarı",
   "Alparslan Türkeş Bulvarı",
@@ -74055,7 +74809,7 @@ module["exports"] = [
   "Bandak Sokak"
 ];
 
-},{}],1002:[function(require,module,exports){
+},{}],1004:[function(require,module,exports){
 module["exports"] = [
   "+90-53#-###-##-##",
   "+90-54#-###-##-##",
@@ -74063,9 +74817,9 @@ module["exports"] = [
   "+90-50#-###-##-##"
 ];
 
-},{}],1003:[function(require,module,exports){
-arguments[4][188][0].apply(exports,arguments)
-},{"./formats":1002,"dup":188}],1004:[function(require,module,exports){
+},{}],1005:[function(require,module,exports){
+arguments[4][190][0].apply(exports,arguments)
+},{"./formats":1004,"dup":190}],1006:[function(require,module,exports){
 var tr = {};
 module['exports'] = tr;
 tr.title = "Turkish";
@@ -74076,7 +74830,7 @@ tr.phone_number = require("./phone_number");
 tr.cell_phone = require("./cell_phone");
 tr.name = require("./name");
 
-},{"./address":997,"./cell_phone":1003,"./internet":1006,"./lorem":1007,"./name":1010,"./phone_number":1016}],1005:[function(require,module,exports){
+},{"./address":999,"./cell_phone":1005,"./internet":1008,"./lorem":1009,"./name":1012,"./phone_number":1018}],1007:[function(require,module,exports){
 module["exports"] = [
   "com.tr",
   "com",
@@ -74086,13 +74840,13 @@ module["exports"] = [
   "gov.tr"
 ];
 
-},{}],1006:[function(require,module,exports){
-arguments[4][247][0].apply(exports,arguments)
-},{"./domain_suffix":1005,"dup":247}],1007:[function(require,module,exports){
-arguments[4][197][0].apply(exports,arguments)
-},{"./words":1008,"dup":197}],1008:[function(require,module,exports){
-arguments[4][198][0].apply(exports,arguments)
-},{"dup":198}],1009:[function(require,module,exports){
+},{}],1008:[function(require,module,exports){
+arguments[4][249][0].apply(exports,arguments)
+},{"./domain_suffix":1007,"dup":249}],1009:[function(require,module,exports){
+arguments[4][199][0].apply(exports,arguments)
+},{"./words":1010,"dup":199}],1010:[function(require,module,exports){
+arguments[4][200][0].apply(exports,arguments)
+},{"dup":200}],1011:[function(require,module,exports){
 module["exports"] = [
   "Aba",
   "Abak",
@@ -74827,9 +75581,9 @@ module["exports"] = [
   "Kızılalma"
 ];
 
-},{}],1010:[function(require,module,exports){
-arguments[4][249][0].apply(exports,arguments)
-},{"./first_name":1009,"./last_name":1011,"./name":1012,"./prefix":1013,"dup":249}],1011:[function(require,module,exports){
+},{}],1012:[function(require,module,exports){
+arguments[4][251][0].apply(exports,arguments)
+},{"./first_name":1011,"./last_name":1013,"./name":1014,"./prefix":1015,"dup":251}],1013:[function(require,module,exports){
 module["exports"] = [
   "Abacı",
   "Abadan",
@@ -75031,9 +75785,9 @@ module["exports"] = [
   "Öztuna"
 ];
 
-},{}],1012:[function(require,module,exports){
-arguments[4][609][0].apply(exports,arguments)
-},{"dup":609}],1013:[function(require,module,exports){
+},{}],1014:[function(require,module,exports){
+arguments[4][611][0].apply(exports,arguments)
+},{"dup":611}],1015:[function(require,module,exports){
 module["exports"] = [
   "Bay",
   "Bayan",
@@ -75041,7 +75795,7 @@ module["exports"] = [
   "Prof. Dr."
 ];
 
-},{}],1014:[function(require,module,exports){
+},{}],1016:[function(require,module,exports){
 module["exports"] = [
   "392",
   "510",
@@ -75142,27 +75896,27 @@ module["exports"] = [
   "372"
 ];
 
-},{}],1015:[function(require,module,exports){
+},{}],1017:[function(require,module,exports){
 module["exports"] = [
   "+90-###-###-##-##",
   "+90-###-###-#-###"
 ];
 
-},{}],1016:[function(require,module,exports){
+},{}],1018:[function(require,module,exports){
 var phone_number = {};
 module['exports'] = phone_number;
 phone_number.area_code = require("./area_code");
 phone_number.formats = require("./formats");
 
-},{"./area_code":1014,"./formats":1015}],1017:[function(require,module,exports){
-arguments[4][907][0].apply(exports,arguments)
-},{"dup":907}],1018:[function(require,module,exports){
+},{"./area_code":1016,"./formats":1017}],1019:[function(require,module,exports){
+arguments[4][909][0].apply(exports,arguments)
+},{"dup":909}],1020:[function(require,module,exports){
 module["exports"] = [
   "#{city_name}",
   "#{city_prefix} #{Name.male_first_name}"
 ];
 
-},{}],1019:[function(require,module,exports){
+},{}],1021:[function(require,module,exports){
 module["exports"] = [
   "Алчевськ",
   "Артемівськ",
@@ -75223,7 +75977,7 @@ module["exports"] = [
   "Ялта"
 ];
 
-},{}],1020:[function(require,module,exports){
+},{}],1022:[function(require,module,exports){
 module["exports"] = [
   "Південний",
   "Північний",
@@ -75231,12 +75985,12 @@ module["exports"] = [
   "Західний"
 ];
 
-},{}],1021:[function(require,module,exports){
+},{}],1023:[function(require,module,exports){
 module["exports"] = [
   "град"
 ];
 
-},{}],1022:[function(require,module,exports){
+},{}],1024:[function(require,module,exports){
 module["exports"] = [
   "Австралія",
   "Австрія",
@@ -75433,12 +76187,12 @@ module["exports"] = [
   "Японія"
 ];
 
-},{}],1023:[function(require,module,exports){
+},{}],1025:[function(require,module,exports){
 module["exports"] = [
   "Україна"
 ];
 
-},{}],1024:[function(require,module,exports){
+},{}],1026:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.country = require("./country");
@@ -75457,11 +76211,11 @@ address.street_name = require("./street_name");
 address.street_address = require("./street_address");
 address.default_country = require("./default_country");
 
-},{"./building_number":1017,"./city":1018,"./city_name":1019,"./city_prefix":1020,"./city_suffix":1021,"./country":1022,"./default_country":1023,"./postcode":1025,"./secondary_address":1026,"./state":1027,"./street_address":1028,"./street_name":1029,"./street_prefix":1030,"./street_suffix":1031,"./street_title":1032}],1025:[function(require,module,exports){
-arguments[4][450][0].apply(exports,arguments)
-},{"dup":450}],1026:[function(require,module,exports){
-arguments[4][874][0].apply(exports,arguments)
-},{"dup":874}],1027:[function(require,module,exports){
+},{"./building_number":1019,"./city":1020,"./city_name":1021,"./city_prefix":1022,"./city_suffix":1023,"./country":1024,"./default_country":1025,"./postcode":1027,"./secondary_address":1028,"./state":1029,"./street_address":1030,"./street_name":1031,"./street_prefix":1032,"./street_suffix":1033,"./street_title":1034}],1027:[function(require,module,exports){
+arguments[4][452][0].apply(exports,arguments)
+},{"dup":452}],1028:[function(require,module,exports){
+arguments[4][876][0].apply(exports,arguments)
+},{"dup":876}],1029:[function(require,module,exports){
 module["exports"] = [
   "АР Крим",
   "Вінницька область",
@@ -75492,15 +76246,15 @@ module["exports"] = [
   "Севастополь"
 ];
 
-},{}],1028:[function(require,module,exports){
-arguments[4][876][0].apply(exports,arguments)
-},{"dup":876}],1029:[function(require,module,exports){
+},{}],1030:[function(require,module,exports){
+arguments[4][878][0].apply(exports,arguments)
+},{"dup":878}],1031:[function(require,module,exports){
 module["exports"] = [
   "#{street_prefix} #{Address.street_title}",
   "#{Address.street_title} #{street_suffix}"
 ];
 
-},{}],1030:[function(require,module,exports){
+},{}],1032:[function(require,module,exports){
 module["exports"] = [
   "вул.",
   "вулиця",
@@ -75512,12 +76266,12 @@ module["exports"] = [
   "провулок"
 ];
 
-},{}],1031:[function(require,module,exports){
+},{}],1033:[function(require,module,exports){
 module["exports"] = [
   "майдан"
 ];
 
-},{}],1032:[function(require,module,exports){
+},{}],1034:[function(require,module,exports){
 module["exports"] = [
   "Зелена",
   "Молодіжна",
@@ -75534,11 +76288,11 @@ module["exports"] = [
   "Коліївщини"
 ];
 
-},{}],1033:[function(require,module,exports){
-arguments[4][598][0].apply(exports,arguments)
-},{"./name":1034,"./prefix":1035,"./suffix":1036,"dup":598}],1034:[function(require,module,exports){
-arguments[4][885][0].apply(exports,arguments)
-},{"dup":885}],1035:[function(require,module,exports){
+},{}],1035:[function(require,module,exports){
+arguments[4][600][0].apply(exports,arguments)
+},{"./name":1036,"./prefix":1037,"./suffix":1038,"dup":600}],1036:[function(require,module,exports){
+arguments[4][887][0].apply(exports,arguments)
+},{"dup":887}],1037:[function(require,module,exports){
 module["exports"] = [
   "ТОВ",
   "ПАТ",
@@ -75550,7 +76304,7 @@ module["exports"] = [
   "ФОП"
 ];
 
-},{}],1036:[function(require,module,exports){
+},{}],1038:[function(require,module,exports){
 module["exports"] = [
   "Постач",
   "Торг",
@@ -75559,7 +76313,7 @@ module["exports"] = [
   "Збут"
 ];
 
-},{}],1037:[function(require,module,exports){
+},{}],1039:[function(require,module,exports){
 var uk = {};
 module['exports'] = uk;
 uk.title = "Ukrainian";
@@ -75569,7 +76323,7 @@ uk.internet = require("./internet");
 uk.name = require("./name");
 uk.phone_number = require("./phone_number");
 
-},{"./address":1024,"./company":1033,"./internet":1040,"./name":1044,"./phone_number":1053}],1038:[function(require,module,exports){
+},{"./address":1026,"./company":1035,"./internet":1042,"./name":1046,"./phone_number":1055}],1040:[function(require,module,exports){
 module["exports"] = [
   "cherkassy.ua",
   "cherkasy.ua",
@@ -75633,7 +76387,7 @@ module["exports"] = [
   "укр"
 ];
 
-},{}],1039:[function(require,module,exports){
+},{}],1041:[function(require,module,exports){
 module["exports"] = [
   "ukr.net",
   "ex.ua",
@@ -75644,9 +76398,9 @@ module["exports"] = [
   "gmail.com"
 ];
 
-},{}],1040:[function(require,module,exports){
-arguments[4][196][0].apply(exports,arguments)
-},{"./domain_suffix":1038,"./free_email":1039,"dup":196}],1041:[function(require,module,exports){
+},{}],1042:[function(require,module,exports){
+arguments[4][198][0].apply(exports,arguments)
+},{"./domain_suffix":1040,"./free_email":1041,"dup":198}],1043:[function(require,module,exports){
 module["exports"] = [
   "Аврелія",
   "Аврора",
@@ -75843,7 +76597,7 @@ module["exports"] = [
   "Ярослава"
 ];
 
-},{}],1042:[function(require,module,exports){
+},{}],1044:[function(require,module,exports){
 module["exports"] = [
   "Андрухович",
   "Бабух",
@@ -76077,7 +76831,7 @@ module["exports"] = [
   "Ящук"
 ];
 
-},{}],1043:[function(require,module,exports){
+},{}],1045:[function(require,module,exports){
 module["exports"] = [
   "Адамівна",
   "Азарівна",
@@ -76197,7 +76951,7 @@ module["exports"] = [
   "Ярославівна"
 ];
 
-},{}],1044:[function(require,module,exports){
+},{}],1046:[function(require,module,exports){
 var name = {};
 module['exports'] = name;
 name.male_first_name = require("./male_first_name");
@@ -76211,7 +76965,7 @@ name.suffix = require("./suffix");
 name.title = require("./title");
 name.name = require("./name");
 
-},{"./female_first_name":1041,"./female_last_name":1042,"./female_middle_name":1043,"./male_first_name":1045,"./male_last_name":1046,"./male_middle_name":1047,"./name":1048,"./prefix":1049,"./suffix":1050,"./title":1051}],1045:[function(require,module,exports){
+},{"./female_first_name":1043,"./female_last_name":1044,"./female_middle_name":1045,"./male_first_name":1047,"./male_last_name":1048,"./male_middle_name":1049,"./name":1050,"./prefix":1051,"./suffix":1052,"./title":1053}],1047:[function(require,module,exports){
 module["exports"] = [
   "Августин",
   "Аврелій",
@@ -76410,7 +77164,7 @@ module["exports"] = [
   "Ярослав"
 ];
 
-},{}],1046:[function(require,module,exports){
+},{}],1048:[function(require,module,exports){
 module["exports"] = [
   "Андрухович",
   "Бабух",
@@ -76653,7 +77407,7 @@ module["exports"] = [
   "Ящук"
 ];
 
-},{}],1047:[function(require,module,exports){
+},{}],1049:[function(require,module,exports){
 module["exports"] = [
   "Адамович",
   "Азарович",
@@ -76773,15 +77527,15 @@ module["exports"] = [
   "Ярославович"
 ];
 
-},{}],1048:[function(require,module,exports){
-arguments[4][902][0].apply(exports,arguments)
-},{"dup":902}],1049:[function(require,module,exports){
+},{}],1050:[function(require,module,exports){
+arguments[4][904][0].apply(exports,arguments)
+},{"dup":904}],1051:[function(require,module,exports){
 module["exports"] = [
   "Пан",
   "Пані"
 ];
 
-},{}],1050:[function(require,module,exports){
+},{}],1052:[function(require,module,exports){
 module["exports"] = [
   "проф.",
   "доц.",
@@ -76803,7 +77557,7 @@ module["exports"] = [
   "канд. психол. наук"
 ];
 
-},{}],1051:[function(require,module,exports){
+},{}],1053:[function(require,module,exports){
 module["exports"] = {
   "descriptor": [
     "Головний",
@@ -76845,7 +77599,7 @@ module["exports"] = {
   ]
 };
 
-},{}],1052:[function(require,module,exports){
+},{}],1054:[function(require,module,exports){
 module["exports"] = [
   "(044) ###-##-##",
   "(050) ###-##-##",
@@ -76863,14 +77617,14 @@ module["exports"] = [
   "(099) ###-##-##"
 ];
 
-},{}],1053:[function(require,module,exports){
-arguments[4][206][0].apply(exports,arguments)
-},{"./formats":1052,"dup":206}],1054:[function(require,module,exports){
+},{}],1055:[function(require,module,exports){
+arguments[4][208][0].apply(exports,arguments)
+},{"./formats":1054,"dup":208}],1056:[function(require,module,exports){
 module["exports"] = [
   "#{city_root}"
 ];
 
-},{}],1055:[function(require,module,exports){
+},{}],1057:[function(require,module,exports){
 module["exports"] = [
   "Bắc Giang",
   "Bắc Kạn",
@@ -76937,7 +77691,7 @@ module["exports"] = [
   "Vĩnh Long"
 ];
 
-},{}],1056:[function(require,module,exports){
+},{}],1058:[function(require,module,exports){
 module["exports"] = [
   "Avon",
   "Bedfordshire",
@@ -77012,12 +77766,12 @@ module["exports"] = [
   "Worcestershire"
 ];
 
-},{}],1057:[function(require,module,exports){
+},{}],1059:[function(require,module,exports){
 module["exports"] = [
   "Việt Nam"
 ];
 
-},{}],1058:[function(require,module,exports){
+},{}],1060:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.city_root = require("./city_root");
@@ -77025,22 +77779,22 @@ address.city = require("./city");
 address.county = require("./county");
 address.default_country = require("./default_country");
 
-},{"./city":1054,"./city_root":1055,"./county":1056,"./default_country":1057}],1059:[function(require,module,exports){
-arguments[4][379][0].apply(exports,arguments)
-},{"dup":379}],1060:[function(require,module,exports){
-arguments[4][188][0].apply(exports,arguments)
-},{"./formats":1059,"dup":188}],1061:[function(require,module,exports){
+},{"./city":1056,"./city_root":1057,"./county":1058,"./default_country":1059}],1061:[function(require,module,exports){
+arguments[4][381][0].apply(exports,arguments)
+},{"dup":381}],1062:[function(require,module,exports){
+arguments[4][190][0].apply(exports,arguments)
+},{"./formats":1061,"dup":190}],1063:[function(require,module,exports){
 var company = {};
 module['exports'] = company;
 company.prefix = require("./prefix");
 company.name = require("./name");
 
-},{"./name":1062,"./prefix":1063}],1062:[function(require,module,exports){
+},{"./name":1064,"./prefix":1065}],1064:[function(require,module,exports){
 module["exports"] = [
   "#{prefix} #{Name.last_name}"
 ];
 
-},{}],1063:[function(require,module,exports){
+},{}],1065:[function(require,module,exports){
 module["exports"] = [
   "Công ty",
   "Cty TNHH",
@@ -77050,7 +77804,7 @@ module["exports"] = [
   "Chi nhánh"
 ];
 
-},{}],1064:[function(require,module,exports){
+},{}],1066:[function(require,module,exports){
 var vi = {};
 module['exports'] = vi;
 vi.title = "Vietnamese";
@@ -77062,7 +77816,7 @@ vi.name = require("./name");
 vi.company = require("./company");
 vi.lorem = require("./lorem");
 
-},{"./address":1058,"./cell_phone":1060,"./company":1061,"./internet":1066,"./lorem":1067,"./name":1070,"./phone_number":1074}],1065:[function(require,module,exports){
+},{"./address":1060,"./cell_phone":1062,"./company":1063,"./internet":1068,"./lorem":1069,"./name":1072,"./phone_number":1076}],1067:[function(require,module,exports){
 module["exports"] = [
   "com",
   "net",
@@ -77071,11 +77825,11 @@ module["exports"] = [
   "com.vn"
 ];
 
-},{}],1066:[function(require,module,exports){
-arguments[4][247][0].apply(exports,arguments)
-},{"./domain_suffix":1065,"dup":247}],1067:[function(require,module,exports){
-arguments[4][197][0].apply(exports,arguments)
-},{"./words":1068,"dup":197}],1068:[function(require,module,exports){
+},{}],1068:[function(require,module,exports){
+arguments[4][249][0].apply(exports,arguments)
+},{"./domain_suffix":1067,"dup":249}],1069:[function(require,module,exports){
+arguments[4][199][0].apply(exports,arguments)
+},{"./words":1070,"dup":199}],1070:[function(require,module,exports){
 module["exports"] = [
   "đã",
   "đang",
@@ -77182,7 +77936,7 @@ module["exports"] = [
   "hương"
 ];
 
-},{}],1069:[function(require,module,exports){
+},{}],1071:[function(require,module,exports){
 module["exports"] = [
   "Phạm",
   "Nguyễn",
@@ -77212,14 +77966,14 @@ module["exports"] = [
   "Hà"
 ];
 
-},{}],1070:[function(require,module,exports){
+},{}],1072:[function(require,module,exports){
 var name = {};
 module['exports'] = name;
 name.first_name = require("./first_name");
 name.last_name = require("./last_name");
 name.name = require("./name");
 
-},{"./first_name":1069,"./last_name":1071,"./name":1072}],1071:[function(require,module,exports){
+},{"./first_name":1071,"./last_name":1073,"./name":1074}],1073:[function(require,module,exports){
 module["exports"] = [
   "Nam",
   "Trung",
@@ -77296,18 +78050,18 @@ module["exports"] = [
   "Nhàn"
 ];
 
-},{}],1072:[function(require,module,exports){
+},{}],1074:[function(require,module,exports){
 module["exports"] = [
   "#{first_name} #{last_name}",
   "#{first_name} #{last_name} #{last_name}",
   "#{first_name} #{last_name} #{last_name} #{last_name}"
 ];
 
-},{}],1073:[function(require,module,exports){
-arguments[4][384][0].apply(exports,arguments)
-},{"dup":384}],1074:[function(require,module,exports){
-arguments[4][206][0].apply(exports,arguments)
-},{"./formats":1073,"dup":206}],1075:[function(require,module,exports){
+},{}],1075:[function(require,module,exports){
+arguments[4][386][0].apply(exports,arguments)
+},{"dup":386}],1076:[function(require,module,exports){
+arguments[4][208][0].apply(exports,arguments)
+},{"./formats":1075,"dup":208}],1077:[function(require,module,exports){
 module["exports"] = [
   "#####",
   "####",
@@ -77316,9 +78070,9 @@ module["exports"] = [
   "#"
 ];
 
-},{}],1076:[function(require,module,exports){
-arguments[4][950][0].apply(exports,arguments)
-},{"dup":950}],1077:[function(require,module,exports){
+},{}],1078:[function(require,module,exports){
+arguments[4][952][0].apply(exports,arguments)
+},{"dup":952}],1079:[function(require,module,exports){
 module["exports"] = [
   "长",
   "上",
@@ -77343,7 +78097,7 @@ module["exports"] = [
   "包"
 ];
 
-},{}],1078:[function(require,module,exports){
+},{}],1080:[function(require,module,exports){
 module["exports"] = [
   "沙市",
   "京市",
@@ -77366,12 +78120,12 @@ module["exports"] = [
   "头市"
 ];
 
-},{}],1079:[function(require,module,exports){
+},{}],1081:[function(require,module,exports){
 module["exports"] = [
   "中国"
 ];
 
-},{}],1080:[function(require,module,exports){
+},{}],1082:[function(require,module,exports){
 var address = {};
 module['exports'] = address;
 address.city_prefix = require("./city_prefix");
@@ -77386,9 +78140,9 @@ address.street_name = require("./street_name");
 address.street_address = require("./street_address");
 address.default_country = require("./default_country");
 
-},{"./building_number":1075,"./city":1076,"./city_prefix":1077,"./city_suffix":1078,"./default_country":1079,"./postcode":1081,"./state":1082,"./state_abbr":1083,"./street_address":1084,"./street_name":1085,"./street_suffix":1086}],1081:[function(require,module,exports){
-arguments[4][873][0].apply(exports,arguments)
-},{"dup":873}],1082:[function(require,module,exports){
+},{"./building_number":1077,"./city":1078,"./city_prefix":1079,"./city_suffix":1080,"./default_country":1081,"./postcode":1083,"./state":1084,"./state_abbr":1085,"./street_address":1086,"./street_name":1087,"./street_suffix":1088}],1083:[function(require,module,exports){
+arguments[4][875][0].apply(exports,arguments)
+},{"dup":875}],1084:[function(require,module,exports){
 module["exports"] = [
   "北京市",
   "上海市",
@@ -77426,7 +78180,7 @@ module["exports"] = [
   "澳门"
 ];
 
-},{}],1083:[function(require,module,exports){
+},{}],1085:[function(require,module,exports){
 module["exports"] = [
   "京",
   "沪",
@@ -77464,17 +78218,17 @@ module["exports"] = [
   "澳"
 ];
 
-},{}],1084:[function(require,module,exports){
+},{}],1086:[function(require,module,exports){
 module["exports"] = [
   "#{street_name}#{building_number}号"
 ];
 
-},{}],1085:[function(require,module,exports){
+},{}],1087:[function(require,module,exports){
 module["exports"] = [
   "#{Name.last_name}#{street_suffix}"
 ];
 
-},{}],1086:[function(require,module,exports){
+},{}],1088:[function(require,module,exports){
 module["exports"] = [
   "巷",
   "街",
@@ -77486,7 +78240,7 @@ module["exports"] = [
   "栋"
 ];
 
-},{}],1087:[function(require,module,exports){
+},{}],1089:[function(require,module,exports){
 var zh_CN = {};
 module['exports'] = zh_CN;
 zh_CN.title = "Chinese";
@@ -77494,7 +78248,7 @@ zh_CN.address = require("./address");
 zh_CN.name = require("./name");
 zh_CN.phone_number = require("./phone_number");
 
-},{"./address":1080,"./name":1089,"./phone_number":1093}],1088:[function(require,module,exports){
+},{"./address":1082,"./name":1091,"./phone_number":1095}],1090:[function(require,module,exports){
 module["exports"] = [
   "王",
   "李",
@@ -77598,9 +78352,9 @@ module["exports"] = [
   "孔"
 ];
 
-},{}],1089:[function(require,module,exports){
-arguments[4][1070][0].apply(exports,arguments)
-},{"./first_name":1088,"./last_name":1090,"./name":1091,"dup":1070}],1090:[function(require,module,exports){
+},{}],1091:[function(require,module,exports){
+arguments[4][1072][0].apply(exports,arguments)
+},{"./first_name":1090,"./last_name":1092,"./name":1093,"dup":1072}],1092:[function(require,module,exports){
 module["exports"] = [
   "绍齐",
   "博文",
@@ -77738,25 +78492,25 @@ module["exports"] = [
   "彬"
 ];
 
-},{}],1091:[function(require,module,exports){
+},{}],1093:[function(require,module,exports){
 module["exports"] = [
   "#{first_name}#{last_name}"
 ];
 
-},{}],1092:[function(require,module,exports){
+},{}],1094:[function(require,module,exports){
 module["exports"] = [
   "###-########",
   "####-########",
   "###########"
 ];
 
-},{}],1093:[function(require,module,exports){
-arguments[4][206][0].apply(exports,arguments)
-},{"./formats":1092,"dup":206}],1094:[function(require,module,exports){
-arguments[4][535][0].apply(exports,arguments)
-},{"dup":535}],1095:[function(require,module,exports){
-arguments[4][950][0].apply(exports,arguments)
-},{"dup":950}],1096:[function(require,module,exports){
+},{}],1095:[function(require,module,exports){
+arguments[4][208][0].apply(exports,arguments)
+},{"./formats":1094,"dup":208}],1096:[function(require,module,exports){
+arguments[4][537][0].apply(exports,arguments)
+},{"dup":537}],1097:[function(require,module,exports){
+arguments[4][952][0].apply(exports,arguments)
+},{"dup":952}],1098:[function(require,module,exports){
 module["exports"] = [
   "臺北",
   "新北",
@@ -77780,28 +78534,28 @@ module["exports"] = [
   "連江"
 ];
 
-},{}],1097:[function(require,module,exports){
+},{}],1099:[function(require,module,exports){
 module["exports"] = [
   "縣",
   "市"
 ];
 
-},{}],1098:[function(require,module,exports){
+},{}],1100:[function(require,module,exports){
 module["exports"] = [
   "Taiwan (R.O.C.)"
 ];
 
-},{}],1099:[function(require,module,exports){
-arguments[4][1080][0].apply(exports,arguments)
-},{"./building_number":1094,"./city":1095,"./city_prefix":1096,"./city_suffix":1097,"./default_country":1098,"./postcode":1100,"./state":1101,"./state_abbr":1102,"./street_address":1103,"./street_name":1104,"./street_suffix":1105,"dup":1080}],1100:[function(require,module,exports){
-arguments[4][873][0].apply(exports,arguments)
-},{"dup":873}],1101:[function(require,module,exports){
+},{}],1101:[function(require,module,exports){
+arguments[4][1082][0].apply(exports,arguments)
+},{"./building_number":1096,"./city":1097,"./city_prefix":1098,"./city_suffix":1099,"./default_country":1100,"./postcode":1102,"./state":1103,"./state_abbr":1104,"./street_address":1105,"./street_name":1106,"./street_suffix":1107,"dup":1082}],1102:[function(require,module,exports){
+arguments[4][875][0].apply(exports,arguments)
+},{"dup":875}],1103:[function(require,module,exports){
 module["exports"] = [
   "福建省",
   "台灣省"
 ];
 
-},{}],1102:[function(require,module,exports){
+},{}],1104:[function(require,module,exports){
 module["exports"] = [
   "北",
   "新北",
@@ -77826,14 +78580,14 @@ module["exports"] = [
   "馬"
 ];
 
-},{}],1103:[function(require,module,exports){
+},{}],1105:[function(require,module,exports){
 module["exports"] = [
   "#{street_name}#{building_number}號"
 ];
 
-},{}],1104:[function(require,module,exports){
-arguments[4][1085][0].apply(exports,arguments)
-},{"dup":1085}],1105:[function(require,module,exports){
+},{}],1106:[function(require,module,exports){
+arguments[4][1087][0].apply(exports,arguments)
+},{"dup":1087}],1107:[function(require,module,exports){
 module["exports"] = [
   "街",
   "路",
@@ -77843,7 +78597,7 @@ module["exports"] = [
   "西路"
 ];
 
-},{}],1106:[function(require,module,exports){
+},{}],1108:[function(require,module,exports){
 var zh_TW = {};
 module['exports'] = zh_TW;
 zh_TW.title = "Chinese (Taiwan)";
@@ -77851,7 +78605,7 @@ zh_TW.address = require("./address");
 zh_TW.name = require("./name");
 zh_TW.phone_number = require("./phone_number");
 
-},{"./address":1099,"./name":1108,"./phone_number":1112}],1107:[function(require,module,exports){
+},{"./address":1101,"./name":1110,"./phone_number":1114}],1109:[function(require,module,exports){
 module["exports"] = [
   "王",
   "李",
@@ -77955,9 +78709,9 @@ module["exports"] = [
   "孔"
 ];
 
-},{}],1108:[function(require,module,exports){
-arguments[4][1070][0].apply(exports,arguments)
-},{"./first_name":1107,"./last_name":1109,"./name":1110,"dup":1070}],1109:[function(require,module,exports){
+},{}],1110:[function(require,module,exports){
+arguments[4][1072][0].apply(exports,arguments)
+},{"./first_name":1109,"./last_name":1111,"./name":1112,"dup":1072}],1111:[function(require,module,exports){
 module["exports"] = [
   "紹齊",
   "博文",
@@ -78084,18 +78838,18 @@ module["exports"] = [
   "聰健"
 ];
 
-},{}],1110:[function(require,module,exports){
-arguments[4][1091][0].apply(exports,arguments)
-},{"dup":1091}],1111:[function(require,module,exports){
+},{}],1112:[function(require,module,exports){
+arguments[4][1093][0].apply(exports,arguments)
+},{"dup":1093}],1113:[function(require,module,exports){
 module["exports"] = [
   "0#-#######",
   "02-########",
   "09##-######"
 ];
 
-},{}],1112:[function(require,module,exports){
-arguments[4][206][0].apply(exports,arguments)
-},{"./formats":1111,"dup":206}],1113:[function(require,module,exports){
+},{}],1114:[function(require,module,exports){
+arguments[4][208][0].apply(exports,arguments)
+},{"./formats":1113,"dup":208}],1115:[function(require,module,exports){
 
 /**
  *
@@ -78224,7 +78978,7 @@ var Lorem = function (faker) {
 
 module["exports"] = Lorem;
 
-},{}],1114:[function(require,module,exports){
+},{}],1116:[function(require,module,exports){
 /**
  *
  * @namespace faker.name
@@ -78403,7 +79157,7 @@ function Name (faker) {
 
 module['exports'] = Name;
 
-},{}],1115:[function(require,module,exports){
+},{}],1117:[function(require,module,exports){
 /**
  *
  * @namespace faker.phone
@@ -78448,7 +79202,7 @@ var Phone = function (faker) {
 };
 
 module['exports'] = Phone;
-},{}],1116:[function(require,module,exports){
+},{}],1118:[function(require,module,exports){
 var mersenne = require('../vendor/mersenne');
 
 /**
@@ -78655,7 +79409,7 @@ function Random (faker, seed) {
 
 module['exports'] = Random;
 
-},{"../vendor/mersenne":1118}],1117:[function(require,module,exports){
+},{"../vendor/mersenne":1120}],1119:[function(require,module,exports){
 // generates fake data for many computer systems properties
 
 /**
@@ -78814,7 +79568,7 @@ function System (faker) {
 }
 
 module['exports'] = System;
-},{}],1118:[function(require,module,exports){
+},{}],1120:[function(require,module,exports){
 // this program is a JavaScript version of Mersenne Twister, with concealment and encapsulation in class,
 // an almost straight conversion from the original program, mt19937ar.c,
 // translated by y. okada on July 17, 2006.
@@ -79102,7 +79856,7 @@ exports.seed_array = function(A) {
     gen.init_by_array(A);
 }
 
-},{}],1119:[function(require,module,exports){
+},{}],1121:[function(require,module,exports){
 /*
  * password-generator
  * Copyright(c) 2011-2013 Bermi Ferrer <bermi@bermilabs.com>
@@ -79168,7 +79922,7 @@ exports.seed_array = function(A) {
 
   // Establish the root object, `window` in the browser, or `global` on the server.
 }(this));
-},{}],1120:[function(require,module,exports){
+},{}],1122:[function(require,module,exports){
 /*
 
 Copyright (c) 2012-2014 Jeffrey Mealo
@@ -79379,7 +80133,7 @@ exports.generate = function generate() {
     return browser[random[0]](random[1]);
 };
 
-},{}],1121:[function(require,module,exports){
+},{}],1123:[function(require,module,exports){
 'use strict';
 
 /**
@@ -79463,7 +80217,7 @@ var EventListener = {
 };
 
 module.exports = EventListener;
-},{"./emptyFunction":1128}],1122:[function(require,module,exports){
+},{"./emptyFunction":1130}],1124:[function(require,module,exports){
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -79499,7 +80253,7 @@ var ExecutionEnvironment = {
 };
 
 module.exports = ExecutionEnvironment;
-},{}],1123:[function(require,module,exports){
+},{}],1125:[function(require,module,exports){
 "use strict";
 
 /**
@@ -79531,7 +80285,7 @@ function camelize(string) {
 }
 
 module.exports = camelize;
-},{}],1124:[function(require,module,exports){
+},{}],1126:[function(require,module,exports){
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -79571,7 +80325,7 @@ function camelizeStyleName(string) {
 }
 
 module.exports = camelizeStyleName;
-},{"./camelize":1123}],1125:[function(require,module,exports){
+},{"./camelize":1125}],1127:[function(require,module,exports){
 'use strict';
 
 /**
@@ -79611,7 +80365,7 @@ function containsNode(outerNode, innerNode) {
 }
 
 module.exports = containsNode;
-},{"./isTextNode":1138}],1126:[function(require,module,exports){
+},{"./isTextNode":1140}],1128:[function(require,module,exports){
 'use strict';
 
 /**
@@ -79738,7 +80492,7 @@ function createArrayFromMixed(obj) {
 }
 
 module.exports = createArrayFromMixed;
-},{"./invariant":1136}],1127:[function(require,module,exports){
+},{"./invariant":1138}],1129:[function(require,module,exports){
 'use strict';
 
 /**
@@ -79822,7 +80576,7 @@ function createNodesFromMarkup(markup, handleScript) {
 }
 
 module.exports = createNodesFromMarkup;
-},{"./ExecutionEnvironment":1122,"./createArrayFromMixed":1126,"./getMarkupWrap":1132,"./invariant":1136}],1128:[function(require,module,exports){
+},{"./ExecutionEnvironment":1124,"./createArrayFromMixed":1128,"./getMarkupWrap":1134,"./invariant":1138}],1130:[function(require,module,exports){
 "use strict";
 
 /**
@@ -79861,7 +80615,7 @@ emptyFunction.thatReturnsArgument = function (arg) {
 };
 
 module.exports = emptyFunction;
-},{}],1129:[function(require,module,exports){
+},{}],1131:[function(require,module,exports){
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -79881,7 +80635,7 @@ if ("production" !== 'production') {
 }
 
 module.exports = emptyObject;
-},{}],1130:[function(require,module,exports){
+},{}],1132:[function(require,module,exports){
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -79908,7 +80662,7 @@ function focusNode(node) {
 }
 
 module.exports = focusNode;
-},{}],1131:[function(require,module,exports){
+},{}],1133:[function(require,module,exports){
 'use strict';
 
 /**
@@ -79947,7 +80701,7 @@ function getActiveElement(doc) /*?DOMElement*/{
 }
 
 module.exports = getActiveElement;
-},{}],1132:[function(require,module,exports){
+},{}],1134:[function(require,module,exports){
 'use strict';
 
 /**
@@ -80042,7 +80796,7 @@ function getMarkupWrap(nodeName) {
 }
 
 module.exports = getMarkupWrap;
-},{"./ExecutionEnvironment":1122,"./invariant":1136}],1133:[function(require,module,exports){
+},{"./ExecutionEnvironment":1124,"./invariant":1138}],1135:[function(require,module,exports){
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -80081,7 +80835,7 @@ function getUnboundedScrollPosition(scrollable) {
 }
 
 module.exports = getUnboundedScrollPosition;
-},{}],1134:[function(require,module,exports){
+},{}],1136:[function(require,module,exports){
 'use strict';
 
 /**
@@ -80114,7 +80868,7 @@ function hyphenate(string) {
 }
 
 module.exports = hyphenate;
-},{}],1135:[function(require,module,exports){
+},{}],1137:[function(require,module,exports){
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -80153,7 +80907,7 @@ function hyphenateStyleName(string) {
 }
 
 module.exports = hyphenateStyleName;
-},{"./hyphenate":1134}],1136:[function(require,module,exports){
+},{"./hyphenate":1136}],1138:[function(require,module,exports){
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -80209,7 +80963,7 @@ function invariant(condition, format, a, b, c, d, e, f) {
 }
 
 module.exports = invariant;
-},{}],1137:[function(require,module,exports){
+},{}],1139:[function(require,module,exports){
 'use strict';
 
 /**
@@ -80234,7 +80988,7 @@ function isNode(object) {
 }
 
 module.exports = isNode;
-},{}],1138:[function(require,module,exports){
+},{}],1140:[function(require,module,exports){
 'use strict';
 
 /**
@@ -80259,7 +81013,7 @@ function isTextNode(object) {
 }
 
 module.exports = isTextNode;
-},{"./isNode":1137}],1139:[function(require,module,exports){
+},{"./isNode":1139}],1141:[function(require,module,exports){
 "use strict";
 
 /**
@@ -80294,7 +81048,7 @@ var keyOf = function keyOf(oneKeyObj) {
 };
 
 module.exports = keyOf;
-},{}],1140:[function(require,module,exports){
+},{}],1142:[function(require,module,exports){
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -80324,7 +81078,7 @@ function memoizeStringOnly(callback) {
 }
 
 module.exports = memoizeStringOnly;
-},{}],1141:[function(require,module,exports){
+},{}],1143:[function(require,module,exports){
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -80347,7 +81101,7 @@ if (ExecutionEnvironment.canUseDOM) {
 }
 
 module.exports = performance || {};
-},{"./ExecutionEnvironment":1122}],1142:[function(require,module,exports){
+},{"./ExecutionEnvironment":1124}],1144:[function(require,module,exports){
 'use strict';
 
 /**
@@ -80381,7 +81135,7 @@ if (performance.now) {
 }
 
 module.exports = performanceNow;
-},{"./performance":1141}],1143:[function(require,module,exports){
+},{"./performance":1143}],1145:[function(require,module,exports){
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -80449,7 +81203,7 @@ function shallowEqual(objA, objB) {
 }
 
 module.exports = shallowEqual;
-},{}],1144:[function(require,module,exports){
+},{}],1146:[function(require,module,exports){
 /**
  * Copyright 2014-2015, Facebook, Inc.
  * All rights reserved.
@@ -80516,7 +81270,7 @@ if ("production" !== 'production') {
 }
 
 module.exports = warning;
-},{"./emptyFunction":1128}],1145:[function(require,module,exports){
+},{"./emptyFunction":1130}],1147:[function(require,module,exports){
 
 /**
  * Module exports.
@@ -80575,7 +81329,7 @@ function getDocument(node) {
   }
 }
 
-},{}],1146:[function(require,module,exports){
+},{}],1148:[function(require,module,exports){
 
 /**
  * Module dependencies.
@@ -80636,13 +81390,13 @@ function getWindow(node) {
   }
 }
 
-},{"./needs-ie-fallback":1147,"get-document":1145}],1147:[function(require,module,exports){
+},{"./needs-ie-fallback":1149,"get-document":1147}],1149:[function(require,module,exports){
 // this is a browser-only module. There is a non-browser equivalent in the same
 // directory. This is done using a `package.json` browser field.
 // old-IE fallback logic: http://stackoverflow.com/a/10260692
 module.exports =  !!document.attachEvent && window !== document.parentWindow;
 
-},{}],1148:[function(require,module,exports){
+},{}],1150:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -80698,7 +81452,7 @@ var supportsGoWithoutReloadUsingHash = exports.supportsGoWithoutReloadUsingHash 
 var isExtraneousPopstateEvent = exports.isExtraneousPopstateEvent = function isExtraneousPopstateEvent(event) {
   return event.state === undefined && navigator.userAgent.indexOf('CriOS') === -1;
 };
-},{}],1149:[function(require,module,exports){
+},{}],1151:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -80762,7 +81516,7 @@ var createLocation = exports.createLocation = function createLocation(path, stat
 var locationsAreEqual = exports.locationsAreEqual = function locationsAreEqual(a, b) {
   return a.pathname === b.pathname && a.search === b.search && a.hash === b.hash && a.key === b.key && (0, _valueEqual2.default)(a.state, b.state);
 };
-},{"./PathUtils":1150,"resolve-pathname":1366,"value-equal":1375}],1150:[function(require,module,exports){
+},{"./PathUtils":1152,"resolve-pathname":1368,"value-equal":1377}],1152:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -80822,7 +81576,7 @@ var createPath = exports.createPath = function createPath(location) {
 
   return path;
 };
-},{}],1151:[function(require,module,exports){
+},{}],1153:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -81131,7 +81885,7 @@ var createBrowserHistory = function createBrowserHistory() {
 };
 
 exports.default = createBrowserHistory;
-},{"./DOMUtils":1148,"./LocationUtils":1149,"./PathUtils":1150,"./createTransitionManager":1154,"invariant":1158,"warning":1376}],1152:[function(require,module,exports){
+},{"./DOMUtils":1150,"./LocationUtils":1151,"./PathUtils":1152,"./createTransitionManager":1156,"invariant":1160,"warning":1378}],1154:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -81454,7 +82208,7 @@ var createHashHistory = function createHashHistory() {
 };
 
 exports.default = createHashHistory;
-},{"./DOMUtils":1148,"./LocationUtils":1149,"./PathUtils":1150,"./createTransitionManager":1154,"invariant":1158,"warning":1376}],1153:[function(require,module,exports){
+},{"./DOMUtils":1150,"./LocationUtils":1151,"./PathUtils":1152,"./createTransitionManager":1156,"invariant":1160,"warning":1378}],1155:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -81625,7 +82379,7 @@ var createMemoryHistory = function createMemoryHistory() {
 };
 
 exports.default = createMemoryHistory;
-},{"./LocationUtils":1149,"./PathUtils":1150,"./createTransitionManager":1154,"warning":1376}],1154:[function(require,module,exports){
+},{"./LocationUtils":1151,"./PathUtils":1152,"./createTransitionManager":1156,"warning":1378}],1156:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -81711,7 +82465,7 @@ var createTransitionManager = function createTransitionManager() {
 };
 
 exports.default = createTransitionManager;
-},{"warning":1376}],1155:[function(require,module,exports){
+},{"warning":1378}],1157:[function(require,module,exports){
 /**
  * Copyright 2015, Yahoo! Inc.
  * Copyrights licensed under the New BSD License. See the accompanying LICENSE file for terms.
@@ -81763,7 +82517,7 @@ module.exports = function hoistNonReactStatics(targetComponent, sourceComponent,
     return targetComponent;
 };
 
-},{}],1156:[function(require,module,exports){
+},{}],1158:[function(require,module,exports){
 module.exports=[
 	"ase",
 	"art",
@@ -81887,7 +82641,7 @@ module.exports=[
 	"tga"
 ]
 
-},{}],1157:[function(require,module,exports){
+},{}],1159:[function(require,module,exports){
 /**
  *  Copyright (c) 2014-2015, Facebook, Inc.
  *  All rights reserved.
@@ -86867,7 +87621,7 @@ module.exports=[
   return Immutable;
 
 }));
-},{}],1158:[function(require,module,exports){
+},{}],1160:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -86920,7 +87674,7 @@ var invariant = function(condition, format, a, b, c, d, e, f) {
 
 module.exports = invariant;
 
-},{}],1159:[function(require,module,exports){
+},{}],1161:[function(require,module,exports){
 
 /**
  * Has own property.
@@ -87001,7 +87755,7 @@ function isEmpty(val) {
 
 module.exports = isEmpty
 
-},{}],1160:[function(require,module,exports){
+},{}],1162:[function(require,module,exports){
 'use strict';
 var path = require('path');
 var imageExtensions = require('image-extensions');
@@ -87015,7 +87769,7 @@ module.exports = function (filepath) {
 	return path.extname(filepath).slice(1).toLowerCase() in exts;
 };
 
-},{"image-extensions":1156,"path":1166}],1161:[function(require,module,exports){
+},{"image-extensions":1158,"path":1168}],1163:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -87027,7 +87781,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 var isBrowser = exports.isBrowser = (typeof window === "undefined" ? "undefined" : _typeof(window)) === "object" && (typeof document === "undefined" ? "undefined" : _typeof(document)) === 'object' && document.nodeType === 9;
 
 exports.default = isBrowser;
-},{}],1162:[function(require,module,exports){
+},{}],1164:[function(require,module,exports){
 
 /**
  * Expose `isUrl`.
@@ -87052,7 +87806,7 @@ function isUrl(string){
   return matcher.test(string);
 }
 
-},{}],1163:[function(require,module,exports){
+},{}],1165:[function(require,module,exports){
 // Source: http://jsfiddle.net/vWx8V/
 // http://stackoverflow.com/questions/5603195/full-list-of-javascript-keycodes
 
@@ -87200,7 +87954,7 @@ for (var alias in aliases) {
   codes[alias] = aliases[alias]
 }
 
-},{}],1164:[function(require,module,exports){
+},{}],1166:[function(require,module,exports){
 /**
  * Helpers.
  */
@@ -87351,7 +88105,7 @@ function plural(ms, n, name) {
   return Math.ceil(ms / n) + ' ' + name + 's'
 }
 
-},{}],1165:[function(require,module,exports){
+},{}],1167:[function(require,module,exports){
 /*
 object-assign
 (c) Sindre Sorhus
@@ -87443,7 +88197,7 @@ module.exports = shouldUseNative() ? Object.assign : function (target, source) {
 	return to;
 };
 
-},{}],1166:[function(require,module,exports){
+},{}],1168:[function(require,module,exports){
 (function (process){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -87671,7 +88425,7 @@ var substr = 'ab'.substr(-1) === 'b'
 ;
 
 }).call(this,require('_process'))
-},{"_process":1170}],1167:[function(require,module,exports){
+},{"_process":1172}],1169:[function(require,module,exports){
 var isarray = require('isarray')
 
 /**
@@ -88099,12 +88853,12 @@ function pathToRegexp (path, keys, options) {
   return stringToRegexp(/** @type {string} */ (path), /** @type {!Array} */ (keys), options)
 }
 
-},{"isarray":1168}],1168:[function(require,module,exports){
+},{"isarray":1170}],1170:[function(require,module,exports){
 module.exports = Array.isArray || function (arr) {
   return Object.prototype.toString.call(arr) == '[object Array]';
 };
 
-},{}],1169:[function(require,module,exports){
+},{}],1171:[function(require,module,exports){
 (function (global){
 
 /* **********************************************
@@ -88903,7 +89657,7 @@ Prism.languages.js = Prism.languages.javascript;
 })();
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],1170:[function(require,module,exports){
+},{}],1172:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -89085,7 +89839,7 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],1171:[function(require,module,exports){
+},{}],1173:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-present, Facebook, Inc.
@@ -89150,7 +89904,7 @@ function checkPropTypes(typeSpecs, values, location, componentName, getStack) {
 module.exports = checkPropTypes;
 
 }).call(this,require('_process'))
-},{"./lib/ReactPropTypesSecret":1176,"_process":1170,"fbjs/lib/invariant":1136,"fbjs/lib/warning":1144}],1172:[function(require,module,exports){
+},{"./lib/ReactPropTypesSecret":1178,"_process":1172,"fbjs/lib/invariant":1138,"fbjs/lib/warning":1146}],1174:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -89173,7 +89927,7 @@ module.exports = function(isValidElement) {
   return factory(isValidElement, throwOnDirectAccess);
 };
 
-},{"./factoryWithTypeCheckers":1174}],1173:[function(require,module,exports){
+},{"./factoryWithTypeCheckers":1176}],1175:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -89229,7 +89983,7 @@ module.exports = function() {
   return ReactPropTypes;
 };
 
-},{"fbjs/lib/emptyFunction":1128,"fbjs/lib/invariant":1136}],1174:[function(require,module,exports){
+},{"fbjs/lib/emptyFunction":1130,"fbjs/lib/invariant":1138}],1176:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-present, Facebook, Inc.
@@ -89711,7 +90465,7 @@ module.exports = function(isValidElement, throwOnDirectAccess) {
 };
 
 }).call(this,require('_process'))
-},{"./checkPropTypes":1171,"./lib/ReactPropTypesSecret":1176,"_process":1170,"fbjs/lib/emptyFunction":1128,"fbjs/lib/invariant":1136,"fbjs/lib/warning":1144}],1175:[function(require,module,exports){
+},{"./checkPropTypes":1173,"./lib/ReactPropTypesSecret":1178,"_process":1172,"fbjs/lib/emptyFunction":1130,"fbjs/lib/invariant":1138,"fbjs/lib/warning":1146}],1177:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-present, Facebook, Inc.
@@ -89745,7 +90499,7 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 }).call(this,require('_process'))
-},{"./factoryWithThrowingShims":1173,"./factoryWithTypeCheckers":1174,"_process":1170}],1176:[function(require,module,exports){
+},{"./factoryWithThrowingShims":1175,"./factoryWithTypeCheckers":1176,"_process":1172}],1178:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -89761,14 +90515,14 @@ var ReactPropTypesSecret = 'SECRET_DO_NOT_PASS_THIS_OR_YOU_WILL_BE_FIRED';
 
 module.exports = ReactPropTypesSecret;
 
-},{}],1177:[function(require,module,exports){
+},{}],1179:[function(require,module,exports){
 module.exports = require('react-dom/lib/ReactPerf');
-},{"react-dom/lib/ReactPerf":1248}],1178:[function(require,module,exports){
+},{"react-dom/lib/ReactPerf":1250}],1180:[function(require,module,exports){
 'use strict';
 
 module.exports = require('./lib/ReactDOM');
 
-},{"./lib/ReactDOM":1208}],1179:[function(require,module,exports){
+},{"./lib/ReactDOM":1210}],1181:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -89842,7 +90596,7 @@ var ARIADOMPropertyConfig = {
 };
 
 module.exports = ARIADOMPropertyConfig;
-},{}],1180:[function(require,module,exports){
+},{}],1182:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -89866,7 +90620,7 @@ var AutoFocusUtils = {
 };
 
 module.exports = AutoFocusUtils;
-},{"./ReactDOMComponentTree":1211,"fbjs/lib/focusNode":1130}],1181:[function(require,module,exports){
+},{"./ReactDOMComponentTree":1213,"fbjs/lib/focusNode":1132}],1183:[function(require,module,exports){
 /**
  * Copyright 2013-present Facebook, Inc.
  * All rights reserved.
@@ -90251,7 +91005,7 @@ var BeforeInputEventPlugin = {
 };
 
 module.exports = BeforeInputEventPlugin;
-},{"./EventPropagators":1197,"./FallbackCompositionState":1198,"./SyntheticCompositionEvent":1266,"./SyntheticInputEvent":1270,"fbjs/lib/ExecutionEnvironment":1122}],1182:[function(require,module,exports){
+},{"./EventPropagators":1199,"./FallbackCompositionState":1200,"./SyntheticCompositionEvent":1268,"./SyntheticInputEvent":1272,"fbjs/lib/ExecutionEnvironment":1124}],1184:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -90399,7 +91153,7 @@ var CSSProperty = {
 };
 
 module.exports = CSSProperty;
-},{}],1183:[function(require,module,exports){
+},{}],1185:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -90608,7 +91362,7 @@ var CSSPropertyOperations = {
 };
 
 module.exports = CSSPropertyOperations;
-},{"./CSSProperty":1182,"./ReactInstrumentation":1241,"./dangerousStyleValue":1283,"fbjs/lib/ExecutionEnvironment":1122,"fbjs/lib/camelizeStyleName":1124,"fbjs/lib/hyphenateStyleName":1135,"fbjs/lib/memoizeStringOnly":1140,"fbjs/lib/warning":1144}],1184:[function(require,module,exports){
+},{"./CSSProperty":1184,"./ReactInstrumentation":1243,"./dangerousStyleValue":1285,"fbjs/lib/ExecutionEnvironment":1124,"fbjs/lib/camelizeStyleName":1126,"fbjs/lib/hyphenateStyleName":1137,"fbjs/lib/memoizeStringOnly":1142,"fbjs/lib/warning":1146}],1186:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -90727,7 +91481,7 @@ var CallbackQueue = function () {
 }();
 
 module.exports = PooledClass.addPoolingTo(CallbackQueue);
-},{"./PooledClass":1202,"./reactProdInvariant":1301,"fbjs/lib/invariant":1136}],1185:[function(require,module,exports){
+},{"./PooledClass":1204,"./reactProdInvariant":1303,"fbjs/lib/invariant":1138}],1187:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -91073,7 +91827,7 @@ var ChangeEventPlugin = {
 };
 
 module.exports = ChangeEventPlugin;
-},{"./EventPluginHub":1194,"./EventPropagators":1197,"./ReactDOMComponentTree":1211,"./ReactUpdates":1259,"./SyntheticEvent":1268,"./getEventTarget":1291,"./isEventSupported":1298,"./isTextInputElement":1299,"fbjs/lib/ExecutionEnvironment":1122}],1186:[function(require,module,exports){
+},{"./EventPluginHub":1196,"./EventPropagators":1199,"./ReactDOMComponentTree":1213,"./ReactUpdates":1261,"./SyntheticEvent":1270,"./getEventTarget":1293,"./isEventSupported":1300,"./isTextInputElement":1301,"fbjs/lib/ExecutionEnvironment":1124}],1188:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -91298,7 +92052,7 @@ var DOMChildrenOperations = {
 };
 
 module.exports = DOMChildrenOperations;
-},{"./DOMLazyTree":1187,"./Danger":1191,"./ReactDOMComponentTree":1211,"./ReactInstrumentation":1241,"./createMicrosoftUnsafeLocalFunction":1282,"./setInnerHTML":1303,"./setTextContent":1304}],1187:[function(require,module,exports){
+},{"./DOMLazyTree":1189,"./Danger":1193,"./ReactDOMComponentTree":1213,"./ReactInstrumentation":1243,"./createMicrosoftUnsafeLocalFunction":1284,"./setInnerHTML":1305,"./setTextContent":1306}],1189:[function(require,module,exports){
 /**
  * Copyright 2015-present, Facebook, Inc.
  * All rights reserved.
@@ -91416,7 +92170,7 @@ DOMLazyTree.queueHTML = queueHTML;
 DOMLazyTree.queueText = queueText;
 
 module.exports = DOMLazyTree;
-},{"./DOMNamespaces":1188,"./createMicrosoftUnsafeLocalFunction":1282,"./setInnerHTML":1303,"./setTextContent":1304}],1188:[function(require,module,exports){
+},{"./DOMNamespaces":1190,"./createMicrosoftUnsafeLocalFunction":1284,"./setInnerHTML":1305,"./setTextContent":1306}],1190:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -91436,7 +92190,7 @@ var DOMNamespaces = {
 };
 
 module.exports = DOMNamespaces;
-},{}],1189:[function(require,module,exports){
+},{}],1191:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -91646,7 +92400,7 @@ var DOMProperty = {
 };
 
 module.exports = DOMProperty;
-},{"./reactProdInvariant":1301,"fbjs/lib/invariant":1136}],1190:[function(require,module,exports){
+},{"./reactProdInvariant":1303,"fbjs/lib/invariant":1138}],1192:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -91883,7 +92637,7 @@ var DOMPropertyOperations = {
 };
 
 module.exports = DOMPropertyOperations;
-},{"./DOMProperty":1189,"./ReactDOMComponentTree":1211,"./ReactInstrumentation":1241,"./quoteAttributeValueForBrowser":1300,"fbjs/lib/warning":1144}],1191:[function(require,module,exports){
+},{"./DOMProperty":1191,"./ReactDOMComponentTree":1213,"./ReactInstrumentation":1243,"./quoteAttributeValueForBrowser":1302,"fbjs/lib/warning":1146}],1193:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -91931,7 +92685,7 @@ var Danger = {
 };
 
 module.exports = Danger;
-},{"./DOMLazyTree":1187,"./reactProdInvariant":1301,"fbjs/lib/ExecutionEnvironment":1122,"fbjs/lib/createNodesFromMarkup":1127,"fbjs/lib/emptyFunction":1128,"fbjs/lib/invariant":1136}],1192:[function(require,module,exports){
+},{"./DOMLazyTree":1189,"./reactProdInvariant":1303,"fbjs/lib/ExecutionEnvironment":1124,"fbjs/lib/createNodesFromMarkup":1129,"fbjs/lib/emptyFunction":1130,"fbjs/lib/invariant":1138}],1194:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -91957,7 +92711,7 @@ module.exports = Danger;
 var DefaultEventPluginOrder = ['ResponderEventPlugin', 'SimpleEventPlugin', 'TapEventPlugin', 'EnterLeaveEventPlugin', 'ChangeEventPlugin', 'SelectEventPlugin', 'BeforeInputEventPlugin'];
 
 module.exports = DefaultEventPluginOrder;
-},{}],1193:[function(require,module,exports){
+},{}],1195:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -92057,7 +92811,7 @@ var EnterLeaveEventPlugin = {
 };
 
 module.exports = EnterLeaveEventPlugin;
-},{"./EventPropagators":1197,"./ReactDOMComponentTree":1211,"./SyntheticMouseEvent":1272}],1194:[function(require,module,exports){
+},{"./EventPropagators":1199,"./ReactDOMComponentTree":1213,"./SyntheticMouseEvent":1274}],1196:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -92335,7 +93089,7 @@ var EventPluginHub = {
 };
 
 module.exports = EventPluginHub;
-},{"./EventPluginRegistry":1195,"./EventPluginUtils":1196,"./ReactErrorUtils":1232,"./accumulateInto":1279,"./forEachAccumulated":1287,"./reactProdInvariant":1301,"fbjs/lib/invariant":1136}],1195:[function(require,module,exports){
+},{"./EventPluginRegistry":1197,"./EventPluginUtils":1198,"./ReactErrorUtils":1234,"./accumulateInto":1281,"./forEachAccumulated":1289,"./reactProdInvariant":1303,"fbjs/lib/invariant":1138}],1197:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -92590,7 +93344,7 @@ var EventPluginRegistry = {
 };
 
 module.exports = EventPluginRegistry;
-},{"./reactProdInvariant":1301,"fbjs/lib/invariant":1136}],1196:[function(require,module,exports){
+},{"./reactProdInvariant":1303,"fbjs/lib/invariant":1138}],1198:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -92816,7 +93570,7 @@ var EventPluginUtils = {
 };
 
 module.exports = EventPluginUtils;
-},{"./ReactErrorUtils":1232,"./reactProdInvariant":1301,"fbjs/lib/invariant":1136,"fbjs/lib/warning":1144}],1197:[function(require,module,exports){
+},{"./ReactErrorUtils":1234,"./reactProdInvariant":1303,"fbjs/lib/invariant":1138,"fbjs/lib/warning":1146}],1199:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -92950,7 +93704,7 @@ var EventPropagators = {
 };
 
 module.exports = EventPropagators;
-},{"./EventPluginHub":1194,"./EventPluginUtils":1196,"./accumulateInto":1279,"./forEachAccumulated":1287,"fbjs/lib/warning":1144}],1198:[function(require,module,exports){
+},{"./EventPluginHub":1196,"./EventPluginUtils":1198,"./accumulateInto":1281,"./forEachAccumulated":1289,"fbjs/lib/warning":1146}],1200:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -93045,7 +93799,7 @@ _assign(FallbackCompositionState.prototype, {
 PooledClass.addPoolingTo(FallbackCompositionState);
 
 module.exports = FallbackCompositionState;
-},{"./PooledClass":1202,"./getTextContentAccessor":1295,"object-assign":1165}],1199:[function(require,module,exports){
+},{"./PooledClass":1204,"./getTextContentAccessor":1297,"object-assign":1167}],1201:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -93281,7 +94035,7 @@ var HTMLDOMPropertyConfig = {
 };
 
 module.exports = HTMLDOMPropertyConfig;
-},{"./DOMProperty":1189}],1200:[function(require,module,exports){
+},{"./DOMProperty":1191}],1202:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -93340,7 +94094,7 @@ var KeyEscapeUtils = {
 };
 
 module.exports = KeyEscapeUtils;
-},{}],1201:[function(require,module,exports){
+},{}],1203:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -93478,7 +94232,7 @@ var LinkedValueUtils = {
 };
 
 module.exports = LinkedValueUtils;
-},{"./ReactPropTypesSecret":1250,"./reactProdInvariant":1301,"fbjs/lib/invariant":1136,"fbjs/lib/warning":1144,"prop-types/factory":1172,"react/lib/React":1342}],1202:[function(require,module,exports){
+},{"./ReactPropTypesSecret":1252,"./reactProdInvariant":1303,"fbjs/lib/invariant":1138,"fbjs/lib/warning":1146,"prop-types/factory":1174,"react/lib/React":1344}],1204:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -93590,7 +94344,7 @@ var PooledClass = {
 };
 
 module.exports = PooledClass;
-},{"./reactProdInvariant":1301,"fbjs/lib/invariant":1136}],1203:[function(require,module,exports){
+},{"./reactProdInvariant":1303,"fbjs/lib/invariant":1138}],1205:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -93918,7 +94672,7 @@ var ReactBrowserEventEmitter = _assign({}, ReactEventEmitterMixin, {
 });
 
 module.exports = ReactBrowserEventEmitter;
-},{"./EventPluginRegistry":1195,"./ReactEventEmitterMixin":1233,"./ViewportMetrics":1278,"./getVendorPrefixedEventName":1296,"./isEventSupported":1298,"object-assign":1165}],1204:[function(require,module,exports){
+},{"./EventPluginRegistry":1197,"./ReactEventEmitterMixin":1235,"./ViewportMetrics":1280,"./getVendorPrefixedEventName":1298,"./isEventSupported":1300,"object-assign":1167}],1206:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014-present, Facebook, Inc.
@@ -94074,7 +94828,7 @@ var ReactChildReconciler = {
 
 module.exports = ReactChildReconciler;
 }).call(this,require('_process'))
-},{"./KeyEscapeUtils":1200,"./ReactReconciler":1252,"./instantiateReactComponent":1297,"./shouldUpdateReactComponent":1305,"./traverseAllChildren":1306,"_process":1170,"fbjs/lib/warning":1144,"react/lib/ReactComponentTreeHook":1346}],1205:[function(require,module,exports){
+},{"./KeyEscapeUtils":1202,"./ReactReconciler":1254,"./instantiateReactComponent":1299,"./shouldUpdateReactComponent":1307,"./traverseAllChildren":1308,"_process":1172,"fbjs/lib/warning":1146,"react/lib/ReactComponentTreeHook":1348}],1207:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -94104,7 +94858,7 @@ var ReactComponentBrowserEnvironment = {
 };
 
 module.exports = ReactComponentBrowserEnvironment;
-},{"./DOMChildrenOperations":1186,"./ReactDOMIDOperations":1215}],1206:[function(require,module,exports){
+},{"./DOMChildrenOperations":1188,"./ReactDOMIDOperations":1217}],1208:[function(require,module,exports){
 /**
  * Copyright 2014-present, Facebook, Inc.
  * All rights reserved.
@@ -94150,7 +94904,7 @@ var ReactComponentEnvironment = {
 };
 
 module.exports = ReactComponentEnvironment;
-},{"./reactProdInvariant":1301,"fbjs/lib/invariant":1136}],1207:[function(require,module,exports){
+},{"./reactProdInvariant":1303,"fbjs/lib/invariant":1138}],1209:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -95052,7 +95806,7 @@ var ReactCompositeComponent = {
 };
 
 module.exports = ReactCompositeComponent;
-},{"./ReactComponentEnvironment":1206,"./ReactErrorUtils":1232,"./ReactInstanceMap":1240,"./ReactInstrumentation":1241,"./ReactNodeTypes":1246,"./ReactReconciler":1252,"./checkReactTypeSpec":1281,"./reactProdInvariant":1301,"./shouldUpdateReactComponent":1305,"fbjs/lib/emptyObject":1129,"fbjs/lib/invariant":1136,"fbjs/lib/shallowEqual":1143,"fbjs/lib/warning":1144,"object-assign":1165,"react/lib/React":1342,"react/lib/ReactCurrentOwner":1347}],1208:[function(require,module,exports){
+},{"./ReactComponentEnvironment":1208,"./ReactErrorUtils":1234,"./ReactInstanceMap":1242,"./ReactInstrumentation":1243,"./ReactNodeTypes":1248,"./ReactReconciler":1254,"./checkReactTypeSpec":1283,"./reactProdInvariant":1303,"./shouldUpdateReactComponent":1307,"fbjs/lib/emptyObject":1131,"fbjs/lib/invariant":1138,"fbjs/lib/shallowEqual":1145,"fbjs/lib/warning":1146,"object-assign":1167,"react/lib/React":1344,"react/lib/ReactCurrentOwner":1349}],1210:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -95163,7 +95917,7 @@ if ("production" !== 'production') {
 }
 
 module.exports = ReactDOM;
-},{"./ReactDOMComponentTree":1211,"./ReactDOMInvalidARIAHook":1217,"./ReactDOMNullInputValuePropHook":1218,"./ReactDOMUnknownPropertyHook":1226,"./ReactDefaultInjection":1229,"./ReactInstrumentation":1241,"./ReactMount":1244,"./ReactReconciler":1252,"./ReactUpdates":1259,"./ReactVersion":1260,"./findDOMNode":1285,"./getHostComponentFromComposite":1292,"./renderSubtreeIntoContainer":1302,"fbjs/lib/ExecutionEnvironment":1122,"fbjs/lib/warning":1144}],1209:[function(require,module,exports){
+},{"./ReactDOMComponentTree":1213,"./ReactDOMInvalidARIAHook":1219,"./ReactDOMNullInputValuePropHook":1220,"./ReactDOMUnknownPropertyHook":1228,"./ReactDefaultInjection":1231,"./ReactInstrumentation":1243,"./ReactMount":1246,"./ReactReconciler":1254,"./ReactUpdates":1261,"./ReactVersion":1262,"./findDOMNode":1287,"./getHostComponentFromComposite":1294,"./renderSubtreeIntoContainer":1304,"fbjs/lib/ExecutionEnvironment":1124,"fbjs/lib/warning":1146}],1211:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -96164,7 +96918,7 @@ ReactDOMComponent.Mixin = {
 _assign(ReactDOMComponent.prototype, ReactDOMComponent.Mixin, ReactMultiChild.Mixin);
 
 module.exports = ReactDOMComponent;
-},{"./AutoFocusUtils":1180,"./CSSPropertyOperations":1183,"./DOMLazyTree":1187,"./DOMNamespaces":1188,"./DOMProperty":1189,"./DOMPropertyOperations":1190,"./EventPluginHub":1194,"./EventPluginRegistry":1195,"./ReactBrowserEventEmitter":1203,"./ReactDOMComponentFlags":1210,"./ReactDOMComponentTree":1211,"./ReactDOMInput":1216,"./ReactDOMOption":1219,"./ReactDOMSelect":1220,"./ReactDOMTextarea":1224,"./ReactInstrumentation":1241,"./ReactMultiChild":1245,"./ReactServerRenderingTransaction":1256,"./escapeTextContentForBrowser":1284,"./isEventSupported":1298,"./reactProdInvariant":1301,"./validateDOMNesting":1307,"fbjs/lib/emptyFunction":1128,"fbjs/lib/invariant":1136,"fbjs/lib/shallowEqual":1143,"fbjs/lib/warning":1144,"object-assign":1165}],1210:[function(require,module,exports){
+},{"./AutoFocusUtils":1182,"./CSSPropertyOperations":1185,"./DOMLazyTree":1189,"./DOMNamespaces":1190,"./DOMProperty":1191,"./DOMPropertyOperations":1192,"./EventPluginHub":1196,"./EventPluginRegistry":1197,"./ReactBrowserEventEmitter":1205,"./ReactDOMComponentFlags":1212,"./ReactDOMComponentTree":1213,"./ReactDOMInput":1218,"./ReactDOMOption":1221,"./ReactDOMSelect":1222,"./ReactDOMTextarea":1226,"./ReactInstrumentation":1243,"./ReactMultiChild":1247,"./ReactServerRenderingTransaction":1258,"./escapeTextContentForBrowser":1286,"./isEventSupported":1300,"./reactProdInvariant":1303,"./validateDOMNesting":1309,"fbjs/lib/emptyFunction":1130,"fbjs/lib/invariant":1138,"fbjs/lib/shallowEqual":1145,"fbjs/lib/warning":1146,"object-assign":1167}],1212:[function(require,module,exports){
 /**
  * Copyright 2015-present, Facebook, Inc.
  * All rights reserved.
@@ -96182,7 +96936,7 @@ var ReactDOMComponentFlags = {
 };
 
 module.exports = ReactDOMComponentFlags;
-},{}],1211:[function(require,module,exports){
+},{}],1213:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -96377,7 +97131,7 @@ var ReactDOMComponentTree = {
 };
 
 module.exports = ReactDOMComponentTree;
-},{"./DOMProperty":1189,"./ReactDOMComponentFlags":1210,"./reactProdInvariant":1301,"fbjs/lib/invariant":1136}],1212:[function(require,module,exports){
+},{"./DOMProperty":1191,"./ReactDOMComponentFlags":1212,"./reactProdInvariant":1303,"fbjs/lib/invariant":1138}],1214:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -96410,7 +97164,7 @@ function ReactDOMContainerInfo(topLevelWrapper, node) {
 }
 
 module.exports = ReactDOMContainerInfo;
-},{"./validateDOMNesting":1307}],1213:[function(require,module,exports){
+},{"./validateDOMNesting":1309}],1215:[function(require,module,exports){
 /**
  * Copyright 2014-present, Facebook, Inc.
  * All rights reserved.
@@ -96470,7 +97224,7 @@ _assign(ReactDOMEmptyComponent.prototype, {
 });
 
 module.exports = ReactDOMEmptyComponent;
-},{"./DOMLazyTree":1187,"./ReactDOMComponentTree":1211,"object-assign":1165}],1214:[function(require,module,exports){
+},{"./DOMLazyTree":1189,"./ReactDOMComponentTree":1213,"object-assign":1167}],1216:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -96489,7 +97243,7 @@ var ReactDOMFeatureFlags = {
 };
 
 module.exports = ReactDOMFeatureFlags;
-},{}],1215:[function(require,module,exports){
+},{}],1217:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -96523,7 +97277,7 @@ var ReactDOMIDOperations = {
 };
 
 module.exports = ReactDOMIDOperations;
-},{"./DOMChildrenOperations":1186,"./ReactDOMComponentTree":1211}],1216:[function(require,module,exports){
+},{"./DOMChildrenOperations":1188,"./ReactDOMComponentTree":1213}],1218:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -96808,7 +97562,7 @@ function _handleChange(event) {
 }
 
 module.exports = ReactDOMInput;
-},{"./DOMPropertyOperations":1190,"./LinkedValueUtils":1201,"./ReactDOMComponentTree":1211,"./ReactUpdates":1259,"./reactProdInvariant":1301,"fbjs/lib/invariant":1136,"fbjs/lib/warning":1144,"object-assign":1165}],1217:[function(require,module,exports){
+},{"./DOMPropertyOperations":1192,"./LinkedValueUtils":1203,"./ReactDOMComponentTree":1213,"./ReactUpdates":1261,"./reactProdInvariant":1303,"fbjs/lib/invariant":1138,"fbjs/lib/warning":1146,"object-assign":1167}],1219:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -96901,7 +97655,7 @@ var ReactDOMInvalidARIAHook = {
 };
 
 module.exports = ReactDOMInvalidARIAHook;
-},{"./DOMProperty":1189,"fbjs/lib/warning":1144,"react/lib/ReactComponentTreeHook":1346}],1218:[function(require,module,exports){
+},{"./DOMProperty":1191,"fbjs/lib/warning":1146,"react/lib/ReactComponentTreeHook":1348}],1220:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -96944,7 +97698,7 @@ var ReactDOMNullInputValuePropHook = {
 };
 
 module.exports = ReactDOMNullInputValuePropHook;
-},{"fbjs/lib/warning":1144,"react/lib/ReactComponentTreeHook":1346}],1219:[function(require,module,exports){
+},{"fbjs/lib/warning":1146,"react/lib/ReactComponentTreeHook":1348}],1221:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -97067,7 +97821,7 @@ var ReactDOMOption = {
 };
 
 module.exports = ReactDOMOption;
-},{"./ReactDOMComponentTree":1211,"./ReactDOMSelect":1220,"fbjs/lib/warning":1144,"object-assign":1165,"react/lib/React":1342}],1220:[function(require,module,exports){
+},{"./ReactDOMComponentTree":1213,"./ReactDOMSelect":1222,"fbjs/lib/warning":1146,"object-assign":1167,"react/lib/React":1344}],1222:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -97267,7 +98021,7 @@ function _handleChange(event) {
 }
 
 module.exports = ReactDOMSelect;
-},{"./LinkedValueUtils":1201,"./ReactDOMComponentTree":1211,"./ReactUpdates":1259,"fbjs/lib/warning":1144,"object-assign":1165}],1221:[function(require,module,exports){
+},{"./LinkedValueUtils":1203,"./ReactDOMComponentTree":1213,"./ReactUpdates":1261,"fbjs/lib/warning":1146,"object-assign":1167}],1223:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -97479,7 +98233,7 @@ var ReactDOMSelection = {
 };
 
 module.exports = ReactDOMSelection;
-},{"./getNodeForCharacterOffset":1294,"./getTextContentAccessor":1295,"fbjs/lib/ExecutionEnvironment":1122}],1222:[function(require,module,exports){
+},{"./getNodeForCharacterOffset":1296,"./getTextContentAccessor":1297,"fbjs/lib/ExecutionEnvironment":1124}],1224:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -97505,7 +98259,7 @@ var ReactDOMServer = {
 };
 
 module.exports = ReactDOMServer;
-},{"./ReactDefaultInjection":1229,"./ReactServerRendering":1255,"./ReactVersion":1260}],1223:[function(require,module,exports){
+},{"./ReactDefaultInjection":1231,"./ReactServerRendering":1257,"./ReactVersion":1262}],1225:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -97669,7 +98423,7 @@ _assign(ReactDOMTextComponent.prototype, {
 });
 
 module.exports = ReactDOMTextComponent;
-},{"./DOMChildrenOperations":1186,"./DOMLazyTree":1187,"./ReactDOMComponentTree":1211,"./escapeTextContentForBrowser":1284,"./reactProdInvariant":1301,"./validateDOMNesting":1307,"fbjs/lib/invariant":1136,"object-assign":1165}],1224:[function(require,module,exports){
+},{"./DOMChildrenOperations":1188,"./DOMLazyTree":1189,"./ReactDOMComponentTree":1213,"./escapeTextContentForBrowser":1286,"./reactProdInvariant":1303,"./validateDOMNesting":1309,"fbjs/lib/invariant":1138,"object-assign":1167}],1226:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -97829,7 +98583,7 @@ function _handleChange(event) {
 }
 
 module.exports = ReactDOMTextarea;
-},{"./LinkedValueUtils":1201,"./ReactDOMComponentTree":1211,"./ReactUpdates":1259,"./reactProdInvariant":1301,"fbjs/lib/invariant":1136,"fbjs/lib/warning":1144,"object-assign":1165}],1225:[function(require,module,exports){
+},{"./LinkedValueUtils":1203,"./ReactDOMComponentTree":1213,"./ReactUpdates":1261,"./reactProdInvariant":1303,"fbjs/lib/invariant":1138,"fbjs/lib/warning":1146,"object-assign":1167}],1227:[function(require,module,exports){
 /**
  * Copyright 2015-present, Facebook, Inc.
  * All rights reserved.
@@ -97965,7 +98719,7 @@ module.exports = {
   traverseTwoPhase: traverseTwoPhase,
   traverseEnterLeave: traverseEnterLeave
 };
-},{"./reactProdInvariant":1301,"fbjs/lib/invariant":1136}],1226:[function(require,module,exports){
+},{"./reactProdInvariant":1303,"fbjs/lib/invariant":1138}],1228:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -98077,7 +98831,7 @@ var ReactDOMUnknownPropertyHook = {
 };
 
 module.exports = ReactDOMUnknownPropertyHook;
-},{"./DOMProperty":1189,"./EventPluginRegistry":1195,"fbjs/lib/warning":1144,"react/lib/ReactComponentTreeHook":1346}],1227:[function(require,module,exports){
+},{"./DOMProperty":1191,"./EventPluginRegistry":1197,"fbjs/lib/warning":1146,"react/lib/ReactComponentTreeHook":1348}],1229:[function(require,module,exports){
 /**
  * Copyright 2016-present, Facebook, Inc.
  * All rights reserved.
@@ -98436,7 +99190,7 @@ if (/[?&]react_perf\b/.test(url)) {
 }
 
 module.exports = ReactDebugTool;
-},{"./ReactHostOperationHistoryHook":1237,"./ReactInvalidSetStateWarningHook":1242,"fbjs/lib/ExecutionEnvironment":1122,"fbjs/lib/performanceNow":1142,"fbjs/lib/warning":1144,"react/lib/ReactComponentTreeHook":1346}],1228:[function(require,module,exports){
+},{"./ReactHostOperationHistoryHook":1239,"./ReactInvalidSetStateWarningHook":1244,"fbjs/lib/ExecutionEnvironment":1124,"fbjs/lib/performanceNow":1144,"fbjs/lib/warning":1146,"react/lib/ReactComponentTreeHook":1348}],1230:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -98504,7 +99258,7 @@ var ReactDefaultBatchingStrategy = {
 };
 
 module.exports = ReactDefaultBatchingStrategy;
-},{"./ReactUpdates":1259,"./Transaction":1277,"fbjs/lib/emptyFunction":1128,"object-assign":1165}],1229:[function(require,module,exports){
+},{"./ReactUpdates":1261,"./Transaction":1279,"fbjs/lib/emptyFunction":1130,"object-assign":1167}],1231:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -98590,7 +99344,7 @@ function inject() {
 module.exports = {
   inject: inject
 };
-},{"./ARIADOMPropertyConfig":1179,"./BeforeInputEventPlugin":1181,"./ChangeEventPlugin":1185,"./DefaultEventPluginOrder":1192,"./EnterLeaveEventPlugin":1193,"./HTMLDOMPropertyConfig":1199,"./ReactComponentBrowserEnvironment":1205,"./ReactDOMComponent":1209,"./ReactDOMComponentTree":1211,"./ReactDOMEmptyComponent":1213,"./ReactDOMTextComponent":1223,"./ReactDOMTreeTraversal":1225,"./ReactDefaultBatchingStrategy":1228,"./ReactEventListener":1234,"./ReactInjection":1238,"./ReactReconcileTransaction":1251,"./SVGDOMPropertyConfig":1261,"./SelectEventPlugin":1262,"./SimpleEventPlugin":1263}],1230:[function(require,module,exports){
+},{"./ARIADOMPropertyConfig":1181,"./BeforeInputEventPlugin":1183,"./ChangeEventPlugin":1187,"./DefaultEventPluginOrder":1194,"./EnterLeaveEventPlugin":1195,"./HTMLDOMPropertyConfig":1201,"./ReactComponentBrowserEnvironment":1207,"./ReactDOMComponent":1211,"./ReactDOMComponentTree":1213,"./ReactDOMEmptyComponent":1215,"./ReactDOMTextComponent":1225,"./ReactDOMTreeTraversal":1227,"./ReactDefaultBatchingStrategy":1230,"./ReactEventListener":1236,"./ReactInjection":1240,"./ReactReconcileTransaction":1253,"./SVGDOMPropertyConfig":1263,"./SelectEventPlugin":1264,"./SimpleEventPlugin":1265}],1232:[function(require,module,exports){
 /**
  * Copyright 2014-present, Facebook, Inc.
  * All rights reserved.
@@ -98610,7 +99364,7 @@ module.exports = {
 var REACT_ELEMENT_TYPE = typeof Symbol === 'function' && Symbol['for'] && Symbol['for']('react.element') || 0xeac7;
 
 module.exports = REACT_ELEMENT_TYPE;
-},{}],1231:[function(require,module,exports){
+},{}],1233:[function(require,module,exports){
 /**
  * Copyright 2014-present, Facebook, Inc.
  * All rights reserved.
@@ -98640,7 +99394,7 @@ var ReactEmptyComponent = {
 ReactEmptyComponent.injection = ReactEmptyComponentInjection;
 
 module.exports = ReactEmptyComponent;
-},{}],1232:[function(require,module,exports){
+},{}],1234:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -98716,7 +99470,7 @@ if ("production" !== 'production') {
 }
 
 module.exports = ReactErrorUtils;
-},{}],1233:[function(require,module,exports){
+},{}],1235:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -98749,7 +99503,7 @@ var ReactEventEmitterMixin = {
 };
 
 module.exports = ReactEventEmitterMixin;
-},{"./EventPluginHub":1194}],1234:[function(require,module,exports){
+},{"./EventPluginHub":1196}],1236:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -98904,7 +99658,7 @@ var ReactEventListener = {
 };
 
 module.exports = ReactEventListener;
-},{"./PooledClass":1202,"./ReactDOMComponentTree":1211,"./ReactUpdates":1259,"./getEventTarget":1291,"fbjs/lib/EventListener":1121,"fbjs/lib/ExecutionEnvironment":1122,"fbjs/lib/getUnboundedScrollPosition":1133,"object-assign":1165}],1235:[function(require,module,exports){
+},{"./PooledClass":1204,"./ReactDOMComponentTree":1213,"./ReactUpdates":1261,"./getEventTarget":1293,"fbjs/lib/EventListener":1123,"fbjs/lib/ExecutionEnvironment":1124,"fbjs/lib/getUnboundedScrollPosition":1135,"object-assign":1167}],1237:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -98926,7 +99680,7 @@ var ReactFeatureFlags = {
 };
 
 module.exports = ReactFeatureFlags;
-},{}],1236:[function(require,module,exports){
+},{}],1238:[function(require,module,exports){
 /**
  * Copyright 2014-present, Facebook, Inc.
  * All rights reserved.
@@ -98994,7 +99748,7 @@ var ReactHostComponent = {
 };
 
 module.exports = ReactHostComponent;
-},{"./reactProdInvariant":1301,"fbjs/lib/invariant":1136}],1237:[function(require,module,exports){
+},{"./reactProdInvariant":1303,"fbjs/lib/invariant":1138}],1239:[function(require,module,exports){
 /**
  * Copyright 2016-present, Facebook, Inc.
  * All rights reserved.
@@ -99028,7 +99782,7 @@ var ReactHostOperationHistoryHook = {
 };
 
 module.exports = ReactHostOperationHistoryHook;
-},{}],1238:[function(require,module,exports){
+},{}],1240:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -99062,7 +99816,7 @@ var ReactInjection = {
 };
 
 module.exports = ReactInjection;
-},{"./DOMProperty":1189,"./EventPluginHub":1194,"./EventPluginUtils":1196,"./ReactBrowserEventEmitter":1203,"./ReactComponentEnvironment":1206,"./ReactEmptyComponent":1231,"./ReactHostComponent":1236,"./ReactUpdates":1259}],1239:[function(require,module,exports){
+},{"./DOMProperty":1191,"./EventPluginHub":1196,"./EventPluginUtils":1198,"./ReactBrowserEventEmitter":1205,"./ReactComponentEnvironment":1208,"./ReactEmptyComponent":1233,"./ReactHostComponent":1238,"./ReactUpdates":1261}],1241:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -99186,7 +99940,7 @@ var ReactInputSelection = {
 };
 
 module.exports = ReactInputSelection;
-},{"./ReactDOMSelection":1221,"fbjs/lib/containsNode":1125,"fbjs/lib/focusNode":1130,"fbjs/lib/getActiveElement":1131}],1240:[function(require,module,exports){
+},{"./ReactDOMSelection":1223,"fbjs/lib/containsNode":1127,"fbjs/lib/focusNode":1132,"fbjs/lib/getActiveElement":1133}],1242:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -99234,7 +99988,7 @@ var ReactInstanceMap = {
 };
 
 module.exports = ReactInstanceMap;
-},{}],1241:[function(require,module,exports){
+},{}],1243:[function(require,module,exports){
 /**
  * Copyright 2016-present, Facebook, Inc.
  * All rights reserved.
@@ -99258,7 +100012,7 @@ if ("production" !== 'production') {
 }
 
 module.exports = { debugTool: debugTool };
-},{"./ReactDebugTool":1227}],1242:[function(require,module,exports){
+},{"./ReactDebugTool":1229}],1244:[function(require,module,exports){
 /**
  * Copyright 2016-present, Facebook, Inc.
  * All rights reserved.
@@ -99295,7 +100049,7 @@ var ReactInvalidSetStateWarningHook = {
 };
 
 module.exports = ReactInvalidSetStateWarningHook;
-},{"fbjs/lib/warning":1144}],1243:[function(require,module,exports){
+},{"fbjs/lib/warning":1146}],1245:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -99345,7 +100099,7 @@ var ReactMarkupChecksum = {
 };
 
 module.exports = ReactMarkupChecksum;
-},{"./adler32":1280}],1244:[function(require,module,exports){
+},{"./adler32":1282}],1246:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -99883,7 +100637,7 @@ var ReactMount = {
 };
 
 module.exports = ReactMount;
-},{"./DOMLazyTree":1187,"./DOMProperty":1189,"./ReactBrowserEventEmitter":1203,"./ReactDOMComponentTree":1211,"./ReactDOMContainerInfo":1212,"./ReactDOMFeatureFlags":1214,"./ReactFeatureFlags":1235,"./ReactInstanceMap":1240,"./ReactInstrumentation":1241,"./ReactMarkupChecksum":1243,"./ReactReconciler":1252,"./ReactUpdateQueue":1258,"./ReactUpdates":1259,"./instantiateReactComponent":1297,"./reactProdInvariant":1301,"./setInnerHTML":1303,"./shouldUpdateReactComponent":1305,"fbjs/lib/emptyObject":1129,"fbjs/lib/invariant":1136,"fbjs/lib/warning":1144,"react/lib/React":1342,"react/lib/ReactCurrentOwner":1347}],1245:[function(require,module,exports){
+},{"./DOMLazyTree":1189,"./DOMProperty":1191,"./ReactBrowserEventEmitter":1205,"./ReactDOMComponentTree":1213,"./ReactDOMContainerInfo":1214,"./ReactDOMFeatureFlags":1216,"./ReactFeatureFlags":1237,"./ReactInstanceMap":1242,"./ReactInstrumentation":1243,"./ReactMarkupChecksum":1245,"./ReactReconciler":1254,"./ReactUpdateQueue":1260,"./ReactUpdates":1261,"./instantiateReactComponent":1299,"./reactProdInvariant":1303,"./setInnerHTML":1305,"./shouldUpdateReactComponent":1307,"fbjs/lib/emptyObject":1131,"fbjs/lib/invariant":1138,"fbjs/lib/warning":1146,"react/lib/React":1344,"react/lib/ReactCurrentOwner":1349}],1247:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -100333,7 +101087,7 @@ var ReactMultiChild = {
 };
 
 module.exports = ReactMultiChild;
-},{"./ReactChildReconciler":1204,"./ReactComponentEnvironment":1206,"./ReactInstanceMap":1240,"./ReactInstrumentation":1241,"./ReactReconciler":1252,"./flattenChildren":1286,"./reactProdInvariant":1301,"fbjs/lib/emptyFunction":1128,"fbjs/lib/invariant":1136,"react/lib/ReactCurrentOwner":1347}],1246:[function(require,module,exports){
+},{"./ReactChildReconciler":1206,"./ReactComponentEnvironment":1208,"./ReactInstanceMap":1242,"./ReactInstrumentation":1243,"./ReactReconciler":1254,"./flattenChildren":1288,"./reactProdInvariant":1303,"fbjs/lib/emptyFunction":1130,"fbjs/lib/invariant":1138,"react/lib/ReactCurrentOwner":1349}],1248:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -100373,7 +101127,7 @@ var ReactNodeTypes = {
 };
 
 module.exports = ReactNodeTypes;
-},{"./reactProdInvariant":1301,"fbjs/lib/invariant":1136,"react/lib/React":1342}],1247:[function(require,module,exports){
+},{"./reactProdInvariant":1303,"fbjs/lib/invariant":1138,"react/lib/React":1344}],1249:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -100467,7 +101221,7 @@ var ReactOwner = {
 };
 
 module.exports = ReactOwner;
-},{"./reactProdInvariant":1301,"fbjs/lib/invariant":1136}],1248:[function(require,module,exports){
+},{"./reactProdInvariant":1303,"fbjs/lib/invariant":1138}],1250:[function(require,module,exports){
 /**
  * Copyright 2016-present, Facebook, Inc.
  * All rights reserved.
@@ -100968,7 +101722,7 @@ var ReactPerfAnalysis = {
 };
 
 module.exports = ReactPerfAnalysis;
-},{"./ReactDebugTool":1227,"fbjs/lib/warning":1144,"object-assign":1165}],1249:[function(require,module,exports){
+},{"./ReactDebugTool":1229,"fbjs/lib/warning":1146,"object-assign":1167}],1251:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -100993,7 +101747,7 @@ if ("production" !== 'production') {
 }
 
 module.exports = ReactPropTypeLocationNames;
-},{}],1250:[function(require,module,exports){
+},{}],1252:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -101010,7 +101764,7 @@ module.exports = ReactPropTypeLocationNames;
 var ReactPropTypesSecret = 'SECRET_DO_NOT_PASS_THIS_OR_YOU_WILL_BE_FIRED';
 
 module.exports = ReactPropTypesSecret;
-},{}],1251:[function(require,module,exports){
+},{}],1253:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -101188,7 +101942,7 @@ _assign(ReactReconcileTransaction.prototype, Transaction, Mixin);
 PooledClass.addPoolingTo(ReactReconcileTransaction);
 
 module.exports = ReactReconcileTransaction;
-},{"./CallbackQueue":1184,"./PooledClass":1202,"./ReactBrowserEventEmitter":1203,"./ReactInputSelection":1239,"./ReactInstrumentation":1241,"./ReactUpdateQueue":1258,"./Transaction":1277,"object-assign":1165}],1252:[function(require,module,exports){
+},{"./CallbackQueue":1186,"./PooledClass":1204,"./ReactBrowserEventEmitter":1205,"./ReactInputSelection":1241,"./ReactInstrumentation":1243,"./ReactUpdateQueue":1260,"./Transaction":1279,"object-assign":1167}],1254:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -101356,7 +102110,7 @@ var ReactReconciler = {
 };
 
 module.exports = ReactReconciler;
-},{"./ReactInstrumentation":1241,"./ReactRef":1253,"fbjs/lib/warning":1144}],1253:[function(require,module,exports){
+},{"./ReactInstrumentation":1243,"./ReactRef":1255,"fbjs/lib/warning":1146}],1255:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -101445,7 +102199,7 @@ ReactRef.detachRefs = function (instance, element) {
 };
 
 module.exports = ReactRef;
-},{"./ReactOwner":1247}],1254:[function(require,module,exports){
+},{"./ReactOwner":1249}],1256:[function(require,module,exports){
 /**
  * Copyright 2014-present, Facebook, Inc.
  * All rights reserved.
@@ -101467,7 +102221,7 @@ var ReactServerBatchingStrategy = {
 };
 
 module.exports = ReactServerBatchingStrategy;
-},{}],1255:[function(require,module,exports){
+},{}],1257:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -101557,7 +102311,7 @@ module.exports = {
   renderToString: renderToString,
   renderToStaticMarkup: renderToStaticMarkup
 };
-},{"./ReactDOMContainerInfo":1212,"./ReactDefaultBatchingStrategy":1228,"./ReactInstrumentation":1241,"./ReactMarkupChecksum":1243,"./ReactReconciler":1252,"./ReactServerBatchingStrategy":1254,"./ReactServerRenderingTransaction":1256,"./ReactUpdates":1259,"./instantiateReactComponent":1297,"./reactProdInvariant":1301,"fbjs/lib/emptyObject":1129,"fbjs/lib/invariant":1136,"react/lib/React":1342}],1256:[function(require,module,exports){
+},{"./ReactDOMContainerInfo":1214,"./ReactDefaultBatchingStrategy":1230,"./ReactInstrumentation":1243,"./ReactMarkupChecksum":1245,"./ReactReconciler":1254,"./ReactServerBatchingStrategy":1256,"./ReactServerRenderingTransaction":1258,"./ReactUpdates":1261,"./instantiateReactComponent":1299,"./reactProdInvariant":1303,"fbjs/lib/emptyObject":1131,"fbjs/lib/invariant":1138,"react/lib/React":1344}],1258:[function(require,module,exports){
 /**
  * Copyright 2014-present, Facebook, Inc.
  * All rights reserved.
@@ -101647,7 +102401,7 @@ _assign(ReactServerRenderingTransaction.prototype, Transaction, Mixin);
 PooledClass.addPoolingTo(ReactServerRenderingTransaction);
 
 module.exports = ReactServerRenderingTransaction;
-},{"./PooledClass":1202,"./ReactInstrumentation":1241,"./ReactServerUpdateQueue":1257,"./Transaction":1277,"object-assign":1165}],1257:[function(require,module,exports){
+},{"./PooledClass":1204,"./ReactInstrumentation":1243,"./ReactServerUpdateQueue":1259,"./Transaction":1279,"object-assign":1167}],1259:[function(require,module,exports){
 /**
  * Copyright 2015-present, Facebook, Inc.
  * All rights reserved.
@@ -101786,7 +102540,7 @@ var ReactServerUpdateQueue = function () {
 }();
 
 module.exports = ReactServerUpdateQueue;
-},{"./ReactUpdateQueue":1258,"fbjs/lib/warning":1144}],1258:[function(require,module,exports){
+},{"./ReactUpdateQueue":1260,"fbjs/lib/warning":1146}],1260:[function(require,module,exports){
 /**
  * Copyright 2015-present, Facebook, Inc.
  * All rights reserved.
@@ -102022,7 +102776,7 @@ var ReactUpdateQueue = {
 };
 
 module.exports = ReactUpdateQueue;
-},{"./ReactInstanceMap":1240,"./ReactInstrumentation":1241,"./ReactUpdates":1259,"./reactProdInvariant":1301,"fbjs/lib/invariant":1136,"fbjs/lib/warning":1144,"react/lib/ReactCurrentOwner":1347}],1259:[function(require,module,exports){
+},{"./ReactInstanceMap":1242,"./ReactInstrumentation":1243,"./ReactUpdates":1261,"./reactProdInvariant":1303,"fbjs/lib/invariant":1138,"fbjs/lib/warning":1146,"react/lib/ReactCurrentOwner":1349}],1261:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -102273,7 +103027,7 @@ var ReactUpdates = {
 };
 
 module.exports = ReactUpdates;
-},{"./CallbackQueue":1184,"./PooledClass":1202,"./ReactFeatureFlags":1235,"./ReactReconciler":1252,"./Transaction":1277,"./reactProdInvariant":1301,"fbjs/lib/invariant":1136,"object-assign":1165}],1260:[function(require,module,exports){
+},{"./CallbackQueue":1186,"./PooledClass":1204,"./ReactFeatureFlags":1237,"./ReactReconciler":1254,"./Transaction":1279,"./reactProdInvariant":1303,"fbjs/lib/invariant":1138,"object-assign":1167}],1262:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -102287,7 +103041,7 @@ module.exports = ReactUpdates;
 'use strict';
 
 module.exports = '15.5.4';
-},{}],1261:[function(require,module,exports){
+},{}],1263:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -102589,7 +103343,7 @@ Object.keys(ATTRS).forEach(function (key) {
 });
 
 module.exports = SVGDOMPropertyConfig;
-},{}],1262:[function(require,module,exports){
+},{}],1264:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -102780,7 +103534,7 @@ var SelectEventPlugin = {
 };
 
 module.exports = SelectEventPlugin;
-},{"./EventPropagators":1197,"./ReactDOMComponentTree":1211,"./ReactInputSelection":1239,"./SyntheticEvent":1268,"./isTextInputElement":1299,"fbjs/lib/ExecutionEnvironment":1122,"fbjs/lib/getActiveElement":1131,"fbjs/lib/shallowEqual":1143}],1263:[function(require,module,exports){
+},{"./EventPropagators":1199,"./ReactDOMComponentTree":1213,"./ReactInputSelection":1241,"./SyntheticEvent":1270,"./isTextInputElement":1301,"fbjs/lib/ExecutionEnvironment":1124,"fbjs/lib/getActiveElement":1133,"fbjs/lib/shallowEqual":1145}],1265:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -103008,7 +103762,7 @@ var SimpleEventPlugin = {
 };
 
 module.exports = SimpleEventPlugin;
-},{"./EventPropagators":1197,"./ReactDOMComponentTree":1211,"./SyntheticAnimationEvent":1264,"./SyntheticClipboardEvent":1265,"./SyntheticDragEvent":1267,"./SyntheticEvent":1268,"./SyntheticFocusEvent":1269,"./SyntheticKeyboardEvent":1271,"./SyntheticMouseEvent":1272,"./SyntheticTouchEvent":1273,"./SyntheticTransitionEvent":1274,"./SyntheticUIEvent":1275,"./SyntheticWheelEvent":1276,"./getEventCharCode":1288,"./reactProdInvariant":1301,"fbjs/lib/EventListener":1121,"fbjs/lib/emptyFunction":1128,"fbjs/lib/invariant":1136}],1264:[function(require,module,exports){
+},{"./EventPropagators":1199,"./ReactDOMComponentTree":1213,"./SyntheticAnimationEvent":1266,"./SyntheticClipboardEvent":1267,"./SyntheticDragEvent":1269,"./SyntheticEvent":1270,"./SyntheticFocusEvent":1271,"./SyntheticKeyboardEvent":1273,"./SyntheticMouseEvent":1274,"./SyntheticTouchEvent":1275,"./SyntheticTransitionEvent":1276,"./SyntheticUIEvent":1277,"./SyntheticWheelEvent":1278,"./getEventCharCode":1290,"./reactProdInvariant":1303,"fbjs/lib/EventListener":1123,"fbjs/lib/emptyFunction":1130,"fbjs/lib/invariant":1138}],1266:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -103047,7 +103801,7 @@ function SyntheticAnimationEvent(dispatchConfig, dispatchMarker, nativeEvent, na
 SyntheticEvent.augmentClass(SyntheticAnimationEvent, AnimationEventInterface);
 
 module.exports = SyntheticAnimationEvent;
-},{"./SyntheticEvent":1268}],1265:[function(require,module,exports){
+},{"./SyntheticEvent":1270}],1267:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -103085,7 +103839,7 @@ function SyntheticClipboardEvent(dispatchConfig, dispatchMarker, nativeEvent, na
 SyntheticEvent.augmentClass(SyntheticClipboardEvent, ClipboardEventInterface);
 
 module.exports = SyntheticClipboardEvent;
-},{"./SyntheticEvent":1268}],1266:[function(require,module,exports){
+},{"./SyntheticEvent":1270}],1268:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -103121,7 +103875,7 @@ function SyntheticCompositionEvent(dispatchConfig, dispatchMarker, nativeEvent, 
 SyntheticEvent.augmentClass(SyntheticCompositionEvent, CompositionEventInterface);
 
 module.exports = SyntheticCompositionEvent;
-},{"./SyntheticEvent":1268}],1267:[function(require,module,exports){
+},{"./SyntheticEvent":1270}],1269:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -103157,7 +103911,7 @@ function SyntheticDragEvent(dispatchConfig, dispatchMarker, nativeEvent, nativeE
 SyntheticMouseEvent.augmentClass(SyntheticDragEvent, DragEventInterface);
 
 module.exports = SyntheticDragEvent;
-},{"./SyntheticMouseEvent":1272}],1268:[function(require,module,exports){
+},{"./SyntheticMouseEvent":1274}],1270:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -103425,7 +104179,7 @@ function getPooledWarningPropertyDefinition(propName, getVal) {
     "production" !== 'production' ? warning(warningCondition, 'This synthetic event is reused for performance reasons. If you\'re seeing this, ' + 'you\'re %s `%s` on a released/nullified synthetic event. %s. ' + 'If you must keep the original synthetic event around, use event.persist(). ' + 'See https://fb.me/react-event-pooling for more information.', action, propName, result) : void 0;
   }
 }
-},{"./PooledClass":1202,"fbjs/lib/emptyFunction":1128,"fbjs/lib/warning":1144,"object-assign":1165}],1269:[function(require,module,exports){
+},{"./PooledClass":1204,"fbjs/lib/emptyFunction":1130,"fbjs/lib/warning":1146,"object-assign":1167}],1271:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -103461,7 +104215,7 @@ function SyntheticFocusEvent(dispatchConfig, dispatchMarker, nativeEvent, native
 SyntheticUIEvent.augmentClass(SyntheticFocusEvent, FocusEventInterface);
 
 module.exports = SyntheticFocusEvent;
-},{"./SyntheticUIEvent":1275}],1270:[function(require,module,exports){
+},{"./SyntheticUIEvent":1277}],1272:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -103498,7 +104252,7 @@ function SyntheticInputEvent(dispatchConfig, dispatchMarker, nativeEvent, native
 SyntheticEvent.augmentClass(SyntheticInputEvent, InputEventInterface);
 
 module.exports = SyntheticInputEvent;
-},{"./SyntheticEvent":1268}],1271:[function(require,module,exports){
+},{"./SyntheticEvent":1270}],1273:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -103582,7 +104336,7 @@ function SyntheticKeyboardEvent(dispatchConfig, dispatchMarker, nativeEvent, nat
 SyntheticUIEvent.augmentClass(SyntheticKeyboardEvent, KeyboardEventInterface);
 
 module.exports = SyntheticKeyboardEvent;
-},{"./SyntheticUIEvent":1275,"./getEventCharCode":1288,"./getEventKey":1289,"./getEventModifierState":1290}],1272:[function(require,module,exports){
+},{"./SyntheticUIEvent":1277,"./getEventCharCode":1290,"./getEventKey":1291,"./getEventModifierState":1292}],1274:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -103654,7 +104408,7 @@ function SyntheticMouseEvent(dispatchConfig, dispatchMarker, nativeEvent, native
 SyntheticUIEvent.augmentClass(SyntheticMouseEvent, MouseEventInterface);
 
 module.exports = SyntheticMouseEvent;
-},{"./SyntheticUIEvent":1275,"./ViewportMetrics":1278,"./getEventModifierState":1290}],1273:[function(require,module,exports){
+},{"./SyntheticUIEvent":1277,"./ViewportMetrics":1280,"./getEventModifierState":1292}],1275:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -103699,7 +104453,7 @@ function SyntheticTouchEvent(dispatchConfig, dispatchMarker, nativeEvent, native
 SyntheticUIEvent.augmentClass(SyntheticTouchEvent, TouchEventInterface);
 
 module.exports = SyntheticTouchEvent;
-},{"./SyntheticUIEvent":1275,"./getEventModifierState":1290}],1274:[function(require,module,exports){
+},{"./SyntheticUIEvent":1277,"./getEventModifierState":1292}],1276:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -103738,7 +104492,7 @@ function SyntheticTransitionEvent(dispatchConfig, dispatchMarker, nativeEvent, n
 SyntheticEvent.augmentClass(SyntheticTransitionEvent, TransitionEventInterface);
 
 module.exports = SyntheticTransitionEvent;
-},{"./SyntheticEvent":1268}],1275:[function(require,module,exports){
+},{"./SyntheticEvent":1270}],1277:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -103797,7 +104551,7 @@ function SyntheticUIEvent(dispatchConfig, dispatchMarker, nativeEvent, nativeEve
 SyntheticEvent.augmentClass(SyntheticUIEvent, UIEventInterface);
 
 module.exports = SyntheticUIEvent;
-},{"./SyntheticEvent":1268,"./getEventTarget":1291}],1276:[function(require,module,exports){
+},{"./SyntheticEvent":1270,"./getEventTarget":1293}],1278:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -103851,7 +104605,7 @@ function SyntheticWheelEvent(dispatchConfig, dispatchMarker, nativeEvent, native
 SyntheticMouseEvent.augmentClass(SyntheticWheelEvent, WheelEventInterface);
 
 module.exports = SyntheticWheelEvent;
-},{"./SyntheticMouseEvent":1272}],1277:[function(require,module,exports){
+},{"./SyntheticMouseEvent":1274}],1279:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -104076,7 +104830,7 @@ var TransactionImpl = {
 };
 
 module.exports = TransactionImpl;
-},{"./reactProdInvariant":1301,"fbjs/lib/invariant":1136}],1278:[function(require,module,exports){
+},{"./reactProdInvariant":1303,"fbjs/lib/invariant":1138}],1280:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -104103,7 +104857,7 @@ var ViewportMetrics = {
 };
 
 module.exports = ViewportMetrics;
-},{}],1279:[function(require,module,exports){
+},{}],1281:[function(require,module,exports){
 /**
  * Copyright 2014-present, Facebook, Inc.
  * All rights reserved.
@@ -104161,7 +104915,7 @@ function accumulateInto(current, next) {
 }
 
 module.exports = accumulateInto;
-},{"./reactProdInvariant":1301,"fbjs/lib/invariant":1136}],1280:[function(require,module,exports){
+},{"./reactProdInvariant":1303,"fbjs/lib/invariant":1138}],1282:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -104205,7 +104959,7 @@ function adler32(data) {
 }
 
 module.exports = adler32;
-},{}],1281:[function(require,module,exports){
+},{}],1283:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-present, Facebook, Inc.
@@ -104294,7 +105048,7 @@ function checkReactTypeSpec(typeSpecs, values, location, componentName, element,
 
 module.exports = checkReactTypeSpec;
 }).call(this,require('_process'))
-},{"./ReactPropTypeLocationNames":1249,"./ReactPropTypesSecret":1250,"./reactProdInvariant":1301,"_process":1170,"fbjs/lib/invariant":1136,"fbjs/lib/warning":1144,"react/lib/ReactComponentTreeHook":1346}],1282:[function(require,module,exports){
+},{"./ReactPropTypeLocationNames":1251,"./ReactPropTypesSecret":1252,"./reactProdInvariant":1303,"_process":1172,"fbjs/lib/invariant":1138,"fbjs/lib/warning":1146,"react/lib/ReactComponentTreeHook":1348}],1284:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -104326,7 +105080,7 @@ var createMicrosoftUnsafeLocalFunction = function (func) {
 };
 
 module.exports = createMicrosoftUnsafeLocalFunction;
-},{}],1283:[function(require,module,exports){
+},{}],1285:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -104405,7 +105159,7 @@ function dangerousStyleValue(name, value, component) {
 }
 
 module.exports = dangerousStyleValue;
-},{"./CSSProperty":1182,"fbjs/lib/warning":1144}],1284:[function(require,module,exports){
+},{"./CSSProperty":1184,"fbjs/lib/warning":1146}],1286:[function(require,module,exports){
 /**
  * Copyright 2016-present, Facebook, Inc.
  * All rights reserved.
@@ -104528,7 +105282,7 @@ function escapeTextContentForBrowser(text) {
 }
 
 module.exports = escapeTextContentForBrowser;
-},{}],1285:[function(require,module,exports){
+},{}],1287:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -104588,7 +105342,7 @@ function findDOMNode(componentOrElement) {
 }
 
 module.exports = findDOMNode;
-},{"./ReactDOMComponentTree":1211,"./ReactInstanceMap":1240,"./getHostComponentFromComposite":1292,"./reactProdInvariant":1301,"fbjs/lib/invariant":1136,"fbjs/lib/warning":1144,"react/lib/ReactCurrentOwner":1347}],1286:[function(require,module,exports){
+},{"./ReactDOMComponentTree":1213,"./ReactInstanceMap":1242,"./getHostComponentFromComposite":1294,"./reactProdInvariant":1303,"fbjs/lib/invariant":1138,"fbjs/lib/warning":1146,"react/lib/ReactCurrentOwner":1349}],1288:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-present, Facebook, Inc.
@@ -104666,7 +105420,7 @@ function flattenChildren(children, selfDebugID) {
 
 module.exports = flattenChildren;
 }).call(this,require('_process'))
-},{"./KeyEscapeUtils":1200,"./traverseAllChildren":1306,"_process":1170,"fbjs/lib/warning":1144,"react/lib/ReactComponentTreeHook":1346}],1287:[function(require,module,exports){
+},{"./KeyEscapeUtils":1202,"./traverseAllChildren":1308,"_process":1172,"fbjs/lib/warning":1146,"react/lib/ReactComponentTreeHook":1348}],1289:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -104697,7 +105451,7 @@ function forEachAccumulated(arr, cb, scope) {
 }
 
 module.exports = forEachAccumulated;
-},{}],1288:[function(require,module,exports){
+},{}],1290:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -104747,7 +105501,7 @@ function getEventCharCode(nativeEvent) {
 }
 
 module.exports = getEventCharCode;
-},{}],1289:[function(require,module,exports){
+},{}],1291:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -104849,7 +105603,7 @@ function getEventKey(nativeEvent) {
 }
 
 module.exports = getEventKey;
-},{"./getEventCharCode":1288}],1290:[function(require,module,exports){
+},{"./getEventCharCode":1290}],1292:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -104892,7 +105646,7 @@ function getEventModifierState(nativeEvent) {
 }
 
 module.exports = getEventModifierState;
-},{}],1291:[function(require,module,exports){
+},{}],1293:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -104927,7 +105681,7 @@ function getEventTarget(nativeEvent) {
 }
 
 module.exports = getEventTarget;
-},{}],1292:[function(require,module,exports){
+},{}],1294:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -104957,7 +105711,7 @@ function getHostComponentFromComposite(inst) {
 }
 
 module.exports = getHostComponentFromComposite;
-},{"./ReactNodeTypes":1246}],1293:[function(require,module,exports){
+},{"./ReactNodeTypes":1248}],1295:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -104998,7 +105752,7 @@ function getIteratorFn(maybeIterable) {
 }
 
 module.exports = getIteratorFn;
-},{}],1294:[function(require,module,exports){
+},{}],1296:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -105072,7 +105826,7 @@ function getNodeForCharacterOffset(root, offset) {
 }
 
 module.exports = getNodeForCharacterOffset;
-},{}],1295:[function(require,module,exports){
+},{}],1297:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -105105,7 +105859,7 @@ function getTextContentAccessor() {
 }
 
 module.exports = getTextContentAccessor;
-},{"fbjs/lib/ExecutionEnvironment":1122}],1296:[function(require,module,exports){
+},{"fbjs/lib/ExecutionEnvironment":1124}],1298:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -105206,7 +105960,7 @@ function getVendorPrefixedEventName(eventName) {
 }
 
 module.exports = getVendorPrefixedEventName;
-},{"fbjs/lib/ExecutionEnvironment":1122}],1297:[function(require,module,exports){
+},{"fbjs/lib/ExecutionEnvironment":1124}],1299:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -105335,7 +106089,7 @@ _assign(ReactCompositeComponentWrapper.prototype, ReactCompositeComponent, {
 });
 
 module.exports = instantiateReactComponent;
-},{"./ReactCompositeComponent":1207,"./ReactEmptyComponent":1231,"./ReactHostComponent":1236,"./reactProdInvariant":1301,"fbjs/lib/invariant":1136,"fbjs/lib/warning":1144,"object-assign":1165,"react/lib/getNextDebugID":1361}],1298:[function(require,module,exports){
+},{"./ReactCompositeComponent":1209,"./ReactEmptyComponent":1233,"./ReactHostComponent":1238,"./reactProdInvariant":1303,"fbjs/lib/invariant":1138,"fbjs/lib/warning":1146,"object-assign":1167,"react/lib/getNextDebugID":1363}],1300:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -105395,7 +106149,7 @@ function isEventSupported(eventNameSuffix, capture) {
 }
 
 module.exports = isEventSupported;
-},{"fbjs/lib/ExecutionEnvironment":1122}],1299:[function(require,module,exports){
+},{"fbjs/lib/ExecutionEnvironment":1124}],1301:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -105446,7 +106200,7 @@ function isTextInputElement(elem) {
 }
 
 module.exports = isTextInputElement;
-},{}],1300:[function(require,module,exports){
+},{}],1302:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -105472,7 +106226,7 @@ function quoteAttributeValueForBrowser(value) {
 }
 
 module.exports = quoteAttributeValueForBrowser;
-},{"./escapeTextContentForBrowser":1284}],1301:[function(require,module,exports){
+},{"./escapeTextContentForBrowser":1286}],1303:[function(require,module,exports){
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -105511,7 +106265,7 @@ function reactProdInvariant(code) {
 }
 
 module.exports = reactProdInvariant;
-},{}],1302:[function(require,module,exports){
+},{}],1304:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -105527,7 +106281,7 @@ module.exports = reactProdInvariant;
 var ReactMount = require('./ReactMount');
 
 module.exports = ReactMount.renderSubtreeIntoContainer;
-},{"./ReactMount":1244}],1303:[function(require,module,exports){
+},{"./ReactMount":1246}],1305:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -105625,7 +106379,7 @@ if (ExecutionEnvironment.canUseDOM) {
 }
 
 module.exports = setInnerHTML;
-},{"./DOMNamespaces":1188,"./createMicrosoftUnsafeLocalFunction":1282,"fbjs/lib/ExecutionEnvironment":1122}],1304:[function(require,module,exports){
+},{"./DOMNamespaces":1190,"./createMicrosoftUnsafeLocalFunction":1284,"fbjs/lib/ExecutionEnvironment":1124}],1306:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -105677,7 +106431,7 @@ if (ExecutionEnvironment.canUseDOM) {
 }
 
 module.exports = setTextContent;
-},{"./escapeTextContentForBrowser":1284,"./setInnerHTML":1303,"fbjs/lib/ExecutionEnvironment":1122}],1305:[function(require,module,exports){
+},{"./escapeTextContentForBrowser":1286,"./setInnerHTML":1305,"fbjs/lib/ExecutionEnvironment":1124}],1307:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -105719,7 +106473,7 @@ function shouldUpdateReactComponent(prevElement, nextElement) {
 }
 
 module.exports = shouldUpdateReactComponent;
-},{}],1306:[function(require,module,exports){
+},{}],1308:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -105895,7 +106649,7 @@ function traverseAllChildren(children, callback, traverseContext) {
 }
 
 module.exports = traverseAllChildren;
-},{"./KeyEscapeUtils":1200,"./ReactElementSymbol":1230,"./getIteratorFn":1293,"./reactProdInvariant":1301,"fbjs/lib/invariant":1136,"fbjs/lib/warning":1144,"react/lib/ReactCurrentOwner":1347}],1307:[function(require,module,exports){
+},{"./KeyEscapeUtils":1202,"./ReactElementSymbol":1232,"./getIteratorFn":1295,"./reactProdInvariant":1303,"fbjs/lib/invariant":1138,"fbjs/lib/warning":1146,"react/lib/ReactCurrentOwner":1349}],1309:[function(require,module,exports){
 /**
  * Copyright 2015-present, Facebook, Inc.
  * All rights reserved.
@@ -106272,12 +107026,12 @@ if ("production" !== 'production') {
 }
 
 module.exports = validateDOMNesting;
-},{"fbjs/lib/emptyFunction":1128,"fbjs/lib/warning":1144,"object-assign":1165}],1308:[function(require,module,exports){
+},{"fbjs/lib/emptyFunction":1130,"fbjs/lib/warning":1146,"object-assign":1167}],1310:[function(require,module,exports){
 'use strict';
 
 module.exports = require('./lib/ReactDOMServer');
 
-},{"./lib/ReactDOMServer":1222}],1309:[function(require,module,exports){
+},{"./lib/ReactDOMServer":1224}],1311:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -106497,10 +107251,10 @@ var SelectEventPlugin = {
 
 module.exports = SelectEventPlugin;
 
-},{"fbjs/lib/ExecutionEnvironment":1122,"fbjs/lib/shallowEqual":1143,"react-dom/lib/EventPropagators":1197,"react-dom/lib/ReactDOMComponentTree":1211,"react-dom/lib/ReactInputSelection":1239,"react-dom/lib/SyntheticEvent":1268,"react-dom/lib/isTextInputElement":1299}],1310:[function(require,module,exports){
+},{"fbjs/lib/ExecutionEnvironment":1124,"fbjs/lib/shallowEqual":1145,"react-dom/lib/EventPropagators":1199,"react-dom/lib/ReactDOMComponentTree":1213,"react-dom/lib/ReactInputSelection":1241,"react-dom/lib/SyntheticEvent":1270,"react-dom/lib/isTextInputElement":1301}],1312:[function(require,module,exports){
 module.exports = require('./injector')
 
-},{"./injector":1311}],1311:[function(require,module,exports){
+},{"./injector":1313}],1313:[function(require,module,exports){
 //perform actual injection of the modified plugin version to React Event Registry
 module.exports = function(){
   var keyOf = require('fbjs/lib/keyOf');
@@ -106526,7 +107280,7 @@ module.exports = function(){
   });
 }
 
-},{"./ReactFrameAwareSelectEventPlugin":1309,"fbjs/lib/keyOf":1139,"react-dom/lib/BeforeInputEventPlugin":1181,"react-dom/lib/ChangeEventPlugin":1185,"react-dom/lib/DefaultEventPluginOrder":1192,"react-dom/lib/EnterLeaveEventPlugin":1193,"react-dom/lib/EventPluginHub":1194,"react-dom/lib/EventPluginRegistry":1195,"react-dom/lib/SimpleEventPlugin":1263}],1312:[function(require,module,exports){
+},{"./ReactFrameAwareSelectEventPlugin":1311,"fbjs/lib/keyOf":1141,"react-dom/lib/BeforeInputEventPlugin":1183,"react-dom/lib/ChangeEventPlugin":1187,"react-dom/lib/DefaultEventPluginOrder":1194,"react-dom/lib/EnterLeaveEventPlugin":1195,"react-dom/lib/EventPluginHub":1196,"react-dom/lib/EventPluginRegistry":1197,"react-dom/lib/SimpleEventPlugin":1265}],1314:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -106589,7 +107343,7 @@ DocumentContext.childContextTypes = {
   window: _propTypes2.default.object.isRequired
 };
 exports.default = DocumentContext;
-},{"prop-types":1175,"react":1365}],1313:[function(require,module,exports){
+},{"prop-types":1177,"react":1367}],1315:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -106781,7 +107535,7 @@ Frame.defaultProps = {
   initialContent: '<!DOCTYPE html><html><head></head><body><div class="frame-root"></div></body></html>'
 };
 exports.default = Frame;
-},{"./DocumentContext":1312,"prop-types":1175,"react":1365,"react-dom":1178}],1314:[function(require,module,exports){
+},{"./DocumentContext":1314,"prop-types":1177,"react":1367,"react-dom":1180}],1316:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -106795,7 +107549,7 @@ var _Frame2 = _interopRequireDefault(_Frame);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 exports.default = _Frame2.default;
-},{"./Frame":1313}],1315:[function(require,module,exports){
+},{"./Frame":1315}],1317:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -107019,7 +107773,7 @@ Portal.defaultProps = {
 };
 module.exports = exports['default'];
 
-},{"prop-types":1175,"react":1365,"react-dom":1178}],1316:[function(require,module,exports){
+},{"prop-types":1177,"react":1367,"react-dom":1180}],1318:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -107079,7 +107833,7 @@ BrowserRouter.propTypes = {
   children: _propTypes2.default.node
 };
 exports.default = BrowserRouter;
-},{"history/createBrowserHistory":1151,"prop-types":1175,"react":1365,"react-router":1336}],1317:[function(require,module,exports){
+},{"history/createBrowserHistory":1153,"prop-types":1177,"react":1367,"react-router":1338}],1319:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -107138,7 +107892,7 @@ HashRouter.propTypes = {
   children: _propTypes2.default.node
 };
 exports.default = HashRouter;
-},{"history/createHashHistory":1152,"prop-types":1175,"react":1365,"react-router":1336}],1318:[function(require,module,exports){
+},{"history/createHashHistory":1154,"prop-types":1177,"react":1367,"react-router":1338}],1320:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -107241,7 +107995,7 @@ Link.contextTypes = {
   }).isRequired
 };
 exports.default = Link;
-},{"prop-types":1175,"react":1365}],1319:[function(require,module,exports){
+},{"prop-types":1177,"react":1367}],1321:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -107254,7 +108008,7 @@ Object.defineProperty(exports, 'default', {
     return _reactRouter.MemoryRouter;
   }
 });
-},{"react-router":1336}],1320:[function(require,module,exports){
+},{"react-router":1338}],1322:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -107335,7 +108089,7 @@ NavLink.defaultProps = {
 };
 
 exports.default = NavLink;
-},{"./Link":1318,"prop-types":1175,"react":1365,"react-router":1336}],1321:[function(require,module,exports){
+},{"./Link":1320,"prop-types":1177,"react":1367,"react-router":1338}],1323:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -107348,7 +108102,7 @@ Object.defineProperty(exports, 'default', {
     return _reactRouter.Prompt;
   }
 });
-},{"react-router":1336}],1322:[function(require,module,exports){
+},{"react-router":1338}],1324:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -107361,7 +108115,7 @@ Object.defineProperty(exports, 'default', {
     return _reactRouter.Redirect;
   }
 });
-},{"react-router":1336}],1323:[function(require,module,exports){
+},{"react-router":1338}],1325:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -107374,7 +108128,7 @@ Object.defineProperty(exports, 'default', {
     return _reactRouter.Route;
   }
 });
-},{"react-router":1336}],1324:[function(require,module,exports){
+},{"react-router":1338}],1326:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -107387,7 +108141,7 @@ Object.defineProperty(exports, 'default', {
     return _reactRouter.Router;
   }
 });
-},{"react-router":1336}],1325:[function(require,module,exports){
+},{"react-router":1338}],1327:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -107400,7 +108154,7 @@ Object.defineProperty(exports, 'default', {
     return _reactRouter.StaticRouter;
   }
 });
-},{"react-router":1336}],1326:[function(require,module,exports){
+},{"react-router":1338}],1328:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -107413,7 +108167,7 @@ Object.defineProperty(exports, 'default', {
     return _reactRouter.Switch;
   }
 });
-},{"react-router":1336}],1327:[function(require,module,exports){
+},{"react-router":1338}],1329:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -107486,7 +108240,7 @@ exports.StaticRouter = _StaticRouter3.default;
 exports.Switch = _Switch3.default;
 exports.matchPath = _matchPath3.default;
 exports.withRouter = _withRouter3.default;
-},{"./BrowserRouter":1316,"./HashRouter":1317,"./Link":1318,"./MemoryRouter":1319,"./NavLink":1320,"./Prompt":1321,"./Redirect":1322,"./Route":1323,"./Router":1324,"./StaticRouter":1325,"./Switch":1326,"./matchPath":1328,"./withRouter":1339}],1328:[function(require,module,exports){
+},{"./BrowserRouter":1318,"./HashRouter":1319,"./Link":1320,"./MemoryRouter":1321,"./NavLink":1322,"./Prompt":1323,"./Redirect":1324,"./Route":1325,"./Router":1326,"./StaticRouter":1327,"./Switch":1328,"./matchPath":1330,"./withRouter":1341}],1330:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -107499,7 +108253,7 @@ Object.defineProperty(exports, 'default', {
     return _reactRouter.matchPath;
   }
 });
-},{"react-router":1336}],1329:[function(require,module,exports){
+},{"react-router":1338}],1331:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -107561,7 +108315,7 @@ MemoryRouter.propTypes = {
   children: _propTypes2.default.node
 };
 exports.default = MemoryRouter;
-},{"./Router":1333,"history/createMemoryHistory":1153,"prop-types":1175,"react":1365}],1330:[function(require,module,exports){
+},{"./Router":1335,"history/createMemoryHistory":1155,"prop-types":1177,"react":1367}],1332:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -107646,7 +108400,7 @@ Prompt.contextTypes = {
   }).isRequired
 };
 exports.default = Prompt;
-},{"prop-types":1175,"react":1365}],1331:[function(require,module,exports){
+},{"prop-types":1177,"react":1367}],1333:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -107731,7 +108485,7 @@ Redirect.contextTypes = {
   }).isRequired
 };
 exports.default = Redirect;
-},{"prop-types":1175,"react":1365}],1332:[function(require,module,exports){
+},{"prop-types":1177,"react":1367}],1334:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -107877,7 +108631,7 @@ Route.childContextTypes = {
   router: _propTypes2.default.object.isRequired
 };
 exports.default = Route;
-},{"./matchPath":1337,"prop-types":1175,"react":1365,"warning":1376}],1333:[function(require,module,exports){
+},{"./matchPath":1339,"prop-types":1177,"react":1367,"warning":1378}],1335:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -107997,7 +108751,7 @@ Router.childContextTypes = {
   router: _propTypes2.default.object.isRequired
 };
 exports.default = Router;
-},{"invariant":1158,"prop-types":1175,"react":1365,"warning":1376}],1334:[function(require,module,exports){
+},{"invariant":1160,"prop-types":1177,"react":1367,"warning":1378}],1336:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -108175,7 +108929,7 @@ StaticRouter.childContextTypes = {
   router: _propTypes2.default.object.isRequired
 };
 exports.default = StaticRouter;
-},{"./Router":1333,"history/PathUtils":1150,"invariant":1158,"prop-types":1175,"react":1365}],1335:[function(require,module,exports){
+},{"./Router":1335,"history/PathUtils":1152,"invariant":1160,"prop-types":1177,"react":1367}],1337:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -108263,7 +109017,7 @@ Switch.propTypes = {
   location: _propTypes2.default.object
 };
 exports.default = Switch;
-},{"./matchPath":1337,"prop-types":1175,"react":1365,"warning":1376}],1336:[function(require,module,exports){
+},{"./matchPath":1339,"prop-types":1177,"react":1367,"warning":1378}],1338:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -108316,7 +109070,7 @@ exports.StaticRouter = _StaticRouter3.default;
 exports.Switch = _Switch3.default;
 exports.matchPath = _matchPath3.default;
 exports.withRouter = _withRouter3.default;
-},{"./MemoryRouter":1329,"./Prompt":1330,"./Redirect":1331,"./Route":1332,"./Router":1333,"./StaticRouter":1334,"./Switch":1335,"./matchPath":1337,"./withRouter":1338}],1337:[function(require,module,exports){
+},{"./MemoryRouter":1331,"./Prompt":1332,"./Redirect":1333,"./Route":1334,"./Router":1335,"./StaticRouter":1336,"./Switch":1337,"./matchPath":1339,"./withRouter":1340}],1339:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -108392,7 +109146,7 @@ var matchPath = function matchPath(pathname) {
 };
 
 exports.default = matchPath;
-},{"path-to-regexp":1167}],1338:[function(require,module,exports){
+},{"path-to-regexp":1169}],1340:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -108442,7 +109196,7 @@ var withRouter = function withRouter(Component) {
 };
 
 exports.default = withRouter;
-},{"./Route":1332,"hoist-non-react-statics":1155,"prop-types":1175,"react":1365}],1339:[function(require,module,exports){
+},{"./Route":1334,"hoist-non-react-statics":1157,"prop-types":1177,"react":1367}],1341:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -108455,11 +109209,11 @@ Object.defineProperty(exports, 'default', {
     return _reactRouter.withRouter;
   }
 });
-},{"react-router":1336}],1340:[function(require,module,exports){
-arguments[4][1200][0].apply(exports,arguments)
-},{"dup":1200}],1341:[function(require,module,exports){
+},{"react-router":1338}],1342:[function(require,module,exports){
 arguments[4][1202][0].apply(exports,arguments)
-},{"./reactProdInvariant":1363,"dup":1202,"fbjs/lib/invariant":1136}],1342:[function(require,module,exports){
+},{"dup":1202}],1343:[function(require,module,exports){
+arguments[4][1204][0].apply(exports,arguments)
+},{"./reactProdInvariant":1365,"dup":1204,"fbjs/lib/invariant":1138}],1344:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -108563,7 +109317,7 @@ if ("production" !== 'production') {
 }
 
 module.exports = React;
-},{"./ReactChildren":1343,"./ReactClass":1344,"./ReactComponent":1345,"./ReactDOMFactories":1348,"./ReactElement":1349,"./ReactElementValidator":1351,"./ReactPropTypes":1354,"./ReactPureComponent":1356,"./ReactVersion":1357,"./canDefineProperty":1358,"./onlyChild":1362,"fbjs/lib/warning":1144,"object-assign":1165}],1343:[function(require,module,exports){
+},{"./ReactChildren":1345,"./ReactClass":1346,"./ReactComponent":1347,"./ReactDOMFactories":1350,"./ReactElement":1351,"./ReactElementValidator":1353,"./ReactPropTypes":1356,"./ReactPureComponent":1358,"./ReactVersion":1359,"./canDefineProperty":1360,"./onlyChild":1364,"fbjs/lib/warning":1146,"object-assign":1167}],1345:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -108754,7 +109508,7 @@ var ReactChildren = {
 };
 
 module.exports = ReactChildren;
-},{"./PooledClass":1341,"./ReactElement":1349,"./traverseAllChildren":1364,"fbjs/lib/emptyFunction":1128}],1344:[function(require,module,exports){
+},{"./PooledClass":1343,"./ReactElement":1351,"./traverseAllChildren":1366,"fbjs/lib/emptyFunction":1130}],1346:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -109477,7 +110231,7 @@ var ReactClass = {
 };
 
 module.exports = ReactClass;
-},{"./ReactComponent":1345,"./ReactElement":1349,"./ReactNoopUpdateQueue":1352,"./ReactPropTypeLocationNames":1353,"./reactProdInvariant":1363,"fbjs/lib/emptyObject":1129,"fbjs/lib/invariant":1136,"fbjs/lib/warning":1144,"object-assign":1165}],1345:[function(require,module,exports){
+},{"./ReactComponent":1347,"./ReactElement":1351,"./ReactNoopUpdateQueue":1354,"./ReactPropTypeLocationNames":1355,"./reactProdInvariant":1365,"fbjs/lib/emptyObject":1131,"fbjs/lib/invariant":1138,"fbjs/lib/warning":1146,"object-assign":1167}],1347:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -109595,7 +110349,7 @@ if ("production" !== 'production') {
 }
 
 module.exports = ReactComponent;
-},{"./ReactNoopUpdateQueue":1352,"./canDefineProperty":1358,"./reactProdInvariant":1363,"fbjs/lib/emptyObject":1129,"fbjs/lib/invariant":1136,"fbjs/lib/warning":1144}],1346:[function(require,module,exports){
+},{"./ReactNoopUpdateQueue":1354,"./canDefineProperty":1360,"./reactProdInvariant":1365,"fbjs/lib/emptyObject":1131,"fbjs/lib/invariant":1138,"fbjs/lib/warning":1146}],1348:[function(require,module,exports){
 /**
  * Copyright 2016-present, Facebook, Inc.
  * All rights reserved.
@@ -109929,7 +110683,7 @@ var ReactComponentTreeHook = {
 };
 
 module.exports = ReactComponentTreeHook;
-},{"./ReactCurrentOwner":1347,"./reactProdInvariant":1363,"fbjs/lib/invariant":1136,"fbjs/lib/warning":1144}],1347:[function(require,module,exports){
+},{"./ReactCurrentOwner":1349,"./reactProdInvariant":1365,"fbjs/lib/invariant":1138,"fbjs/lib/warning":1146}],1349:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -109960,7 +110714,7 @@ var ReactCurrentOwner = {
 };
 
 module.exports = ReactCurrentOwner;
-},{}],1348:[function(require,module,exports){
+},{}],1350:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -110130,7 +110884,7 @@ var ReactDOMFactories = {
 };
 
 module.exports = ReactDOMFactories;
-},{"./ReactElement":1349,"./ReactElementValidator":1351}],1349:[function(require,module,exports){
+},{"./ReactElement":1351,"./ReactElementValidator":1353}],1351:[function(require,module,exports){
 /**
  * Copyright 2014-present, Facebook, Inc.
  * All rights reserved.
@@ -110471,9 +111225,9 @@ ReactElement.isValidElement = function (object) {
 };
 
 module.exports = ReactElement;
-},{"./ReactCurrentOwner":1347,"./ReactElementSymbol":1350,"./canDefineProperty":1358,"fbjs/lib/warning":1144,"object-assign":1165}],1350:[function(require,module,exports){
-arguments[4][1230][0].apply(exports,arguments)
-},{"dup":1230}],1351:[function(require,module,exports){
+},{"./ReactCurrentOwner":1349,"./ReactElementSymbol":1352,"./canDefineProperty":1360,"fbjs/lib/warning":1146,"object-assign":1167}],1352:[function(require,module,exports){
+arguments[4][1232][0].apply(exports,arguments)
+},{"dup":1232}],1353:[function(require,module,exports){
 /**
  * Copyright 2014-present, Facebook, Inc.
  * All rights reserved.
@@ -110726,7 +111480,7 @@ var ReactElementValidator = {
 };
 
 module.exports = ReactElementValidator;
-},{"./ReactComponentTreeHook":1346,"./ReactCurrentOwner":1347,"./ReactElement":1349,"./canDefineProperty":1358,"./checkReactTypeSpec":1359,"./getIteratorFn":1360,"fbjs/lib/warning":1144}],1352:[function(require,module,exports){
+},{"./ReactComponentTreeHook":1348,"./ReactCurrentOwner":1349,"./ReactElement":1351,"./canDefineProperty":1360,"./checkReactTypeSpec":1361,"./getIteratorFn":1362,"fbjs/lib/warning":1146}],1354:[function(require,module,exports){
 /**
  * Copyright 2015-present, Facebook, Inc.
  * All rights reserved.
@@ -110822,9 +111576,9 @@ var ReactNoopUpdateQueue = {
 };
 
 module.exports = ReactNoopUpdateQueue;
-},{"fbjs/lib/warning":1144}],1353:[function(require,module,exports){
-arguments[4][1249][0].apply(exports,arguments)
-},{"dup":1249}],1354:[function(require,module,exports){
+},{"fbjs/lib/warning":1146}],1355:[function(require,module,exports){
+arguments[4][1251][0].apply(exports,arguments)
+},{"dup":1251}],1356:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -110843,9 +111597,9 @@ var _require = require('./ReactElement'),
 var factory = require('prop-types/factory');
 
 module.exports = factory(isValidElement);
-},{"./ReactElement":1349,"prop-types/factory":1172}],1355:[function(require,module,exports){
-arguments[4][1250][0].apply(exports,arguments)
-},{"dup":1250}],1356:[function(require,module,exports){
+},{"./ReactElement":1351,"prop-types/factory":1174}],1357:[function(require,module,exports){
+arguments[4][1252][0].apply(exports,arguments)
+},{"dup":1252}],1358:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -110887,9 +111641,9 @@ _assign(ReactPureComponent.prototype, ReactComponent.prototype);
 ReactPureComponent.prototype.isPureReactComponent = true;
 
 module.exports = ReactPureComponent;
-},{"./ReactComponent":1345,"./ReactNoopUpdateQueue":1352,"fbjs/lib/emptyObject":1129,"object-assign":1165}],1357:[function(require,module,exports){
-arguments[4][1260][0].apply(exports,arguments)
-},{"dup":1260}],1358:[function(require,module,exports){
+},{"./ReactComponent":1347,"./ReactNoopUpdateQueue":1354,"fbjs/lib/emptyObject":1131,"object-assign":1167}],1359:[function(require,module,exports){
+arguments[4][1262][0].apply(exports,arguments)
+},{"dup":1262}],1360:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -110915,7 +111669,7 @@ if ("production" !== 'production') {
 }
 
 module.exports = canDefineProperty;
-},{}],1359:[function(require,module,exports){
+},{}],1361:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-present, Facebook, Inc.
@@ -111004,9 +111758,9 @@ function checkReactTypeSpec(typeSpecs, values, location, componentName, element,
 
 module.exports = checkReactTypeSpec;
 }).call(this,require('_process'))
-},{"./ReactComponentTreeHook":1346,"./ReactPropTypeLocationNames":1353,"./ReactPropTypesSecret":1355,"./reactProdInvariant":1363,"_process":1170,"fbjs/lib/invariant":1136,"fbjs/lib/warning":1144}],1360:[function(require,module,exports){
-arguments[4][1293][0].apply(exports,arguments)
-},{"dup":1293}],1361:[function(require,module,exports){
+},{"./ReactComponentTreeHook":1348,"./ReactPropTypeLocationNames":1355,"./ReactPropTypesSecret":1357,"./reactProdInvariant":1365,"_process":1172,"fbjs/lib/invariant":1138,"fbjs/lib/warning":1146}],1362:[function(require,module,exports){
+arguments[4][1295][0].apply(exports,arguments)
+},{"dup":1295}],1363:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -111027,7 +111781,7 @@ function getNextDebugID() {
 }
 
 module.exports = getNextDebugID;
-},{}],1362:[function(require,module,exports){
+},{}],1364:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -111065,9 +111819,9 @@ function onlyChild(children) {
 }
 
 module.exports = onlyChild;
-},{"./ReactElement":1349,"./reactProdInvariant":1363,"fbjs/lib/invariant":1136}],1363:[function(require,module,exports){
-arguments[4][1301][0].apply(exports,arguments)
-},{"dup":1301}],1364:[function(require,module,exports){
+},{"./ReactElement":1351,"./reactProdInvariant":1365,"fbjs/lib/invariant":1138}],1365:[function(require,module,exports){
+arguments[4][1303][0].apply(exports,arguments)
+},{"dup":1303}],1366:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -111243,12 +111997,12 @@ function traverseAllChildren(children, callback, traverseContext) {
 }
 
 module.exports = traverseAllChildren;
-},{"./KeyEscapeUtils":1340,"./ReactCurrentOwner":1347,"./ReactElementSymbol":1350,"./getIteratorFn":1360,"./reactProdInvariant":1363,"fbjs/lib/invariant":1136,"fbjs/lib/warning":1144}],1365:[function(require,module,exports){
+},{"./KeyEscapeUtils":1342,"./ReactCurrentOwner":1349,"./ReactElementSymbol":1352,"./getIteratorFn":1362,"./reactProdInvariant":1365,"fbjs/lib/invariant":1138,"fbjs/lib/warning":1146}],1367:[function(require,module,exports){
 'use strict';
 
 module.exports = require('./lib/React');
 
-},{"./lib/React":1342}],1366:[function(require,module,exports){
+},{"./lib/React":1344}],1368:[function(require,module,exports){
 'use strict';
 
 var isAbsolute = function isAbsolute(pathname) {
@@ -111319,7 +112073,7 @@ var resolvePathname = function resolvePathname(to) {
 };
 
 module.exports = resolvePathname;
-},{}],1367:[function(require,module,exports){
+},{}],1369:[function(require,module,exports){
 function isBackward(selection) {
     var startNode = selection.anchorNode;
     var startOffset = selection.anchorOffset;
@@ -111333,7 +112087,7 @@ function isBackward(selection) {
 
 module.exports = isBackward;
 
-},{}],1368:[function(require,module,exports){
+},{}],1370:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -111550,7 +112304,7 @@ function normalizeReplacement(replacement) {
  */
 
 exports.default = AutoReplaceTextPlugin;
-},{"component-type":101,"escape-regex-string":157}],1369:[function(require,module,exports){
+},{"component-type":103,"escape-regex-string":159}],1371:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -111591,7 +112345,7 @@ function CollapseOnEscape() {
  */
 
 exports.default = CollapseOnEscape;
-},{"to-pascal-case":1372}],1370:[function(require,module,exports){
+},{"to-pascal-case":1374}],1372:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -111630,7 +112384,7 @@ function SoftBreak() {
  */
 
 exports.default = SoftBreak;
-},{}],1371:[function(require,module,exports){
+},{}],1373:[function(require,module,exports){
 
 /**
  * Export.
@@ -111699,7 +112453,7 @@ function uncamelize(string) {
   })
 }
 
-},{}],1372:[function(require,module,exports){
+},{}],1374:[function(require,module,exports){
 
 var space = require('to-space-case')
 
@@ -111722,7 +112476,7 @@ function toPascalCase(string) {
   })
 }
 
-},{"to-space-case":1373}],1373:[function(require,module,exports){
+},{"to-space-case":1375}],1375:[function(require,module,exports){
 
 var clean = require('to-no-case')
 
@@ -111745,7 +112499,7 @@ function toSpaceCase(string) {
   }).trim()
 }
 
-},{"to-no-case":1371}],1374:[function(require,module,exports){
+},{"to-no-case":1373}],1376:[function(require,module,exports){
 var toString = Object.prototype.toString
 
 module.exports = function(val){
@@ -111776,7 +112530,7 @@ module.exports = function(val){
   return typeof val
 }
 
-},{}],1375:[function(require,module,exports){
+},{}],1377:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -111817,7 +112571,7 @@ var valueEqual = function valueEqual(a, b) {
 };
 
 exports.default = valueEqual;
-},{}],1376:[function(require,module,exports){
+},{}],1378:[function(require,module,exports){
 /**
  * Copyright 2014-2015, Facebook, Inc.
  * All rights reserved.
