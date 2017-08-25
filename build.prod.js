@@ -6856,6 +6856,7 @@ Content.propTypes = {
   onDrop: _propTypes2.default.func.isRequired,
   onFocus: _propTypes2.default.func.isRequired,
   onKeyDown: _propTypes2.default.func.isRequired,
+  onKeyUp: _propTypes2.default.func.isRequired,
   onPaste: _propTypes2.default.func.isRequired,
   onSelect: _propTypes2.default.func.isRequired,
   readOnly: _propTypes2.default.bool.isRequired,
@@ -7349,13 +7350,34 @@ var _initialiseProps = function _initialiseProps() {
   };
 
   this.onKeyUp = function (event) {
-    var which = event.which;
+    var altKey = event.altKey,
+        ctrlKey = event.ctrlKey,
+        metaKey = event.metaKey,
+        shiftKey = event.shiftKey,
+        which = event.which;
 
     var key = (0, _keycode2.default)(which);
+    var data = {};
 
     if (key == 'shift') {
       _this3.tmp.isShifting = false;
     }
+
+    // Add helpful properties for handling hotkeys to the data object.
+    data.code = which;
+    data.key = key;
+    data.isAlt = altKey;
+    data.isCmd = _environment.IS_MAC ? metaKey && !altKey : false;
+    data.isCtrl = ctrlKey && !altKey;
+    data.isLine = _environment.IS_MAC ? metaKey : false;
+    data.isMeta = metaKey;
+    data.isMod = _environment.IS_MAC ? metaKey && !altKey : ctrlKey && !altKey;
+    data.isModAlt = _environment.IS_MAC ? metaKey && altKey : ctrlKey && altKey;
+    data.isShift = shiftKey;
+    data.isWord = _environment.IS_MAC ? altKey : ctrlKey;
+
+    debug('onKeyUp', { event: event, data: data });
+    _this3.props.onKeyUp(event, data);
   };
 
   this.onPaste = function (event) {
@@ -7591,7 +7613,7 @@ var debug = (0, _debug2.default)('slate:editor');
  * @type {Array}
  */
 
-var EVENT_HANDLERS = ['onBeforeInput', 'onBlur', 'onFocus', 'onCopy', 'onCut', 'onDrop', 'onKeyDown', 'onPaste', 'onSelect'];
+var EVENT_HANDLERS = ['onBeforeInput', 'onBlur', 'onFocus', 'onCopy', 'onCut', 'onDrop', 'onKeyDown', 'onKeyUp', 'onPaste', 'onSelect'];
 
 /**
  * Plugin-related properties of the editor.
@@ -14175,7 +14197,7 @@ var debug = (0, _debug2.default)('slate:stack');
  * @type {Array}
  */
 
-var EVENT_HANDLER_METHODS = ['onBeforeInput', 'onBlur', 'onFocus', 'onCopy', 'onCut', 'onDrop', 'onKeyDown', 'onPaste', 'onSelect'];
+var EVENT_HANDLER_METHODS = ['onBeforeInput', 'onBlur', 'onFocus', 'onCopy', 'onCut', 'onDrop', 'onKeyDown', 'onKeyUp', 'onPaste', 'onSelect'];
 
 /**
  * Methods that accumulate an updated state.
@@ -16870,6 +16892,7 @@ function Plugin() {
       onCut: editor.onCut,
       onDrop: editor.onDrop,
       onKeyDown: editor.onKeyDown,
+      onKeyUp: editor.onKeyUp,
       onPaste: editor.onPaste,
       onSelect: editor.onSelect,
       readOnly: props.readOnly,
