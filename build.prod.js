@@ -7132,9 +7132,6 @@ var _initialiseProps = function _initialiseProps() {
 
   this.onDragOver = function (event) {
     if (!_this3.isInEditor(event.target)) return;
-
-    event.preventDefault();
-
     if (_this3.tmp.isDragging) return;
     _this3.tmp.isDragging = true;
     _this3.tmp.isInternalDrag = false;
@@ -7165,10 +7162,10 @@ var _initialiseProps = function _initialiseProps() {
   };
 
   this.onDrop = function (event) {
+    event.preventDefault();
+
     if (_this3.props.readOnly) return;
     if (!_this3.isInEditor(event.target)) return;
-
-    event.preventDefault();
 
     var window = (0, _getWindow2.default)(event.target);
     var _props2 = _this3.props,
@@ -9108,7 +9105,7 @@ var _initialiseProps = function _initialiseProps() {
 
   this.onDragLeave = function () {
     _this2.setState(function (prevState) {
-      var dragCounter = prevState.dragCounter + 1;
+      var dragCounter = prevState.dragCounter - 1;
       var editable = dragCounter === 0 ? false : undefined;
       return { dragCounter: dragCounter, editable: editable };
     });
@@ -15970,9 +15967,17 @@ var _content = require('../components/content');
 
 var _content2 = _interopRequireDefault(_content);
 
+var _block = require('../models/block');
+
+var _block2 = _interopRequireDefault(_block);
+
 var _character = require('../models/character');
 
 var _character2 = _interopRequireDefault(_character);
+
+var _inline = require('../models/inline');
+
+var _inline2 = _interopRequireDefault(_inline);
 
 var _debug = require('debug');
 
@@ -16358,14 +16363,19 @@ function Plugin() {
     // needs to account for the selection's content being deleted.
 
     if (isInternal && selection.endKey == target.endKey && selection.endOffset < target.endOffset) {
-      target = target.move(selection.startKey == selection.endKey ? 0 - selection.endOffset - selection.startOffset : 0 - selection.endOffset);
+      target = target.move(selection.startKey == selection.endKey ? 0 - selection.endOffset + selection.startOffset : 0 - selection.endOffset);
     }
 
     var transform = state.transform();
 
     if (isInternal) transform.delete();
 
-    return transform.select(target).insertBlock(node).removeNodeByKey(node.key).apply();
+    if (_block2.default.isBlock(node)) {
+      return transform.select(target).insertBlock(node).removeNodeByKey(node.key).apply();
+    }
+    if (_inline2.default.isInline(node)) {
+      return transform.select(target).insertInline(node).removeNodeByKey(node.key).apply();
+    }
   }
 
   /**
@@ -16389,7 +16399,7 @@ function Plugin() {
     // needs to account for the selection's content being deleted.
 
     if (isInternal && selection.endKey == target.endKey && selection.endOffset < target.endOffset) {
-      target = target.move(selection.startKey == selection.endKey ? 0 - selection.endOffset - selection.startOffset : 0 - selection.endOffset);
+      target = target.move(selection.startKey == selection.endKey ? 0 - selection.endOffset + selection.startOffset : 0 - selection.endOffset);
     }
 
     var transform = state.transform();
@@ -16659,7 +16669,9 @@ function Plugin() {
   }
 
   /**
-   * On `up` key down, for Macs, move the selection to start of the block.
+   * On `up` key down. If the previous block is void, make sure it is collapsed
+   * or extended (if shift) to start.
+   * For Macs, move the selection to start of the block if `alt` key is pressed.
    *
    * COMPAT: Certain browsers don't handle the selection updates properly. In
    * Chrome, option-shift-up doesn't properly extend the selection. And in
@@ -16672,15 +16684,23 @@ function Plugin() {
    */
 
   function onKeyDownUp(e, data, state) {
-    if (!_environment.IS_MAC || data.isCtrl || !data.isAlt) return;
-
-    var transform = data.isShift ? 'extendToStartOf' : 'collapseToStartOf';
     var selection = state.selection,
         document = state.document,
         focusKey = state.focusKey,
         focusBlock = state.focusBlock;
 
-    var block = selection.hasFocusAtStartOf(focusBlock) ? document.getPreviousBlock(focusKey) : focusBlock;
+    var previousBlock = document.getPreviousBlock(focusKey);
+
+    if (previousBlock && previousBlock.isVoid && !data.isAlt) {
+      var _transform = data.isShift ? 'extendToStartOf' : 'collapseToStartOf';
+      e.preventDefault();
+      return state.transform()[_transform](previousBlock).apply();
+    }
+
+    if (!_environment.IS_MAC || data.isCtrl || !data.isAlt) return;
+
+    var transform = data.isShift ? 'extendToStartOf' : 'collapseToStartOf';
+    var block = selection.hasFocusAtStartOf(focusBlock) ? previousBlock : focusBlock;
 
     if (!block) return;
     var text = block.getFirstText();
@@ -16690,7 +16710,9 @@ function Plugin() {
   }
 
   /**
-   * On `down` key down, for Macs, move the selection to end of the block.
+   * On `down` key down. If the next block is void, make sure it is collapsed
+   * or extended (if shift) to start.
+   * For Macs, move the selection to end of the block if `alt` key is pressed.
    *
    * COMPAT: Certain browsers don't handle the selection updates properly. In
    * Chrome, option-shift-down doesn't properly extend the selection. And in
@@ -16703,15 +16725,23 @@ function Plugin() {
    */
 
   function onKeyDownDown(e, data, state) {
-    if (!_environment.IS_MAC || data.isCtrl || !data.isAlt) return;
-
-    var transform = data.isShift ? 'extendToEndOf' : 'collapseToEndOf';
     var selection = state.selection,
         document = state.document,
         focusKey = state.focusKey,
         focusBlock = state.focusBlock;
 
-    var block = selection.hasFocusAtEndOf(focusBlock) ? document.getNextBlock(focusKey) : focusBlock;
+    var nextBlock = document.getNextBlock(focusKey);
+
+    if (nextBlock && nextBlock.isVoid && !data.isAlt) {
+      var _transform2 = data.isShift ? 'extendToStartOf' : 'collapseToStartOf';
+      e.preventDefault();
+      return state.transform()[_transform2](nextBlock).apply();
+    }
+
+    if (!_environment.IS_MAC || data.isCtrl || !data.isAlt) return;
+
+    var transform = data.isShift ? 'extendToEndOf' : 'collapseToEndOf';
+    var block = selection.hasFocusAtEndOf(focusBlock) ? nextBlock : focusBlock;
 
     if (!block) return;
     var text = block.getLastText();
@@ -16981,7 +17011,7 @@ function Plugin() {
 
 exports.default = Plugin;
 
-},{"../components/content":42,"../components/placeholder":46,"../constants/environment":48,"../models/character":54,"../serializers/base-64":69,"../utils/find-dom-node":86,"../utils/get-point":89,"debug":106,"get-window":1148,"react":1488}],68:[function(require,module,exports){
+},{"../components/content":42,"../components/placeholder":46,"../constants/environment":48,"../models/block":53,"../models/character":54,"../models/inline":57,"../serializers/base-64":69,"../utils/find-dom-node":86,"../utils/get-point":89,"debug":106,"get-window":1148,"react":1488}],68:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -19991,16 +20021,8 @@ Transforms.deleteAtRange = function (transform, range) {
       endKey = range.endKey,
       endOffset = range.endOffset;
 
-  // If the start and end key are the same, we can just remove text.
-
-  if (startKey == endKey) {
-    var index = startOffset;
-    var length = endOffset - startOffset;
-    transform.removeTextByKey(startKey, index, length, { normalize: normalize });
-    return;
-  }
-
   // Split at the range edges within a common ancestor, without normalizing.
+
   var state = transform.state;
   var _state = state,
       document = _state.document;
@@ -20008,9 +20030,77 @@ Transforms.deleteAtRange = function (transform, range) {
   var ancestor = document.getCommonAncestor(startKey, endKey);
   var startChild = ancestor.getFurthestAncestor(startKey);
   var endChild = ancestor.getFurthestAncestor(endKey);
+
+  // If the start child is a void node, and the range begins or
+  // ends (when range is backward) at the start of it, remove it
+  // and set nextSibling as startChild until there is no startChild
+  // that is a void node and included in the selection range
+  var startChildIncludesVoid = startChild.isVoid && (range.anchorOffset === 0 && !range.isBackward || range.focusOffset === 0 && range.isBackward);
+  while (startChildIncludesVoid) {
+    var nextSibling = document.getNextSibling(startChild.key);
+    transform.removeNodeByKey(startChild.key, OPTS);
+    // Abort if no nextSibling or we are about to process the endChild which is aslo a void node
+    if (!nextSibling || endChild.key === nextSibling.key && nextSibling.isVoid) {
+      startChildIncludesVoid = false;
+      return;
+    }
+    // Process the next void
+    if (nextSibling.isVoid) {
+      startChild = nextSibling;
+    }
+    // Set the startChild, startKey and startOffset in the beginning of the next non void sibling
+    if (!nextSibling.isVoid) {
+      startChild = nextSibling;
+      if (startChild.getTexts) {
+        startKey = startChild.getTexts().first().key;
+      } else {
+        startKey = startChild.key;
+      }
+      startOffset = 0;
+      startChildIncludesVoid = false;
+    }
+  }
+
+  // If the start child is a void node, and the range ends or
+  // begins (when range is backward) at the end of it move to nextSibling
+  var startChildEndOfVoid = startChild.isVoid && (range.anchorOffset === 1 && !range.isBackward || range.focusOffset === 1 && range.isBackward);
+  if (startChildEndOfVoid) {
+    var _nextSibling = document.getNextSibling(startChild.key);
+    if (_nextSibling) {
+      startChild = _nextSibling;
+      if (startChild.getTexts) {
+        startKey = startChild.getTexts().first().key;
+      } else {
+        startKey = startChild.key;
+      }
+      startOffset = 0;
+    }
+  }
+
+  // If the start and end key are the same, we can just remove it.
+  if (startKey == endKey) {
+    // If it is a void node, remove the whole node
+    if (ancestor.isVoid) {
+      // Deselect if this is the only node left in document
+      if (document.nodes.size === 1) {
+        transform.deselect();
+      }
+      transform.removeNodeByKey(ancestor.key, OPTS);
+      return;
+    }
+    // Remove the text
+    var index = startOffset;
+    var length = endOffset - startOffset;
+    transform.removeTextByKey(startKey, index, length, { normalize: normalize });
+    return;
+  }
+
+  // Split at the range edges within a common ancestor, without normalizing.
+  ancestor = document.getCommonAncestor(startKey, endKey);
+  startChild = ancestor.getFurthestAncestor(startKey);
+  endChild = ancestor.getFurthestAncestor(endKey);
   var startOff = (startChild.kind == 'text' ? 0 : startChild.getOffset(startKey)) + startOffset;
   var endOff = (endChild.kind == 'text' ? 0 : endChild.getOffset(endKey)) + endOffset;
-
   transform.splitNodeByKey(startChild.key, startOff, OPTS);
   transform.splitNodeByKey(endChild.key, endOff, OPTS);
 
@@ -20031,11 +20121,17 @@ Transforms.deleteAtRange = function (transform, range) {
     });
   }
 
-  // If the start and end block are different, move all of the nodes from the
-  // end block into the start block.
   var startBlock = document.getClosestBlock(startKey);
   var endBlock = document.getClosestBlock(document.getNextText(endKey).key);
 
+  // If the endBlock is void, just remove the startBlock
+  if (endBlock.isVoid) {
+    transform.removeNodeByKey(startBlock.key);
+    return;
+  }
+
+  // If the start and end block are different, move all of the nodes from the
+  // end block into the start block
   if (startBlock.key !== endBlock.key) {
     endBlock.nodes.forEach(function (child, i) {
       var newKey = startBlock.key;
@@ -20482,7 +20578,11 @@ Transforms.insertBlockAtRange = function (transform, range, block) {
   var index = parent.nodes.indexOf(startBlock);
 
   if (startBlock.isVoid) {
-    transform.insertNodeByKey(parent.key, index + 1, block, { normalize: normalize });
+    var beforeOrAfterIndex = index;
+    if (range.isAtEndOf(startBlock)) {
+      beforeOrAfterIndex++;
+    }
+    transform.insertNodeByKey(parent.key, beforeOrAfterIndex, block, { normalize: normalize });
   } else if (startBlock.isEmpty) {
     transform.removeNodeByKey(startBlock.key);
     transform.insertNodeByKey(parent.key, index, block, { normalize: normalize });
@@ -21356,6 +21456,31 @@ Transforms.addMarkByKey = function (transform, key, offset, length, mark) {
 };
 
 /**
+ * Insert a `fragment` at `index` in a node by `key`.
+ *
+ * @param {Transform} transform
+ * @param {String} key
+ * @param {Number} index
+ * @param {Fragment} fragment
+ * @param {Object} options
+ *   @property {Boolean} normalize
+ */
+
+Transforms.insertFragmentByKey = function (transform, key, index, fragment) {
+  var options = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : {};
+  var _options$normalize2 = options.normalize,
+      normalize = _options$normalize2 === undefined ? true : _options$normalize2;
+
+  fragment.nodes.forEach(function (node, i) {
+    return transform.insertNodeByKey(key, index + i, node);
+  });
+
+  if (normalize) {
+    transform.normalizeNodeByKey(key, _core2.default);
+  }
+};
+
+/**
  * Insert a `node` at `index` in a node by `key`.
  *
  * @param {Transform} transform
@@ -21368,8 +21493,8 @@ Transforms.addMarkByKey = function (transform, key, offset, length, mark) {
 
 Transforms.insertNodeByKey = function (transform, key, index, node) {
   var options = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : {};
-  var _options$normalize2 = options.normalize,
-      normalize = _options$normalize2 === undefined ? true : _options$normalize2;
+  var _options$normalize3 = options.normalize,
+      normalize = _options$normalize3 === undefined ? true : _options$normalize3;
   var state = transform.state;
   var document = state.document;
 
@@ -21396,8 +21521,8 @@ Transforms.insertNodeByKey = function (transform, key, index, node) {
 
 Transforms.insertTextByKey = function (transform, key, offset, text, marks) {
   var options = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : {};
-  var _options$normalize3 = options.normalize,
-      normalize = _options$normalize3 === undefined ? true : _options$normalize3;
+  var _options$normalize4 = options.normalize,
+      normalize = _options$normalize4 === undefined ? true : _options$normalize4;
   var state = transform.state;
   var document = state.document;
 
@@ -21423,8 +21548,8 @@ Transforms.insertTextByKey = function (transform, key, offset, text, marks) {
 
 Transforms.joinNodeByKey = function (transform, key, withKey) {
   var options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
-  var _options$normalize4 = options.normalize,
-      normalize = _options$normalize4 === undefined ? true : _options$normalize4;
+  var _options$normalize5 = options.normalize,
+      normalize = _options$normalize5 === undefined ? true : _options$normalize5;
   var state = transform.state;
   var document = state.document;
 
@@ -21453,8 +21578,8 @@ Transforms.joinNodeByKey = function (transform, key, withKey) {
 
 Transforms.moveNodeByKey = function (transform, key, newKey, newIndex) {
   var options = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : {};
-  var _options$normalize5 = options.normalize,
-      normalize = _options$normalize5 === undefined ? true : _options$normalize5;
+  var _options$normalize6 = options.normalize,
+      normalize = _options$normalize6 === undefined ? true : _options$normalize6;
   var state = transform.state;
   var document = state.document;
 
@@ -21485,8 +21610,8 @@ Transforms.removeMarkByKey = function (transform, key, offset, length, mark) {
   var options = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : {};
 
   mark = _normalize2.default.mark(mark);
-  var _options$normalize6 = options.normalize,
-      normalize = _options$normalize6 === undefined ? true : _options$normalize6;
+  var _options$normalize7 = options.normalize,
+      normalize = _options$normalize7 === undefined ? true : _options$normalize7;
   var state = transform.state;
   var document = state.document;
 
@@ -21511,8 +21636,8 @@ Transforms.removeMarkByKey = function (transform, key, offset, length, mark) {
 
 Transforms.removeNodeByKey = function (transform, key) {
   var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-  var _options$normalize7 = options.normalize,
-      normalize = _options$normalize7 === undefined ? true : _options$normalize7;
+  var _options$normalize8 = options.normalize,
+      normalize = _options$normalize8 === undefined ? true : _options$normalize8;
   var state = transform.state;
   var document = state.document;
 
@@ -21539,8 +21664,8 @@ Transforms.removeNodeByKey = function (transform, key) {
 
 Transforms.removeTextByKey = function (transform, key, offset, length) {
   var options = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : {};
-  var _options$normalize8 = options.normalize,
-      normalize = _options$normalize8 === undefined ? true : _options$normalize8;
+  var _options$normalize9 = options.normalize,
+      normalize = _options$normalize9 === undefined ? true : _options$normalize9;
   var state = transform.state;
   var document = state.document;
 
@@ -21571,8 +21696,8 @@ Transforms.setMarkByKey = function (transform, key, offset, length, mark, proper
 
   mark = _normalize2.default.mark(mark);
   properties = _normalize2.default.markProperties(properties);
-  var _options$normalize9 = options.normalize,
-      normalize = _options$normalize9 === undefined ? true : _options$normalize9;
+  var _options$normalize10 = options.normalize,
+      normalize = _options$normalize10 === undefined ? true : _options$normalize10;
 
   var newMark = mark.merge(properties);
   var state = transform.state;
@@ -21602,8 +21727,8 @@ Transforms.setNodeByKey = function (transform, key, properties) {
   var options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
 
   properties = _normalize2.default.nodeProperties(properties);
-  var _options$normalize10 = options.normalize,
-      normalize = _options$normalize10 === undefined ? true : _options$normalize10;
+  var _options$normalize11 = options.normalize,
+      normalize = _options$normalize11 === undefined ? true : _options$normalize11;
   var state = transform.state;
   var document = state.document;
 
@@ -21629,8 +21754,8 @@ Transforms.setNodeByKey = function (transform, key, properties) {
 
 Transforms.splitNodeByKey = function (transform, key, offset) {
   var options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
-  var _options$normalize11 = options.normalize,
-      normalize = _options$normalize11 === undefined ? true : _options$normalize11;
+  var _options$normalize12 = options.normalize,
+      normalize = _options$normalize12 === undefined ? true : _options$normalize12;
   var state = transform.state;
   var document = state.document;
 
@@ -21703,8 +21828,8 @@ Transforms.unwrapBlockByKey = function (transform, key, properties, options) {
 
 Transforms.unwrapNodeByKey = function (transform, key) {
   var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-  var _options$normalize12 = options.normalize,
-      normalize = _options$normalize12 === undefined ? true : _options$normalize12;
+  var _options$normalize13 = options.normalize,
+      normalize = _options$normalize13 === undefined ? true : _options$normalize13;
   var state = transform.state;
   var document = state.document;
 
@@ -24039,6 +24164,8 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _templateObject = _taggedTemplateLiteral([''], ['']);
+
 var _block = require('../models/block');
 
 var _block2 = _interopRequireDefault(_block);
@@ -24079,6 +24206,10 @@ function _interopRequireDefault(obj) {
   return obj && obj.__esModule ? obj : { default: obj };
 }
 
+function _taggedTemplateLiteral(strings, raw) {
+  return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } }));
+}
+
 /**
  * Normalize a block argument `value`.
  *
@@ -24088,12 +24219,14 @@ function _interopRequireDefault(obj) {
 
 function block(value) {
   if (_block2.default.isBlock(value)) return value;
+  if (_inline2.default.isInline(value) || _mark2.default.isMark(value) || _text2.default.isText(value) || _selection2.default.isSelection(value)) {
+    throw new Error('Invalid `block` argument! It must be a block, an object, or a string. You passed: "' + value + '".');
+  }
 
   switch ((0, _typeOf2.default)(value)) {
     case 'string':
     case 'object':
       return _block2.default.create(nodeProperties(value));
-
     default:
       throw new Error('Invalid `block` argument! It must be a block, an object, or a string. You passed: "' + value + '".');
   }
@@ -24108,12 +24241,14 @@ function block(value) {
 
 function inline(value) {
   if (_inline2.default.isInline(value)) return value;
+  if (_block2.default.isBlock(value) || _mark2.default.isMark(value) || _text2.default.isText(value) || _selection2.default.isSelection(value)) {
+    throw new Error('Invalid `inline` argument! It must be an inline, an object, or a string. You passed: "' + value + '".');
+  }
 
   switch ((0, _typeOf2.default)(value)) {
     case 'string':
     case 'object':
       return _inline2.default.create(nodeProperties(value));
-
     default:
       throw new Error('Invalid `inline` argument! It must be an inline, an object, or a string. You passed: "' + value + '".');
   }
@@ -24130,10 +24265,9 @@ function key(value) {
   if ((0, _typeOf2.default)(value) == 'string') return value;
 
   (0, _warn2.default)('An object was passed to a Node method instead of a `key` string. This was previously supported, but is being deprecated because it can have a negative impact on performance. The object in question was:', value);
-  if (_block2.default.isBlock(value)) return value.key;
-  if (_document2.default.isDocument(value)) return value.key;
-  if (_inline2.default.isInline(value)) return value.key;
-  if (_text2.default.isText(value)) return value.key;
+  if (_block2.default.isBlock(value) || _document2.default.isDocument(value) || _inline2.default.isInline(value) || _text2.default.isText(value)) {
+    return value.key;
+  }
 
   throw new Error('Invalid `key` argument! It must be either a block, an inline, a text, or a string. You passed: "' + value + '".');
 }
@@ -24147,12 +24281,14 @@ function key(value) {
 
 function mark(value) {
   if (_mark2.default.isMark(value)) return value;
+  if (_block2.default.isBlock(value) || _inline2.default.isInline(value) || _text2.default.isText(value) || _selection2.default.isSelection(value)) {
+    throw new Error('Invalid `mark` argument! It must be a mark, an object, or a string. You passed: "' + value + '".');
+  }
 
   switch ((0, _typeOf2.default)(value)) {
     case 'string':
     case 'object':
       return _mark2.default.create(markProperties(value));
-
     default:
       throw new Error('Invalid `mark` argument! It must be a mark, an object, or a string. You passed: "' + value + '".');
   }
@@ -24179,6 +24315,8 @@ function markProperties() {
       for (var k in value) {
         if (k == 'data') {
           if (value[k] !== undefined) ret[k] = _data2.default.create(value[k]);
+        } else if (k.startsWith('@@__SLATE')) {
+          return;
         } else {
           ret[k] = value[k];
         }
@@ -24214,6 +24352,8 @@ function nodeProperties() {
       for (var k in value) {
         if (k == 'data') {
           if (value[k] !== undefined) ret[k] = _data2.default.create(value[k]);
+        } else if (k.startsWith('@@__SLATE')) {
+          return;
         } else {
           ret[k] = value[k];
         }
@@ -24236,11 +24376,13 @@ function nodeProperties() {
 
 function selection(value) {
   if (_selection2.default.isSelection(value)) return value;
+  if (_mark2.default.isMark(value) || _block2.default.isBlock(value) || _inline2.default.isInline(value) || _text2.default.isText(value)) {
+    throw new Error('Invalid `selection` argument! It must be a selection or an object. You passed: "' + value + '".')(_templateObject);
+  }
 
   switch ((0, _typeOf2.default)(value)) {
     case 'object':
       return _selection2.default.create(value);
-
     default:
       throw new Error('Invalid `selection` argument! It must be a selection or an object. You passed: "' + value + '".');
   }
@@ -24268,7 +24410,6 @@ function selectionProperties() {
       if (value.isFocused !== undefined) ret.isFocused = !!value.isFocused;
       if (value.marks !== undefined) ret.marks = value.marks;
       break;
-
     default:
       throw new Error('Invalid selection `properties` argument! It must be an object or a selection. You passed: "' + value + '".');
   }
