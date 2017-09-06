@@ -13486,7 +13486,36 @@ var Change = function () {
     }
 
     /**
-     * Noop.
+     * Set an operation flag by `key` to `value`.
+     *
+     * @param {String} key
+     * @param {Any} value
+     * @return {Change}
+     */
+
+  }, {
+    key: 'setOperationFlag',
+    value: function setOperationFlag(key, value) {
+      this.flags[key] = value;
+      return this;
+    }
+
+    /**
+     * Unset an operation flag by `key`.
+     *
+     * @param {String} key
+     * @return {Change}
+     */
+
+  }, {
+    key: 'unsetOperationFlag',
+    value: function unsetOperationFlag(key) {
+      delete this.flags[key];
+      return this;
+    }
+
+    /**
+     * Deprecated.
      *
      * @return {State}
      */
