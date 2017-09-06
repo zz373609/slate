@@ -24315,9 +24315,7 @@ function markProperties() {
       for (var k in value) {
         if (k == 'data') {
           if (value[k] !== undefined) ret[k] = _data2.default.create(value[k]);
-        } else if (k.startsWith('@@__SLATE')) {
-          return;
-        } else {
+        } else if (!k.startsWith('@@__SLATE')) {
           ret[k] = value[k];
         }
       }
@@ -24352,9 +24350,7 @@ function nodeProperties() {
       for (var k in value) {
         if (k == 'data') {
           if (value[k] !== undefined) ret[k] = _data2.default.create(value[k]);
-        } else if (k.startsWith('@@__SLATE')) {
-          return;
-        } else {
+        } else if (!k.startsWith('@@__SLATE')) {
           ret[k] = value[k];
         }
       }
