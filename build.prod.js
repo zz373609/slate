@@ -9798,6 +9798,10 @@ var _selection = require('../models/selection');
 
 var _selection2 = _interopRequireDefault(_selection);
 
+var _propTypes3 = require('../utils/prop-types');
+
+var _propTypes4 = _interopRequireDefault(_propTypes3);
+
 var _extendSelection = require('../utils/extend-selection');
 
 var _extendSelection2 = _interopRequireDefault(_extendSelection);
@@ -9810,6 +9814,10 @@ var _findDeepestNode = require('../utils/find-deepest-node');
 
 var _findDeepestNode2 = _interopRequireDefault(_findDeepestNode);
 
+var _getHtmlFromNativePaste = require('../utils/get-html-from-native-paste');
+
+var _getHtmlFromNativePaste2 = _interopRequireDefault(_getHtmlFromNativePaste);
+
 var _getPoint = require('../utils/get-point');
 
 var _getPoint2 = _interopRequireDefault(_getPoint);
@@ -9821,10 +9829,6 @@ var _getTransferData2 = _interopRequireDefault(_getTransferData);
 var _setTransferData = require('../utils/set-transfer-data');
 
 var _setTransferData2 = _interopRequireDefault(_setTransferData);
-
-var _getHtmlFromNativePaste = require('../utils/get-html-from-native-paste');
-
-var _getHtmlFromNativePaste2 = _interopRequireDefault(_getHtmlFromNativePaste);
 
 var _environment = require('../constants/environment');
 
@@ -10151,9 +10155,9 @@ Content.propTypes = {
   onSelect: _propTypes2.default.func.isRequired,
   readOnly: _propTypes2.default.bool.isRequired,
   role: _propTypes2.default.string,
-  schema: _propTypes2.default.object,
+  schema: _propTypes4.default.schema.isRequired,
   spellCheck: _propTypes2.default.bool.isRequired,
-  state: _propTypes2.default.object.isRequired,
+  state: _propTypes4.default.state.isRequired,
   style: _propTypes2.default.object,
   tabIndex: _propTypes2.default.number,
   tagName: _propTypes2.default.string
@@ -10795,7 +10799,7 @@ var _initialiseProps = function _initialiseProps() {
 
 exports.default = Content;
 
-},{"../constants/environment":56,"../constants/transfer-types":59,"../models/selection":72,"../serializers/base-64":81,"../utils/extend-selection":85,"../utils/find-closest-node":86,"../utils/find-deepest-node":87,"../utils/get-html-from-native-paste":90,"../utils/get-point":91,"../utils/get-transfer-data":92,"../utils/set-transfer-data":102,"./node":53,"debug":107,"get-window":1149,"keycode":1168,"prop-types":1319,"react":1509}],51:[function(require,module,exports){
+},{"../constants/environment":56,"../constants/transfer-types":59,"../models/selection":72,"../serializers/base-64":81,"../utils/extend-selection":85,"../utils/find-closest-node":86,"../utils/find-deepest-node":87,"../utils/get-html-from-native-paste":90,"../utils/get-point":91,"../utils/get-transfer-data":92,"../utils/prop-types":100,"../utils/set-transfer-data":102,"./node":53,"debug":107,"get-window":1149,"keycode":1168,"prop-types":1319,"react":1509}],51:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -11223,6 +11227,10 @@ var _offsetKey = require('../utils/offset-key');
 
 var _offsetKey2 = _interopRequireDefault(_offsetKey);
 
+var _propTypes3 = require('../utils/prop-types');
+
+var _propTypes4 = _interopRequireDefault(_propTypes3);
+
 var _findDeepestNode = require('../utils/find-deepest-node');
 
 var _findDeepestNode2 = _interopRequireDefault(_findDeepestNode);
@@ -11451,21 +11459,21 @@ var Leaf = function (_React$Component) {
  */
 
 Leaf.propTypes = {
-  block: _propTypes2.default.object.isRequired,
+  block: _propTypes4.default.block.isRequired,
   editor: _propTypes2.default.object.isRequired,
   index: _propTypes2.default.number.isRequired,
-  marks: _propTypes2.default.object.isRequired,
-  node: _propTypes2.default.object.isRequired,
+  marks: _propTypes4.default.marks.isRequired,
+  node: _propTypes4.default.node.isRequired,
   offset: _propTypes2.default.number.isRequired,
-  parent: _propTypes2.default.object.isRequired,
-  ranges: _propTypes2.default.object.isRequired,
-  schema: _propTypes2.default.object.isRequired,
-  state: _propTypes2.default.object.isRequired,
+  parent: _propTypes4.default.node.isRequired,
+  ranges: _propTypes4.default.ranges.isRequired,
+  schema: _propTypes4.default.schema.isRequired,
+  state: _propTypes4.default.state.isRequired,
   text: _propTypes2.default.string.isRequired
 };
 exports.default = Leaf;
 
-},{"../constants/environment":56,"../utils/find-deepest-node":87,"../utils/offset-key":99,"debug":107,"prop-types":1319,"react":1509,"react-dom":1322}],53:[function(require,module,exports){
+},{"../constants/environment":56,"../utils/find-deepest-node":87,"../utils/offset-key":99,"../utils/prop-types":100,"debug":107,"prop-types":1319,"react":1509,"react-dom":1322}],53:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -11511,6 +11519,10 @@ var _base2 = _interopRequireDefault(_base);
 var _leaf = require('./leaf');
 
 var _leaf2 = _interopRequireDefault(_leaf);
+
+var _propTypes3 = require('../utils/prop-types');
+
+var _propTypes4 = _interopRequireDefault(_propTypes3);
 
 var _void = require('./void');
 
@@ -11705,13 +11717,13 @@ var Node = function (_React$Component) {
  */
 
 Node.propTypes = {
-  block: _propTypes2.default.object,
+  block: _propTypes4.default.block,
   editor: _propTypes2.default.object.isRequired,
-  node: _propTypes2.default.object.isRequired,
-  parent: _propTypes2.default.object.isRequired,
+  node: _propTypes4.default.node.isRequired,
+  parent: _propTypes4.default.node.isRequired,
   readOnly: _propTypes2.default.bool.isRequired,
-  schema: _propTypes2.default.object.isRequired,
-  state: _propTypes2.default.object.isRequired
+  schema: _propTypes4.default.schema.isRequired,
+  state: _propTypes4.default.state.isRequired
 };
 
 var _initialiseProps = function _initialiseProps() {
@@ -11959,7 +11971,7 @@ var _initialiseProps = function _initialiseProps() {
 
 exports.default = Node;
 
-},{"../constants/transfer-types":59,"../serializers/base-64":81,"../utils/scroll-to-selection":101,"../utils/set-transfer-data":102,"./leaf":52,"./void":55,"debug":107,"get-window":1149,"prop-types":1319,"react":1509,"react-dom":1322}],54:[function(require,module,exports){
+},{"../constants/transfer-types":59,"../serializers/base-64":81,"../utils/prop-types":100,"../utils/scroll-to-selection":101,"../utils/set-transfer-data":102,"./leaf":52,"./void":55,"debug":107,"get-window":1149,"prop-types":1319,"react":1509,"react-dom":1322}],54:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -11995,6 +12007,10 @@ var _react2 = _interopRequireDefault(_react);
 var _propTypes = require('prop-types');
 
 var _propTypes2 = _interopRequireDefault(_propTypes);
+
+var _propTypes3 = require('../utils/prop-types');
+
+var _propTypes4 = _interopRequireDefault(_propTypes3);
 
 function _interopRequireDefault(obj) {
   return obj && obj.__esModule ? obj : { default: obj };
@@ -12137,9 +12153,9 @@ Placeholder.propTypes = {
   children: _propTypes2.default.any.isRequired,
   className: _propTypes2.default.string,
   firstOnly: _propTypes2.default.bool,
-  node: _propTypes2.default.object.isRequired,
-  parent: _propTypes2.default.object,
-  state: _propTypes2.default.object.isRequired,
+  node: _propTypes4.default.node.isRequired,
+  parent: _propTypes4.default.node,
+  state: _propTypes4.default.state.isRequired,
   style: _propTypes2.default.object
 };
 Placeholder.defaultProps = {
@@ -12147,7 +12163,7 @@ Placeholder.defaultProps = {
 };
 exports.default = Placeholder;
 
-},{"prop-types":1319,"react":1509}],55:[function(require,module,exports){
+},{"../utils/prop-types":100,"prop-types":1319,"react":1509}],55:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -12189,6 +12205,10 @@ var _mark2 = _interopRequireDefault(_mark);
 var _offsetKey = require('../utils/offset-key');
 
 var _offsetKey2 = _interopRequireDefault(_offsetKey);
+
+var _propTypes3 = require('../utils/prop-types');
+
+var _propTypes4 = _interopRequireDefault(_propTypes3);
 
 var _environment = require('../constants/environment');
 
@@ -12354,14 +12374,14 @@ var Void = function (_React$Component) {
  */
 
 Void.propTypes = {
-  block: _propTypes2.default.object,
+  block: _propTypes4.default.block,
   children: _propTypes2.default.any.isRequired,
   editor: _propTypes2.default.object.isRequired,
-  node: _propTypes2.default.object.isRequired,
-  parent: _propTypes2.default.object.isRequired,
+  node: _propTypes4.default.node.isRequired,
+  parent: _propTypes4.default.node.isRequired,
   readOnly: _propTypes2.default.bool.isRequired,
-  schema: _propTypes2.default.object.isRequired,
-  state: _propTypes2.default.object.isRequired
+  schema: _propTypes4.default.schema.isRequired,
+  state: _propTypes4.default.state.isRequired
 };
 
 var _initialiseProps = function _initialiseProps() {
@@ -12488,7 +12508,7 @@ var _initialiseProps = function _initialiseProps() {
 
 exports.default = Void;
 
-},{"../constants/environment":56,"../models/mark":68,"../utils/offset-key":99,"./leaf":52,"debug":107,"prop-types":1319,"react":1509}],56:[function(require,module,exports){
+},{"../constants/environment":56,"../models/mark":68,"../utils/offset-key":99,"../utils/prop-types":100,"./leaf":52,"debug":107,"prop-types":1319,"react":1509}],56:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -13093,6 +13113,19 @@ var Block = function (_Record) {
     value: function isBlock(value) {
       return !!(value && value[_modelTypes2.default.BLOCK]);
     }
+
+    /**
+     * Check if a `value` is a block list.
+     *
+     * @param {Any} value
+     * @return {Boolean}
+     */
+
+  }, {
+    key: 'isBlockList',
+    value: function isBlockList(value) {
+      return _immutable.List.isList(value) && value.size > 0 && Block.isBlock(value.first());
+    }
   }]);
 
   return Block;
@@ -13596,6 +13629,19 @@ var Character = function (_Record) {
     key: 'isCharacter',
     value: function isCharacter(value) {
       return !!(value && value[_modelTypes2.default.CHARACTER]);
+    }
+
+    /**
+     * Check if a `value` is a character list.
+     *
+     * @param {Any} value
+     * @return {Boolean}
+     */
+
+  }, {
+    key: 'isCharacterList',
+    value: function isCharacterList(value) {
+      return _immutable.List.isList(value) && value.size > 0 && Character.isCharacter(value.first());
     }
 
     /**
@@ -14385,6 +14431,19 @@ var Inline = function (_Record) {
     value: function isInline(value) {
       return !!(value && value[_modelTypes2.default.INLINE]);
     }
+
+    /**
+     * Check if a `value` is a list of inlines.
+     *
+     * @param {Any} value
+     * @return {Boolean}
+     */
+
+  }, {
+    key: 'isInlineList',
+    value: function isInlineList(value) {
+      return _immutable.List.isList(value) && value.size > 0 && Inline.isInline(value.first());
+    }
   }]);
 
   return Inline;
@@ -14628,6 +14687,19 @@ var Mark = function (_Record) {
     key: 'isMark',
     value: function isMark(value) {
       return !!(value && value[_modelTypes2.default.MARK]);
+    }
+
+    /**
+     * Check if a `value` is a set of marks.
+     *
+     * @param {Any} value
+     * @return {Boolean}
+     */
+
+  }, {
+    key: 'isMarkSet',
+    value: function isMarkSet(value) {
+      return _immutable.Set.isSet(value) && value.size > 0 && Mark.isMark(value.first());
     }
   }]);
 
@@ -16874,6 +16946,19 @@ var Node = function () {
     value: function isNode(value) {
       return _block2.default.isBlock(value) || _document2.default.isDocument(value) || _inline2.default.isInline(value) || _text2.default.isText(value);
     }
+
+    /**
+     * Check if a `value` is a list of nodes.
+     *
+     * @param {Any} value
+     * @return {Boolean}
+     */
+
+  }, {
+    key: 'isNodeList',
+    value: function isNodeList(value) {
+      return _immutable.List.isList(value) && value.size > 0 && Node.isNode(value.first());
+    }
   }]);
 
   return Node;
@@ -17084,6 +17169,19 @@ var Range = function (_Record) {
     key: 'isRange',
     value: function isRange(value) {
       return !!(value && value[_modelTypes2.default.RANGE]);
+    }
+
+    /**
+     * Check if a `value` is a list of ranges.
+     *
+     * @param {Any} value
+     * @return {Boolean}
+     */
+
+  }, {
+    key: 'isRangeList',
+    value: function isRangeList(value) {
+      return _immutable.List.isList(value) && value.size > 0 && Range.isRange(value.first());
     }
   }]);
 
@@ -20156,6 +20254,19 @@ var Text = function (_Record) {
     key: 'isText',
     value: function isText(value) {
       return !!(value && value[_modelTypes2.default.TEXT]);
+    }
+
+    /**
+     * Check if a `value` is a list of texts.
+     *
+     * @param {Any} value
+     * @return {Boolean}
+     */
+
+  }, {
+    key: 'isTextList',
+    value: function isTextList(value) {
+      return _immutable.List.isList(value) && value.size > 0 && Text.isText(value.first());
     }
 
     /**
@@ -23920,40 +24031,47 @@ Object.defineProperty(exports, "__esModule", {
 });
 
 /**
- * Extends the given selection to a given node and offset
+ * Extends a DOM `selection` to a given `el` and `offset`.
  *
- * @param {Selection} selection Selection instance
- * @param {Element} el Node to extend to
- * @param {Number} offset Text offset to extend to
- * @returns {Selection} Mutated Selection instance
+ * COMPAT: In IE11, `selection.extend` doesn't exist natively, so we have to
+ * polyfill it with this. (2017/09/06)
+ *
+ * https://gist.github.com/tyler-johnson/0a3e8818de3f115b2a2dc47468ac0099
+ *
+ * @param {Selection} selection
+ * @param {Element} el
+ * @param {Number} offset
+ * @return {Selection}
  */
 
 function extendSelection(selection, el, offset) {
-  // Use native method when possible
-  if (typeof selection.extend === 'function') return selection.extend(el, offset);
+  // Use native method whenever possible.
+  if (typeof selection.extend === 'function') {
+    return selection.extend(el, offset);
+  }
 
-  // See https://gist.github.com/tyler-johnson/0a3e8818de3f115b2a2dc47468ac0099
   var range = document.createRange();
   var anchor = document.createRange();
-  anchor.setStart(selection.anchorNode, selection.anchorOffset);
-
   var focus = document.createRange();
+  anchor.setStart(selection.anchorNode, selection.anchorOffset);
   focus.setStart(el, offset);
 
   var v = focus.compareBoundaryPoints(Range.START_TO_START, anchor);
+
+  // If the focus is after the anchor...
   if (v >= 0) {
-    // Focus is after anchor
     range.setStart(selection.anchorNode, selection.anchorOffset);
     range.setEnd(el, offset);
-  } else {
-    // Anchor is after focus
-    range.setStart(el, offset);
-    range.setEnd(selection.anchorNode, selection.anchorOffset);
   }
+
+  // Otherwise, if the anchor if after the focus...
+  else {
+      range.setStart(el, offset);
+      range.setEnd(selection.anchorNode, selection.anchorOffset);
+    }
 
   selection.removeAllRanges();
   selection.addRange(range);
-
   return selection;
 }
 
@@ -23975,6 +24093,11 @@ Object.defineProperty(exports, "__esModule", {
 /**
  * Find the closest ancestor of a DOM `element` that matches a given selector.
  *
+ * COMPAT: In IE11, the `Node.closest` method doesn't exist natively, so we
+ * have to polyfill it. (2017/09/06)
+ *
+ * https://developer.mozilla.org/en-US/docs/Web/API/Element/closest#Polyfill
+ *
  * @param {Element} node
  * @param {String} selector
  * @return {Element}
@@ -23983,10 +24106,10 @@ Object.defineProperty(exports, "__esModule", {
 function findClosestNode(node, selector) {
   if (typeof node.closest === 'function') return node.closest(selector);
 
-  // See https://developer.mozilla.org/en-US/docs/Web/API/Element/closest#Polyfill
   var matches = (node.document || node.ownerDocument).querySelectorAll(selector);
-  var i = void 0;
   var parentNode = node;
+  var i = void 0;
+
   do {
     i = matches.length;
     while (--i >= 0 && matches.item(i) !== parentNode) {}
@@ -24047,7 +24170,7 @@ function findDOMNode(node) {
   var el = window.document.querySelector("[data-key=\"" + node.key + "\"]");
 
   if (!el) {
-    throw new Error("Unable to find a DOM node for \"" + node.key + "\". This is\noften because of forgetting to add `props.attributes` to a component\nreturned from `renderNode`.");
+    throw new Error("Unable to find a DOM node for \"" + node.key + "\". This is often because of forgetting to add `props.attributes` to a component returned from `renderNode`.");
   }
 
   return el;
@@ -24147,28 +24270,27 @@ var _reactDom = require('react-dom');
  * is needed to return the HTML content. This solution was adapted from
  * http://stackoverflow.com/a/6804718.
  *
- * @param {React.Component} component
+ * @param {Component} component
  * @param {Function} callback
  */
 
 function getHtmlFromNativePaste(component, callback) {
   var el = (0, _reactDom.findDOMNode)(component);
 
-  // Clone contentedible element, move out of screen and set focus.
+  // Create an off-screen clone of the element and give it focus.
   var clone = el.cloneNode();
   clone.setAttribute('class', '');
   clone.setAttribute('style', 'position: fixed; left: -9999px');
   el.parentNode.insertBefore(clone, el);
   clone.focus();
 
-  // Clear call stack to let native paste behaviour occur on cloned element,
-  // then get what was pasted from the DOM and remove cloned element.
+  // Tick forward so the native paste behaviour occurs in cloned element and we
+  // can get what was pasted from the DOM.
   setTimeout(function () {
     if (clone.childElementCount > 0) {
       // If the node contains any child nodes, that is the HTML content.
       var html = clone.innerHTML;
       clone.parentNode.removeChild(clone);
-
       callback(html);
     } else {
       // Only plain text, no HTML.
@@ -25157,17 +25279,31 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _immutable = require('immutable');
+
 var _block = require('../models/block');
 
 var _block2 = _interopRequireDefault(_block);
+
+var _change = require('../models/change');
+
+var _change2 = _interopRequireDefault(_change);
 
 var _character = require('../models/character');
 
 var _character2 = _interopRequireDefault(_character);
 
+var _data = require('../models/data');
+
+var _data2 = _interopRequireDefault(_data);
+
 var _document = require('../models/document');
 
 var _document2 = _interopRequireDefault(_document);
+
+var _history = require('../models/history');
+
+var _history2 = _interopRequireDefault(_history);
 
 var _inline = require('../models/inline');
 
@@ -25176,6 +25312,10 @@ var _inline2 = _interopRequireDefault(_inline);
 var _mark = require('../models/mark');
 
 var _mark2 = _interopRequireDefault(_mark);
+
+var _node = require('../models/node');
+
+var _node2 = _interopRequireDefault(_node);
 
 var _range = require('../models/range');
 
@@ -25188,6 +25328,10 @@ var _schema2 = _interopRequireDefault(_schema);
 var _selection = require('../models/selection');
 
 var _selection2 = _interopRequireDefault(_selection);
+
+var _stack = require('../models/stack');
+
+var _stack2 = _interopRequireDefault(_stack);
 
 var _state = require('../models/state');
 
@@ -25202,148 +25346,122 @@ function _interopRequireDefault(obj) {
 }
 
 /**
- * HOC Function that takes in a predicate prop type function, and allows an isRequired chain
+ * Create a prop type checker for Slate objects with `name` and `validate`.
  *
- * @param {Function} predicate
+ * @param {String} name
+ * @param {Function} validate
  * @return {Function}
  */
 
-function createChainablePropType(predicate) {
-  function propType(props, propName, componentName) {
-    if (props[propName] == null) return;
-
-    return predicate(props, propName, componentName);
+function create(name, validate) {
+  function check(isRequired, props, propName, componentName, location) {
+    var value = props[propName];
+    if (value == null && !isRequired) return null;
+    if (value == null && isRequired) return new Error('The ' + location + ' `' + propName + '` is marked as required in `' + componentName + '`, but it was not supplied.');
+    if (validate(value)) return null;
+    return new Error('Invalid ' + location + ' `' + propName + '` supplied to `' + componentName + '`, expected a Slate `' + name + '` but received: ' + value);
   }
 
-  propType.isRequired = function (props, propName, componentName) {
-    if (props[propName] == null) return new Error('Required prop `' + propName + '` was not specified in `' + componentName + '`.');
+  function propType() {
+    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
 
-    return predicate(props, propName, componentName);
+    return check.apply(undefined, [false].concat(args));
+  }
+
+  propType.isRequired = function () {
+    for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+      args[_key2] = arguments[_key2];
+    }
+
+    return check.apply(undefined, [true].concat(args));
   };
 
   return propType;
 }
 
 /**
- * Exported Slate proptype that checks if a prop is a Slate Block
- *
- * @type {Function}
- */
-
-var block = createChainablePropType(function (props, propName, componentName) {
-  return !_block2.default.isBlock(props[propName]) ? new Error(propName + ' in ' + componentName + ' is not a Slate Block') : null;
-});
-
-/**
- * Exported Slate proptype that checks if a prop is a Slate Character
- *
- * @type {Function}
- */
-
-var character = createChainablePropType(function (props, propName, componentName) {
-  return !_character2.default.isCharacter(props[propName]) ? new Error(propName + ' in ' + componentName + ' is not a Slate Character') : null;
-});
-
-/**
- * Exported Slate proptype that checks if a prop is a Slate Document
- *
- * @type {Function}
- */
-
-var document = createChainablePropType(function (props, propName, componentName) {
-  return !_document2.default.isDocument(props[propName]) ? new Error(propName + ' in ' + componentName + ' is not a Slate Document') : null;
-});
-
-/**
- * Exported Slate proptype that checks if a prop is a Slate Inline
- *
- * @type {Function}
- */
-
-var inline = createChainablePropType(function (props, propName, componentName) {
-  return !_inline2.default.isInline(props[propName]) ? new Error(propName + ' in ' + componentName + ' is not a Slate Inline') : null;
-});
-
-/**
- * Exported Slate proptype that checks if a prop is a Slate Mark
- *
- * @type {Function}
- */
-
-var mark = createChainablePropType(function (props, propName, componentName) {
-  return !_mark2.default.isMark(props[propName]) ? new Error(propName + ' in ' + componentName + ' is not a Slate Mark') : null;
-});
-
-/**
- * Exported Slate proptype that checks if a prop is a Slate Range
- *
- * @type {Function}
- */
-
-var range = createChainablePropType(function (props, propName, componentName) {
-  return !_range2.default.isRange(props[propName]) ? new Error(propName + ' in ' + componentName + ' is not a Slate Range') : null;
-});
-
-/**
- * Exported Slate proptype that checks if a prop is a Slate Schema
- *
- * @type {Function}
- */
-
-var schema = createChainablePropType(function (props, propName, componentName) {
-  return !_schema2.default.isSchema(props[propName]) ? new Error(propName + ' in ' + componentName + ' is not a Slate Schema') : null;
-});
-
-/**
- * Exported Slate proptype that checks if a prop is a Slate Selection
- *
- * @type {Function}
- */
-
-var selection = createChainablePropType(function (props, propName, componentName) {
-  return !_selection2.default.isSelection(props[propName]) ? new Error(propName + ' in ' + componentName + ' is not a Slate Selection') : null;
-});
-
-/**
- * Exported Slate proptype that checks if a prop is a Slate State
- *
- * @type {Function}
- */
-
-var state = createChainablePropType(function (props, propName, componentName) {
-  return !_state2.default.isState(props[propName]) ? new Error(propName + ' in ' + componentName + ' is not a Slate State ' + props[propName]) : null;
-});
-
-/**
- * Exported Slate proptype that checks if a prop is a Slate Text
- *
- * @type {Function}
- */
-
-var text = createChainablePropType(function (props, propName, componentName) {
-  return !_text2.default.isText(props[propName]) ? new Error(propName + ' in ' + componentName + ' is not a Slate Text') : null;
-});
-
-/**
- * Exported Slate proptypes
+ * Prop type checkers.
  *
  * @type {Object}
  */
 
-exports.default = {
-  block: block,
-  character: character,
-  document: document,
-  inline: inline,
-  mark: mark,
-  range: range,
-  schema: schema,
-  selection: selection,
-  state: state,
-  text: text
+var Types = {
+  block: create('Block', function (v) {
+    return _block2.default.isBlock(v);
+  }),
+  blocks: create('List<Block>', function (v) {
+    return _block2.default.isBlockList(v);
+  }),
+  change: create('Change', function (v) {
+    return _change2.default.isChange(v);
+  }),
+  character: create('Character', function (v) {
+    return _character2.default.isCharacter(v);
+  }),
+  characters: create('List<Character>', function (v) {
+    return _character2.default.isCharacterList(v);
+  }),
+  data: create('Data', function (v) {
+    return _data2.default.isData(v);
+  }),
+  document: create('Document', function (v) {
+    return _document2.default.isDocument(v);
+  }),
+  history: create('History', function (v) {
+    return _history2.default.isHistory(v);
+  }),
+  inline: create('Inline', function (v) {
+    return _inline2.default.isInline(v);
+  }),
+  mark: create('Mark', function (v) {
+    return _mark2.default.isMark(v);
+  }),
+  marks: create('Set<Mark>', function (v) {
+    return _immutable.Set.isSet(v) && v.size === 0 || _mark2.default.isMarkSet(v);
+  }),
+  node: create('Node', function (v) {
+    return _node2.default.isNode(v);
+  }),
+  nodes: create('List<Node>', function (v) {
+    return _node2.default.isNodeList(v);
+  }),
+  range: create('Range', function (v) {
+    return _range2.default.isRange(v);
+  }),
+  ranges: create('List<Range>', function (v) {
+    return _range2.default.isRangeList(v);
+  }),
+  schema: create('Schema', function (v) {
+    return _schema2.default.isSchema(v);
+  }),
+  selection: create('Selection', function (v) {
+    return _selection2.default.isSelection(v);
+  }),
+  stack: create('Stack', function (v) {
+    return _stack2.default.isStack(v);
+  }),
+  state: create('State', function (v) {
+    return _state2.default.isState(v);
+  }),
+  text: create('Text', function (v) {
+    return _text2.default.isText(v);
+  }),
+  texts: create('List<Text>', function (v) {
+    return _text2.default.isTextList(v);
+  })
 };
 
-},{"../models/block":61,"../models/character":63,"../models/document":65,"../models/inline":67,"../models/mark":68,"../models/range":70,"../models/schema":71,"../models/selection":72,"../models/state":74,"../models/text":75}],101:[function(require,module,exports){
+/**
+ * Export.
+ *
+ * @type {Object}
+ */
+
+exports.default = Types;
+
+},{"../models/block":61,"../models/change":62,"../models/character":63,"../models/data":64,"../models/document":65,"../models/history":66,"../models/inline":67,"../models/mark":68,"../models/node":69,"../models/range":70,"../models/schema":71,"../models/selection":72,"../models/stack":73,"../models/state":74,"../models/text":75,"immutable":1160}],101:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -25404,8 +25522,10 @@ exports.default = scrollToSelection;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+
 /**
- * Set data on dataTransfer
+ * Set data with `type` and `content` on a `dataTransfer` object.
+ *
  * COMPAT: In Edge, custom types throw errors, so embed all non-standard
  * types in text/plain compound object. (2017/7/12)
  *
@@ -25419,23 +25539,26 @@ function setTransferData(dataTransfer, type, content) {
     dataTransfer.setData(type, content);
   } catch (err) {
     var prefix = 'SLATE-DATA-EMBED::';
-    var obj = {};
     var text = dataTransfer.getData('text/plain');
+    var obj = {};
 
-    // If prefixed, assume embedded drag data
+    // If the existing plain text data is prefixed, it's Slate JSON data.
     if (text.substring(0, prefix.length) === prefix) {
       try {
         obj = JSON.parse(text.substring(prefix.length));
-      } catch (err2) {
-        throw new Error('Unable to parse custom embedded drag data');
+      } catch (e) {
+        throw new Error('Failed to parse Slate data from `DataTransfer` object.');
       }
-    } else {
-      obj['text/plain'] = text;
     }
 
-    obj[type] = content;
+    // Otherwise, it's just set it as is.
+    else {
+        obj['text/plain'] = text;
+      }
 
-    dataTransfer.setData('text/plain', '' + prefix + JSON.stringify(obj));
+    obj[type] = content;
+    var string = '' + prefix + JSON.stringify(obj);
+    dataTransfer.setData('text/plain', string);
   }
 }
 
