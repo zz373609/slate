@@ -1617,7 +1617,7 @@ var Video = function (_React$Component) {
           node = _this$props.node,
           state = _this$props.state;
 
-      var isSelected = state.selection.hasEdgeIn(node);
+      var isSelected = state.isFocused && state.blocks.includes(node);
       return isSelected;
     }, _this.onChange = function (e) {
       var video = e.target.value;
@@ -3294,7 +3294,7 @@ var schema = {
       var node = props.node,
           state = props.state;
 
-      var active = state.isFocused && state.selection.hasEdgeIn(node);
+      var active = state.isFocused && state.blocks.includes(node);
       var src = node.data.get('src');
       var className = active ? 'active' : null;
       return _react2.default.createElement('img', _extends({ src: src, className: className }, props.attributes));
@@ -11934,14 +11934,18 @@ var _initialiseProps = function _initialiseProps() {
     if (nextProps.node != props.node) return true;
 
     // If the node is a block or inline, which can have custom renderers, we
-    // include an extra check to re-render if the node's focus changes, to make
-    // it simple for users to show a node's "selected" state.
+    // include an extra check to re-render if the node either becomes part of,
+    // or leaves, a selection. This is to make it simple for users to show a
+    // node's "selected" state.
     if (nextProps.node.kind != 'text') {
-      var hasEdgeIn = props.state.selection.hasEdgeIn(props.node);
-      var nextHasEdgeIn = nextProps.state.selection.hasEdgeIn(nextProps.node);
-      var hasFocus = props.state.isFocused || nextProps.state.isFocused;
-      var hasEdge = hasEdgeIn || nextHasEdgeIn;
-      if (hasFocus && hasEdge) return true;
+      var nodes = props.node.kind + 's';
+      var isInSelection = props.state[nodes].includes(props.node);
+      var nextIsInSelection = nextProps.state[nodes].includes(nextProps.node);
+      var hasFocus = props.state.isFocused;
+      var nextHasFocus = nextProps.state.isFocused;
+      var selectionChanged = isInSelection != nextIsInSelection;
+      var focusChanged = hasFocus != nextHasFocus;
+      if (selectionChanged || focusChanged) return true;
     }
 
     // If the node is a text node, re-render if the current decorations have
