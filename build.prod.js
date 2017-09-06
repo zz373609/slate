@@ -6501,6 +6501,27 @@ function _interopRequireDefault(obj) {
 var Changes = {};
 
 /**
+ * Mix in the changes that just pass through to their at-range equivalents
+ * because they don't have any effect on the selection.
+ */
+
+var PROXY_TRANSFORMS = ['deleteBackward', 'deleteCharBackward', 'deleteLineBackward', 'deleteWordBackward', 'deleteForward', 'deleteCharForward', 'deleteWordForward', 'deleteLineForward', 'setBlock', 'setInline', 'splitInline', 'unwrapBlock', 'unwrapInline', 'wrapBlock', 'wrapInline'];
+
+PROXY_TRANSFORMS.forEach(function (method) {
+  Changes[method] = function (change) {
+    for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+      args[_key - 1] = arguments[_key];
+    }
+
+    var state = change.state;
+    var selection = state.selection;
+
+    var methodAtRange = method + 'AtRange';
+    change[methodAtRange].apply(change, [selection].concat(args));
+  };
+});
+
+/**
  * Add a `mark` to the characters in the current selection.
  *
  * @param {Change} change
@@ -6509,26 +6530,21 @@ var Changes = {};
 
 Changes.addMark = function (change, mark) {
   mark = _normalize2.default.mark(mark);
-
   var state = change.state;
   var document = state.document,
       selection = state.selection;
 
   if (selection.isExpanded) {
     change.addMarkAtRange(selection, mark);
-    return;
-  }
-
-  if (selection.marks) {
-    var _marks = selection.marks.add(mark);
+  } else if (selection.marks) {
+    var marks = selection.marks.add(mark);
+    var sel = selection.set('marks', marks);
+    change.select(sel);
+  } else {
+    var _marks = document.getActiveMarksAtRange(selection).add(mark);
     var _sel = selection.set('marks', _marks);
     change.select(_sel);
-    return;
   }
-
-  var marks = document.getActiveMarksAtRange(selection).add(mark);
-  var sel = selection.set('marks', marks);
-  change.select(sel);
 };
 
 /**
@@ -6541,120 +6557,12 @@ Changes.delete = function (change) {
   var state = change.state;
   var selection = state.selection;
 
-  if (selection.isCollapsed) return;
+  change.deleteAtRange(selection);
 
-  change.deleteAtRange(selection)
   // Ensure that the selection is collapsed to the start, because in certain
-  // cases when deleting across inline nodes this isn't guaranteed.
-  .collapseToStart();
-};
-
-/**
- * Delete backward `n` characters at the current selection.
- *
- * @param {Change} change
- * @param {Number} n (optional)
- */
-
-Changes.deleteBackward = function (change) {
-  var n = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
-  var state = change.state;
-  var selection = state.selection;
-
-  change.deleteBackwardAtRange(selection, n);
-};
-
-/**
- * Delete backward until the character boundary at the current selection.
- *
- * @param {Change} change
- */
-
-Changes.deleteCharBackward = function (change) {
-  var state = change.state;
-  var selection = state.selection;
-
-  change.deleteCharBackwardAtRange(selection);
-};
-
-/**
- * Delete backward until the line boundary at the current selection.
- *
- * @param {Change} change
- */
-
-Changes.deleteLineBackward = function (change) {
-  var state = change.state;
-  var selection = state.selection;
-
-  change.deleteLineBackwardAtRange(selection);
-};
-
-/**
- * Delete backward until the word boundary at the current selection.
- *
- * @param {Change} change
- */
-
-Changes.deleteWordBackward = function (change) {
-  var state = change.state;
-  var selection = state.selection;
-
-  change.deleteWordBackwardAtRange(selection);
-};
-
-/**
- * Delete forward `n` characters at the current selection.
- *
- * @param {Change} change
- * @param {Number} n (optional)
- */
-
-Changes.deleteForward = function (change) {
-  var n = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
-  var state = change.state;
-  var selection = state.selection;
-
-  change.deleteForwardAtRange(selection, n);
-};
-
-/**
- * Delete forward until the character boundary at the current selection.
- *
- * @param {Change} change
- */
-
-Changes.deleteCharForward = function (change) {
-  var state = change.state;
-  var selection = state.selection;
-
-  change.deleteCharForwardAtRange(selection);
-};
-
-/**
- * Delete forward until the line boundary at the current selection.
- *
- * @param {Change} change
- */
-
-Changes.deleteLineForward = function (change) {
-  var state = change.state;
-  var selection = state.selection;
-
-  change.deleteLineForwardAtRange(selection);
-};
-
-/**
- * Delete forward until the word boundary at the current selection.
- *
- * @param {Change} change
- */
-
-Changes.deleteWordForward = function (change) {
-  var state = change.state;
-  var selection = state.selection;
-
-  change.deleteWordForwardAtRange(selection);
+  // cases when deleting across inline nodes, when splitting the inline node the
+  // end point of the selection will end up after the split point.
+  change.collapseToStart();
 };
 
 /**
@@ -6684,23 +6592,23 @@ Changes.insertBlock = function (change, block) {
  */
 
 Changes.insertFragment = function (change, fragment) {
+  if (!fragment.nodes.size) return;
+
   var state = change.state;
   var _state = state,
       document = _state.document,
       selection = _state.selection;
-
-  if (!fragment.nodes.size) return;
-
   var _state2 = state,
       startText = _state2.startText,
-      endText = _state2.endText;
+      endText = _state2.endText,
+      startInline = _state2.startInline;
 
   var lastText = fragment.getLastText();
   var lastInline = fragment.getClosestInline(lastText.key);
   var keys = document.getTexts().map(function (text) {
     return text.key;
   });
-  var isAppending = selection.hasEdgeAtEndOf(endText) || selection.hasEdgeAtStartOf(startText);
+  var isAppending = !startInline || selection.hasEdgeAtStartOf(startText) || selection.hasEdgeAtEndOf(endText);
 
   change.insertFragmentAtRange(selection, fragment);
   state = change.state;
@@ -6710,24 +6618,21 @@ Changes.insertFragment = function (change, fragment) {
     return !keys.includes(n.key);
   });
   var newText = isAppending ? newTexts.last() : newTexts.takeLast(2).first();
-  var after = void 0;
 
   if (newText && lastInline) {
-    after = selection.collapseToEndOf(newText);
+    change.select(selection.collapseToEndOf(newText));
   } else if (newText) {
-    after = selection.collapseToStartOf(newText).move(lastText.text.length);
+    change.select(selection.collapseToStartOf(newText).move(lastText.text.length));
   } else {
-    after = selection.collapseToStart().move(lastText.text.length);
+    change.select(selection.collapseToStart().move(lastText.text.length));
   }
-
-  change.select(after);
 };
 
 /**
- * Insert a `inline` at the current selection.
+ * Insert an `inline` at the current selection.
  *
  * @param {Change} change
- * @param {String|Object|Block} inline
+ * @param {String|Object|Inline} inline
  */
 
 Changes.insertInline = function (change, inline) {
@@ -6743,7 +6648,7 @@ Changes.insertInline = function (change, inline) {
 };
 
 /**
- * Insert a `text` string at the current selection.
+ * Insert a string of `text` with optional `marks` at the current selection.
  *
  * @param {Change} change
  * @param {String} text
@@ -6756,7 +6661,6 @@ Changes.insertText = function (change, text, marks) {
       selection = state.selection;
 
   marks = marks || selection.marks;
-
   change.insertTextAtRange(selection, text, marks);
 
   // If the text was successfully inserted, and the selection had marks on it,
@@ -6764,34 +6668,6 @@ Changes.insertText = function (change, text, marks) {
   if (selection.marks && document != change.state.document) {
     change.select({ marks: null });
   }
-};
-
-/**
- * Set `properties` of the block nodes in the current selection.
- *
- * @param {Change} change
- * @param {Object} properties
- */
-
-Changes.setBlock = function (change, properties) {
-  var state = change.state;
-  var selection = state.selection;
-
-  change.setBlockAtRange(selection, properties);
-};
-
-/**
- * Set `properties` of the inline nodes in the current selection.
- *
- * @param {Change} change
- * @param {Object} properties
- */
-
-Changes.setInline = function (change, properties) {
-  var state = change.state;
-  var selection = state.selection;
-
-  change.setInlineAtRange(selection, properties);
 };
 
 /**
@@ -6810,21 +6686,6 @@ Changes.splitBlock = function (change) {
 };
 
 /**
- * Split the inline nodes at the current selection, to optional `depth`.
- *
- * @param {Change} change
- * @param {Number} depth (optional)
- */
-
-Changes.splitInline = function (change) {
-  var depth = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : Infinity;
-  var state = change.state;
-  var selection = state.selection;
-
-  change.splitInlineAtRange(selection, depth);
-};
-
-/**
  * Remove a `mark` from the characters in the current selection.
  *
  * @param {Change} change
@@ -6839,19 +6700,15 @@ Changes.removeMark = function (change, mark) {
 
   if (selection.isExpanded) {
     change.removeMarkAtRange(selection, mark);
-    return;
-  }
-
-  if (selection.marks) {
-    var _marks2 = selection.marks.remove(mark);
+  } else if (selection.marks) {
+    var marks = selection.marks.remove(mark);
+    var sel = selection.set('marks', marks);
+    change.select(sel);
+  } else {
+    var _marks2 = document.getActiveMarksAtRange(selection).remove(mark);
     var _sel2 = selection.set('marks', _marks2);
     change.select(_sel2);
-    return;
   }
-
-  var marks = document.getActiveMarksAtRange(selection).remove(mark);
-  var sel = selection.set('marks', marks);
-  change.select(sel);
 };
 
 /**
@@ -6866,72 +6723,13 @@ Changes.toggleMark = function (change, mark) {
   mark = _normalize2.default.mark(mark);
   var state = change.state;
 
-  var exists = state.activeMarks.some(function (m) {
-    return m.equals(mark);
-  });
+  var exists = state.activeMarks.has(mark);
 
   if (exists) {
     change.removeMark(mark);
   } else {
     change.addMark(mark);
   }
-};
-
-/**
- * Unwrap the current selection from a block parent with `properties`.
- *
- * @param {Change} change
- * @param {Object|String} properties
- */
-
-Changes.unwrapBlock = function (change, properties) {
-  var state = change.state;
-  var selection = state.selection;
-
-  change.unwrapBlockAtRange(selection, properties);
-};
-
-/**
- * Unwrap the current selection from an inline parent with `properties`.
- *
- * @param {Change} change
- * @param {Object|String} properties
- */
-
-Changes.unwrapInline = function (change, properties) {
-  var state = change.state;
-  var selection = state.selection;
-
-  change.unwrapInlineAtRange(selection, properties);
-};
-
-/**
- * Wrap the block nodes in the current selection with a new block node with
- * `properties`.
- *
- * @param {Change} change
- * @param {Object|String} properties
- */
-
-Changes.wrapBlock = function (change, properties) {
-  var state = change.state;
-  var selection = state.selection;
-
-  change.wrapBlockAtRange(selection, properties);
-};
-
-/**
- * Wrap the current selection in new inline nodes with `properties`.
- *
- * @param {Change} change
- * @param {Object|String} properties
- */
-
-Changes.wrapInline = function (change, properties) {
-  var state = change.state;
-  var selection = state.selection;
-
-  change.wrapInlineAtRange(selection, properties);
 };
 
 /**
@@ -14119,7 +13917,8 @@ var History = function (_ref) {
 
       var history = this;
       var _history = history,
-          undos = _history.undos;
+          undos = _history.undos,
+          redos = _history.redos;
       var merge = options.merge,
           skip = options.skip;
 
@@ -14159,7 +13958,9 @@ var History = function (_ref) {
         undos = undos.take(100);
       }
 
-      history = history.set('undos', undos);
+      // Clear the redos and update the history.
+      redos = redos.clear();
+      history = history.set('undos', undos).set('redos', redos);
       return history;
     }
   }, {
@@ -18970,7 +18771,7 @@ var State = function (_ref) {
   }, {
     key: 'hasUndos',
     get: function get() {
-      return this.history.undos.length > 0;
+      return this.history.undos.size > 0;
     }
 
     /**
@@ -18982,7 +18783,7 @@ var State = function (_ref) {
   }, {
     key: 'hasRedos',
     get: function get() {
-      return this.history.redos.length > 0;
+      return this.history.redos.size > 0;
     }
 
     /**
@@ -19162,7 +18963,7 @@ var State = function (_ref) {
   }, {
     key: 'startBlock',
     get: function get() {
-      return this.document.getClosestBlock(this.selection.startKey);
+      return this.selection.isUnset ? null : this.document.getClosestBlock(this.selection.startKey);
     }
 
     /**
@@ -19174,7 +18975,7 @@ var State = function (_ref) {
   }, {
     key: 'endBlock',
     get: function get() {
-      return this.document.getClosestBlock(this.selection.endKey);
+      return this.selection.isUnset ? null : this.document.getClosestBlock(this.selection.endKey);
     }
 
     /**
@@ -19186,7 +18987,7 @@ var State = function (_ref) {
   }, {
     key: 'anchorBlock',
     get: function get() {
-      return this.document.getClosestBlock(this.selection.anchorKey);
+      return this.selection.isUnset ? null : this.document.getClosestBlock(this.selection.anchorKey);
     }
 
     /**
@@ -19198,7 +18999,7 @@ var State = function (_ref) {
   }, {
     key: 'focusBlock',
     get: function get() {
-      return this.document.getClosestBlock(this.selection.focusKey);
+      return this.selection.isUnset ? null : this.document.getClosestBlock(this.selection.focusKey);
     }
 
     /**
@@ -19210,7 +19011,7 @@ var State = function (_ref) {
   }, {
     key: 'startInline',
     get: function get() {
-      return this.document.getClosestInline(this.selection.startKey);
+      return this.selection.isUnset ? null : this.document.getClosestInline(this.selection.startKey);
     }
 
     /**
@@ -19222,7 +19023,7 @@ var State = function (_ref) {
   }, {
     key: 'endInline',
     get: function get() {
-      return this.document.getClosestInline(this.selection.endKey);
+      return this.selection.isUnset ? null : this.document.getClosestInline(this.selection.endKey);
     }
 
     /**
@@ -19234,7 +19035,7 @@ var State = function (_ref) {
   }, {
     key: 'anchorInline',
     get: function get() {
-      return this.document.getClosestInline(this.selection.anchorKey);
+      return this.selection.isUnset ? null : this.document.getClosestInline(this.selection.anchorKey);
     }
 
     /**
@@ -19246,7 +19047,7 @@ var State = function (_ref) {
   }, {
     key: 'focusInline',
     get: function get() {
-      return this.document.getClosestInline(this.selection.focusKey);
+      return this.selection.isUnset ? null : this.document.getClosestInline(this.selection.focusKey);
     }
 
     /**
@@ -19258,7 +19059,7 @@ var State = function (_ref) {
   }, {
     key: 'startText',
     get: function get() {
-      return this.document.getDescendant(this.selection.startKey);
+      return this.selection.isUnset ? null : this.document.getDescendant(this.selection.startKey);
     }
 
     /**
@@ -19270,7 +19071,7 @@ var State = function (_ref) {
   }, {
     key: 'endText',
     get: function get() {
-      return this.document.getDescendant(this.selection.endKey);
+      return this.selection.isUnset ? null : this.document.getDescendant(this.selection.endKey);
     }
 
     /**
@@ -19282,7 +19083,7 @@ var State = function (_ref) {
   }, {
     key: 'anchorText',
     get: function get() {
-      return this.document.getDescendant(this.selection.anchorKey);
+      return this.selection.isUnset ? null : this.document.getDescendant(this.selection.anchorKey);
     }
 
     /**
@@ -19294,7 +19095,7 @@ var State = function (_ref) {
   }, {
     key: 'focusText',
     get: function get() {
-      return this.document.getDescendant(this.selection.focusKey);
+      return this.selection.isUnset ? null : this.document.getDescendant(this.selection.focusKey);
     }
 
     /**
@@ -19306,7 +19107,7 @@ var State = function (_ref) {
   }, {
     key: 'characters',
     get: function get() {
-      return this.document.getCharactersAtRange(this.selection);
+      return this.selection.isUnset ? new _immutable.List() : this.document.getCharactersAtRange(this.selection);
     }
 
     /**
@@ -20944,10 +20745,6 @@ var _base = require('../serializers/base-64');
 
 var _base2 = _interopRequireDefault(_base);
 
-var _content = require('../components/content');
-
-var _content2 = _interopRequireDefault(_content);
-
 var _block = require('../models/block');
 
 var _block2 = _interopRequireDefault(_block);
@@ -20956,17 +20753,21 @@ var _character = require('../models/character');
 
 var _character2 = _interopRequireDefault(_character);
 
-var _inline = require('../models/inline');
+var _content = require('../components/content');
 
-var _inline2 = _interopRequireDefault(_inline);
+var _content2 = _interopRequireDefault(_content);
 
 var _debug = require('debug');
 
 var _debug2 = _interopRequireDefault(_debug);
 
-var _getPoint = require('../utils/get-point');
+var _inline = require('../models/inline');
 
-var _getPoint2 = _interopRequireDefault(_getPoint);
+var _inline2 = _interopRequireDefault(_inline);
+
+var _plain = require('../serializers/plain');
+
+var _plain2 = _interopRequireDefault(_plain);
 
 var _placeholder = require('../components/placeholder');
 
@@ -20975,6 +20776,10 @@ var _placeholder2 = _interopRequireDefault(_placeholder);
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
+
+var _getPoint = require('../utils/get-point');
+
+var _getPoint2 = _interopRequireDefault(_getPoint);
 
 var _getWindow = require('get-window');
 
@@ -21837,10 +21642,20 @@ function Plugin() {
 
   function onPasteText(e, data, change) {
     debug('onPasteText', { data: data });
-    data.text.split('\n').forEach(function (line, i) {
-      if (i > 0) change.splitBlock();
-      change.insertText(line);
-    });
+
+    var state = change.state;
+    var document = state.document,
+        selection = state.selection,
+        startBlock = state.startBlock;
+
+    if (startBlock.isVoid) return;
+
+    var text = data.text;
+
+    var defaultBlock = { type: startBlock.type, data: startBlock.data };
+    var defaultMarks = document.getMarksAtRange(selection.collapseToStart());
+    var fragment = _plain2.default.deserialize(text, { defaultBlock: defaultBlock, defaultMarks: defaultMarks }).document;
+    change.insertFragment(fragment);
   }
 
   /**
@@ -21968,7 +21783,7 @@ function Plugin() {
 
 exports.default = Plugin;
 
-},{"../components/content":50,"../components/placeholder":54,"../constants/environment":56,"../models/block":61,"../models/character":63,"../models/inline":67,"../serializers/base-64":81,"../utils/find-dom-node":88,"../utils/get-point":91,"debug":108,"get-window":1150,"react":1508}],80:[function(require,module,exports){
+},{"../components/content":50,"../components/placeholder":54,"../constants/environment":56,"../models/block":61,"../models/character":63,"../models/inline":67,"../serializers/base-64":81,"../serializers/plain":83,"../utils/find-dom-node":88,"../utils/get-point":91,"debug":108,"get-window":1150,"react":1508}],80:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -22857,6 +22672,16 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _extends = Object.assign || function (target) {
+  for (var i = 1; i < arguments.length; i++) {
+    var source = arguments[i];for (var key in source) {
+      if (Object.prototype.hasOwnProperty.call(source, key)) {
+        target[key] = source[key];
+      }
+    }
+  }return target;
+};
+
 var _raw = require('../serializers/raw');
 
 var _raw2 = _interopRequireDefault(_raw);
@@ -22871,43 +22696,38 @@ function _interopRequireDefault(obj) {
  * @param {String} string
  * @param {Object} options
  *   @property {Boolean} toRaw
+ *   @property {String|Object} defaultBlock
+ *   @property {Array} defaultMarks
  * @return {State}
  */
 
 function deserialize(string) {
   var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+  var _options$defaultBlock = options.defaultBlock,
+      defaultBlock = _options$defaultBlock === undefined ? { type: 'line' } : _options$defaultBlock,
+      _options$defaultMarks = options.defaultMarks,
+      defaultMarks = _options$defaultMarks === undefined ? [] : _options$defaultMarks;
 
   var raw = {
     kind: 'state',
     document: {
       kind: 'document',
       nodes: string.split('\n').map(function (line) {
-        return {
+        return _extends({}, defaultBlock, {
           kind: 'block',
-          type: 'line',
           nodes: [{
             kind: 'text',
             ranges: [{
               text: line,
-              marks: []
+              marks: defaultMarks
             }]
           }]
-        };
+        });
       })
     }
   };
 
   return options.toRaw ? raw : _raw2.default.deserialize(raw);
-}
-
-/**
- * Checks if the block has other blocks nested within
- * @param  {Node}     node
- * @return {Boolean}
-*/
-
-function hasNestedBlocks(node) {
-  return node && node.nodes && node.nodes.first() && node.nodes.first().kind && node.nodes.first().kind == 'block';
 }
 
 /**
@@ -22932,9 +22752,9 @@ function serialize(state) {
  */
 
 function serializeNode(node) {
-  if (node.kind == 'document' || node.kind == 'block' && hasNestedBlocks(node)) {
-    return node.nodes.map(function (childNode) {
-      return serializeNode(childNode);
+  if (node.kind == 'document' || node.kind == 'block' && node.nodes.size > 0 && node.nodes.first().kind == 'block') {
+    return node.nodes.map(function (n) {
+      return serializeNode(n);
     }).filter(function (text) {
       return text != '';
     }).join('\n');
