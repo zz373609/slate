@@ -10715,22 +10715,20 @@ var _initialiseProps = function _initialiseProps() {
         var focusBlock = document.getClosestBlock(focus.key);
         var anchorBlock = document.getClosestBlock(anchor.key);
 
-        // When going from a non-void block to the start of a void-block
-        // the focus is most of the time collpased to the end of the void block.
-        // This is getting the void-block selected as well when it shouldn't.
-        // Make sure it is collapsed to the start in those cases.
-        if (anchorBlock && !anchorBlock.isVoid && focusBlock && focusBlock.isVoid && focus.offset == 1) {
+        // COMPAT: If the anchor point is at the start of a non-void, and the
+        // focus point is inside a void node with an offset that isn't `0`, set
+        // the focus offset to `0`. This is due to void nodes <span>'s being
+        // positioned off screen, resulting in the offset always being greater
+        // than `0`. Since we can't know what it really should be, and since an
+        // offset of `0` is less destructive because it creates a hanging
+        // selection, go with `0`. (2017/09/07)
+        if (anchorBlock && !anchorBlock.isVoid && anchor.offset == 0 && focusBlock && focusBlock.isVoid && focus.offset != 0) {
           properties.focusOffset = 0;
         }
 
-        // If anchor and focus block is the same void block make sure it is anchored to start
-        // so we are able to select and delete it
-        if (anchorBlock && anchorBlock.isVoid && focusBlock && focusBlock.key == anchorBlock.key) {
-          properties.anchorOffset = 0;
-        }
-
-        // If the selection is at the end of a non-void inline node, and there is
-        // a node after it, put it in the node after instead.
+        // COMPAT: If the selection is at the end of a non-void inline node, and
+        // there is a node after it, put it in the node after instead. This
+        // standardizes the behavior, since it's indistinguishable to the user.
         if (anchorInline && !anchorInline.isVoid && anchor.offset == anchorText.text.length) {
           var block = document.getClosestBlock(anchor.key);
           var next = block.getNextText(anchor.key);
@@ -11529,10 +11527,6 @@ var _propTypes3 = require('../utils/prop-types');
 
 var _propTypes4 = _interopRequireDefault(_propTypes3);
 
-var _text = require('../models/text');
-
-var _text2 = _interopRequireDefault(_text);
-
 var _void = require('./void');
 
 var _void2 = _interopRequireDefault(_void);
@@ -11993,7 +11987,7 @@ var _initialiseProps = function _initialiseProps() {
 
 exports.default = Node;
 
-},{"../constants/transfer-types":59,"../models/text":75,"../serializers/base-64":81,"../utils/prop-types":100,"../utils/scroll-to-selection":101,"../utils/set-transfer-data":102,"./leaf":52,"./void":55,"debug":107,"get-window":1149,"prop-types":1319,"react":1509,"react-dom":1322}],54:[function(require,module,exports){
+},{"../constants/transfer-types":59,"../serializers/base-64":81,"../utils/prop-types":100,"../utils/scroll-to-selection":101,"../utils/set-transfer-data":102,"./leaf":52,"./void":55,"debug":107,"get-window":1149,"prop-types":1319,"react":1509,"react-dom":1322}],54:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -21498,7 +21492,7 @@ function Plugin() {
     // COMPAT: In Chrome & Safari, it isn't possible to have a selection at
     // the starting edge of a text node after another inline node. It will
     // have been automatically changed. So we can't render natively because
-    // the cursor isn't technique in the right spot. (2016/12/01)
+    // the cursor isn't technically in the right spot. (2016/12/01)
     !(pInline && !pInline.isVoid && startOffset == 0) && !(nInline && !nInline.isVoid && startOffset == startText.text.length) &&
     // COMPAT: When inserting a Space character, Chrome will sometimes
     // split the text node into two adjacent text nodes. See:
