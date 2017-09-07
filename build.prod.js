@@ -1625,8 +1625,8 @@ var Video = function (_React$Component) {
           node = _this$props2.node,
           editor = _this$props2.editor;
 
-      editor.transform(function (t) {
-        return t.setNodeByKey(node.key, { data: { video: video } });
+      editor.change(function (c) {
+        return c.setNodeByKey(node.key, { data: { video: video } });
       });
     }, _this.onClick = function (e) {
       e.stopPropagation();
@@ -6955,6 +6955,15 @@ Changes.deleteAtRange = function (change, range) {
     }
   }
 
+  // If the selection starts at an inline void, remove that void inline first
+  var startInline = document.getClosestInline(startKey);
+  if (startInline && startInline.isVoid && startInline.getTexts().first().key == startKey) {
+    var _nextText = document.getNextText(startInline.getTexts().first().key);
+    change.removeNodeByKey(startInline.key, OPTS);
+    startKey = _nextText.key;
+    startOffset = 0;
+  }
+
   // If the start and end key are the same, we can just remove it.
   if (startKey == endKey) {
     // If it is a void node, remove the whole node
@@ -6998,10 +7007,11 @@ Changes.deleteAtRange = function (change, range) {
   ancestor = document.getCommonAncestor(startKey, endKey);
   startChild = ancestor.getFurthestAncestor(startKey);
   endChild = ancestor.getFurthestAncestor(endKey);
+
+  var nextText = document.getNextText(endKey);
   var startIndex = ancestor.nodes.indexOf(startChild);
   var endIndex = ancestor.nodes.indexOf(endChild);
   var middles = ancestor.nodes.slice(startIndex + 1, endIndex + 1);
-  var next = document.getNextText(endKey);
 
   // Remove all of the middle nodes, between the splits.
   if (middles.size) {
@@ -7010,16 +7020,25 @@ Changes.deleteAtRange = function (change, range) {
     });
   }
 
-  // If the start and end block are different, move all of the nodes from the
-  // end block into the start block.
+  // Refresh variables
   state = change.state;
   document = state.document;
-  var startBlock = document.getClosestBlock(startKey);
-  var endBlock = document.getClosestBlock(next.key);
 
-  // If the endBlock is void, just remove the startBlock
-  if (endBlock.isVoid) {
-    change.removeNodeByKey(startBlock.key);
+  var startBlock = document.getClosestBlock(startKey);
+  var endBlock = document.getClosestBlock(nextText.key);
+
+  // If the whole startBlock is selected but the endBlock is different, just remove the startBlock
+  if (startBlock.key !== endBlock.key && startChild.text.length === endOffset && startOffset === 0) {
+    document = change.removeNodeByKey(startBlock.key, OPTS).state.document;
+    return;
+  }
+
+  // If the endBlock is void, remove what is selected of the start block
+  if (endBlock.isVoid && endOffset === 0) {
+    // If part of the startBlock is selected, split it and remove the unwanted part
+    document = change.splitNodeByKey(startChild.key, startOffset, OPTS).state.document;
+    var toBeRemoved = document.nodes.get(startIndex + 1);
+    change.removeNodeByKey(toBeRemoved.key, OPTS);
     return;
   }
 
@@ -10217,6 +10236,9 @@ var _initialiseProps = function _initialiseProps() {
       return;
     }
 
+    // If the selection isn't set, do nothing.
+    if (selection.isUnset) return;
+
     // Otherwise, figure out which DOM nodes should be selected...
     var anchorText = state.anchorText,
         focusText = state.focusText;
@@ -10745,13 +10767,29 @@ var _initialiseProps = function _initialiseProps() {
           isBackward: null
         };
 
-        // If the selection is at the end of a non-void inline node, and there is
-        // a node after it, put it in the node after instead.
         var anchorText = document.getNode(anchor.key);
         var focusText = document.getNode(focus.key);
         var anchorInline = document.getClosestInline(anchor.key);
         var focusInline = document.getClosestInline(focus.key);
+        var focusBlock = document.getClosestBlock(focus.key);
+        var anchorBlock = document.getClosestBlock(anchor.key);
 
+        // When going from a non-void block to the start of a void-block
+        // the focus is most of the time collpased to the end of the void block.
+        // This is getting the void-block selected as well when it shouldn't.
+        // Make sure it is collapsed to the start in those cases.
+        if (anchorBlock && !anchorBlock.isVoid && focusBlock && focusBlock.isVoid && focus.offset == 1) {
+          properties.focusOffset = 0;
+        }
+
+        // If anchor and focus block is the same void block make sure it is anchored to start
+        // so we are able to select and delete it
+        if (anchorBlock && anchorBlock.isVoid && focusBlock && focusBlock.key == anchorBlock.key) {
+          properties.anchorOffset = 0;
+        }
+
+        // If the selection is at the end of a non-void inline node, and there is
+        // a node after it, put it in the node after instead.
         if (anchorInline && !anchorInline.isVoid && anchor.offset == anchorText.text.length) {
           var block = document.getClosestBlock(anchor.key);
           var next = block.getNextText(anchor.key);
@@ -11524,6 +11562,10 @@ var _propTypes3 = require('../utils/prop-types');
 
 var _propTypes4 = _interopRequireDefault(_propTypes3);
 
+var _text = require('../models/text');
+
+var _text2 = _interopRequireDefault(_text);
+
 var _void = require('./void');
 
 var _void2 = _interopRequireDefault(_void);
@@ -11771,7 +11813,7 @@ var _initialiseProps = function _initialiseProps() {
 
     // If the Node has children that aren't just Text's then allow them to decide
     // If they should update it or not.
-    if (nextProps.node.kind != 'text' && Text.isTextList(nextProps.node.nodes) == false) return true;
+    if (nextProps.node.kind != 'text' && _text2.default.isTextList(nextProps.node.nodes) == false) return true;
 
     // If the node is a block or inline, which can have custom renderers, we
     // include an extra check to re-render if the node either becomes part of,
@@ -11975,7 +12017,7 @@ var _initialiseProps = function _initialiseProps() {
 
 exports.default = Node;
 
-},{"../constants/transfer-types":59,"../serializers/base-64":81,"../utils/prop-types":100,"../utils/scroll-to-selection":101,"../utils/set-transfer-data":102,"./leaf":52,"./void":55,"debug":107,"get-window":1149,"prop-types":1319,"react":1509,"react-dom":1322}],54:[function(require,module,exports){
+},{"../constants/transfer-types":59,"../models/text":75,"../serializers/base-64":81,"../utils/prop-types":100,"../utils/scroll-to-selection":101,"../utils/set-transfer-data":102,"./leaf":52,"./void":55,"debug":107,"get-window":1149,"prop-types":1319,"react":1509,"react-dom":1322}],54:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -24076,7 +24118,7 @@ function extendSelection(selection, el, offset) {
   anchor.setStart(selection.anchorNode, selection.anchorOffset);
   focus.setStart(el, offset);
 
-  var v = focus.compareBoundaryPoints(Range.START_TO_START, anchor);
+  var v = focus.compareBoundaryPoints(window.Range.START_TO_START, anchor);
 
   // If the focus is after the anchor...
   if (v >= 0) {
