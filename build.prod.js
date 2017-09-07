@@ -1612,18 +1612,11 @@ var Video = function (_React$Component) {
       args[_key] = arguments[_key];
     }
 
-    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = Video.__proto__ || Object.getPrototypeOf(Video)).call.apply(_ref, [this].concat(args))), _this), _this.isSelected = function () {
+    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = Video.__proto__ || Object.getPrototypeOf(Video)).call.apply(_ref, [this].concat(args))), _this), _this.onChange = function (e) {
+      var video = e.target.value;
       var _this$props = _this.props,
           node = _this$props.node,
-          state = _this$props.state;
-
-      var isSelected = state.isFocused && state.blocks.includes(node);
-      return isSelected;
-    }, _this.onChange = function (e) {
-      var video = e.target.value;
-      var _this$props2 = _this.props,
-          node = _this$props2.node,
-          editor = _this$props2.editor;
+          editor = _this$props.editor;
 
       editor.change(function (c) {
         return c.setNodeByKey(node.key, { data: { video: video } });
@@ -1631,8 +1624,11 @@ var Video = function (_React$Component) {
     }, _this.onClick = function (e) {
       e.stopPropagation();
     }, _this.renderVideo = function () {
-      var video = _this.props.node.data.get('video');
-      var isSelected = _this.isSelected();
+      var _this$props2 = _this.props,
+          node = _this$props2.node,
+          isSelected = _this$props2.isSelected;
+
+      var video = node.data.get('video');
 
       var wrapperStyle = {
         position: 'relative',
@@ -1677,7 +1673,9 @@ var Video = function (_React$Component) {
         })
       );
     }, _this.renderInput = function () {
-      var video = _this.props.node.data.get('video');
+      var node = _this.props.node;
+
+      var video = node.data.get('video');
       return _react2.default.createElement('input', {
         value: video,
         onChange: _this.onChange,
@@ -1686,12 +1684,6 @@ var Video = function (_React$Component) {
       });
     }, _temp), _possibleConstructorReturn(_this, _ret);
   }
-
-  /**
-   * Check if the node is selected.
-   *
-   * @return {Boolean}
-   */
 
   /**
    * When the input text changes, update the `video` data on the node.
@@ -1799,12 +1791,11 @@ var schema = {
       );
     },
     emoji: function emoji(props) {
-      var state = props.state,
+      var isSelected = props.isSelected,
           node = props.node;
       var data = node.data;
 
       var code = data.get('code');
-      var isSelected = state.selection.hasFocusIn(node);
       return _react2.default.createElement(
         'span',
         _extends({ className: 'emoji ' + (isSelected ? 'selected' : '') }, props.attributes, { contentEditable: false }),
@@ -3292,11 +3283,10 @@ var schema = {
   nodes: {
     image: function image(props) {
       var node = props.node,
-          state = props.state;
+          isSelected = props.isSelected;
 
-      var active = state.isFocused && state.blocks.includes(node);
       var src = node.data.get('src');
-      var className = active ? 'active' : null;
+      var className = isSelected ? 'active' : null;
       return _react2.default.createElement('img', _extends({ src: src, className: className }, props.attributes));
     },
     paragraph: function paragraph(props) {
@@ -10090,9 +10080,9 @@ var Content = function (_React$Component) {
     }
 
     /**
-     * Render a `node`.
+     * Render a `child` node of the document.
      *
-     * @param {Node} node
+     * @param {Node} child
      * @return {Element}
      */
 
@@ -10766,22 +10756,40 @@ var _initialiseProps = function _initialiseProps() {
     _this3.props.onSelect(event, data);
   };
 
-  this.renderNode = function (node) {
+  this.renderNode = function (child) {
     var _props5 = _this3.props,
         editor = _props5.editor,
         readOnly = _props5.readOnly,
         schema = _props5.schema,
         state = _props5.state;
+    var document = state.document,
+        selection = state.selection;
+    var startKey = selection.startKey,
+        endKey = selection.endKey,
+        isBlurred = selection.isBlurred;
+
+    var isSelected = void 0;
+
+    if (isBlurred) {
+      isSelected = false;
+    } else {
+      isSelected = document.nodes.skipUntil(function (n) {
+        return n.kind == 'text' ? n.key == startKey : n.hasDescendant(startKey);
+      }).reverse().skipUntil(function (n) {
+        return n.kind == 'text' ? n.key == endKey : n.hasDescendant(endKey);
+      }).includes(child);
+    }
 
     return _react2.default.createElement(_node2.default, {
-      key: node.key,
       block: null,
-      node: node,
-      parent: state.document,
-      schema: schema,
-      state: state,
       editor: editor,
-      readOnly: readOnly
+      isSelected: isSelected,
+      key: child.key,
+      node: child,
+      parent: document,
+      readOnly: readOnly,
+      schema: schema,
+      state: state
     });
   };
 };
@@ -11720,6 +11728,7 @@ var Node = function (_React$Component) {
 Node.propTypes = {
   block: _propTypes4.default.block,
   editor: _propTypes2.default.object.isRequired,
+  isSelected: _propTypes2.default.bool.isRequired,
   node: _propTypes4.default.node.isRequired,
   parent: _propTypes4.default.node.isRequired,
   readOnly: _propTypes2.default.bool.isRequired,
@@ -11755,56 +11764,43 @@ var _initialiseProps = function _initialiseProps() {
     var props = _this2.props;
     var Component = _this2.state.Component;
 
+    var n = nextProps;
+    var p = props;
+
     // If the `Component` has enabled suppression of update checking, always
     // return true so that it can deal with update checking itself.
-
     if (Component && Component.suppressShouldComponentUpdate) return true;
 
     // If the `readOnly` status has changed, re-render in case there is any
     // user-land logic that depends on it, like nested editable contents.
-    if (nextProps.readOnly != props.readOnly) return true;
+    if (n.readOnly != p.readOnly) return true;
 
     // If the node has changed, update. PERF: There are cases where it will have
     // changed, but it's properties will be exactly the same (eg. copy-paste)
     // which this won't catch. But that's rare and not a drag on performance, so
     // for simplicity we just let them through.
-    if (nextProps.node != props.node) return true;
+    if (n.node != p.node) return true;
 
-    // If the Node has children that aren't just Text's then allow them to decide
-    // If they should update it or not.
-    if (nextProps.node.kind != 'text' && _text2.default.isTextList(nextProps.node.nodes) == false) return true;
-
-    // If the node is a block or inline, which can have custom renderers, we
-    // include an extra check to re-render if the node either becomes part of,
-    // or leaves, a selection. This is to make it simple for users to show a
-    // node's "selected" state.
-    if (nextProps.node.kind != 'text') {
-      var nodes = props.node.kind + 's';
-      var isInSelection = props.state[nodes].includes(props.node);
-      var nextIsInSelection = nextProps.state[nodes].includes(nextProps.node);
-      var hasFocus = props.state.isFocused;
-      var nextHasFocus = nextProps.state.isFocused;
-      var selectionChanged = isInSelection != nextIsInSelection;
-      var focusChanged = hasFocus != nextHasFocus;
-      if (selectionChanged || focusChanged) return true;
-    }
+    // If the node's selection state has changed, re-render in case there is any
+    // user-land logic depends on it to render.
+    if (n.isSelected != p.isSelected) return true;
 
     // If the node is a text node, re-render if the current decorations have
     // changed, even if the content of the text node itself hasn't.
-    if (nextProps.node.kind == 'text' && nextProps.schema.hasDecorators) {
-      var nextDecorators = nextProps.state.document.getDescendantDecorators(nextProps.node.key, nextProps.schema);
-      var decorators = props.state.document.getDescendantDecorators(props.node.key, props.schema);
-      var nextRanges = nextProps.node.getRanges(nextDecorators);
-      var ranges = props.node.getRanges(decorators);
-      if (!nextRanges.equals(ranges)) return true;
+    if (n.node.kind == 'text' && n.schema.hasDecorators) {
+      var nDecorators = n.state.document.getDescendantDecorators(n.node.key, n.schema);
+      var pDecorators = p.state.document.getDescendantDecorators(p.node.key, p.schema);
+      var nRanges = n.node.getRanges(nDecorators);
+      var pRanges = p.node.getRanges(pDecorators);
+      if (!nRanges.equals(pRanges)) return true;
     }
 
     // If the node is a text node, and its parent is a block node, and it was
     // the last child of the block, re-render to cleanup extra `<br/>` or `\n`.
-    if (nextProps.node.kind == 'text' && nextProps.parent.kind == 'block') {
-      var last = props.parent.nodes.last();
-      var nextLast = nextProps.parent.nodes.last();
-      if (props.node == last && nextProps.node != nextLast) return true;
+    if (n.node.kind == 'text' && n.parent.kind == 'block') {
+      var pLast = p.parent.nodes.last();
+      var nLast = n.parent.nodes.last();
+      if (p.node == pLast && n.node != nLast) return true;
     }
 
     // Otherwise, don't update.
@@ -11871,17 +11867,36 @@ var _initialiseProps = function _initialiseProps() {
     var _props2 = _this2.props,
         block = _props2.block,
         editor = _props2.editor,
+        isSelected = _props2.isSelected,
         node = _props2.node,
         readOnly = _props2.readOnly,
         schema = _props2.schema,
         state = _props2.state;
+    var selection = state.selection;
+    var startKey = selection.startKey,
+        endKey = selection.endKey;
+
+    var isChildSelected = void 0;
+
+    if (!isSelected) {
+      isChildSelected = false;
+    } else if (node.kind == 'text') {
+      isChildSelected = node.key == startKey || node.key == endKey;
+    } else {
+      isChildSelected = node.nodes.skipUntil(function (n) {
+        return n.kind == 'text' ? n.key == startKey : n.hasDescendant(startKey);
+      }).reverse().skipUntil(function (n) {
+        return n.kind == 'text' ? n.key == endKey : n.hasDescendant(endKey);
+      }).includes(child);
+    }
 
     return _react2.default.createElement(Node, {
+      block: node.kind == 'block' ? node : block,
+      editor: editor,
+      isSelected: isChildSelected,
       key: child.key,
       node: child,
-      block: node.kind == 'block' ? node : block,
       parent: node,
-      editor: editor,
       readOnly: readOnly,
       schema: schema,
       state: state
@@ -11891,6 +11906,7 @@ var _initialiseProps = function _initialiseProps() {
   this.renderElement = function () {
     var _props3 = _this2.props,
         editor = _props3.editor,
+        isSelected = _props3.isSelected,
         node = _props3.node,
         parent = _props3.parent,
         readOnly = _props3.readOnly,
@@ -11915,10 +11931,11 @@ var _initialiseProps = function _initialiseProps() {
 
     var element = _react2.default.createElement(Component, {
       attributes: attributes,
-      key: node.key,
       editor: editor,
-      parent: parent,
+      isSelected: isSelected,
+      key: node.key,
       node: node,
+      parent: parent,
       readOnly: readOnly,
       state: state
     }, children);
@@ -14786,9 +14803,9 @@ var _generateKey = require('../utils/generate-key');
 
 var _generateKey2 = _interopRequireDefault(_generateKey);
 
-var _isInRange = require('../utils/is-in-range');
+var _isIndexInRange = require('../utils/is-index-in-range');
 
-var _isInRange2 = _interopRequireDefault(_isInRange);
+var _isIndexInRange2 = _interopRequireDefault(_isIndexInRange);
 
 var _isPlainObject = require('is-plain-object');
 
@@ -15202,7 +15219,7 @@ var Node = function () {
 
       return this.getTextsAtRange(range).reduce(function (arr, text) {
         var chars = text.characters.filter(function (char, i) {
-          return (0, _isInRange2.default)(i, text, range);
+          return (0, _isIndexInRange2.default)(i, text, range);
         }).toArray();
 
         return arr.concat(chars);
@@ -16459,6 +16476,50 @@ var Node = function () {
     }
 
     /**
+     * Check whether the node is in a `range`.
+     *
+     * @param {Selection} range
+     * @return {Boolean}
+     */
+
+  }, {
+    key: 'isInRange',
+    value: function isInRange(range) {
+      range = range.normalize(this);
+
+      var node = this;
+      var _range7 = range,
+          startKey = _range7.startKey,
+          endKey = _range7.endKey,
+          isCollapsed = _range7.isCollapsed;
+
+      // PERF: solve the most common cast where the start or end key are inside
+      // the node, for collapsed selections.
+
+      if (node.key == startKey || node.key == endKey || node.hasDescendant(startKey) || node.hasDescendant(endKey)) {
+        return true;
+      }
+
+      // PERF: if the selection is collapsed and the previous check didn't return
+      // true, then it must be false.
+      if (isCollapsed) {
+        return false;
+      }
+
+      // Otherwise, look through all of the leaf text nodes in the range, to see
+      // if any of them are inside the node.
+      var texts = node.getTextsAtRange(range);
+      var memo = false;
+
+      texts.forEach(function (text) {
+        if (node.hasDescendant(text.key)) memo = true;
+        return memo;
+      });
+
+      return memo;
+    }
+
+    /**
      * Check whether the node is a leaf block.
      *
      * @return {Boolean}
@@ -16883,8 +16944,8 @@ var Node = function () {
       range = range.normalize(this);
       if (range.isExpanded) throw new Error();
 
-      var _range7 = range,
-          startKey = _range7.startKey;
+      var _range8 = range,
+          startKey = _range8.startKey;
 
       var start = this.getFurthestInline(startKey) || this.getDescendant(startKey);
       return range.isAtStartOf(start) || range.isAtEndOf(start);
@@ -17052,7 +17113,7 @@ function normalizeKey(value) {
 
 exports.default = Node;
 
-},{"../utils/generate-key":89,"../utils/is-in-range":93,"../utils/logger":95,"../utils/memoize":96,"./block":61,"./data":64,"./document":65,"./inline":67,"./text":75,"direction":109,"immutable":1160,"is-plain-object":1165}],70:[function(require,module,exports){
+},{"../utils/generate-key":89,"../utils/is-index-in-range":93,"../utils/logger":95,"../utils/memoize":96,"./block":61,"./data":64,"./document":65,"./inline":67,"./text":75,"direction":109,"immutable":1160,"is-plain-object":1165}],70:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -24607,7 +24668,7 @@ Object.defineProperty(exports, "__esModule", {
  * @return {Boolean}
  */
 
-function isInRange(index, text, range) {
+function isIndexInRange(index, text, range) {
   var startKey = range.startKey,
       startOffset = range.startOffset,
       endKey = range.endKey,
@@ -24630,7 +24691,7 @@ function isInRange(index, text, range) {
  * @type {Function}
  */
 
-exports.default = isInRange;
+exports.default = isIndexInRange;
 
 },{}],94:[function(require,module,exports){
 "use strict";
