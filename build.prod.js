@@ -13124,7 +13124,9 @@ var Block = function (_Record) {
   }, {
     key: 'isBlockList',
     value: function isBlockList(value) {
-      return _immutable.List.isList(value) && value.size > 0 && Block.isBlock(value.first());
+      return _immutable.List.isList(value) && value.every(function (item) {
+        return Block.isBlock(item);
+      });
     }
   }]);
 
@@ -13641,7 +13643,9 @@ var Character = function (_Record) {
   }, {
     key: 'isCharacterList',
     value: function isCharacterList(value) {
-      return _immutable.List.isList(value) && value.size > 0 && Character.isCharacter(value.first());
+      return _immutable.List.isList(value) && value.every(function (item) {
+        return Character.isCharacter(item);
+      });
     }
 
     /**
@@ -14442,7 +14446,9 @@ var Inline = function (_Record) {
   }, {
     key: 'isInlineList',
     value: function isInlineList(value) {
-      return _immutable.List.isList(value) && value.size > 0 && Inline.isInline(value.first());
+      return _immutable.List.isList(value) && value.every(function (item) {
+        return Inline.isInline(item);
+      });
     }
   }]);
 
@@ -14699,7 +14705,9 @@ var Mark = function (_Record) {
   }, {
     key: 'isMarkSet',
     value: function isMarkSet(value) {
-      return _immutable.Set.isSet(value) && value.size > 0 && Mark.isMark(value.first());
+      return _immutable.Set.isSet(value) && value.every(function (item) {
+        return Mark.isMark(item);
+      });
     }
   }]);
 
@@ -16957,7 +16965,9 @@ var Node = function () {
   }, {
     key: 'isNodeList',
     value: function isNodeList(value) {
-      return _immutable.List.isList(value) && value.size > 0 && Node.isNode(value.first());
+      return _immutable.List.isList(value) && value.every(function (item) {
+        return Node.isNode(item);
+      });
     }
   }]);
 
@@ -17181,7 +17191,9 @@ var Range = function (_Record) {
   }, {
     key: 'isRangeList',
     value: function isRangeList(value) {
-      return _immutable.List.isList(value) && value.size > 0 && Range.isRange(value.first());
+      return _immutable.List.isList(value) && value.every(function (item) {
+        return Range.isRange(item);
+      });
     }
   }]);
 
@@ -20266,7 +20278,9 @@ var Text = function (_Record) {
   }, {
     key: 'isTextList',
     value: function isTextList(value) {
-      return _immutable.List.isList(value) && value.size > 0 && Text.isText(value.first());
+      return _immutable.List.isList(value) && value.every(function (item) {
+        return Text.isText(item);
+      });
     }
 
     /**
@@ -21896,9 +21910,7 @@ function Plugin() {
   }
 
   /**
-   * On `up` key down. If the previous block is void, make sure it is collapsed
-   * or extended (if shift) to start.
-   * For Macs, move the selection to start of the block if `alt` key is pressed.
+   * On `up` key down, for Macs, move the selection to start of the block.
    *
    * COMPAT: Certain browsers don't handle the selection updates properly. In
    * Chrome, option-shift-up doesn't properly extend the selection. And in
@@ -21910,24 +21922,16 @@ function Plugin() {
    */
 
   function onKeyDownUp(e, data, change) {
+    if (!_environment.IS_MAC || data.isCtrl || !data.isAlt) return;
+
     var state = change.state;
     var selection = state.selection,
         document = state.document,
         focusKey = state.focusKey,
         focusBlock = state.focusBlock;
 
-    var previousBlock = document.getPreviousBlock(focusKey);
-
-    if (previousBlock && previousBlock.isVoid && !data.isAlt) {
-      var _transform = data.isShift ? 'extendToStartOf' : 'collapseToStartOf';
-      e.preventDefault();
-      return change[_transform](previousBlock);
-    }
-
-    if (!_environment.IS_MAC || data.isCtrl || !data.isAlt) return;
-
     var transform = data.isShift ? 'extendToStartOf' : 'collapseToStartOf';
-    var block = selection.hasFocusAtStartOf(focusBlock) ? previousBlock : focusBlock;
+    var block = selection.hasFocusAtStartOf(focusBlock) ? document.getPreviousBlock(focusKey) : focusBlock;
 
     if (!block) return;
     var text = block.getFirstText();
@@ -21937,9 +21941,7 @@ function Plugin() {
   }
 
   /**
-   * On `down` key down. If the next block is void, make sure it is collapsed
-   * or extended (if shift) to start.
-   * For Macs, move the selection to end of the block if `alt` key is pressed.
+   * On `down` key down, for Macs, move the selection to end of the block.
    *
    * COMPAT: Certain browsers don't handle the selection updates properly. In
    * Chrome, option-shift-down doesn't properly extend the selection. And in
@@ -21951,24 +21953,16 @@ function Plugin() {
    */
 
   function onKeyDownDown(e, data, change) {
+    if (!_environment.IS_MAC || data.isCtrl || !data.isAlt) return;
+
     var state = change.state;
     var selection = state.selection,
         document = state.document,
         focusKey = state.focusKey,
         focusBlock = state.focusBlock;
 
-    var nextBlock = document.getNextBlock(focusKey);
-
-    if (nextBlock && nextBlock.isVoid && !data.isAlt) {
-      var _transform2 = data.isShift ? 'extendToStartOf' : 'collapseToStartOf';
-      e.preventDefault();
-      return change[_transform2](nextBlock);
-    }
-
-    if (!_environment.IS_MAC || data.isCtrl || !data.isAlt) return;
-
     var transform = data.isShift ? 'extendToEndOf' : 'collapseToEndOf';
-    var block = selection.hasFocusAtEndOf(focusBlock) ? nextBlock : focusBlock;
+    var block = selection.hasFocusAtEndOf(focusBlock) ? document.getNextBlock(focusKey) : focusBlock;
 
     if (!block) return;
     var text = block.getLastText();
@@ -25279,8 +25273,6 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _immutable = require('immutable');
-
 var _block = require('../models/block');
 
 var _block2 = _interopRequireDefault(_block);
@@ -25419,7 +25411,7 @@ var Types = {
     return _mark2.default.isMark(v);
   }),
   marks: create('Set<Mark>', function (v) {
-    return _immutable.Set.isSet(v) && v.size === 0 || _mark2.default.isMarkSet(v);
+    return _mark2.default.isMarkSet(v);
   }),
   node: create('Node', function (v) {
     return _node2.default.isNode(v);
@@ -25461,7 +25453,7 @@ var Types = {
 
 exports.default = Types;
 
-},{"../models/block":61,"../models/change":62,"../models/character":63,"../models/data":64,"../models/document":65,"../models/history":66,"../models/inline":67,"../models/mark":68,"../models/node":69,"../models/range":70,"../models/schema":71,"../models/selection":72,"../models/stack":73,"../models/state":74,"../models/text":75,"immutable":1160}],101:[function(require,module,exports){
+},{"../models/block":61,"../models/change":62,"../models/character":63,"../models/data":64,"../models/document":65,"../models/history":66,"../models/inline":67,"../models/mark":68,"../models/node":69,"../models/range":70,"../models/schema":71,"../models/selection":72,"../models/stack":73,"../models/state":74,"../models/text":75}],101:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
