@@ -15086,6 +15086,8 @@ var Node = function () {
     key: 'getBlocksAtRangeAsArray',
     value: function getBlocksAtRangeAsArray(range) {
       range = range.normalize(this);
+      if (range.isUnset) return [];
+
       var _range = range,
           startKey = _range.startKey,
           endKey = _range.endKey;
@@ -15190,6 +15192,9 @@ var Node = function () {
   }, {
     key: 'getCharactersAtRangeAsArray',
     value: function getCharactersAtRangeAsArray(range) {
+      range = range.normalize(this);
+      if (range.isUnset) return [];
+
       return this.getTextsAtRange(range).reduce(function (arr, text) {
         var chars = text.characters.filter(function (char, i) {
           return (0, _isInRange2.default)(i, text, range);
@@ -15460,19 +15465,23 @@ var Node = function () {
      * Get a fragment of the node at a `range`.
      *
      * @param {Selection} range
-     * @return {List<Node>}
+     * @return {Document}
      */
 
   }, {
     key: 'getFragmentAtRange',
     value: function getFragmentAtRange(range) {
+      range = range.normalize(this);
+      if (range.isUnset) return _document2.default.create();
+
       var node = this;
 
       // Make sure the children exist.
-      var startKey = range.startKey,
-          startOffset = range.startOffset,
-          endKey = range.endKey,
-          endOffset = range.endOffset;
+      var _range2 = range,
+          startKey = _range2.startKey,
+          startOffset = _range2.startOffset,
+          endKey = _range2.endKey,
+          endOffset = _range2.endOffset;
 
       var startText = node.assertDescendant(startKey);
       var endText = node.assertDescendant(endKey);
@@ -15676,6 +15685,9 @@ var Node = function () {
     value: function getInlinesAtRangeAsArray(range) {
       var _this = this;
 
+      range = range.normalize(this);
+      if (range.isUnset) return [];
+
       return this.getTextsAtRangeAsArray(range).map(function (text) {
         return _this.getClosestInline(text.key);
       }).filter(function (exists) {
@@ -15850,9 +15862,11 @@ var Node = function () {
     key: 'getMarksAtRangeAsArray',
     value: function getMarksAtRangeAsArray(range) {
       range = range.normalize(this);
-      var _range2 = range,
-          startKey = _range2.startKey,
-          startOffset = _range2.startOffset;
+      if (range.isUnset) return [];
+
+      var _range3 = range,
+          startKey = _range3.startKey,
+          startOffset = _range3.startOffset;
 
       // If the range is collapsed at the start of the node, check the previous.
 
@@ -15882,9 +15896,11 @@ var Node = function () {
     key: 'getActiveMarksAtRangeAsArray',
     value: function getActiveMarksAtRangeAsArray(range) {
       range = range.normalize(this);
-      var _range3 = range,
-          startKey = _range3.startKey,
-          startOffset = _range3.startOffset;
+      if (range.isUnset) return [];
+
+      var _range4 = range,
+          startKey = _range4.startKey,
+          startOffset = _range4.startOffset;
 
       // If the range is collapsed at the start of the node, check the previous.
 
@@ -16086,13 +16102,17 @@ var Node = function () {
     value: function getOffsetAtRange(range) {
       range = range.normalize(this);
 
+      if (range.isUnset) {
+        throw new Error('The range cannot be unset to calculcate its offset.');
+      }
+
       if (range.isExpanded) {
         throw new Error('The range must be collapsed to calculcate its offset.');
       }
 
-      var _range4 = range,
-          startKey = _range4.startKey,
-          startOffset = _range4.startOffset;
+      var _range5 = range,
+          startKey = _range5.startKey,
+          startOffset = _range5.startOffset;
 
       return this.getOffset(startKey) + startOffset;
     }
@@ -16321,9 +16341,11 @@ var Node = function () {
     key: 'getTextsAtRangeAsArray',
     value: function getTextsAtRangeAsArray(range) {
       range = range.normalize(this);
-      var _range5 = range,
-          startKey = _range5.startKey,
-          endKey = _range5.endKey;
+      if (range.isUnset) return [];
+
+      var _range6 = range,
+          startKey = _range6.startKey,
+          endKey = _range6.endKey;
 
       var startText = this.getDescendant(startKey);
 
@@ -16844,8 +16866,8 @@ var Node = function () {
       range = range.normalize(this);
       if (range.isExpanded) throw new Error();
 
-      var _range6 = range,
-          startKey = _range6.startKey;
+      var _range7 = range,
+          startKey = _range7.startKey;
 
       var start = this.getFurthestInline(startKey) || this.getDescendant(startKey);
       return range.isAtStartOf(start) || range.isAtEndOf(start);
