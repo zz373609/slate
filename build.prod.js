@@ -10021,11 +10021,14 @@ var Content = function (_React$Component) {
           tagName = props.tagName;
 
       var Container = tagName;
-      var document = state.document;
+      var document = state.document,
+          selection = state.selection;
 
-      var children = document.nodes.map(function (node) {
-        return _this2.renderNode(node);
-      }).toArray();
+      var indexes = document.getSelectionIndexes(selection, selection.isFocused);
+      var children = document.nodes.toArray().map(function (child, i) {
+        var isSelected = !!indexes && indexes.start <= i && i < indexes.end;
+        return _this2.renderNode(child, isSelected);
+      });
 
       var style = _extends({
         // Prevent the default outline styles.
@@ -10083,6 +10086,7 @@ var Content = function (_React$Component) {
      * Render a `child` node of the document.
      *
      * @param {Node} child
+     * @param {Boolean} isSelected
      * @return {Element}
      */
 
@@ -10754,29 +10758,13 @@ var _initialiseProps = function _initialiseProps() {
     _this3.props.onSelect(event, data);
   };
 
-  this.renderNode = function (child) {
+  this.renderNode = function (child, isSelected) {
     var _props5 = _this3.props,
         editor = _props5.editor,
         readOnly = _props5.readOnly,
         schema = _props5.schema,
         state = _props5.state;
-    var document = state.document,
-        selection = state.selection;
-    var startKey = selection.startKey,
-        endKey = selection.endKey,
-        isBlurred = selection.isBlurred;
-
-    var isSelected = void 0;
-
-    if (isBlurred) {
-      isSelected = false;
-    } else {
-      isSelected = document.nodes.skipUntil(function (n) {
-        return n.kind == 'text' ? n.key == startKey : n.hasDescendant(startKey);
-      }).reverse().skipUntil(function (n) {
-        return n.kind == 'text' ? n.key == endKey : n.hasDescendant(endKey);
-      }).includes(child);
-    }
+    var document = state.document;
 
     return _react2.default.createElement(_node2.default, {
       block: null,
@@ -11683,6 +11671,7 @@ var Node = function (_React$Component) {
      * Render a `child` node.
      *
      * @param {Node} child
+     * @param {Boolean} isSelected
      * @return {Element}
      */
 
@@ -11857,37 +11846,19 @@ var _initialiseProps = function _initialiseProps() {
     _this2.debug('onDragStart', e);
   };
 
-  this.renderNode = function (child) {
+  this.renderNode = function (child, isSelected) {
     var _props2 = _this2.props,
         block = _props2.block,
         editor = _props2.editor,
-        isSelected = _props2.isSelected,
         node = _props2.node,
         readOnly = _props2.readOnly,
         schema = _props2.schema,
         state = _props2.state;
-    var selection = state.selection;
-    var startKey = selection.startKey,
-        endKey = selection.endKey;
-
-    var isChildSelected = void 0;
-
-    if (!isSelected) {
-      isChildSelected = false;
-    } else if (node.kind == 'text') {
-      isChildSelected = node.key == startKey || node.key == endKey;
-    } else {
-      isChildSelected = node.nodes.skipUntil(function (n) {
-        return n.kind == 'text' ? n.key == startKey : n.hasDescendant(startKey);
-      }).reverse().skipUntil(function (n) {
-        return n.kind == 'text' ? n.key == endKey : n.hasDescendant(endKey);
-      }).includes(child);
-    }
 
     return _react2.default.createElement(Node, {
       block: node.kind == 'block' ? node : block,
       editor: editor,
-      isSelected: isChildSelected,
+      isSelected: isSelected,
       key: child.key,
       node: child,
       parent: node,
@@ -11906,8 +11877,13 @@ var _initialiseProps = function _initialiseProps() {
         readOnly = _props3.readOnly,
         state = _props3.state;
     var Component = _this2.state.Component;
+    var selection = state.selection;
 
-    var children = node.nodes.map(_this2.renderNode).toArray();
+    var indexes = node.getSelectionIndexes(selection, isSelected);
+    var children = node.nodes.toArray().map(function (child, i) {
+      var isChildSelected = !!indexes && indexes.start <= i && i < indexes.end;
+      return _this2.renderNode(child, isChildSelected);
+    });
 
     // Attributes that the developer must to mix into the element in their
     // custom node renderer component.
@@ -16257,6 +16233,59 @@ var Node = function () {
       return this.getTexts().takeUntil(function (text) {
         return text.key == key;
       }).last();
+    }
+
+    /**
+     * Get the indexes of the selection for a `range`, given an extra flag for
+     * whether the node `isSelected`, to determine whether not finding matches
+     * means everything is selected or nothing is.
+     *
+     * @param {Selection} range
+     * @param {Boolean} isSelected
+     * @return {Object|Null}
+     */
+
+  }, {
+    key: 'getSelectionIndexes',
+    value: function getSelectionIndexes(range) {
+      var isSelected = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+      var startKey = range.startKey,
+          endKey = range.endKey;
+
+      // PERF: if we're not selected, or the range is blurred, we can exit early.
+
+      if (!isSelected || range.isBlurred) {
+        return null;
+      }
+
+      // PERF: if the start and end keys are the same, just check for the child
+      // that contains that single key.
+      if (startKey == endKey) {
+        var child = this.getFurthestAncestor(startKey);
+        var index = child ? this.nodes.indexOf(child) : null;
+        return { start: index, end: index + 1 };
+      }
+
+      // Otherwise, check all of the children...
+      var start = null;
+      var end = null;
+
+      this.nodes.forEach(function (child, i) {
+        if (child.kind == 'text') {
+          if (start == null && child.key == startKey) start = i;
+          if (end == null && child.key == endKey) end = i + 1;
+        } else {
+          if (start == null && child.hasDescendant(startKey)) start = i;
+          if (end == null && child.hasDescendant(endKey)) end = i + 1;
+        }
+
+        // PERF: exit early if both start and end have been found.
+        return start != null && end != null;
+      });
+
+      if (isSelected && start == null) start = 0;
+      if (isSelected && end == null) end = this.nodes.size;
+      return start == null ? null : { start: start, end: end };
     }
 
     /**
