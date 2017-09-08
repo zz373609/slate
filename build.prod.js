@@ -23245,6 +23245,10 @@ var _extends = Object.assign || function (target) {
   }return target;
 };
 
+var _block = require('../models/block');
+
+var _block2 = _interopRequireDefault(_block);
+
 var _raw = require('../serializers/raw');
 
 var _raw2 = _interopRequireDefault(_raw);
@@ -23306,21 +23310,14 @@ function serialize(state) {
 
 /**
  * Serialize a `node` to plain text.
- * For blocks, or document, it recursively calls itself
- * to aggregate the text.
- * For other types of nodes, it uses the .text property
  *
  * @param {Node} node
  * @return {String}
  */
 
 function serializeNode(node) {
-  if (node.kind == 'document' || node.kind == 'block' && node.nodes.size > 0 && node.nodes.first().kind == 'block') {
-    return node.nodes.map(function (n) {
-      return serializeNode(n);
-    }).filter(function (text) {
-      return text != '';
-    }).join('\n');
+  if (node.kind == 'document' || node.kind == 'block' && _block2.default.isBlockList(node.nodes)) {
+    return node.nodes.map(serializeNode).join('\n');
   } else {
     return node.text;
   }
@@ -23337,7 +23334,7 @@ exports.default = {
   serialize: serialize
 };
 
-},{"../serializers/raw":84}],84:[function(require,module,exports){
+},{"../models/block":61,"../serializers/raw":84}],84:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
