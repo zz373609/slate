@@ -23216,7 +23216,7 @@ function deserialize(string, options) {
  */
 
 function deserializeNode(string, options) {
-  var Node = require('../models/node');
+  var Node = require('../models/node').default;
   var raw = decode(string);
   var node = Node.fromJSON(raw, options);
   return node;
