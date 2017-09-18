@@ -106142,7 +106142,9 @@ Changes.setNodeByKey = function (change, key, properties) {
 Changes.splitNodeByKey = function (change, key, position) {
   var options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
   var _options$normalize12 = options.normalize,
-      normalize = _options$normalize12 === undefined ? true : _options$normalize12;
+      normalize = _options$normalize12 === undefined ? true : _options$normalize12,
+      _options$target = options.target,
+      target = _options$target === undefined ? null : _options$target;
   var state = change.state;
   var document = state.document;
 
@@ -106151,7 +106153,8 @@ Changes.splitNodeByKey = function (change, key, position) {
   change.applyOperation({
     type: 'split_node',
     path: path,
-    position: position
+    position: position,
+    target: target
   });
 
   if (normalize) {
@@ -106190,11 +106193,13 @@ Changes.splitDescendantsByKey = function (change, key, textKey, textOffset) {
     return a.key == key;
   }).reverse().unshift(text);
   var previous = void 0;
+  var index = void 0;
 
   nodes.forEach(function (node) {
-    var index = previous ? node.nodes.indexOf(previous) + 1 : textOffset;
+    var prevIndex = index == null ? null : index;
+    index = previous ? node.nodes.indexOf(previous) + 1 : textOffset;
     previous = node;
-    change.splitNodeByKey(node.key, index, { normalize: false });
+    change.splitNodeByKey(node.key, index, { normalize: false, target: prevIndex });
   });
 
   if (normalize) {
