@@ -110010,17 +110010,19 @@ var Node = function () {
       while (parent = node.getParent(child.key)) {
         var index = parent.nodes.indexOf(child);
         var position = child.kind == 'text' ? startOffset : child.nodes.indexOf(previous);
+
         parent = parent.splitNode(index, position);
         node = node.updateNode(parent);
         previous = parent.nodes.get(index + 1);
         child = parent;
       }
 
-      child = endText;
+      child = startKey == endKey ? node.getNextText(startKey) : endText;
 
       while (parent = node.getParent(child.key)) {
         var _index = parent.nodes.indexOf(child);
-        var _position = child.kind == 'text' ? endOffset : child.nodes.indexOf(previous);
+        var _position = child.kind == 'text' ? startKey == endKey ? endOffset - startOffset : endOffset : child.nodes.indexOf(previous);
+
         parent = parent.splitNode(_index, _position);
         node = node.updateNode(parent);
         previous = parent.nodes.get(_index + 1);
@@ -110028,14 +110030,13 @@ var Node = function () {
       }
 
       // Get the start and end nodes.
-      var next = node.getNextText(node.getNextText(startKey).key);
       var startNode = node.getNextSibling(node.getFurthestAncestor(startKey).key);
-      var endNode = startKey == endKey ? node.getFurthestAncestor(next.key) : node.getFurthestAncestor(endKey);
+      var endNode = startKey == endKey ? node.getNextSibling(node.getNextSibling(node.getFurthestAncestor(endKey).key).key) : node.getNextSibling(node.getFurthestAncestor(endKey).key);
 
       // Get children range of nodes from start to end nodes
       var startIndex = node.nodes.indexOf(startNode);
       var endIndex = node.nodes.indexOf(endNode);
-      var nodes = node.nodes.slice(startIndex, endIndex + 1);
+      var nodes = node.nodes.slice(startIndex, endIndex);
 
       // Return a new document fragment.
       return _document2.default.create({ nodes: nodes });
