@@ -98827,6 +98827,10 @@ var _setTransferData = require('../utils/set-transfer-data');
 
 var _setTransferData2 = _interopRequireDefault(_setTransferData);
 
+var _scrollToSelection = require('../utils/scroll-to-selection');
+
+var _scrollToSelection2 = _interopRequireDefault(_scrollToSelection);
+
 var _environment = require('../constants/environment');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -98930,6 +98934,8 @@ var Content = function (_React$Component) {
       range.setStart(anchor.node, anchor.offset);
       native.addRange(range);
       if (!isCollapsed) (0, _extendSelection2.default)(native, focus.node, focus.offset);
+
+      (0, _scrollToSelection2.default)(native);
 
       // Then unset the `isSelecting` flag after a delay.
       setTimeout(function () {
@@ -99746,7 +99752,7 @@ Content.defaultProps = {
   tagName: 'div'
 };
 exports.default = Content;
-},{"../constants/environment":1470,"../constants/transfer-types":1471,"../utils/extend-selection":1474,"../utils/find-closest-node":1475,"../utils/get-caret-position":1478,"../utils/get-html-from-native-paste":1479,"../utils/get-point":1480,"../utils/get-transfer-data":1481,"../utils/set-transfer-data":1486,"./node":1467,"debug":1487,"get-window":1083,"keycode":1102,"prop-types":1493,"react":1447,"slate":1504,"slate-base64-serializer":1459,"slate-prop-types":1463}],1465:[function(require,module,exports){
+},{"../constants/environment":1470,"../constants/transfer-types":1471,"../utils/extend-selection":1474,"../utils/find-closest-node":1475,"../utils/get-caret-position":1478,"../utils/get-html-from-native-paste":1479,"../utils/get-point":1480,"../utils/get-transfer-data":1481,"../utils/scroll-to-selection":1485,"../utils/set-transfer-data":1486,"./node":1467,"debug":1487,"get-window":1083,"keycode":1102,"prop-types":1493,"react":1447,"slate":1504,"slate-base64-serializer":1459,"slate-prop-types":1463}],1465:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -100410,10 +100416,6 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
-var _reactDom = require('react-dom');
-
-var _reactDom2 = _interopRequireDefault(_reactDom);
-
 var _slatePropTypes = require('slate-prop-types');
 
 var _slatePropTypes2 = _interopRequireDefault(_slatePropTypes);
@@ -100421,10 +100423,6 @@ var _slatePropTypes2 = _interopRequireDefault(_slatePropTypes);
 var _propTypes = require('prop-types');
 
 var _propTypes2 = _interopRequireDefault(_propTypes);
-
-var _getWindow = require('get-window');
-
-var _getWindow2 = _interopRequireDefault(_getWindow);
 
 var _transferTypes = require('../constants/transfer-types');
 
@@ -100437,10 +100435,6 @@ var _leaf2 = _interopRequireDefault(_leaf);
 var _void = require('./void');
 
 var _void2 = _interopRequireDefault(_void);
-
-var _scrollToSelection = require('../utils/scroll-to-selection');
-
-var _scrollToSelection2 = _interopRequireDefault(_scrollToSelection);
 
 var _setTransferData = require('../utils/set-transfer-data');
 
@@ -100517,31 +100511,6 @@ var Node = function (_React$Component) {
    * @param {Object} nextProps
    * @param {Object} state
    * @return {Boolean}
-   */
-
-  /**
-   * On mount, update the scroll position.
-   */
-
-  /**
-   * After update, update the scroll position if the node's content changed.
-   *
-   * @param {Object} prevProps
-   * @param {Object} prevState
-   */
-
-  /**
-   * There is a corner case, that some nodes are unmounted right after they update
-   * Then, when the timer execute, it will throw the error
-   * `findDOMNode was called on an unmounted component`
-   * We should clear the timer from updateScroll here
-   */
-
-  /**
-   * Update the scroll position after a change as occured if this is a leaf
-   * block and it has the selection's ending edge. This ensures that scrolling
-   * matches native `contenteditable` behavior even for cases where the edit is
-   * not applied natively, like when enter is pressed.
    */
 
   /**
@@ -100696,45 +100665,6 @@ var _initialiseProps = function _initialiseProps() {
     return false;
   };
 
-  this.componentDidMount = function () {
-    _this2.updateScroll();
-  };
-
-  this.componentDidUpdate = function (prevProps, prevState) {
-    if (_this2.props.node != prevProps.node) _this2.updateScroll();
-  };
-
-  this.componentWillUnmount = function () {
-    clearTimeout(_this2.scrollTimer);
-  };
-
-  this.updateScroll = function () {
-    var _props = _this2.props,
-        node = _props.node,
-        state = _props.state;
-    var selection = state.selection;
-
-    // If this isn't a block, or it's a wrapping block, abort.
-
-    if (node.kind != 'block') return;
-    if (node.nodes.first().kind == 'block') return;
-
-    // If the selection is blurred, or this block doesn't contain it, abort.
-    if (selection.isBlurred) return;
-    if (!selection.hasEndIn(node)) return;
-
-    // The native selection will be updated after componentDidMount or componentDidUpdate.
-    // Use setTimeout to queue scrolling to the last when the native selection has been updated to the correct value.
-    _this2.scrollTimer = setTimeout(function () {
-      var el = _reactDom2.default.findDOMNode(_this2);
-      var window = (0, _getWindow2.default)(el);
-      var native = window.getSelection();
-      (0, _scrollToSelection2.default)(native);
-
-      _this2.debug('updateScroll', el);
-    });
-  };
-
   this.onDragStart = function (e) {
     var node = _this2.props.node;
 
@@ -100754,13 +100684,13 @@ var _initialiseProps = function _initialiseProps() {
   };
 
   this.renderNode = function (child, isSelected) {
-    var _props2 = _this2.props,
-        block = _props2.block,
-        editor = _props2.editor,
-        node = _props2.node,
-        readOnly = _props2.readOnly,
-        schema = _props2.schema,
-        state = _props2.state;
+    var _props = _this2.props,
+        block = _props.block,
+        editor = _props.editor,
+        node = _props.node,
+        readOnly = _props.readOnly,
+        schema = _props.schema,
+        state = _props.state;
 
     return _react2.default.createElement(Node, {
       block: node.kind == 'block' ? node : block,
@@ -100776,13 +100706,13 @@ var _initialiseProps = function _initialiseProps() {
   };
 
   this.renderElement = function () {
-    var _props3 = _this2.props,
-        editor = _props3.editor,
-        isSelected = _props3.isSelected,
-        node = _props3.node,
-        parent = _props3.parent,
-        readOnly = _props3.readOnly,
-        state = _props3.state;
+    var _props2 = _this2.props,
+        editor = _props2.editor,
+        isSelected = _props2.isSelected,
+        node = _props2.node,
+        parent = _props2.parent,
+        readOnly = _props2.readOnly,
+        state = _props2.state;
     var Component = _this2.state.Component;
     var selection = state.selection;
 
@@ -100829,10 +100759,10 @@ var _initialiseProps = function _initialiseProps() {
   };
 
   this.renderText = function () {
-    var _props4 = _this2.props,
-        node = _props4.node,
-        schema = _props4.schema,
-        state = _props4.state;
+    var _props3 = _this2.props,
+        node = _props3.node,
+        schema = _props3.schema,
+        state = _props3.state;
     var document = state.document;
 
     var decorators = schema.hasDecorators ? document.getDescendantDecorators(node.key, schema) : [];
@@ -100853,13 +100783,13 @@ var _initialiseProps = function _initialiseProps() {
   };
 
   this.renderLeaf = function (ranges, range, index, offset) {
-    var _props5 = _this2.props,
-        block = _props5.block,
-        node = _props5.node,
-        parent = _props5.parent,
-        schema = _props5.schema,
-        state = _props5.state,
-        editor = _props5.editor;
+    var _props4 = _this2.props,
+        block = _props4.block,
+        node = _props4.node,
+        parent = _props4.parent,
+        schema = _props4.schema,
+        state = _props4.state,
+        editor = _props4.editor;
     var text = range.text,
         marks = range.marks;
 
@@ -100882,7 +100812,7 @@ var _initialiseProps = function _initialiseProps() {
 };
 
 exports.default = Node;
-},{"../constants/transfer-types":1471,"../utils/scroll-to-selection":1485,"../utils/set-transfer-data":1486,"./leaf":1466,"./void":1469,"debug":1487,"get-window":1083,"prop-types":1493,"react":1447,"react-dom":1255,"slate-base64-serializer":1459,"slate-prop-types":1463}],1468:[function(require,module,exports){
+},{"../constants/transfer-types":1471,"../utils/set-transfer-data":1486,"./leaf":1466,"./void":1469,"debug":1487,"prop-types":1493,"react":1447,"slate-base64-serializer":1459,"slate-prop-types":1463}],1468:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -110098,7 +110028,7 @@ var Node = function () {
       }
 
       // Get the start and end nodes.
-      var next = node.getNextText(startKey);
+      var next = node.getNextText(node.getNextText(startKey).key);
       var startNode = node.getNextSibling(node.getFurthestAncestor(startKey).key);
       var endNode = startKey == endKey ? node.getFurthestAncestor(next.key) : node.getFurthestAncestor(endKey);
 
@@ -113951,8 +113881,8 @@ var State = function (_Record) {
         var document = this.document,
             selection = this.selection;
 
-        object.selection.anchorPath = document.getPath(selection.anchorKey);
-        object.selection.focusPath = document.getPath(selection.focusKey);
+        object.selection.anchorPath = selection.isSet ? document.getPath(selection.anchorKey) : null;
+        object.selection.focusPath = selection.isSet ? document.getPath(selection.focusKey) : null;
         delete object.selection.anchorKey;
         delete object.selection.focusKey;
       }
@@ -115523,45 +115453,39 @@ var APPLIERS = {
         endKey = _selection3.endKey;
 
     var node = document.assertPath(path);
-
     // If the selection is set, check to see if it needs to be updated.
     if (selection.isSet) {
       var hasStartNode = node.hasNode(startKey);
       var hasEndNode = node.hasNode(endKey);
-      var normalize = false;
+      var first = node.kind == 'text' ? node : node.getFirstText() || node;
+      var last = node.kind == 'text' ? node : node.getLastText() || node;
+      var prev = document.getPreviousText(first.key);
+      var next = document.getNextText(last.key);
 
-      // If one of the selection's nodes is being removed, we need to update it.
+      // If the start point was in this node, update it to be just before/after.
       if (hasStartNode) {
-        var prev = document.getPreviousText(startKey);
-        var next = document.getNextText(startKey);
-
         if (prev) {
           selection = selection.moveStartTo(prev.key, prev.text.length);
-          normalize = true;
         } else if (next) {
           selection = selection.moveStartTo(next.key, 0);
-          normalize = true;
         } else {
           selection = selection.deselect();
         }
       }
 
-      if (hasEndNode) {
-        var _prev = document.getPreviousText(endKey);
-        var _next = document.getNextText(endKey);
-
-        if (_prev) {
-          selection = selection.moveEndTo(_prev.key, _prev.text.length);
-          normalize = true;
-        } else if (_next) {
-          selection = selection.moveEndTo(_next.key, 0);
-          normalize = true;
+      // If the end point was in this node, update it to be just before/after.
+      if (selection.isSet && hasEndNode) {
+        if (prev) {
+          selection = selection.moveEndTo(prev.key, prev.text.length);
+        } else if (next) {
+          selection = selection.moveEndTo(next.key, 0);
         } else {
           selection = selection.deselect();
         }
       }
 
-      if (normalize) {
+      // If the selection wasn't deselected, normalize it.
+      if (selection.isSet) {
         selection = selection.normalize(document);
       }
     }
@@ -116328,7 +116252,7 @@ var rules = [
     // Reverse the list to handle consecutive merges, since the earlier nodes
     // will always exist after each merge.
     invalids.reverse().forEach(function (n) {
-      return change.mergeNodeByKey(n.key, OPTS);
+      change.mergeNodeByKey(n.key, OPTS);
     });
   }
 },
