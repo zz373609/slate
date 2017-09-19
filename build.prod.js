@@ -100420,6 +100420,10 @@ var _slatePropTypes = require('slate-prop-types');
 
 var _slatePropTypes2 = _interopRequireDefault(_slatePropTypes);
 
+var _slateDevLogger = require('slate-dev-logger');
+
+var _slateDevLogger2 = _interopRequireDefault(_slateDevLogger);
+
 var _propTypes = require('prop-types');
 
 var _propTypes2 = _interopRequireDefault(_propTypes);
@@ -100624,7 +100628,26 @@ var _initialiseProps = function _initialiseProps() {
 
     // If the `Component` has enabled suppression of update checking, always
     // return true so that it can deal with update checking itself.
-    if (Component && Component.suppressShouldComponentUpdate) return true;
+    if (Component && Component.suppressShouldComponentUpdate) {
+      _slateDevLogger2.default.deprecate('2.2.0', 'The `suppressShouldComponentUpdate` property is deprecated because it led to an important performance loss, use `shouldNodeComponentUpdate` instead.');
+      return true;
+    }
+
+    // If the `Component` has a custom logic to determine whether the component
+    // needs to be updated or not, return true if it returns true.
+    // If it returns false, we still want to benefit from the
+    // performance gain of the rest of the logic.
+    if (Component && Component.shouldNodeComponentUpdate) {
+      var shouldUpdate = Component.shouldNodeComponentUpdate(p, n);
+
+      if (shouldUpdate) {
+        return true;
+      }
+
+      if (shouldUpdate === false) {
+        _slateDevLogger2.default.warn('Returning false in `shouldNodeComponentUpdate` does not disable Slate\'s internal `shouldComponentUpdate` logic. If you want to prevent updates, use React\'s `shouldComponentUpdate` instead.');
+      }
+    }
 
     // If the `readOnly` status has changed, re-render in case there is any
     // user-land logic that depends on it, like nested editable contents.
@@ -100812,7 +100835,7 @@ var _initialiseProps = function _initialiseProps() {
 };
 
 exports.default = Node;
-},{"../constants/transfer-types":1471,"../utils/set-transfer-data":1486,"./leaf":1466,"./void":1469,"debug":1487,"prop-types":1493,"react":1447,"slate-base64-serializer":1459,"slate-prop-types":1463}],1468:[function(require,module,exports){
+},{"../constants/transfer-types":1471,"../utils/set-transfer-data":1486,"./leaf":1466,"./void":1469,"debug":1487,"prop-types":1493,"react":1447,"slate-base64-serializer":1459,"slate-dev-logger":1460,"slate-prop-types":1463}],1468:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -101118,7 +101141,8 @@ var Void = function (_React$Component) {
         Tag = 'div';
         style = {
           display: 'inline-block',
-          verticalAlign: 'top'
+          verticalAlign: 'top',
+          width: '100%'
         };
       } else {
         Tag = 'span';
