@@ -105045,8 +105045,7 @@ Changes.insertBlockAtRange = function (change, range, block) {
     var extra = range.isAtEndOf(startBlock) ? 1 : 0;
     change.insertNodeByKey(parent.key, index + extra, block, { normalize: normalize });
   } else if (startBlock.isEmpty) {
-    change.removeNodeByKey(startBlock.key);
-    change.insertNodeByKey(parent.key, index, block, { normalize: normalize });
+    change.insertNodeByKey(parent.key, index + 1, block, { normalize: normalize });
   } else if (range.isAtStartOf(startBlock)) {
     change.insertNodeByKey(parent.key, index, block, { normalize: normalize });
   } else if (range.isAtEndOf(startBlock)) {
@@ -106258,6 +106257,35 @@ Changes.removeTextByKey = function (change, key, offset, length) {
 };
 
 /**
+`* Replace a `node` with another `node`
+ *
+ * @param {Change} change
+ * @param {String} key
+ * @param {Object|Node} node
+ * @param {Object} options
+ *   @property {Boolean} normalize
+ */
+
+Changes.replaceNodeByKey = function (change, key, newNode) {
+  var options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
+
+  newNode = _node2.default.create(newNode);
+  var _options$normalize10 = options.normalize,
+      normalize = _options$normalize10 === undefined ? true : _options$normalize10;
+  var state = change.state;
+  var document = state.document;
+
+  var node = document.getNode(key);
+  var parent = document.getParent(key);
+  var index = parent.nodes.indexOf(node);
+  change.removeNodeByKey(key, { normalize: false });
+  change.insertNodeByKey(parent.key, index, newNode, options);
+  if (normalize) {
+    change.normalizeNodeByKey(parent.key, _core2.default);
+  }
+};
+
+/**
  * Set `properties` on mark on text at `offset` and `length` in node by `key`.
  *
  * @param {Change} change
@@ -106274,8 +106302,8 @@ Changes.setMarkByKey = function (change, key, offset, length, mark, properties) 
 
   mark = _mark2.default.create(mark);
   properties = _mark2.default.createProperties(properties);
-  var _options$normalize10 = options.normalize,
-      normalize = _options$normalize10 === undefined ? true : _options$normalize10;
+  var _options$normalize11 = options.normalize,
+      normalize = _options$normalize11 === undefined ? true : _options$normalize11;
   var state = change.state;
   var document = state.document;
 
@@ -106310,8 +106338,8 @@ Changes.setNodeByKey = function (change, key, properties) {
   var options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
 
   properties = _node2.default.createProperties(properties);
-  var _options$normalize11 = options.normalize,
-      normalize = _options$normalize11 === undefined ? true : _options$normalize11;
+  var _options$normalize12 = options.normalize,
+      normalize = _options$normalize12 === undefined ? true : _options$normalize12;
   var state = change.state;
   var document = state.document;
 
@@ -106342,8 +106370,8 @@ Changes.setNodeByKey = function (change, key, properties) {
 
 Changes.splitNodeByKey = function (change, key, position) {
   var options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
-  var _options$normalize12 = options.normalize,
-      normalize = _options$normalize12 === undefined ? true : _options$normalize12,
+  var _options$normalize13 = options.normalize,
+      normalize = _options$normalize13 === undefined ? true : _options$normalize13,
       _options$target = options.target,
       target = _options$target === undefined ? null : _options$target;
   var state = change.state;
@@ -106382,8 +106410,8 @@ Changes.splitDescendantsByKey = function (change, key, textKey, textOffset) {
     return;
   }
 
-  var _options$normalize13 = options.normalize,
-      normalize = _options$normalize13 === undefined ? true : _options$normalize13;
+  var _options$normalize14 = options.normalize,
+      normalize = _options$normalize14 === undefined ? true : _options$normalize14;
   var state = change.state;
   var document = state.document;
 
@@ -106468,8 +106496,8 @@ Changes.unwrapBlockByKey = function (change, key, properties, options) {
 
 Changes.unwrapNodeByKey = function (change, key) {
   var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-  var _options$normalize14 = options.normalize,
-      normalize = _options$normalize14 === undefined ? true : _options$normalize14;
+  var _options$normalize15 = options.normalize,
+      normalize = _options$normalize15 === undefined ? true : _options$normalize15;
   var state = change.state;
   var document = state.document;
 
@@ -107634,17 +107662,13 @@ var Block = function (_Record) {
           isVoid = _object$isVoid === undefined ? false : _object$isVoid,
           _object$key = object.key,
           key = _object$key === undefined ? (0, _generateKey2.default)() : _object$key,
+          _object$nodes = object.nodes,
+          nodes = _object$nodes === undefined ? [] : _object$nodes,
           type = object.type;
-      var _object$nodes = object.nodes,
-          nodes = _object$nodes === undefined ? [] : _object$nodes;
 
 
       if (typeof type != 'string') {
         throw new Error('`Block.fromJSON` requires a `type` string.');
-      }
-
-      if (nodes.length == 0) {
-        nodes = [{ kind: 'text', text: '' }];
       }
 
       var block = new Block({
@@ -109101,17 +109125,13 @@ var Inline = function (_Record) {
           isVoid = _object$isVoid === undefined ? false : _object$isVoid,
           _object$key = object.key,
           key = _object$key === undefined ? (0, _generateKey2.default)() : _object$key,
+          _object$nodes = object.nodes,
+          nodes = _object$nodes === undefined ? [] : _object$nodes,
           type = object.type;
-      var _object$nodes = object.nodes,
-          nodes = _object$nodes === undefined ? [] : _object$nodes;
 
 
       if (typeof type != 'string') {
         throw new Error('`Inline.fromJS` requires a `type` string.');
-      }
-
-      if (nodes.length == 0) {
-        nodes = [{ kind: 'text', text: '' }];
       }
 
       var inline = new Inline({
