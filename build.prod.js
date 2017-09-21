@@ -104525,6 +104525,7 @@ Changes.deleteAtRange = function (change, range) {
         var startText = document.getNode(startKey);
         var endText = document.getNode(endKey);
         var startLength = startText.text.length - startOffset;
+        var endLength = endOffset;
 
         var ancestor = document.getCommonAncestor(startKey, endKey);
         var startChild = ancestor.getFurthestAncestor(startKey);
@@ -104532,6 +104533,7 @@ Changes.deleteAtRange = function (change, range) {
 
         var startParent = document.getParent(startBlock.key);
         var startParentIndex = startParent.nodes.indexOf(startBlock);
+        var endParentIndex = startParent.nodes.indexOf(endBlock);
 
         var child = void 0;
 
@@ -104576,8 +104578,13 @@ Changes.deleteAtRange = function (change, range) {
         }
 
         // Remove any overlapping text content from the leaf text nodes.
-        change.removeTextByKey(startKey, startOffset, startLength, { normalize: false });
-        change.removeTextByKey(endKey, 0, endOffset, { normalize: false });
+        if (startLength != 0) {
+          change.removeTextByKey(startKey, startOffset, startLength, { normalize: false });
+        }
+
+        if (endLength != 0) {
+          change.removeTextByKey(endKey, 0, endOffset, { normalize: false });
+        }
 
         // If the start and end blocks aren't the same, move and merge the end block
         // into the start block.
@@ -104586,7 +104593,9 @@ Changes.deleteAtRange = function (change, range) {
           var lonely = document.getFurthestOnlyChildAncestor(endBlock.key);
 
           // Move the end block to be right after the start block.
-          change.moveNodeByKey(endBlock.key, startParent.key, startParentIndex + 1);
+          if (endParentIndex != startParentIndex + 1) {
+            change.moveNodeByKey(endBlock.key, startParent.key, startParentIndex + 1);
+          }
 
           // If the selection is hanging, just remove the start block, otherwise
           // merge the end block into it.
