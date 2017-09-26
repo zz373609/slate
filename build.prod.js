@@ -99885,8 +99885,6 @@ var Editor = function (_React$Component) {
         var stk = _this.state.stack;
         var change = _this.state.state.change();
         stk[method].apply(stk, [change, _this].concat(args));
-        stk.onBeforeChange(change, _this);
-        stk.onChange(change, _this);
         _this.onChange(change);
       };
     };
@@ -100095,12 +100093,16 @@ var _initialiseProps = function _initialiseProps() {
         onChange = _props.onChange,
         onDocumentChange = _props.onDocumentChange,
         onSelectionChange = _props.onSelectionChange;
+    var stack = _this2.state.stack;
     var _tmp = _this2.tmp,
         document = _tmp.document,
         selection = _tmp.selection;
     var state = change.state;
 
     if (state == _this2.state.state) return;
+
+    stack.onBeforeChange(change, _this2);
+    stack.onChange(change, _this2);
 
     onChange(change);
     if (onDocumentChange && state.document != document) onDocumentChange(state.document, change);
@@ -100232,7 +100234,7 @@ var Leaf = function (_React$Component) {
 
     value: function shouldComponentUpdate(props) {
       // If any of the regular properties have changed, re-render.
-      if (props.index != this.props.index || props.marks != this.props.marks || props.schema != this.props.schema || props.text != this.props.text) {
+      if (props.index != this.props.index || props.marks != this.props.marks || props.schema != this.props.schema || props.text != this.props.text || props.parent != this.props.parent) {
         return true;
       }
 
