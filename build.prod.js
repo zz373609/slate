@@ -104063,8 +104063,8 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 var Changes = {};
 
 /**
- * Mix in the changes that just pass through to their at-range equivalents
- * because they don't have any effect on the selection.
+ * Mix in the changes that pass through to their at-range equivalents because
+ * they don't have any effect on the selection.
  */
 
 var PROXY_TRANSFORMS = ['deleteBackward', 'deleteCharBackward', 'deleteLineBackward', 'deleteWordBackward', 'deleteForward', 'deleteCharForward', 'deleteWordForward', 'deleteLineForward', 'setBlock', 'setInline', 'splitInline', 'unwrapBlock', 'unwrapInline', 'wrapBlock', 'wrapInline'];
