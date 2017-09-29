@@ -99859,8 +99859,8 @@ var Editor = function (_React$Component) {
 
     _initialiseProps.call(_this);
 
-    _this.tmp = {};
     _this.state = {};
+    _this.tmp = {};
 
     // Create a new `Stack`, omitting the `onChange` property since that has
     // special significance on the editor itself.
@@ -99868,11 +99868,13 @@ var Editor = function (_React$Component) {
     var stack = _slate.Stack.create({ plugins: plugins });
     _this.state.stack = stack;
 
-    // Resolve the state, running `onBeforeChange` first.
+    // Run `onBeforeChange` on the passed-in state because we need to ensure
+    // that it is normalized, and queue the resulting change.
     var change = props.state.change();
     stack.onBeforeChange(change, _this);
     var state = change.state;
 
+    _this.queueChange(change);
     _this.cacheState(state);
     _this.state.state = state;
 
@@ -99920,10 +99922,31 @@ var Editor = function (_React$Component) {
    */
 
   /**
-   * Cache a `state` in memory to be able to compare against it later, for
-   * things like `onDocumentChange`.
+   * When the component first mounts, flush any temporary changes.
+   */
+
+  /**
+   * When the component updates, flush any temporary change.
+   */
+
+  /**
+   * Cache a `state` object to be able to compare against it later.
    *
    * @param {State} state
+   */
+
+  /**
+   * Queue a `change` object, to be able to flush it later. This is required for
+   * when a change needs to be applied to the state, but because of the React
+   * lifecycle we can't apply that change immediately. So we cache it here and
+   * later can call `this.flushChange()` to flush it.
+   *
+   * @param {Change} change
+   */
+
+  /**
+   * Flush a temporarily stored `change` object, for when a change needed to be
+   * made but couldn't because of React's lifecycle.
    */
 
   /**
@@ -100052,18 +100075,46 @@ var _initialiseProps = function _initialiseProps() {
       _this2.setState({ stack: stack });
     }
 
-    // Resolve the state, running the `onBeforeChange` handler of the stack.
+    // Run `onBeforeChange` on the passed-in state because we need to ensure
+    // that it is normalized, and queue the resulting change.
     var change = props.state.change();
     stack.onBeforeChange(change, _this2);
     var state = change.state;
 
+    _this2.queueChange(change);
     _this2.cacheState(state);
     _this2.setState({ state: state });
+  };
+
+  this.componentDidMount = function () {
+    _this2.flushChange();
+  };
+
+  this.componentDidUpdate = function () {
+    _this2.flushChange();
   };
 
   this.cacheState = function (state) {
     _this2.tmp.document = state.document;
     _this2.tmp.selection = state.selection;
+  };
+
+  this.queueChange = function (change) {
+    if (change.operations.length) {
+      debug('queueChange', { change: change });
+      _this2.tmp.change = change;
+    }
+  };
+
+  this.flushChange = function () {
+    var change = _this2.tmp.change;
+
+
+    if (change) {
+      debug('flushChange', { change: change });
+      _this2.props.onChange(change);
+      delete _this2.tmp.change;
+    }
   };
 
   this.blur = function () {
@@ -100089,6 +100140,7 @@ var _initialiseProps = function _initialiseProps() {
   this.change = function (fn) {
     var change = _this2.state.state.change();
     fn(change);
+    debug('change', { change: change });
     _this2.onChange(change);
   };
 
@@ -100097,21 +100149,25 @@ var _initialiseProps = function _initialiseProps() {
       throw new Error('As of slate@0.22.0 the `editor.onChange` method must be passed a `Change` object not a `State` object.');
     }
 
-    var _props = _this2.props,
-        onChange = _props.onChange,
-        onDocumentChange = _props.onDocumentChange,
-        onSelectionChange = _props.onSelectionChange;
     var stack = _this2.state.stack;
-    var _tmp = _this2.tmp,
-        document = _tmp.document,
-        selection = _tmp.selection;
-    var state = change.state;
 
-    if (state == _this2.state.state) return;
 
     stack.onBeforeChange(change, _this2);
     stack.onChange(change, _this2);
 
+    var state = change.state;
+    var _tmp = _this2.tmp,
+        document = _tmp.document,
+        selection = _tmp.selection;
+    var _props = _this2.props,
+        onChange = _props.onChange,
+        onDocumentChange = _props.onDocumentChange,
+        onSelectionChange = _props.onSelectionChange;
+
+
+    if (state == _this2.state.state) return;
+
+    debug('onChange', { change: change });
     onChange(change);
     if (onDocumentChange && state.document != document) onDocumentChange(state.document, change);
     if (onSelectionChange && state.selection != selection) onSelectionChange(state.selection, change);
