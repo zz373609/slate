@@ -99864,13 +99864,15 @@ var Editor = function (_React$Component) {
 
     // Create a new `Stack`, omitting the `onChange` property since that has
     // special significance on the editor itself.
-    var state = props.state;
-
     var plugins = resolvePlugins(props);
     var stack = _slate.Stack.create({ plugins: plugins });
     _this.state.stack = stack;
 
-    // Cache and set the state.
+    // Resolve the state, running `onBeforeChange` first.
+    var change = props.state.change();
+    stack.onBeforeChange(change, _this);
+    var state = change.state;
+
     _this.cacheState(state);
     _this.state.state = state;
 
@@ -99884,9 +99886,9 @@ var Editor = function (_React$Component) {
         }
 
         var stk = _this.state.stack;
-        var change = _this.state.state.change();
-        stk[method].apply(stk, [change, _this].concat(args));
-        _this.onChange(change);
+        var c = _this.state.state.change();
+        stk[method].apply(stk, [c, _this].concat(args));
+        _this.onChange(c);
       };
     };
 
@@ -99905,7 +99907,8 @@ var Editor = function (_React$Component) {
   }
 
   /**
-   * When the `props` are updated, create a new `Stack` if necessary.
+   * When the `props` are updated, create a new `Stack` if necessary and run
+   * `onBeforeChange` to ensure the state is normalized.
    *
    * @param {Object} props
    */
@@ -100037,7 +100040,7 @@ var _initialiseProps = function _initialiseProps() {
   var _this2 = this;
 
   this.componentWillReceiveProps = function (props) {
-    var state = props.state;
+    var stack = _this2.state.stack;
 
     // If any plugin-related properties will change, create a new `Stack`.
 
@@ -100045,11 +100048,15 @@ var _initialiseProps = function _initialiseProps() {
       var prop = PLUGINS_PROPS[_i];
       if (props[prop] == _this2.props[prop]) continue;
       var plugins = resolvePlugins(props);
-      var stack = _slate.Stack.create({ plugins: plugins });
+      stack = _slate.Stack.create({ plugins: plugins });
       _this2.setState({ stack: stack });
     }
 
-    // Cache and save the state.
+    // Resolve the state, running the `onBeforeChange` handler of the stack.
+    var change = props.state.change();
+    stack.onBeforeChange(change, _this2);
+    var state = change.state;
+
     _this2.cacheState(state);
     _this2.setState({ state: state });
   };
@@ -101699,10 +101706,11 @@ function Plugin() {
     var schema = editor.getSchema();
     var prevState = editor.getState();
 
-    // PERF: Skip normalizing if the document hasn't changed, since the core
-    // schema only normalizes changes to the document, not selection.
+    // PERF: Skip normalizing if the document hasn't changed, since schemas only
+    // normalize changes to the document, not selection.
     if (prevState && state.document == prevState.document) return;
 
+    change.normalize(_slate.coreSchema);
     change.normalize(schema);
     debug('onBeforeChange');
   }
@@ -107320,11 +107328,15 @@ exports.default = MODEL_TYPES;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.setKeyGenerator = exports.resetKeyGenerator = exports.Changes = exports.Text = exports.State = exports.Stack = exports.Selection = exports.Schema = exports.Range = exports.Operations = exports.Node = exports.Mark = exports.Inline = exports.History = exports.Document = exports.Data = exports.Character = exports.Block = undefined;
+exports.setKeyGenerator = exports.resetKeyGenerator = exports.coreSchema = exports.Text = exports.State = exports.Stack = exports.Selection = exports.Schema = exports.Range = exports.Operations = exports.Node = exports.Mark = exports.Inline = exports.History = exports.Document = exports.Data = exports.Character = exports.Changes = exports.Block = undefined;
 
 var _block = require('./models/block');
 
 var _block2 = _interopRequireDefault(_block);
+
+var _changes = require('./changes');
+
+var _changes2 = _interopRequireDefault(_changes);
 
 var _character = require('./models/character');
 
@@ -107354,6 +107366,14 @@ var _node = require('./models/node');
 
 var _node2 = _interopRequireDefault(_node);
 
+var _operations = require('./operations');
+
+var _operations2 = _interopRequireDefault(_operations);
+
+var _range = require('./models/range');
+
+var _range2 = _interopRequireDefault(_range);
+
 var _schema = require('./models/schema');
 
 var _schema2 = _interopRequireDefault(_schema);
@@ -107374,17 +107394,9 @@ var _text = require('./models/text');
 
 var _text2 = _interopRequireDefault(_text);
 
-var _range = require('./models/range');
+var _core = require('./schemas/core');
 
-var _range2 = _interopRequireDefault(_range);
-
-var _operations = require('./operations');
-
-var _operations2 = _interopRequireDefault(_operations);
-
-var _changes = require('./changes');
-
-var _changes2 = _interopRequireDefault(_changes);
+var _core2 = _interopRequireDefault(_core);
 
 var _generateKey = require('./utils/generate-key');
 
@@ -107396,11 +107408,8 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @type {Object}
  */
 
-/**
- * Changes.
- */
-
 exports.Block = _block2.default;
+exports.Changes = _changes2.default;
 exports.Character = _character2.default;
 exports.Data = _data2.default;
 exports.Document = _document2.default;
@@ -107415,24 +107424,12 @@ exports.Selection = _selection2.default;
 exports.Stack = _stack2.default;
 exports.State = _state2.default;
 exports.Text = _text2.default;
-exports.Changes = _changes2.default;
+exports.coreSchema = _core2.default;
 exports.resetKeyGenerator = _generateKey.resetKeyGenerator;
 exports.setKeyGenerator = _generateKey.setKeyGenerator;
-
-/**
- * Utils.
- */
-
-/**
- * Operations.
- */
-
-/**
- * Models.
- */
-
 exports.default = {
   Block: _block2.default,
+  Changes: _changes2.default,
   Character: _character2.default,
   Data: _data2.default,
   Document: _document2.default,
@@ -107447,11 +107444,11 @@ exports.default = {
   Stack: _stack2.default,
   State: _state2.default,
   Text: _text2.default,
-  Changes: _changes2.default,
+  coreSchema: _core2.default,
   resetKeyGenerator: _generateKey.resetKeyGenerator,
   setKeyGenerator: _generateKey.setKeyGenerator
 };
-},{"./changes":1499,"./models/block":1506,"./models/character":1508,"./models/data":1509,"./models/document":1510,"./models/history":1511,"./models/inline":1512,"./models/mark":1513,"./models/node":1514,"./models/range":1515,"./models/schema":1516,"./models/selection":1517,"./models/stack":1518,"./models/state":1519,"./models/text":1520,"./operations":1522,"./utils/generate-key":1525}],1506:[function(require,module,exports){
+},{"./changes":1499,"./models/block":1506,"./models/character":1508,"./models/data":1509,"./models/document":1510,"./models/history":1511,"./models/inline":1512,"./models/mark":1513,"./models/node":1514,"./models/range":1515,"./models/schema":1516,"./models/selection":1517,"./models/stack":1518,"./models/state":1519,"./models/text":1520,"./operations":1522,"./schemas/core":1524,"./utils/generate-key":1525}],1506:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
