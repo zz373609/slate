@@ -1841,7 +1841,7 @@ var schema = {
     paragraph: function paragraph(props) {
       return _react2.default.createElement(
         'p',
-        null,
+        props.attributes,
         props.children
       );
     },
@@ -98357,9 +98357,10 @@ var _initialiseProps = function _initialiseProps() {
     }
 
     var next = function next(elements) {
-      if (typeof NodeList !== 'undefined' && elements instanceof NodeList) {
+      if (Object.prototype.toString.call(elements) == '[object NodeList]') {
         elements = Array.from(elements);
       }
+
       switch ((0, _typeOf2.default)(elements)) {
         case 'array':
           return _this.deserializeElements(elements);
