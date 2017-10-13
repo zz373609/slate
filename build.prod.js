@@ -230,7 +230,7 @@ var CheckLists = function (_React$Component2) {
 
 exports.default = CheckLists;
 
-},{"./state.json":2,"react":1447,"slate":1505,"slate-react":1473}],2:[function(require,module,exports){
+},{"./state.json":2,"react":1447,"slate":1506,"slate-react":1473}],2:[function(require,module,exports){
 module.exports={
   "document": {
     "nodes": [
@@ -640,7 +640,7 @@ var CodeHighlighting = function (_React$Component) {
 
 exports.default = CodeHighlighting;
 
-},{"./state.json":4,"prismjs":1246,"react":1447,"slate":1505,"slate-react":1473}],4:[function(require,module,exports){
+},{"./state.json":4,"prismjs":1246,"react":1447,"slate":1506,"slate-react":1473}],4:[function(require,module,exports){
 module.exports={
   "document": {
     "nodes": [
@@ -898,7 +898,7 @@ var HugeDocument = function (_React$Component) {
 
 exports.default = HugeDocument;
 
-},{"faker":97,"react":1447,"slate":1505,"slate-react":1473}],6:[function(require,module,exports){
+},{"faker":97,"react":1447,"slate":1506,"slate-react":1473}],6:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -996,7 +996,7 @@ var PlainText = function (_React$Component) {
 
 exports.default = PlainText;
 
-},{"./state.json":7,"react":1447,"slate":1505,"slate-react":1473}],7:[function(require,module,exports){
+},{"./state.json":7,"react":1447,"slate":1506,"slate-react":1473}],7:[function(require,module,exports){
 module.exports="For the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.\nFor the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.\nFor the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.For the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.\nFor the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.\nFor the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.\nFor the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.\nFor the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.For the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.\nFor the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.\nFor the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.\nFor the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.\nFor the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.For the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.\nFor the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the sadfijasd;lkfjas;dlkfja;lsdkfj;alksdjf;sdaljfsf lskajdflkadsjflksdajflksdajfnecessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.\nFor the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.\nFor the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.\nFor the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.For the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist.\nFor the first six months after Oliver Twist was removed, the system was in full operation. It was rather expensive at first, in consequence of the increase in the undertaker's bill, and the necessity of taking in the clothes of all the paupers, which fluttered loosely on their wasted, shrunken forms, after a week or two's gruel. But the number of workhouse inmates got thin as well as the paupers; and the board were in ecstasies. The room in which the boys were fed, was a large stone hall, with a copper at one end: out of which the master, dressed in an apron for the purpose, and assisted by one or two women, ladled the gruel at mealtimes. Of this festive composition each boy had one porringer, and no more—except on occasions of great public rejoicing, when he had two ounces and a quarter of bread besides. The bowls never wanted washing. The boys polished them with their spoons till they shone again; and when they had performed this operation (which never took very long, the spoons being nearly as large as the bowls), they would sit staring at the copper, with such eager eyes, as if they could have devoured the very bricks of which it was composed; employing themselves, meanwhile, in sucking their fingers most assiduously, with the view of catching up any stray splashes of gruel that might have been cast thereon. Boys have generally excellent appetites. Oliver Twist and his companions suffered the tortures of slow starvation for three months: at last they got so voracious and wild with hunger, that one boy, who was tall for his age, and hadn't been used to that sort of thing (for his father had kept a small cook-shop), hinted darkly to his companions, that unless he had another basin of gruel per diem, he was afraid he might some night happen to eat the boy who slept next him, who happened to be a weakly youth of tender age. He had a wild, hungry eye; and they implicitly believed him. A council was held; lots were cast who should walk up to the master after supper that evening, and ask for more; and it fell to Oliver Twist."
 
 },{}],8:[function(require,module,exports){
@@ -1358,7 +1358,7 @@ var RichText = function (_React$Component) {
 
 exports.default = RichText;
 
-},{"./state.json":9,"react":1447,"slate":1505,"slate-react":1473}],9:[function(require,module,exports){
+},{"./state.json":9,"react":1447,"slate":1506,"slate-react":1473}],9:[function(require,module,exports){
 module.exports={
   "document": {
     "nodes": [
@@ -1583,7 +1583,7 @@ var Embeds = function (_React$Component) {
 
 exports.default = Embeds;
 
-},{"./state.json":11,"./video":12,"react":1447,"slate":1505,"slate-react":1473}],11:[function(require,module,exports){
+},{"./state.json":11,"./video":12,"react":1447,"slate":1506,"slate-react":1473}],11:[function(require,module,exports){
 module.exports={
   "document": {
     "nodes": [
@@ -1979,7 +1979,7 @@ var Emojis = function (_React$Component) {
 
 exports.default = Emojis;
 
-},{"./state.json":14,"react":1447,"slate":1505,"slate-react":1473}],14:[function(require,module,exports){
+},{"./state.json":14,"react":1447,"slate":1506,"slate-react":1473}],14:[function(require,module,exports){
 module.exports={
     "document": {
     "nodes": [
@@ -2217,7 +2217,7 @@ var ForcedLayout = function (_React$Component) {
 
 exports.default = ForcedLayout;
 
-},{"./state.json":16,"react":1447,"slate":1505,"slate-react":1473}],16:[function(require,module,exports){
+},{"./state.json":16,"react":1447,"slate":1506,"slate-react":1473}],16:[function(require,module,exports){
 module.exports={
   "document": {
     "nodes": [
@@ -2516,7 +2516,7 @@ var HoveringMenu = function (_React$Component) {
 
 exports.default = HoveringMenu;
 
-},{"./state.json":18,"react":1447,"react-portal":1392,"slate":1505,"slate-react":1473}],18:[function(require,module,exports){
+},{"./state.json":18,"react":1447,"react-portal":1392,"slate":1506,"slate-react":1473}],18:[function(require,module,exports){
 module.exports={
   "document": {
     "nodes": [
@@ -2960,7 +2960,7 @@ var Iframes = function (_React$Component) {
 
 exports.default = Iframes;
 
-},{"./state.json":20,"react":1447,"react-frame-aware-selection-plugin":1387,"react-frame-component":1391,"slate":1505,"slate-react":1473}],20:[function(require,module,exports){
+},{"./state.json":20,"react":1447,"react-frame-aware-selection-plugin":1387,"react-frame-component":1391,"slate":1506,"slate-react":1473}],20:[function(require,module,exports){
 module.exports={
   "document": {
     "nodes": [
@@ -3424,7 +3424,7 @@ var Images = function (_React$Component) {
 
 exports.default = Images;
 
-},{"./state.json":22,"is-image":1097,"is-url":1100,"react":1447,"slate":1505,"slate-react":1473}],22:[function(require,module,exports){
+},{"./state.json":22,"is-image":1097,"is-url":1100,"react":1447,"slate":1506,"slate-react":1473}],22:[function(require,module,exports){
 module.exports={
   "document": {
     "nodes": [
@@ -3963,7 +3963,7 @@ var Links = function (_React$Component) {
 
 exports.default = Links;
 
-},{"./state.json":25,"is-url":1100,"react":1447,"slate":1505,"slate-react":1473}],25:[function(require,module,exports){
+},{"./state.json":25,"is-url":1100,"react":1447,"slate":1506,"slate-react":1473}],25:[function(require,module,exports){
 module.exports={
   "document": {
     "nodes": [
@@ -4255,7 +4255,7 @@ var MarkdownPreview = function (_React$Component) {
 
 exports.default = MarkdownPreview;
 
-},{"prismjs":1246,"react":1447,"slate":1505,"slate-plain-serializer":1462,"slate-react":1473}],27:[function(require,module,exports){
+},{"prismjs":1246,"react":1447,"slate":1506,"slate-plain-serializer":1462,"slate-react":1473}],27:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -4571,7 +4571,7 @@ var MarkdownShortcuts = function (_React$Component) {
 
 exports.default = MarkdownShortcuts;
 
-},{"./state.json":28,"react":1447,"slate":1505,"slate-react":1473}],28:[function(require,module,exports){
+},{"./state.json":28,"react":1447,"slate":1506,"slate-react":1473}],28:[function(require,module,exports){
 module.exports={
   "document": {
     "nodes": [
@@ -5004,7 +5004,7 @@ var PasteHtml = function (_React$Component) {
 
 exports.default = PasteHtml;
 
-},{"./state.json":30,"react":1447,"slate":1505,"slate-html-serializer":1461,"slate-react":1473}],30:[function(require,module,exports){
+},{"./state.json":30,"react":1447,"slate":1506,"slate-html-serializer":1461,"slate-react":1473}],30:[function(require,module,exports){
 module.exports={
   "document": {
     "nodes": [
@@ -5756,7 +5756,7 @@ var RichText = function (_React$Component) {
 
 exports.default = RichText;
 
-},{"./state.json":35,"react":1447,"slate":1505,"slate-react":1473}],35:[function(require,module,exports){
+},{"./state.json":35,"react":1447,"slate":1506,"slate-react":1473}],35:[function(require,module,exports){
 arguments[4][9][0].apply(exports,arguments)
 },{"dup":9}],36:[function(require,module,exports){
 'use strict';
@@ -5890,7 +5890,7 @@ var PlainText = function (_React$Component) {
 
 exports.default = PlainText;
 
-},{"./state.json":37,"react":1447,"slate":1505,"slate-react":1473}],37:[function(require,module,exports){
+},{"./state.json":37,"react":1447,"slate":1506,"slate-react":1473}],37:[function(require,module,exports){
 module.exports={
   "document": {
     "nodes": [
@@ -6190,7 +6190,7 @@ var Tables = function (_React$Component) {
 
 exports.default = Tables;
 
-},{"./state.json":39,"react":1447,"slate":1505,"slate-react":1473}],39:[function(require,module,exports){
+},{"./state.json":39,"react":1447,"slate":1506,"slate-react":1473}],39:[function(require,module,exports){
 module.exports={
   "document": {
     "nodes": [
@@ -97949,7 +97949,7 @@ exports.default = {
   serialize: serialize,
   serializeNode: serializeNode
 };
-},{"slate":1505}],1460:[function(require,module,exports){
+},{"slate":1506}],1460:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -98087,7 +98087,7 @@ var String = new _immutable.Record({
 
 var TEXT_RULE = {
   deserialize: function deserialize(el) {
-    if (el.tagName == 'br') {
+    if (el.tagName && el.tagName.toLowerCase() === 'br') {
       return {
         kind: 'text',
         ranges: [{ text: '\n' }]
@@ -98104,7 +98104,7 @@ var TEXT_RULE = {
     }
   },
   serialize: function serialize(obj, children) {
-    if (obj.kind == 'string') {
+    if (obj.kind === 'string') {
       return children.split('\n').reduce(function (array, text, i) {
         if (i != 0) array.push(_react2.default.createElement('br', null));
         array.push(text);
@@ -98122,7 +98122,7 @@ var TEXT_RULE = {
  */
 
 function defaultParseHtml(html) {
-  if (typeof DOMParser == 'undefined') {
+  if (typeof DOMParser === 'undefined') {
     throw new Error('The native `DOMParser` global which the `Html` serializer uses by default is not present in this environment. You must supply the `options.parseHtml` function instead.');
   }
 
@@ -98446,7 +98446,7 @@ var _initialiseProps = function _initialiseProps() {
   };
 
   this.serializeNode = function (node) {
-    if (node.kind == 'text') {
+    if (node.kind === 'text') {
       var ranges = node.getRanges();
       return ranges.map(_this.serializeRange);
     }
@@ -98489,7 +98489,7 @@ var _initialiseProps = function _initialiseProps() {
   };
 
   this.cruftNewline = function (element) {
-    return !(element.nodeName == '#text' && element.value == '\n');
+    return !(element.nodeName === '#text' && element.value == '\n');
   };
 };
 
@@ -98506,7 +98506,7 @@ function addKey(element) {
  */
 
 exports.default = Html;
-},{"immutable":1094,"react":1447,"react-dom/server":1385,"slate":1505,"slate-dev-logger":1460,"type-of":1456}],1462:[function(require,module,exports){
+},{"immutable":1094,"react":1447,"react-dom/server":1385,"slate":1506,"slate-dev-logger":1460,"type-of":1456}],1462:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -98621,7 +98621,7 @@ exports.default = {
   deserialize: deserialize,
   serialize: serialize
 };
-},{"immutable":1094,"slate":1505,"slate-dev-logger":1460}],1463:[function(require,module,exports){
+},{"immutable":1094,"slate":1506,"slate-dev-logger":1460}],1463:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -98748,7 +98748,7 @@ var Types = {
  */
 
 exports.default = Types;
-},{"slate":1505}],1464:[function(require,module,exports){
+},{"slate":1506}],1464:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -98816,6 +98816,10 @@ var _getHtmlFromNativePaste2 = _interopRequireDefault(_getHtmlFromNativePaste);
 var _getPoint = require('../utils/get-point');
 
 var _getPoint2 = _interopRequireDefault(_getPoint);
+
+var _getDropPoint = require('../utils/get-drop-point');
+
+var _getDropPoint2 = _interopRequireDefault(_getDropPoint);
 
 var _getTransferData = require('../utils/get-transfer-data');
 
@@ -99071,7 +99075,7 @@ var Content = function (_React$Component) {
     };
 
     _this.onDragEnd = function (event) {
-      if (!_this.isInEditor(event.target)) return;
+      event.stopPropagation();
 
       _this.tmp.isDragging = false;
       _this.tmp.isInternalDrag = null;
@@ -99080,7 +99084,8 @@ var Content = function (_React$Component) {
     };
 
     _this.onDragOver = function (event) {
-      if (!_this.isInEditor(event.target)) return;
+      event.stopPropagation();
+
       if (_this.tmp.isDragging) return;
       _this.tmp.isDragging = true;
       _this.tmp.isInternalDrag = false;
@@ -99111,50 +99116,30 @@ var Content = function (_React$Component) {
     };
 
     _this.onDrop = function (event) {
+      event.stopPropagation();
       event.preventDefault();
 
       if (_this.props.readOnly) return;
-      if (!_this.isInEditor(event.target)) return;
 
-      var window = (0, _getWindow2.default)(event.target);
       var _this$props2 = _this.props,
-          state = _this$props2.state,
-          editor = _this$props2.editor;
+          editor = _this$props2.editor,
+          state = _this$props2.state;
       var nativeEvent = event.nativeEvent;
-      var dataTransfer = nativeEvent.dataTransfer,
-          x = nativeEvent.x,
-          y = nativeEvent.y;
+      var dataTransfer = nativeEvent.dataTransfer;
 
       var data = (0, _getTransferData2.default)(dataTransfer);
+      var point = (0, _getDropPoint2.default)(event, state, editor);
 
-      // Resolve the point where the drop occured.
-      var range = void 0;
-
-      // COMPAT: In Firefox, `caretRangeFromPoint` doesn't exist. (2016/07/25)
-      if (window.document.caretRangeFromPoint) {
-        range = window.document.caretRangeFromPoint(x, y);
-      } else {
-        range = window.document.createRange();
-        range.setStart(nativeEvent.rangeParent, nativeEvent.rangeOffset);
-      }
-
-      var _range = range,
-          startContainer = _range.startContainer,
-          startOffset = _range.startOffset;
-
-      var point = (0, _getPoint2.default)(startContainer, startOffset, state, editor);
       if (!point) return;
 
-      var target = _slate.Selection.create({
+      // Add drop-specific information to the data.
+      data.target = _slate.Selection.create({
         anchorKey: point.key,
         anchorOffset: point.offset,
         focusKey: point.key,
         focusOffset: point.offset,
         isFocused: true
       });
-
-      // Add drop-specific information to the data.
-      data.target = target;
 
       // COMPAT: Edge throws "Permission denied" errors when
       // accessing `dropEffect` or `effectAllowed` (2017/7/12)
@@ -99750,7 +99735,7 @@ Content.defaultProps = {
   tagName: 'div'
 };
 exports.default = Content;
-},{"../constants/environment":1471,"../constants/transfer-types":1472,"../utils/extend-selection":1475,"../utils/find-closest-node":1476,"../utils/get-caret-position":1479,"../utils/get-html-from-native-paste":1480,"../utils/get-point":1481,"../utils/get-transfer-data":1482,"../utils/scroll-to-selection":1486,"../utils/set-transfer-data":1487,"./node":1467,"debug":1488,"get-window":1083,"keycode":1102,"prop-types":1494,"react":1447,"slate":1505,"slate-base64-serializer":1459,"slate-prop-types":1463}],1465:[function(require,module,exports){
+},{"../constants/environment":1471,"../constants/transfer-types":1472,"../utils/extend-selection":1475,"../utils/find-closest-node":1476,"../utils/get-caret-position":1479,"../utils/get-drop-point":1480,"../utils/get-html-from-native-paste":1481,"../utils/get-point":1482,"../utils/get-transfer-data":1483,"../utils/scroll-to-selection":1487,"../utils/set-transfer-data":1488,"./node":1467,"debug":1489,"get-window":1083,"keycode":1102,"prop-types":1495,"react":1447,"slate":1506,"slate-base64-serializer":1459,"slate-prop-types":1463}],1465:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -100202,7 +100187,7 @@ for (var i = 0; i < EVENT_HANDLERS.length; i++) {
  */
 
 exports.default = Editor;
-},{"../plugins/core":1474,"../utils/noop":1483,"debug":1488,"prop-types":1494,"react":1447,"react-portal":1392,"slate":1505,"slate-dev-logger":1460,"slate-prop-types":1463}],1466:[function(require,module,exports){
+},{"../plugins/core":1474,"../utils/noop":1484,"debug":1489,"prop-types":1495,"react":1447,"react-portal":1392,"slate":1506,"slate-dev-logger":1460,"slate-prop-types":1463}],1466:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -100458,7 +100443,7 @@ var _initialiseProps = function _initialiseProps() {
 };
 
 exports.default = Leaf;
-},{"../constants/environment":1471,"../utils/offset-key":1485,"debug":1488,"prop-types":1494,"react":1447,"slate-prop-types":1463}],1467:[function(require,module,exports){
+},{"../constants/environment":1471,"../utils/offset-key":1486,"debug":1489,"prop-types":1495,"react":1447,"slate-prop-types":1463}],1467:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -100800,7 +100785,7 @@ var _initialiseProps = function _initialiseProps() {
 };
 
 exports.default = Node;
-},{"../constants/transfer-types":1472,"../utils/set-transfer-data":1487,"./text":1469,"./void":1470,"debug":1488,"prop-types":1494,"react":1447,"slate-base64-serializer":1459,"slate-dev-logger":1460,"slate-prop-types":1463}],1468:[function(require,module,exports){
+},{"../constants/transfer-types":1472,"../utils/set-transfer-data":1488,"./text":1469,"./void":1470,"debug":1489,"prop-types":1495,"react":1447,"slate-base64-serializer":1459,"slate-dev-logger":1460,"slate-prop-types":1463}],1468:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -100965,7 +100950,7 @@ Placeholder.defaultProps = {
   firstOnly: true
 };
 exports.default = Placeholder;
-},{"prop-types":1494,"react":1447,"slate-prop-types":1463}],1469:[function(require,module,exports){
+},{"prop-types":1495,"react":1447,"slate-prop-types":1463}],1469:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -101195,7 +101180,7 @@ var _initialiseProps = function _initialiseProps() {
 };
 
 exports.default = Text;
-},{"./leaf":1466,"debug":1488,"prop-types":1494,"react":1447,"slate-prop-types":1463}],1470:[function(require,module,exports){
+},{"./leaf":1466,"debug":1489,"prop-types":1495,"react":1447,"slate-prop-types":1463}],1470:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -101276,12 +101261,6 @@ var Void = function (_React$Component) {
    */
 
   /**
-   * State
-   *
-   * @type {Object}
-   */
-
-  /**
    * Debug.
    *
    * @param {String} message
@@ -101290,26 +101269,6 @@ var Void = function (_React$Component) {
 
   /**
    * When one of the wrapper elements it clicked, select the void node.
-   *
-   * @param {Event} event
-   */
-
-  /**
-   * Increment counter, and temporarily switch node to editable to allow drop events
-   * Counter required as onDragLeave fires when hovering over child elements
-   *
-   * @param {Event} event
-   */
-
-  /**
-   * Decrement counter, and if counter 0, then no longer dragging over node
-   * and thus switch back to non-editable
-   *
-   * @param {Event} event
-   */
-
-  /**
-   * If dropped item onto node, then reset state
    *
    * @param {Event} event
    */
@@ -101329,19 +101288,7 @@ var Void = function (_React$Component) {
       var children = props.children,
           node = props.node;
 
-      var Tag = void 0,
-          style = void 0;
-
-      if (node.kind === 'block') {
-        Tag = 'div';
-        style = {
-          display: 'inline-block',
-          verticalAlign: 'top',
-          width: '100%'
-        };
-      } else {
-        Tag = 'span';
-      }
+      var Tag = node.kind == 'block' ? 'div' : 'span';
 
       this.debug('render', { props: props });
 
@@ -101349,15 +101296,15 @@ var Void = function (_React$Component) {
         Tag,
         {
           'data-slate-void': true,
+          'data-key': node.key,
           onClick: this.onClick,
-          onDragEnter: this.onDragEnter,
-          onDragLeave: this.onDragLeave,
-          onDrop: this.onDrop
+          onDragOver: this.onDragOver,
+          onDragEnter: this.onDragEnter
         },
         this.renderSpacer(),
         _react2.default.createElement(
           Tag,
-          { contentEditable: this.state.editable, style: style },
+          { contentEditable: false },
           children
         )
       );
@@ -101403,11 +101350,6 @@ Void.propTypes = {
 var _initialiseProps = function _initialiseProps() {
   var _this2 = this;
 
-  this.state = {
-    dragCounter: 0,
-    editable: false
-  };
-
   this.debug = function (message) {
     for (var _len2 = arguments.length, args = Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
       args[_key2 - 1] = arguments[_key2];
@@ -101441,23 +101383,12 @@ var _initialiseProps = function _initialiseProps() {
     });
   };
 
-  this.onDragEnter = function () {
-    _this2.setState(function (prevState) {
-      var dragCounter = prevState.dragCounter + 1;
-      return { dragCounter: dragCounter, editable: undefined };
-    });
+  this.onDragOver = function (event) {
+    return event.preventDefault();
   };
 
-  this.onDragLeave = function () {
-    _this2.setState(function (prevState) {
-      var dragCounter = prevState.dragCounter - 1;
-      var editable = dragCounter === 0 ? false : undefined;
-      return { dragCounter: dragCounter, editable: editable };
-    });
-  };
-
-  this.onDrop = function () {
-    _this2.setState({ dragCounter: 0, editable: false });
+  this.onDragEnter = function (event) {
+    return event.preventDefault();
   };
 
   this.renderSpacer = function () {
@@ -101470,6 +101401,7 @@ var _initialiseProps = function _initialiseProps() {
         display: 'inline-block',
         verticalAlign: 'top',
         width: '0',
+        height: '0',
         color: 'transparent'
       };
     } else {
@@ -101522,7 +101454,7 @@ var _initialiseProps = function _initialiseProps() {
 };
 
 exports.default = Void;
-},{"../utils/offset-key":1485,"./leaf":1466,"debug":1488,"prop-types":1494,"react":1447,"slate":1505,"slate-prop-types":1463}],1471:[function(require,module,exports){
+},{"../utils/offset-key":1486,"./leaf":1466,"debug":1489,"prop-types":1495,"react":1447,"slate":1506,"slate-prop-types":1463}],1471:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -101877,7 +101809,10 @@ function Plugin() {
     var window = (0, _getWindow2.default)(e.target);
     var native = window.getSelection();
     var state = change.state;
-    var endBlock = state.endBlock,
+    var startKey = state.startKey,
+        endKey = state.endKey,
+        startText = state.startText,
+        endBlock = state.endBlock,
         endInline = state.endInline;
 
     var isVoidBlock = endBlock && endBlock.isVoid;
@@ -101902,6 +101837,24 @@ function Plugin() {
       _r.setEndAfter(node);
       contents = _r.cloneContents();
       attach = contents.childNodes[contents.childNodes.length - 1].firstChild;
+    }
+
+    // COMPAT: in Safari and Chrome when selecting a single marked word,
+    // marks are not preserved when copying.
+    // If the attatched is not void, and the startKey and endKey is the same,
+    // check if there is marks involved. If so, set the range start just before the
+    // startText node
+    if ((_environment.IS_CHROME || _environment.IS_SAFARI) && !isVoid && startKey === endKey) {
+      var hasMarks = startText.characters.slice(state.selection.anchorOffset, state.selection.focusOffset).filter(function (char) {
+        return char.marks.size !== 0;
+      }).size !== 0;
+      if (hasMarks) {
+        var _r2 = range.cloneRange();
+        var _node = (0, _findDomNode2.default)(startText);
+        _r2.setStartBefore(_node);
+        contents = _r2.cloneContents();
+        attach = contents.childNodes[contents.childNodes.length - 1].firstChild;
+      }
     }
 
     // Remove any zero-width space spans from the cloned DOM so that they don't
@@ -102638,7 +102591,7 @@ function Plugin() {
  */
 
 exports.default = Plugin;
-},{"../components/content":1464,"../components/placeholder":1468,"../constants/environment":1471,"../utils/find-dom-node":1478,"../utils/get-point":1481,"debug":1488,"get-window":1083,"react":1447,"slate":1505,"slate-base64-serializer":1459,"slate-plain-serializer":1462}],1475:[function(require,module,exports){
+},{"../components/content":1464,"../components/placeholder":1468,"../constants/environment":1471,"../utils/find-dom-node":1478,"../utils/get-point":1482,"debug":1489,"get-window":1083,"react":1447,"slate":1506,"slate-base64-serializer":1459,"slate-plain-serializer":1462}],1475:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -102860,6 +102813,114 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _getWindow = require('get-window');
+
+var _getWindow2 = _interopRequireDefault(_getWindow);
+
+var _findClosestNode = require('./find-closest-node');
+
+var _findClosestNode2 = _interopRequireDefault(_findClosestNode);
+
+var _getPoint = require('./get-point');
+
+var _getPoint2 = _interopRequireDefault(_getPoint);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * Get the target point for a drop event.
+ *
+ * @param {Event} event
+ * @param {State} state
+ * @param {Editor} editor
+ * @return {Object}
+ */
+
+function getDropPoint(event, state, editor) {
+  var document = state.document;
+  var nativeEvent = event.nativeEvent,
+      target = event.target;
+  var x = nativeEvent.x,
+      y = nativeEvent.y;
+
+  // Resolve the caret position where the drop occured.
+
+  var window = (0, _getWindow2.default)(target);
+  var n = void 0,
+      o = void 0;
+
+  // COMPAT: In Firefox, `caretRangeFromPoint` doesn't exist. (2016/07/25)
+  if (window.document.caretRangeFromPoint) {
+    var range = window.document.caretRangeFromPoint(x, y);
+    n = range.startContainer;
+    o = range.startOffset;
+  } else {
+    var position = window.document.caretPositionFromPoint(x, y);
+    n = position.offsetNode;
+    o = position.offset;
+  }
+
+  var nodeEl = (0, _findClosestNode2.default)(n, '[data-key]');
+  var nodeKey = nodeEl.getAttribute('data-key');
+  var node = document.key === nodeKey ? document : document.getDescendant(nodeKey);
+
+  // If the drop DOM target is inside an inline void node use last position of
+  // the previous sibling text node or first position of the next sibling text
+  // node as Slate target.
+  if (node.isVoid && node.kind === 'inline') {
+    var rect = nodeEl.getBoundingClientRect();
+    var previous = x - rect.left < rect.left + rect.width - x;
+    var text = previous ? document.getPreviousSibling(nodeKey) : document.getNextSibling(nodeKey);
+    var key = text.key;
+    var offset = previous ? text.characters.size : 0;
+
+    return { key: key, offset: offset };
+  }
+
+  // If the drop DOM target is inside a block void node use last position of
+  // the previous sibling block node or first position of the next sibling block
+  // node as Slate target.
+  if (node.isVoid) {
+    var _rect = nodeEl.getBoundingClientRect();
+    var _previous = y - _rect.top < _rect.top + _rect.height - y;
+
+    if (_previous) {
+      var _block = document.getPreviousBlock(nodeKey);
+      var _text2 = _block.getLastText();
+      var _key2 = _text2.key;
+
+      var _offset2 = _text2.characters.size;
+      return { key: _key2, offset: _offset2 };
+    }
+
+    var block = document.getNextBlock(nodeKey);
+    var _text = block.getLastText();
+    var _key = _text.key;
+
+    var _offset = 0;
+
+    return { key: _key, offset: _offset };
+  }
+
+  var point = (0, _getPoint2.default)(n, o, state, editor);
+
+  return point;
+}
+
+/**
+ * Export.
+ *
+ * @type {Function}
+ */
+
+exports.default = getDropPoint;
+},{"./find-closest-node":1476,"./get-point":1482,"get-window":1083}],1481:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
 var _reactDom = require('react-dom');
 
 /**
@@ -102905,7 +102966,7 @@ function getHtmlFromNativePaste(component, callback) {
  */
 
 exports.default = getHtmlFromNativePaste;
-},{"react-dom":1255}],1481:[function(require,module,exports){
+},{"react-dom":1255}],1482:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -102958,7 +103019,7 @@ function getPoint(element, offset, state, editor) {
  */
 
 exports.default = getPoint;
-},{"./offset-key":1485}],1482:[function(require,module,exports){
+},{"./offset-key":1486}],1483:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -103126,7 +103187,7 @@ function getType(transfer, type) {
  */
 
 exports.default = getTransferData;
-},{"../constants/transfer-types":1472,"slate-base64-serializer":1459}],1483:[function(require,module,exports){
+},{"../constants/transfer-types":1472,"slate-base64-serializer":1459}],1484:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -103148,7 +103209,7 @@ function noop() {}
  */
 
 exports.default = noop;
-},{}],1484:[function(require,module,exports){
+},{}],1485:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -103240,7 +103301,7 @@ function getEditableChild(parent, index, direction) {
  */
 
 exports.default = normalizeNodeAndOffset;
-},{}],1485:[function(require,module,exports){
+},{}],1486:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -103436,7 +103497,7 @@ exports.default = {
   parse: parse,
   stringify: stringify
 };
-},{"./find-closest-node":1476,"./normalize-node-and-offset":1484}],1486:[function(require,module,exports){
+},{"./find-closest-node":1476,"./normalize-node-and-offset":1485}],1487:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -103488,7 +103549,7 @@ function scrollToSelection(selection) {
  */
 
 exports.default = scrollToSelection;
-},{"get-window":1083,"selection-is-backward":1449}],1487:[function(require,module,exports){
+},{"get-window":1083,"selection-is-backward":1449}],1488:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -103541,7 +103602,7 @@ function setTransferData(dataTransfer, type, content) {
  */
 
 exports.default = setTransferData;
-},{}],1488:[function(require,module,exports){
+},{}],1489:[function(require,module,exports){
 (function (process){
 /**
  * This is the web browser implementation of `debug()`.
@@ -103730,7 +103791,7 @@ function localstorage() {
 }
 
 }).call(this,require('_process'))
-},{"./debug":1489,"_process":1247}],1489:[function(require,module,exports){
+},{"./debug":1490,"_process":1247}],1490:[function(require,module,exports){
 
 /**
  * This is the common logic for both the Node.js and web browser
@@ -103934,7 +103995,7 @@ function coerce(val) {
   return val;
 }
 
-},{"ms":1490}],1490:[function(require,module,exports){
+},{"ms":1491}],1491:[function(require,module,exports){
 /**
  * Helpers.
  */
@@ -104088,17 +104149,17 @@ function plural(ms, n, name) {
   return Math.ceil(ms / n) + ' ' + name + 's';
 }
 
-},{}],1491:[function(require,module,exports){
+},{}],1492:[function(require,module,exports){
 arguments[4][1393][0].apply(exports,arguments)
-},{"./lib/ReactPropTypesSecret":1495,"dup":1393,"fbjs/lib/invariant":1073,"fbjs/lib/warning":1081}],1492:[function(require,module,exports){
+},{"./lib/ReactPropTypesSecret":1496,"dup":1393,"fbjs/lib/invariant":1073,"fbjs/lib/warning":1081}],1493:[function(require,module,exports){
 arguments[4][1394][0].apply(exports,arguments)
-},{"./lib/ReactPropTypesSecret":1495,"dup":1394,"fbjs/lib/emptyFunction":1065,"fbjs/lib/invariant":1073}],1493:[function(require,module,exports){
+},{"./lib/ReactPropTypesSecret":1496,"dup":1394,"fbjs/lib/emptyFunction":1065,"fbjs/lib/invariant":1073}],1494:[function(require,module,exports){
 arguments[4][1395][0].apply(exports,arguments)
-},{"./checkPropTypes":1491,"./lib/ReactPropTypesSecret":1495,"dup":1395,"fbjs/lib/emptyFunction":1065,"fbjs/lib/invariant":1073,"fbjs/lib/warning":1081}],1494:[function(require,module,exports){
+},{"./checkPropTypes":1492,"./lib/ReactPropTypesSecret":1496,"dup":1395,"fbjs/lib/emptyFunction":1065,"fbjs/lib/invariant":1073,"fbjs/lib/warning":1081}],1495:[function(require,module,exports){
 arguments[4][1396][0].apply(exports,arguments)
-},{"./factoryWithThrowingShims":1492,"./factoryWithTypeCheckers":1493,"dup":1396}],1495:[function(require,module,exports){
+},{"./factoryWithThrowingShims":1493,"./factoryWithTypeCheckers":1494,"dup":1396}],1496:[function(require,module,exports){
 arguments[4][1253][0].apply(exports,arguments)
-},{"dup":1253}],1496:[function(require,module,exports){
+},{"dup":1253}],1497:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -104399,7 +104460,7 @@ Changes.wrapText = function (change, prefix) {
  */
 
 exports.default = Changes;
-},{"../models/block":1506,"../models/inline":1512,"../models/mark":1513}],1497:[function(require,module,exports){
+},{"../models/block":1507,"../models/inline":1513,"../models/mark":1514}],1498:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -105907,7 +105968,7 @@ Changes.wrapTextAtRange = function (change, range, prefix) {
  */
 
 exports.default = Changes;
-},{"../models/block":1506,"../models/inline":1512,"../models/mark":1513,"../models/node":1514,"../schemas/core":1524,"../utils/string":1529,"immutable":1094}],1498:[function(require,module,exports){
+},{"../models/block":1507,"../models/inline":1513,"../models/mark":1514,"../models/node":1515,"../schemas/core":1525,"../utils/string":1530,"immutable":1094}],1499:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -106661,7 +106722,7 @@ Changes.wrapBlockByKey = function (change, key, block, options) {
  */
 
 exports.default = Changes;
-},{"../models/block":1506,"../models/inline":1512,"../models/mark":1513,"../models/node":1514,"../schemas/core":1524}],1499:[function(require,module,exports){
+},{"../models/block":1507,"../models/inline":1513,"../models/mark":1514,"../models/node":1515,"../schemas/core":1525}],1500:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -106707,7 +106768,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  */
 
 exports.default = _extends({}, _atCurrentRange2.default, _atRange2.default, _byKey2.default, _normalize2.default, _onHistory2.default, _onSelection2.default, _onState2.default);
-},{"./at-current-range":1496,"./at-range":1497,"./by-key":1498,"./normalize":1500,"./on-history":1501,"./on-selection":1502,"./on-state":1503}],1500:[function(require,module,exports){
+},{"./at-current-range":1497,"./at-range":1498,"./by-key":1499,"./normalize":1501,"./on-history":1502,"./on-selection":1503,"./on-state":1504}],1501:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -106924,7 +106985,7 @@ function assertSchema(schema) {
  */
 
 exports.default = Changes;
-},{"../models/schema":1516,"immutable":1094}],1501:[function(require,module,exports){
+},{"../models/schema":1517,"immutable":1094}],1502:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -107024,7 +107085,7 @@ Changes.undo = function (change) {
  */
 
 exports.default = Changes;
-},{"../operations/invert":1523}],1502:[function(require,module,exports){
+},{"../operations/invert":1524}],1503:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -107301,7 +107362,7 @@ DEPRECATED_TRANSFORMS.forEach(function (_ref) {
  */
 
 exports.default = Changes;
-},{"../models/selection":1517,"is-empty":1096,"lodash/pick":1234,"slate-dev-logger":1460}],1503:[function(require,module,exports){
+},{"../models/selection":1518,"is-empty":1096,"lodash/pick":1234,"slate-dev-logger":1460}],1504:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -107342,7 +107403,7 @@ Changes.setData = function (change, properties) {
  */
 
 exports.default = Changes;
-},{}],1504:[function(require,module,exports){
+},{}],1505:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -107378,7 +107439,7 @@ var MODEL_TYPES = {
  */
 
 exports.default = MODEL_TYPES;
-},{}],1505:[function(require,module,exports){
+},{}],1506:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -107504,7 +107565,7 @@ exports.default = {
   resetKeyGenerator: _generateKey.resetKeyGenerator,
   setKeyGenerator: _generateKey.setKeyGenerator
 };
-},{"./changes":1499,"./models/block":1506,"./models/character":1508,"./models/data":1509,"./models/document":1510,"./models/history":1511,"./models/inline":1512,"./models/mark":1513,"./models/node":1514,"./models/range":1515,"./models/schema":1516,"./models/selection":1517,"./models/stack":1518,"./models/state":1519,"./models/text":1520,"./operations":1522,"./schemas/core":1524,"./utils/generate-key":1525}],1506:[function(require,module,exports){
+},{"./changes":1500,"./models/block":1507,"./models/character":1509,"./models/data":1510,"./models/document":1511,"./models/history":1512,"./models/inline":1513,"./models/mark":1514,"./models/node":1515,"./models/range":1516,"./models/schema":1517,"./models/selection":1518,"./models/stack":1519,"./models/state":1520,"./models/text":1521,"./operations":1523,"./schemas/core":1525,"./utils/generate-key":1526}],1507:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -107805,7 +107866,7 @@ Object.getOwnPropertyNames(_node2.default.prototype).forEach(function (method) {
  */
 
 exports.default = Block;
-},{"../constants/model-types":1504,"../utils/generate-key":1525,"./document":1510,"./node":1514,"immutable":1094,"is-plain-object":1099}],1507:[function(require,module,exports){
+},{"../constants/model-types":1505,"../utils/generate-key":1526,"./document":1511,"./node":1515,"immutable":1094,"is-plain-object":1099}],1508:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -108089,7 +108150,7 @@ Change.prototype.transform = function () {
  */
 
 exports.default = Change;
-},{"../changes":1499,"../constants/model-types":1504,"../operations/apply":1521,"debug":1530,"lodash/pick":1234,"slate-dev-logger":1460}],1508:[function(require,module,exports){
+},{"../changes":1500,"../constants/model-types":1505,"../operations/apply":1522,"debug":1531,"lodash/pick":1234,"slate-dev-logger":1460}],1509:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -108333,7 +108394,7 @@ Character.prototype[_modelTypes2.default.CHARACTER] = true;
  */
 
 exports.default = Character;
-},{"../constants/model-types":1504,"immutable":1094,"is-plain-object":1099,"slate-dev-logger":1460}],1509:[function(require,module,exports){
+},{"../constants/model-types":1505,"immutable":1094,"is-plain-object":1099,"slate-dev-logger":1460}],1510:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -108421,7 +108482,7 @@ var Data = function () {
 
 Data.fromJS = Data.fromJSON;
 exports.default = Data;
-},{"immutable":1094,"is-plain-object":1099}],1510:[function(require,module,exports){
+},{"immutable":1094,"is-plain-object":1099}],1511:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -108676,7 +108737,7 @@ Object.getOwnPropertyNames(_node2.default.prototype).forEach(function (method) {
  */
 
 exports.default = Document;
-},{"../constants/model-types":1504,"../utils/generate-key":1525,"./block":1506,"./inline":1512,"./node":1514,"immutable":1094,"is-plain-object":1099}],1511:[function(require,module,exports){
+},{"../constants/model-types":1505,"../utils/generate-key":1526,"./block":1507,"./inline":1513,"./node":1515,"immutable":1094,"is-plain-object":1099}],1512:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -108967,7 +109028,7 @@ function shouldSkip(o, p) {
  */
 
 exports.default = History;
-},{"../constants/model-types":1504,"debug":1530,"immutable":1094,"is-plain-object":1099,"lodash/isEqual":1225}],1512:[function(require,module,exports){
+},{"../constants/model-types":1505,"debug":1531,"immutable":1094,"is-plain-object":1099,"lodash/isEqual":1225}],1513:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -109268,7 +109329,7 @@ Object.getOwnPropertyNames(_node2.default.prototype).forEach(function (method) {
  */
 
 exports.default = Inline;
-},{"../constants/model-types":1504,"../utils/generate-key":1525,"./document":1510,"./node":1514,"immutable":1094,"is-plain-object":1099}],1513:[function(require,module,exports){
+},{"../constants/model-types":1505,"../utils/generate-key":1526,"./document":1511,"./node":1515,"immutable":1094,"is-plain-object":1099}],1514:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -109553,7 +109614,7 @@ Mark.prototype[_modelTypes2.default.MARK] = true;
  */
 
 exports.default = Mark;
-},{"../constants/model-types":1504,"../utils/memoize":1528,"./data":1509,"immutable":1094,"is-plain-object":1099}],1514:[function(require,module,exports){
+},{"../constants/model-types":1505,"../utils/memoize":1529,"./data":1510,"immutable":1094,"is-plain-object":1099}],1515:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -111093,7 +111154,7 @@ var Node = function () {
         }
 
         // PERF: exit early if both start and end have been found.
-        return start != null && end != null;
+        return start == null || end == null;
       });
 
       if (isSelected && start == null) start = 0;
@@ -111987,7 +112048,7 @@ function normalizeKey(value) {
  */
 
 exports.default = Node;
-},{"../utils/generate-key":1525,"../utils/is-index-in-range":1526,"../utils/memoize":1528,"./block":1506,"./data":1509,"./document":1510,"./inline":1512,"./text":1520,"direction":43,"immutable":1094,"is-plain-object":1099,"slate-dev-logger":1460}],1515:[function(require,module,exports){
+},{"../utils/generate-key":1526,"../utils/is-index-in-range":1527,"../utils/memoize":1529,"./block":1507,"./data":1510,"./document":1511,"./inline":1513,"./text":1521,"direction":43,"immutable":1094,"is-plain-object":1099,"slate-dev-logger":1460}],1516:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -112238,7 +112299,7 @@ Range.prototype[_modelTypes2.default.RANGE] = true;
  */
 
 exports.default = Range;
-},{"../constants/model-types":1504,"./character":1508,"./mark":1513,"immutable":1094,"is-plain-object":1099}],1516:[function(require,module,exports){
+},{"../constants/model-types":1505,"./character":1509,"./mark":1514,"immutable":1094,"is-plain-object":1099}],1517:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -112636,7 +112697,7 @@ Schema.prototype[_modelTypes2.default.SCHEMA] = true;
  */
 
 exports.default = Schema;
-},{"../constants/model-types":1504,"../utils/is-react-component":1527,"immutable":1094,"is-plain-object":1099,"lodash/find":1215,"react":1447,"slate-dev-logger":1460,"type-of":1456}],1517:[function(require,module,exports){
+},{"../constants/model-types":1505,"../utils/is-react-component":1528,"immutable":1094,"is-plain-object":1099,"lodash/find":1215,"react":1447,"slate-dev-logger":1460,"type-of":1456}],1518:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -113781,7 +113842,7 @@ function getLast(node) {
  */
 
 exports.default = Selection;
-},{"../constants/model-types":1504,"immutable":1094,"is-plain-object":1099,"slate-dev-logger":1460}],1518:[function(require,module,exports){
+},{"../constants/model-types":1505,"immutable":1094,"is-plain-object":1099,"slate-dev-logger":1460}],1519:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -114023,7 +114084,7 @@ function resolveSchema(plugins) {
  */
 
 exports.default = Stack;
-},{"../constants/model-types":1504,"./schema":1516,"debug":1530,"immutable":1094}],1519:[function(require,module,exports){
+},{"../constants/model-types":1505,"./schema":1517,"debug":1531,"immutable":1094}],1520:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -114783,7 +114844,7 @@ State.prototype[_modelTypes2.default.STATE] = true;
  */
 
 exports.default = State;
-},{"../constants/model-types":1504,"../schemas/core":1524,"./change":1507,"./document":1510,"./history":1511,"./selection":1517,"immutable":1094,"is-plain-object":1099,"slate-dev-logger":1460}],1520:[function(require,module,exports){
+},{"../constants/model-types":1505,"../schemas/core":1525,"./change":1508,"./document":1511,"./history":1512,"./selection":1518,"immutable":1094,"is-plain-object":1099,"slate-dev-logger":1460}],1521:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -115445,7 +115506,7 @@ Text.prototype[_modelTypes2.default.TEXT] = true;
  */
 
 exports.default = Text;
-},{"../constants/model-types":1504,"../utils/generate-key":1525,"../utils/memoize":1528,"./character":1508,"./mark":1513,"./range":1515,"immutable":1094,"is-plain-object":1099,"slate-dev-logger":1460}],1521:[function(require,module,exports){
+},{"../constants/model-types":1505,"../utils/generate-key":1526,"../utils/memoize":1529,"./character":1509,"./mark":1514,"./range":1516,"immutable":1094,"is-plain-object":1099,"slate-dev-logger":1460}],1522:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -116038,7 +116099,7 @@ function applyOperation(state, operation) {
  */
 
 exports.default = applyOperation;
-},{"../models/mark":1513,"../models/node":1514,"debug":1530,"slate-dev-logger":1460}],1522:[function(require,module,exports){
+},{"../models/mark":1514,"../models/node":1515,"debug":1531,"slate-dev-logger":1460}],1523:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -116065,7 +116126,7 @@ exports.default = {
   apply: _apply2.default,
   invert: _invert2.default
 };
-},{"./apply":1521,"./invert":1523}],1523:[function(require,module,exports){
+},{"./apply":1522,"./invert":1524}],1524:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -116277,7 +116338,7 @@ function invertOperation(op) {
  */
 
 exports.default = invertOperation;
-},{"debug":1530,"lodash/pick":1234}],1524:[function(require,module,exports){
+},{"debug":1531,"lodash/pick":1234}],1525:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -116605,7 +116666,7 @@ var SCHEMA = _schema2.default.create({ rules: rules });
  */
 
 exports.default = SCHEMA;
-},{"../models/schema":1516,"../models/text":1520,"immutable":1094}],1525:[function(require,module,exports){
+},{"../models/schema":1517,"../models/text":1521,"immutable":1094}],1526:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -116674,7 +116735,7 @@ resetKeyGenerator();
 exports.default = generateKey;
 exports.setKeyGenerator = setKeyGenerator;
 exports.resetKeyGenerator = resetKeyGenerator;
-},{}],1526:[function(require,module,exports){
+},{}],1527:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -116715,7 +116776,7 @@ function isIndexInRange(index, text, range) {
  */
 
 exports.default = isIndexInRange;
-},{}],1527:[function(require,module,exports){
+},{}],1528:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -116740,7 +116801,7 @@ function isReactComponent(object) {
  */
 
 exports.default = isReactComponent;
-},{}],1528:[function(require,module,exports){
+},{}],1529:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -116968,7 +117029,7 @@ exports.default = memoize;
 exports.__clear = __clear;
 exports.__enable = __enable;
 }).call(this,require('_process'))
-},{"_process":1247,"es6-map":83}],1529:[function(require,module,exports){
+},{"_process":1247,"es6-map":83}],1530:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -117170,10 +117231,10 @@ exports.default = {
   getWordOffsetBackward: getWordOffsetBackward,
   getWordOffsetForward: getWordOffsetForward
 };
-},{"esrever":95}],1530:[function(require,module,exports){
-arguments[4][1488][0].apply(exports,arguments)
-},{"./debug":1531,"_process":1247,"dup":1488}],1531:[function(require,module,exports){
+},{"esrever":95}],1531:[function(require,module,exports){
 arguments[4][1489][0].apply(exports,arguments)
-},{"dup":1489,"ms":1532}],1532:[function(require,module,exports){
+},{"./debug":1532,"_process":1247,"dup":1489}],1532:[function(require,module,exports){
 arguments[4][1490][0].apply(exports,arguments)
-},{"dup":1490}]},{},[23]);
+},{"dup":1490,"ms":1533}],1533:[function(require,module,exports){
+arguments[4][1491][0].apply(exports,arguments)
+},{"dup":1491}]},{},[23]);
