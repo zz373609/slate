@@ -9,6 +9,7 @@ import Embeds from './embeds'
 import Emojis from './emojis'
 import ForcedLayout from './forced-layout'
 import HoveringMenu from './hovering-menu'
+import HugeDocument from './huge-document'
 import Images from './images'
 import Links from './links'
 import MarkdownPreview from './markdown-preview'
@@ -20,19 +21,8 @@ import RTL from './rtl'
 import ReadOnly from './read-only'
 import RichText from './rich-text'
 import SearchHighlighting from './search-highlighting'
+import SyncingOperations from './syncing-operations'
 import Tables from './tables'
-
-import DevHugeDocument from './dev/huge-document'
-import DevPerformancePlain from './dev/performance-plain'
-import DevPerformanceRich from './dev/performance-rich'
-
-/**
- * Environment.
- *
- * @type {String}
- */
-
-const { NODE_ENV } = process.env
 
 /**
  * Examples.
@@ -55,14 +45,12 @@ const EXAMPLES = [
   ['Tables', Tables, '/tables'],
   ['Paste HTML', PasteHtml, '/paste-html'],
   ['Search Highlighting', SearchHighlighting, '/search-highlighting'],
+  ['Syncing Operations', SyncingOperations, '/syncing-operations'],
   ['Read-only', ReadOnly, '/read-only'],
   ['RTL', RTL, '/rtl'],
   ['Plugins', Plugins, '/plugins'],
   ['Forced Layout', ForcedLayout, '/forced-layout'],
-
-  ['DEV:Huge', DevHugeDocument, '/dev-huge', true],
-  ['DEV:Plain', DevPerformancePlain, '/dev-performance-plain', true],
-  ['DEV:Rich', DevPerformanceRich, '/dev-performance-rich', true],
+  ['Huge Document', HugeDocument, '/huge-document'],
 ]
 
 /**
@@ -84,17 +72,15 @@ class App extends React.Component {
           </div>
         </div>
         <div className="tabs">
-          {EXAMPLES.map(([ name, Component, path, isDev ]) => (
-            (NODE_ENV != 'production' || !isDev) && (
-              <NavLink key={path} to={path} className="tab"activeClassName="active">
-                {name}
-              </NavLink>
-            )
+          {EXAMPLES.map(([ name, Component, path ]) => (
+            <NavLink key={path} to={path} className="tab"activeClassName="active">
+              {name}
+            </NavLink>
           ))}
         </div>
         <div className="example">
           <Switch>
-            {EXAMPLES.map(([ name, Component, path, isDev ]) => (
+            {EXAMPLES.map(([ name, Component, path ]) => (
               <Route key={path} path={path} component={Component} />
             ))}
             <Redirect from="/" to="/rich-text" />
