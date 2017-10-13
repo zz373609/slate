@@ -9,7 +9,6 @@ import Embeds from './embeds'
 import Emojis from './emojis'
 import ForcedLayout from './forced-layout'
 import HoveringMenu from './hovering-menu'
-import Iframes from './iframes'
 import Images from './images'
 import Links from './links'
 import MarkdownPreview from './markdown-preview'
@@ -59,7 +58,6 @@ const EXAMPLES = [
   ['Read-only', ReadOnly, '/read-only'],
   ['RTL', RTL, '/rtl'],
   ['Plugins', Plugins, '/plugins'],
-  ['Iframes', Iframes, '/iframes'],
   ['Forced Layout', ForcedLayout, '/forced-layout'],
 
   ['DEV:Huge', DevHugeDocument, '/dev-huge', true],
@@ -115,14 +113,6 @@ class App extends React.Component {
  */
 
 const router = <HashRouter><App /></HashRouter>
-
-/**
- * Attach `Perf` when not in production.
- */
-
-if (NODE_ENV != 'production') {
-  window.Perf = require('react-addons-perf')
-}
 
 /**
  * Mount the router.
