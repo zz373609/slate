@@ -2079,7 +2079,11 @@ var Emojis = function (_React$Component) {
       _this.setState({ state: state });
     }, _this.onClickEmoji = function (e, code) {
       e.preventDefault();
-      var change = _this.state.state.change().insertInline({
+      var state = _this.state.state;
+
+      var change = state.change();
+
+      change.insertInline({
         type: 'emoji',
         isVoid: true,
         data: { code: code }
@@ -3734,8 +3738,6 @@ var _slatePlainSerializer2 = _interopRequireDefault(_slatePlainSerializer);
 
 var _slateReact = require('slate-react');
 
-var _slate = require('slate');
-
 var _prismjs = require('prismjs');
 
 var _prismjs2 = _interopRequireDefault(_prismjs);
@@ -3762,21 +3764,34 @@ _prismjs2.default.languages.markdown = _prismjs2.default.languages.extend("marku
 /**
  * Define a decorator for markdown styles.
  *
- * @param {Text} text
  * @param {Block} block
+ * @return {Array}
  */
 
-function markdownDecorator(text, block) {
-  var characters = text.characters.asMutable();
-  var language = 'markdown';
-  var string = text.text;
-  var grammar = _prismjs2.default.languages[language];
+function markdownDecorator(block) {
+  var string = block.text;
+  var texts = block.getTexts().toArray();
+  var grammar = _prismjs2.default.languages.markdown;
   var tokens = _prismjs2.default.tokenize(string, grammar);
-  addMarks(characters, tokens, 0);
-  return characters.asImmutable();
-}
+  var decorations = [];
+  var startText = texts.shift();
+  var endText = startText;
+  var startOffset = 0;
+  var endOffset = 0;
+  var start = 0;
 
-function addMarks(characters, tokens, offset) {
+  function getLength(token) {
+    if (typeof token == 'string') {
+      return token.length;
+    } else if (typeof token.content == 'string') {
+      return token.content.length;
+    } else {
+      return token.content.reduce(function (l, t) {
+        return l + getLength(t);
+      }, 0);
+    }
+  }
+
   var _iteratorNormalCompletion = true;
   var _didIteratorError = false;
   var _iteratorError = undefined;
@@ -3785,32 +3800,37 @@ function addMarks(characters, tokens, offset) {
     for (var _iterator = tokens[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
       var token = _step.value;
 
-      if (typeof token == 'string') {
-        offset += token.length;
-        continue;
+      startText = endText;
+      startOffset = endOffset;
+
+      var length = getLength(token);
+      var end = start + length;
+
+      var available = startText.text.length - startOffset;
+      var remaining = length;
+
+      endOffset = startOffset + remaining;
+
+      while (available < remaining) {
+        endText = texts.shift();
+        remaining = length - available;
+        available = endText.text.length;
+        endOffset = remaining;
       }
 
-      var content = token.content,
-          length = token.length,
-          type = token.type;
+      if (typeof token != 'string') {
+        var range = {
+          anchorKey: startText.key,
+          anchorOffset: startOffset,
+          focusKey: endText.key,
+          focusOffset: endOffset,
+          marks: [{ type: token.type }]
+        };
 
-      var mark = _slate.Mark.create({ type: type });
-
-      for (var i = offset; i < offset + length; i++) {
-        var char = characters.get(i);
-        var _char = char,
-            marks = _char.marks;
-
-        marks = marks.add(mark);
-        char = char.set('marks', marks);
-        characters.set(i, char);
+        decorations.push(range);
       }
 
-      if (Array.isArray(content)) {
-        addMarks(characters, content, offset);
-      }
-
-      offset += length;
+      start = end;
     }
   } catch (err) {
     _didIteratorError = true;
@@ -3826,6 +3846,8 @@ function addMarks(characters, tokens, offset) {
       }
     }
   }
+
+  return decorations;
 }
 
 /**
@@ -3868,8 +3890,8 @@ var schema = {
     }
   },
   rules: [{
-    match: function match() {
-      return true;
+    match: function match(object) {
+      return object.kind == 'block';
     },
     decorate: markdownDecorator
   }]
@@ -3950,7 +3972,7 @@ var MarkdownPreview = function (_React$Component) {
 
 exports.default = MarkdownPreview;
 
-},{"prismjs":1225,"react":1295,"slate":1359,"slate-plain-serializer":1316,"slate-react":1327}],25:[function(require,module,exports){
+},{"prismjs":1225,"react":1295,"slate-plain-serializer":1316,"slate-react":1327}],25:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -104291,6 +104313,12 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 var debug = (0, _debug2.default)('slate:node');
 
+/**
+ * Text.
+ *
+ * @type {Component}
+ */
+
 var Text = function (_React$Component) {
   _inherits(Text, _React$Component);
 
@@ -104310,6 +104338,12 @@ var Text = function (_React$Component) {
 
   /**
    * Property types.
+   *
+   * @type {Object}
+   */
+
+  /**
+   * Default prop types.
    *
    * @type {Object}
    */
@@ -104348,7 +104382,8 @@ var Text = function (_React$Component) {
 
       var decorations = props.decorations,
           node = props.node,
-          state = props.state;
+          state = props.state,
+          style = props.style;
       var document = state.document;
       var key = node.key;
 
@@ -104374,7 +104409,7 @@ var Text = function (_React$Component) {
 
       return _react2.default.createElement(
         'span',
-        { 'data-key': key },
+        { 'data-key': key, style: style },
         leaves
       );
     }
@@ -104407,7 +104442,11 @@ Text.propTypes = {
   node: _slatePropTypes2.default.node.isRequired,
   parent: _slatePropTypes2.default.node.isRequired,
   schema: _slatePropTypes2.default.schema.isRequired,
-  state: _slatePropTypes2.default.state.isRequired
+  state: _slatePropTypes2.default.state.isRequired,
+  style: _propTypes2.default.object
+};
+Text.defaultProps = {
+  style: null
 };
 
 var _initialiseProps = function _initialiseProps() {
@@ -104506,15 +104545,9 @@ var _propTypes = require('prop-types');
 
 var _propTypes2 = _interopRequireDefault(_propTypes);
 
-var _slate = require('slate');
+var _text = require('./text');
 
-var _leaf = require('./leaf');
-
-var _leaf2 = _interopRequireDefault(_leaf);
-
-var _offsetKey = require('../utils/offset-key');
-
-var _offsetKey2 = _interopRequireDefault(_offsetKey);
+var _text2 = _interopRequireDefault(_text);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -104574,6 +104607,18 @@ var Void = function (_React$Component) {
    * @param {Event} event
    */
 
+  /**
+   * On drag enter, prevent default to allow drops.
+   *
+   * @type {Event} event
+   */
+
+  /**
+   * On drag over, prevent default to allow drops.
+   *
+   * @type {Event} event
+   */
+
   _createClass(Void, [{
     key: 'render',
 
@@ -104612,16 +104657,10 @@ var Void = function (_React$Component) {
     }
 
     /**
-     * Render a fake spacer leaf, which will catch the cursor when it the void
+     * Render a fake spacer text, which will catch the cursor when it the void
      * node is navigated to with the arrow keys. Having this spacer there means
      * the browser continues to manage the selection natively, so it keeps track
      * of the right offset when moving across the block.
-     *
-     * @return {Element}
-     */
-
-    /**
-     * Render a fake leaf.
      *
      * @return {Element}
      */
@@ -104684,17 +104723,26 @@ var _initialiseProps = function _initialiseProps() {
     });
   };
 
-  this.onDragOver = function (event) {
-    return event.preventDefault();
+  this.onDragEnter = function (event) {
+    event.preventDefault();
   };
 
-  this.onDragEnter = function (event) {
-    return event.preventDefault();
+  this.onDragOver = function (event) {
+    event.preventDefault();
   };
 
   this.renderSpacer = function () {
-    var node = _this2.props.node;
+    var _props2 = _this2.props,
+        block = _props2.block,
+        decorations = _props2.decorations,
+        isSelected = _props2.isSelected,
+        node = _props2.node,
+        readOnly = _props2.readOnly,
+        schema = _props2.schema,
+        state = _props2.state,
+        editor = _props2.editor;
 
+    var child = node.getFirstText();
     var style = void 0;
 
     if (node.kind == 'block') {
@@ -104711,51 +104759,24 @@ var _initialiseProps = function _initialiseProps() {
       };
     }
 
-    return _react2.default.createElement(
-      'span',
-      { style: style },
-      _this2.renderLeaf()
-    );
-  };
-
-  this.renderLeaf = function () {
-    var _props2 = _this2.props,
-        block = _props2.block,
-        node = _props2.node,
-        schema = _props2.schema,
-        state = _props2.state,
-        editor = _props2.editor;
-
-    var child = node.getFirstText();
-    var ranges = child.getRanges();
-    var text = '';
-    var offset = 0;
-    var marks = _slate.Mark.createSet();
-    var index = 0;
-    var offsetKey = _offsetKey2.default.stringify({
-      key: child.key,
-      index: index
-    });
-
-    return _react2.default.createElement(_leaf2.default, {
-      key: offsetKey,
+    return _react2.default.createElement(_text2.default, {
       block: node.kind == 'block' ? node : block,
+      decorations: decorations,
       editor: editor,
-      index: index,
-      marks: marks,
+      isSelected: isSelected,
+      key: child.key,
       node: child,
-      offset: offset,
       parent: node,
-      ranges: ranges,
+      readOnly: readOnly,
       schema: schema,
       state: state,
-      text: text
+      style: style
     });
   };
 };
 
 exports.default = Void;
-},{"../utils/offset-key":1339,"./leaf":1320,"debug":1342,"prop-types":1348,"react":1295,"slate":1359,"slate-prop-types":1317}],1325:[function(require,module,exports){
+},{"./text":1323,"debug":1342,"prop-types":1348,"react":1295,"slate-prop-types":1317}],1325:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
