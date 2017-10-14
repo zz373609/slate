@@ -103714,10 +103714,6 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _slateBase64Serializer = require('slate-base64-serializer');
-
-var _slateBase64Serializer2 = _interopRequireDefault(_slateBase64Serializer);
-
 var _debug = require('debug');
 
 var _debug2 = _interopRequireDefault(_debug);
@@ -103742,10 +103738,6 @@ var _propTypes = require('prop-types');
 
 var _propTypes2 = _interopRequireDefault(_propTypes);
 
-var _transferTypes = require('../constants/transfer-types');
-
-var _transferTypes2 = _interopRequireDefault(_transferTypes);
-
 var _void = require('./void');
 
 var _void2 = _interopRequireDefault(_void);
@@ -103753,10 +103745,6 @@ var _void2 = _interopRequireDefault(_void);
 var _text = require('./text');
 
 var _text2 = _interopRequireDefault(_text);
-
-var _setTransferData = require('../utils/set-transfer-data');
-
-var _setTransferData2 = _interopRequireDefault(_setTransferData);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -103831,12 +103819,6 @@ var Node = function (_React$Component) {
    * @return {Boolean}
    */
 
-  /**
-   * On drag start, add a serialized representation of the node to the data.
-   *
-   * @param {Event} e
-   */
-
   _createClass(Node, [{
     key: 'render',
 
@@ -103872,10 +103854,7 @@ var Node = function (_React$Component) {
 
       // Attributes that the developer must to mix into the element in their
       // custom node renderer component.
-      var attributes = {
-        'data-key': node.key,
-        'onDragStart': this.onDragStart
-      };
+      var attributes = { 'data-key': node.key };
 
       // If it's a block node with inline children, add the proper `dir` attribute
       // for text direction.
@@ -104012,24 +103991,6 @@ var _initialiseProps = function _initialiseProps() {
     return false;
   };
 
-  this.onDragStart = function (e) {
-    var node = _this3.props.node;
-
-    // Only void node are draggable
-
-    if (!node.isVoid) {
-      return;
-    }
-
-    var encoded = _slateBase64Serializer2.default.serializeNode(node, { preserveKeys: true });
-    var dataTransfer = e.nativeEvent.dataTransfer;
-
-
-    (0, _setTransferData2.default)(dataTransfer, _transferTypes2.default.NODE, encoded);
-
-    _this3.debug('onDragStart', e);
-  };
-
   this.renderNode = function (child, isSelected) {
     var _props = _this3.props,
         block = _props.block,
@@ -104058,7 +104019,7 @@ var _initialiseProps = function _initialiseProps() {
 };
 
 exports.default = Node;
-},{"../constants/transfer-types":1324,"../utils/set-transfer-data":1339,"./text":1321,"./void":1322,"debug":1340,"prop-types":1346,"react":1293,"react-immutable-proptypes":1260,"slate-base64-serializer":1311,"slate-dev-logger":1312,"slate-prop-types":1315}],1320:[function(require,module,exports){
+},{"./text":1321,"./void":1322,"debug":1340,"prop-types":1346,"react":1293,"react-immutable-proptypes":1260,"slate-dev-logger":1312,"slate-prop-types":1315}],1320:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -104488,6 +104449,10 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+var _slateBase64Serializer = require('slate-base64-serializer');
+
+var _slateBase64Serializer2 = _interopRequireDefault(_slateBase64Serializer);
+
 var _debug = require('debug');
 
 var _debug2 = _interopRequireDefault(_debug);
@@ -104504,9 +104469,17 @@ var _propTypes = require('prop-types');
 
 var _propTypes2 = _interopRequireDefault(_propTypes);
 
+var _setTransferData = require('../utils/set-transfer-data');
+
+var _setTransferData2 = _interopRequireDefault(_setTransferData);
+
 var _text = require('./text');
 
 var _text2 = _interopRequireDefault(_text);
+
+var _transferTypes = require('../constants/transfer-types');
+
+var _transferTypes2 = _interopRequireDefault(_transferTypes);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -104578,6 +104551,12 @@ var Void = function (_React$Component) {
    * @type {Event} event
    */
 
+  /**
+   * On drag start, add a serialized representation of the node to the data.
+   *
+   * @param {Event} event
+   */
+
   _createClass(Void, [{
     key: 'render',
 
@@ -104604,7 +104583,8 @@ var Void = function (_React$Component) {
           'data-key': node.key,
           onClick: this.onClick,
           onDragOver: this.onDragOver,
-          onDragEnter: this.onDragEnter
+          onDragEnter: this.onDragEnter,
+          onDragStart: this.onDragStart
         },
         this.renderSpacer(),
         _react2.default.createElement(
@@ -104690,6 +104670,18 @@ var _initialiseProps = function _initialiseProps() {
     event.preventDefault();
   };
 
+  this.onDragStart = function (event) {
+    var node = _this2.props.node;
+
+    var encoded = _slateBase64Serializer2.default.serializeNode(node, { preserveKeys: true });
+    var dataTransfer = event.nativeEvent.dataTransfer;
+
+
+    (0, _setTransferData2.default)(dataTransfer, _transferTypes2.default.NODE, encoded);
+
+    _this2.debug('onDragStart', event);
+  };
+
   this.renderSpacer = function () {
     var _props2 = _this2.props,
         block = _props2.block,
@@ -104735,7 +104727,7 @@ var _initialiseProps = function _initialiseProps() {
 };
 
 exports.default = Void;
-},{"./text":1321,"debug":1340,"prop-types":1346,"react":1293,"slate-prop-types":1315}],1323:[function(require,module,exports){
+},{"../constants/transfer-types":1324,"../utils/set-transfer-data":1339,"./text":1321,"debug":1340,"prop-types":1346,"react":1293,"slate-base64-serializer":1311,"slate-prop-types":1315}],1323:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
