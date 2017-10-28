@@ -38,13 +38,15 @@ class PlainText extends React.Component {
    * @return {Component} component
    */
 
-  render = () => {
+  render() {
     return (
-      <Editor
-        placeholder="Enter some plain text..."
-        value={this.state.value}
-        onChange={this.onChange}
-      />
+      <div className="editor">
+        <Editor
+          placeholder="Enter some plain text..."
+          value={this.state.value}
+          onChange={this.onChange}
+        />
+      </div>
     )
   }
 
