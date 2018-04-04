@@ -29,7 +29,7 @@ export const output = (
       <paragraph>wordone</paragraph>
       <quote>two</quote>
       <quote>
-        <cursor />three
+        three<cursor />
       </quote>
     </document>
   </value>
