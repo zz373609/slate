@@ -176,7 +176,7 @@ function createChildren(children, options = {}) {
     node = next
   }
 
-  children.forEach(child => {
+  children.forEach((child, index) => {
     const isLast = index === children.length - 1
     // If the child is a non-text node, push the current node and the new child
     // onto the array, then creating a new node for future selection tracking.
