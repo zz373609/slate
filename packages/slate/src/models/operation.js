@@ -1,7 +1,7 @@
 import isPlainObject from 'is-plain-object'
 import { List, Record } from 'immutable'
 
-import MODEL_TYPES from '../constants/model-types'
+import OBJECTS from '../constants/objects'
 import Mark from './mark'
 import Node from './node'
 import PathUtils from '../utils/path-utils'
@@ -202,7 +202,7 @@ class Operation extends Record(DEFAULTS) {
    */
 
   static isOperation(any) {
-    return !!(any && any[MODEL_TYPES.OPERATION])
+    return !!(any && any[OBJECTS.OPERATION])
   }
 
   /**
@@ -331,7 +331,7 @@ class Operation extends Record(DEFAULTS) {
  * Attach a pseudo-symbol for type checking.
  */
 
-Operation.prototype[MODEL_TYPES.OPERATION] = true
+Operation.prototype[OBJECTS.OPERATION] = true
 
 /**
  * Export.

@@ -2,7 +2,7 @@ import isPlainObject from 'is-plain-object'
 import { List, Record } from 'immutable'
 
 import Decoration from './decoration'
-import MODEL_TYPES from '../constants/model-types'
+import OBJECTS from '../constants/objects'
 import Point from './point'
 import Selection from './selection'
 
@@ -120,7 +120,7 @@ class Range extends Record(DEFAULTS) {
 
   static isRange(obj) {
     return (
-      !!(obj && obj[MODEL_TYPES.RANGE]) ||
+      !!(obj && obj[OBJECTS.RANGE]) ||
       Decoration.isDecoration(obj) ||
       Selection.isSelection(obj)
     )
@@ -158,7 +158,7 @@ class Range extends Record(DEFAULTS) {
  * Attach a pseudo-symbol for type checking.
  */
 
-Range.prototype[MODEL_TYPES.RANGE] = true
+Range.prototype[OBJECTS.RANGE] = true
 
 /**
  * Export.

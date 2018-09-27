@@ -2,7 +2,8 @@ import isPlainObject from 'is-plain-object'
 import { List, Map, Record } from 'immutable'
 
 import KeyUtils from '../utils/key-utils'
-import MODEL_TYPES, { isType } from '../constants/model-types'
+import OBJECTS from '../constants/objects'
+import isObject from '../utils/is-object'
 import Node from './node'
 
 /**
@@ -103,7 +104,7 @@ class Inline extends Record(DEFAULTS) {
    * @return {Boolean}
    */
 
-  static isInline = isType.bind(null, 'INLINE')
+  static isInline = isObject.bind(null, 'INLINE')
 
   /**
    * Check if `any` is a list of inlines.
@@ -153,7 +154,7 @@ class Inline extends Record(DEFAULTS) {
  * Attach a pseudo-symbol for type checking.
  */
 
-Inline.prototype[MODEL_TYPES.INLINE] = true
+Inline.prototype[OBJECTS.INLINE] = true
 
 /**
  * Export.

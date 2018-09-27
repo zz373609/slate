@@ -3,9 +3,10 @@ import isPlainObject from 'is-plain-object'
 import warning from 'slate-dev-warning'
 import { List, Map } from 'immutable'
 
-import MODEL_TYPES, { isType } from '../constants/model-types'
+import OBJECTS from '../constants/objects'
+import isObject from '../utils/is-object'
 import Changes from '../changes'
-import Operation from './operation'
+import Operation from '../models/operation'
 import PathUtils from '../utils/path-utils'
 
 /**
@@ -30,7 +31,7 @@ class Change {
    * @return {Boolean}
    */
 
-  static isChange = isType.bind(null, 'CHANGE')
+  static isChange = isObject.bind(null, 'CHANGE')
 
   /**
    * Create a new `Change` with `attrs`.
@@ -40,7 +41,8 @@ class Change {
    */
 
   constructor(attrs) {
-    const { value } = attrs
+    const { editor, value } = attrs
+    this.editor = editor
     this.value = value
     this.operations = new List()
 
@@ -231,8 +233,9 @@ class Change {
    */
 
   normalizePath(path) {
-    const { value } = this
-    let { document, schema } = value
+    const { editor, value } = this
+    const { schema } = editor
+    let { document } = value
     let node = document.assertNode(path)
 
     let iterations = 0
@@ -465,7 +468,7 @@ function getDirtyKeys(operation, newValue, oldValue) {
  * Attach a pseudo-symbol for type checking.
  */
 
-Change.prototype[MODEL_TYPES.CHANGE] = true
+Change.prototype[OBJECTS.CHANGE] = true
 
 /**
  * Add a change method for each of the changes.

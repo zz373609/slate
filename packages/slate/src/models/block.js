@@ -2,7 +2,8 @@ import isPlainObject from 'is-plain-object'
 import { List, Map, Record } from 'immutable'
 
 import KeyUtils from '../utils/key-utils'
-import MODEL_TYPES, { isType } from '../constants/model-types'
+import OBJECTS from '../constants/objects'
+import isObject from '../utils/is-object'
 import Node from './node'
 
 /**
@@ -103,7 +104,7 @@ class Block extends Record(DEFAULTS) {
    * @return {Boolean}
    */
 
-  static isBlock = isType.bind(null, 'BLOCK')
+  static isBlock = isObject.bind(null, 'BLOCK')
 
   /**
    * Check if `any` is a block list.
@@ -153,7 +154,7 @@ class Block extends Record(DEFAULTS) {
  * Attach a pseudo-symbol for type checking.
  */
 
-Block.prototype[MODEL_TYPES.BLOCK] = true
+Block.prototype[OBJECTS.BLOCK] = true
 
 /**
  * Export.

@@ -1,6 +1,6 @@
 import { Record } from 'immutable'
 
-import MODEL_TYPES from '../constants/model-types'
+import OBJECTS from '../constants/objects'
 import memoize from '../utils/memoize'
 
 /**
@@ -40,7 +40,7 @@ class Stack extends Record(DEFAULTS) {
    */
 
   static isStack(any) {
-    return !!(any && any[MODEL_TYPES.STACK])
+    return !!(any && any[OBJECTS.STACK])
   }
 
   /**
@@ -140,7 +140,7 @@ class Stack extends Record(DEFAULTS) {
  * Attach a pseudo-symbol for type checking.
  */
 
-Stack.prototype[MODEL_TYPES.STACK] = true
+Stack.prototype[OBJECTS.STACK] = true
 
 /**
  * Memoize read methods.

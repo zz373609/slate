@@ -2,9 +2,9 @@ import Debug from 'debug'
 import isPlainObject from 'is-plain-object'
 import { Record } from 'immutable'
 
-import MODEL_TYPES from '../constants/model-types'
+import OBJECTS from '../constants/objects'
 import Stack from './stack'
-import Text from './text'
+import Text from '../models/text'
 import SlateError from '../utils/slate-error'
 
 /**
@@ -237,7 +237,7 @@ class Schema extends Record(DEFAULTS) {
    */
 
   static isSchema(any) {
-    return !!(any && any[MODEL_TYPES.SCHEMA])
+    return !!(any && any[OBJECTS.SCHEMA])
   }
 
   /**
@@ -748,7 +748,7 @@ function fail(code, attrs) {
  * Attach a pseudo-symbol for type checking.
  */
 
-Schema.prototype[MODEL_TYPES.SCHEMA] = true
+Schema.prototype[OBJECTS.SCHEMA] = true
 
 /**
  * Export.

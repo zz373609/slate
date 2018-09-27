@@ -102,28 +102,6 @@ function BeforePlugin() {
   }
 
   /**
-   * On change.
-   *
-   * @param {Change} change
-   * @param {Editor} editor
-   */
-
-  function onChange(change, editor) {
-    const { value } = change
-
-    // If the value's schema isn't the editor's schema, update it. This can
-    // happen on the initialization of the editor, or if the schema changes.
-    // This change isn't save into history since only schema is updated.
-    if (value.schema != editor.schema) {
-      change.withoutSaving(() => {
-        change.setValue({ schema: editor.schema }).normalize()
-      })
-    }
-
-    debug('onChange')
-  }
-
-  /**
    * On composition end.
    *
    * @param {Event} event
@@ -463,7 +441,6 @@ function BeforePlugin() {
   return {
     onBeforeInput,
     onBlur,
-    onChange,
     onCompositionEnd,
     onCompositionStart,
     onCopy,

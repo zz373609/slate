@@ -2,7 +2,7 @@ import isPlainObject from 'is-plain-object'
 import { List, Record } from 'immutable'
 
 import Mark from './mark'
-import MODEL_TYPES from '../constants/model-types'
+import OBJECTS from '../constants/objects'
 import Point from './point'
 import Range from './range'
 
@@ -132,7 +132,7 @@ class Decoration extends Record(DEFAULTS) {
    */
 
   static isDecoration(obj) {
-    return !!(obj && obj[MODEL_TYPES.DECORATION])
+    return !!(obj && obj[OBJECTS.DECORATION])
   }
 
   /**
@@ -196,7 +196,7 @@ class Decoration extends Record(DEFAULTS) {
  * Attach a pseudo-symbol for type checking.
  */
 
-Decoration.prototype[MODEL_TYPES.DECORATION] = true
+Decoration.prototype[OBJECTS.DECORATION] = true
 
 /**
  * Export.

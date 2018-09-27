@@ -1,7 +1,7 @@
 import isPlainObject from 'is-plain-object'
 import { Record, Set } from 'immutable'
 
-import MODEL_TYPES from '../constants/model-types'
+import OBJECTS from '../constants/objects'
 import Mark from './mark'
 import Point from './point'
 import Range from './range'
@@ -117,7 +117,7 @@ class Selection extends Record(DEFAULTS) {
    */
 
   static isSelection(obj) {
-    return !!(obj && obj[MODEL_TYPES.SELECTION])
+    return !!(obj && obj[OBJECTS.SELECTION])
   }
 
   /**
@@ -212,7 +212,7 @@ class Selection extends Record(DEFAULTS) {
  * Attach a pseudo-symbol for type checking.
  */
 
-Selection.prototype[MODEL_TYPES.SELECTION] = true
+Selection.prototype[OBJECTS.SELECTION] = true
 
 /**
  * Export.

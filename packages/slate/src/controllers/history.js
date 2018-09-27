@@ -2,7 +2,8 @@ import Debug from 'debug'
 import isPlainObject from 'is-plain-object'
 import { List, Record, Stack } from 'immutable'
 
-import MODEL_TYPES, { isType } from '../constants/model-types'
+import OBJECTS from '../constants/objects'
+import isObject from '../utils/is-object'
 
 /**
  * Debug.
@@ -97,7 +98,7 @@ class History extends Record(DEFAULTS) {
    * @return {Boolean}
    */
 
-  static isHistory = isType.bind(null, 'HISTORY')
+  static isHistory = isObject.bind(null, 'HISTORY')
 
   /**
    * Object.
@@ -178,7 +179,7 @@ class History extends Record(DEFAULTS) {
  * Attach a pseudo-symbol for type checking.
  */
 
-History.prototype[MODEL_TYPES.HISTORY] = true
+History.prototype[OBJECTS.HISTORY] = true
 
 /**
  * Check whether to merge a new operation `o` into the previous operation `p`.

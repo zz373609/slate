@@ -1,14 +1,15 @@
 /**
- * Slate-specific model types.
+ * Slate-specific object types.
  *
  * @type {Object}
  */
 
-const MODEL_TYPES = {
+export default {
   BLOCK: '@@__SLATE_BLOCK__@@',
   CHANGE: '@@__SLATE_CHANGE__@@',
   DECORATION: '@@__SLATE_DECORATION__@@',
   DOCUMENT: '@@__SLATE_DOCUMENT__@@',
+  EDITOR: '@@__SLATE_EDITOR__@@',
   HISTORY: '@@__SLATE_HISTORY__@@',
   INLINE: '@@__SLATE_INLINE__@@',
   LEAF: '@@__SLATE_LEAF__@@',
@@ -22,23 +23,3 @@ const MODEL_TYPES = {
   TEXT: '@@__SLATE_TEXT__@@',
   VALUE: '@@__SLATE_VALUE__@@',
 }
-
-/**
- * Export type identification function
- *
- * @param {string} type
- * @param {any} any
- * @return {boolean}
- */
-
-export function isType(type, any) {
-  return !!(any && any[MODEL_TYPES[type]])
-}
-
-/**
- * Export.
- *
- * @type {Object}
- */
-
-export default MODEL_TYPES

@@ -7,7 +7,7 @@ import Data from './data'
 import Document from './document'
 import Inline from './inline'
 import Text from './text'
-import { isType } from '../constants/model-types'
+import isObject from '../utils/is-object'
 
 /**
  * A pseudo-model that is used for its static methods only.
@@ -156,7 +156,7 @@ class Node {
 
   static isNode(any) {
     return !!['BLOCK', 'DOCUMENT', 'INLINE', 'TEXT'].find(type =>
-      isType(type, any)
+      isObject(type, any)
     )
   }
 

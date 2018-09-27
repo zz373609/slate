@@ -703,10 +703,9 @@ function AfterPlugin() {
    */
 
   function renderEditor(props, editor) {
-    const { handlers } = editor
     return (
       <Content
-        {...handlers}
+        onEvent={editor.event}
         autoCorrect={props.autoCorrect}
         className={props.className}
         editor={editor}
@@ -748,8 +747,8 @@ function AfterPlugin() {
 
   function renderPlaceholder(props) {
     const { editor, node } = props
-    if (!editor.props.placeholder) return
-    if (editor.state.isComposing) return
+    // if (!editor.props.placeholder) return
+    // if (editor.state.isComposing) return
     if (node.object != 'block') return
     if (!Text.isTextList(node.nodes)) return
     if (node.text != '') return

@@ -2,7 +2,8 @@ import isPlainObject from 'is-plain-object'
 import { List, Map, Record } from 'immutable'
 
 import KeyUtils from '../utils/key-utils'
-import MODEL_TYPES, { isType } from '../constants/model-types'
+import OBJECTS from '../constants/objects'
+import isObject from '../utils/is-object'
 import Node from './node'
 
 /**
@@ -79,7 +80,7 @@ class Document extends Record(DEFAULTS) {
    * @return {Boolean}
    */
 
-  static isDocument = isType.bind(null, 'DOCUMENT')
+  static isDocument = isObject.bind(null, 'DOCUMENT')
 
   /**
    * Object.
@@ -117,7 +118,7 @@ class Document extends Record(DEFAULTS) {
  * Attach a pseudo-symbol for type checking.
  */
 
-Document.prototype[MODEL_TYPES.DOCUMENT] = true
+Document.prototype[OBJECTS.DOCUMENT] = true
 
 /**
  * Export.

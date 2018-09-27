@@ -4,7 +4,7 @@ import { Record } from 'immutable'
 
 import KeyUtils from '../utils/key-utils'
 import PathUtils from '../utils/path-utils'
-import MODEL_TYPES from '../constants/model-types'
+import OBJECTS from '../constants/objects'
 
 /**
  * Default properties.
@@ -109,7 +109,7 @@ class Point extends Record(DEFAULTS) {
    */
 
   static isPoint(obj) {
-    return !!(obj && obj[MODEL_TYPES.POINT])
+    return !!(obj && obj[OBJECTS.POINT])
   }
 
   /**
@@ -415,7 +415,7 @@ class Point extends Record(DEFAULTS) {
  * Attach a pseudo-symbol for type checking.
  */
 
-Point.prototype[MODEL_TYPES.POINT] = true
+Point.prototype[OBJECTS.POINT] = true
 
 /**
  * Export.

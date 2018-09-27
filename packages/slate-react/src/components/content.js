@@ -364,7 +364,7 @@ class Content extends React.Component {
       if (!this.isInEditor(event.target)) return
     }
 
-    this.props[handler](event)
+    this.props.onEvent(handler, event)
   }
 
   /**
@@ -486,14 +486,6 @@ class Content extends React.Component {
     )
   }
 }
-
-/**
- * Mix in handler prop types.
- */
-
-EVENT_HANDLERS.forEach(handler => {
-  Content.propTypes[handler] = Types.func.isRequired
-})
 
 /**
  * Export.

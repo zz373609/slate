@@ -1,7 +1,8 @@
 import isPlainObject from 'is-plain-object'
 import { Map, Record, Set } from 'immutable'
 
-import MODEL_TYPES, { isType } from '../constants/model-types'
+import OBJECTS from '../constants/objects'
+import isObject from '../utils/is-object'
 import Data from './data'
 
 /**
@@ -129,7 +130,7 @@ class Mark extends Record(DEFAULTS) {
    * @return {Boolean}
    */
 
-  static isMark = isType.bind(null, 'MARK')
+  static isMark = isObject.bind(null, 'MARK')
 
   /**
    * Check if `any` is a set of marks.
@@ -171,7 +172,7 @@ class Mark extends Record(DEFAULTS) {
  * Attach a pseudo-symbol for type checking.
  */
 
-Mark.prototype[MODEL_TYPES.MARK] = true
+Mark.prototype[OBJECTS.MARK] = true
 
 /**
  * Export.

@@ -1,15 +1,12 @@
 import isPlainObject from 'is-plain-object'
 import { Record, Set, List, Map } from 'immutable'
 
-import MODEL_TYPES from '../constants/model-types'
+import OBJECTS from '../constants/objects'
 import PathUtils from '../utils/path-utils'
-import Change from './change'
 import Data from './data'
 import Decoration from './decoration'
 import Document from './document'
-import History from './history'
 import Selection from './selection'
-import Schema from './schema'
 
 /**
  * Default properties.
@@ -21,8 +18,6 @@ const DEFAULTS = {
   data: Map(),
   decorations: List(),
   document: Document.create(),
-  history: History.create(),
-  schema: Schema.create(),
   selection: Selection.create(),
 }
 
@@ -96,17 +91,8 @@ class Value extends Record(DEFAULTS) {
    */
 
   static fromJSON(object, options = {}) {
-    let {
-      data = {},
-      document = {},
-      selection = {},
-      schema = {},
-      history = {},
-    } = object
-
+    let { data = {}, document = {}, selection = {} } = object
     data = Data.fromJSON(data)
-    schema = Schema.fromJSON(schema)
-    history = History.fromJSON(history)
     document = Document.fromJSON(document)
     selection = document.createSelection(selection)
 
@@ -116,20 +102,7 @@ class Value extends Record(DEFAULTS) {
       selection = document.createSelection(selection)
     }
 
-    let value = new Value({
-      data,
-      document,
-      selection,
-      schema,
-      history,
-    })
-
-    if (options.normalize !== false) {
-      const change = value.change()
-      change.withoutSaving(() => change.normalize())
-      value = change.value
-    }
-
+    const value = new Value({ data, document, selection })
     return value
   }
 
@@ -141,7 +114,7 @@ class Value extends Record(DEFAULTS) {
    */
 
   static isValue(value) {
-    return !!(value && value[MODEL_TYPES.VALUE])
+    return !!(value && value[OBJECTS.VALUE])
   }
 
   /**
@@ -459,17 +432,6 @@ class Value extends Record(DEFAULTS) {
     return this.selection.isUnset
       ? new List()
       : this.document.getTextsAtRange(this.selection)
-  }
-
-  /**
-   * Create a new `Change` with the current value as a starting point.
-   *
-   * @param {Object} attrs
-   * @return {Change}
-   */
-
-  change(attrs = {}) {
-    return new Change({ ...attrs, value: this })
   }
 
   /**
@@ -943,16 +905,8 @@ class Value extends Record(DEFAULTS) {
         .map(d => d.toJSON(options))
     }
 
-    if (options.preserveHistory) {
-      object.history = this.history.toJSON(options)
-    }
-
     if (options.preserveSelection) {
       object.selection = this.selection.toJSON(options)
-    }
-
-    if (options.preserveSchema) {
-      object.schema = this.schema.toJSON(options)
     }
 
     return object
@@ -963,7 +917,7 @@ class Value extends Record(DEFAULTS) {
  * Attach a pseudo-symbol for type checking.
  */
 
-Value.prototype[MODEL_TYPES.VALUE] = true
+Value.prototype[OBJECTS.VALUE] = true
 
 /**
  * Export.

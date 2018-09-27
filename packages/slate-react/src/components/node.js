@@ -129,9 +129,8 @@ class Node extends React.Component {
       parent,
       readOnly,
     } = this.props
-    const { value } = editor
-    const { selection, schema } = value
-    const { stack } = editor
+    const { value, schema, stack } = editor
+    const { selection } = value
     const indexes = node.getSelectionIndexes(selection, isSelected)
     const decs = decorations.concat(node.getDecorations(stack))
     const childrenDecorations = getChildrenDecorations(node, decs)

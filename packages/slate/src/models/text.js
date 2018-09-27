@@ -3,7 +3,8 @@ import warning from 'slate-dev-warning'
 import { List, OrderedSet, Record, Set } from 'immutable'
 
 import Leaf from './leaf'
-import MODEL_TYPES, { isType } from '../constants/model-types'
+import OBJECTS from '../constants/objects'
+import isObject from '../utils/is-object'
 import KeyUtils from '../utils/key-utils'
 import memoize from '../utils/memoize'
 
@@ -124,7 +125,7 @@ class Text extends Record(DEFAULTS) {
    * @return {Boolean}
    */
 
-  static isText = isType.bind(null, 'TEXT')
+  static isText = isObject.bind(null, 'TEXT')
 
   /**
    * Check if `any` is a list of texts.
@@ -654,7 +655,7 @@ class Text extends Record(DEFAULTS) {
  * Attach a pseudo-symbol for type checking.
  */
 
-Text.prototype[MODEL_TYPES.TEXT] = true
+Text.prototype[OBJECTS.TEXT] = true
 
 /**
  * Memoize read methods.
