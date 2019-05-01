@@ -9,8 +9,6 @@ import {
   HAS_INPUT_EVENTS_LEVEL_2,
 } from 'slate-dev-environment'
 
-import findNode from '../utils/find-node'
-
 /**
  * Debug.
  *
@@ -64,6 +62,7 @@ function BeforePlugin() {
   function onBlur(event, editor, next) {
     if (isCopying) return
     if (editor.readOnly) return
+    console.log('HERE!', event.relatedTarget)
 
     const { relatedTarget, target } = event
     const window = getWindow(target)
@@ -91,7 +90,8 @@ function BeforePlugin() {
       // COMPAT: The event should be ignored if the focus is moving to a non-
       // editable section of an element that isn't a void node (eg. a list item
       // of the check list example).
-      const node = findNode(relatedTarget, editor)
+      const node = editor.findNode(relatedTarget)
+      debugger
       if (el.contains(relatedTarget) && node && !editor.isVoid(node)) return
     }
 
@@ -267,8 +267,11 @@ function BeforePlugin() {
     // call `preventDefault` to signal that drops are allowed.
     // When the target is editable, dropping is already allowed by
     // default, and calling `preventDefault` hides the cursor.
-    const node = findNode(event.target, editor)
-    if (editor.isVoid(node)) event.preventDefault()
+    const node = editor.findNode(event.target)
+
+    if (editor.isVoid(node)) {
+      event.preventDefault()
+    }
 
     // COMPAT: IE won't call onDrop on contentEditables unless the
     // default dragOver is prevented:

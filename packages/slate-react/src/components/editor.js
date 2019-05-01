@@ -2,10 +2,11 @@ import Debug from 'debug'
 import React from 'react'
 import SlateTypes from 'slate-prop-types'
 import Types from 'prop-types'
+import getWindow from 'get-window'
 import invariant from 'tiny-invariant'
 import memoizeOne from 'memoize-one'
 import warning from 'tiny-warning'
-import { Editor as Controller } from 'slate'
+import { Editor as Controller, PathUtils } from 'slate'
 
 import EVENT_HANDLERS from '../constants/event-handlers'
 import ReactPlugin from '../plugins/react'
@@ -73,24 +74,23 @@ class Editor extends React.Component {
   }
 
   /**
-   * Initial state.
+   * Constructor.
    *
-   * @type {Object}
+   * @param {Object} props
    */
 
-  state = { value: this.props.defaultValue }
+  constructor(props) {
+    super(props)
 
-  /**
-   * Temporary values.
-   *
-   * @type {Object}
-   */
+    this.state = { value: props.defaultValue }
 
-  tmp = {
-    mounted: false,
-    change: null,
-    resolves: 0,
-    updates: 0,
+    this.tmp = {
+      contentRef: null,
+      mounted: false,
+      change: null,
+      resolves: 0,
+      updates: 0,
+    }
   }
 
   /**
@@ -133,10 +133,131 @@ class Editor extends React.Component {
   }
 
   /**
+   * Find the native DOM element for a node at `path`.
+   *
+   * @param {List} path
+   * @return {Object|Null}
+   */
+
+  findDOMNode(path) {
+    path = PathUtils.create(path).toArray()
+    const { contentRef } = this.tmp
+    const element = contentRef ? contentRef.findDOMNode(path) : null
+    return element
+  }
+
+  /**
+   * Find a native DOM selection point from a Slate `point`.
+   *
+   * @param {Point} point
+   * @return {Object|Null}
+   */
+
+  findDOMPoint(point) {
+    const el = this.findDOMNode(point.path)
+    let start = 0
+
+    if (!el) {
+      return null
+    }
+
+    // For each leaf, we need to isolate its content, which means filtering to its
+    // direct text and zero-width spans. (We have to filter out any other siblings
+    // that may have been rendered alongside them.)
+    const texts = Array.from(
+      el.querySelectorAll('[data-slate-string], [data-slate-zero-width]')
+    )
+
+    for (const text of texts) {
+      const node = text.childNodes[0]
+      const domLength = node.textContent.length
+      let slateLength = domLength
+
+      if (text.hasAttribute('data-slate-length')) {
+        slateLength = parseInt(text.getAttribute('data-slate-length'), 10)
+      }
+
+      const end = start + slateLength
+
+      if (point.offset <= end) {
+        const offset = Math.min(domLength, Math.max(0, point.offset - start))
+        return { node, offset }
+      }
+
+      start = end
+    }
+
+    return null
+  }
+
+  /**
+   * Find a native DOM range from a Slate `range`.
+   *
+   * @param {Range} range
+   * @return {Object|Null}
+   */
+
+  findDOMRange(range) {
+    const { anchor, focus, isBackward, isCollapsed } = range
+    const domAnchor = this.findDOMPoint(anchor)
+    const domFocus = isCollapsed ? domAnchor : this.findDOMPoint(focus)
+
+    if (!domAnchor || !domFocus) {
+      return null
+    }
+
+    const window = getWindow(domAnchor.node)
+    const r = window.document.createRange()
+    const start = isBackward ? domFocus : domAnchor
+    const end = isBackward ? domAnchor : domFocus
+    r.setStart(start.node, start.offset)
+    r.setEnd(end.node, end.offset)
+    return r
+  }
+
+  /**
+   * Find the path of a native DOM `element`.
+   *
+   * @param {Element} element
+   * @return {List|Null}
+   */
+
+  findPath(element) {
+    const { contentRef } = this.tmp
+    let path = contentRef ? contentRef.findPath(element) : null
+    path = PathUtils.create(path)
+    return path
+  }
+
+  /**
+   * Find a Slate node from a native DOM `element`.
+   *
+   * @param {Element} element
+   * @return {List|Null}
+   */
+
+  findNode(element) {
+    const path = this.findPath(element)
+
+    if (!path) {
+      return null
+    }
+
+    const { value } = this.props
+    const { document } = value
+    const node = document.assertNode(path)
+    return node
+  }
+
+  /**
    * Render the editor.
    *
    * @return {Element}
    */
+
+  contentRef = ref => {
+    this.tmp.contentRef = ref
+  }
 
   render() {
     debug('render', this)
@@ -157,6 +278,7 @@ class Editor extends React.Component {
     const children = this.controller.run('renderEditor', {
       ...props,
       value,
+      ref: this.contentRef,
     })
     return children
   }

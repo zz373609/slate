@@ -57,18 +57,33 @@ class Void extends React.Component {
 
   render() {
     const { props } = this
-    const { children, node, readOnly } = props
+    const { block, children, decorations, editor, node, readOnly } = props
+    const text = node.getFirstText()
     const Tag = node.object === 'block' ? 'div' : 'span'
-    const style = {
-      height: '0',
-      color: 'transparent',
-      outline: 'none',
-      position: 'absolute',
-    }
 
-    const spacer = (
-      <Tag data-slate-spacer style={style}>
-        {this.renderText()}
+    // Render the void node's text node, which will catch the cursor when it the
+    // void node is navigated to with the arrow keys. Having this text node
+    // there means the browser continues to manage the selection natively, so it
+    // keeps track of the right offset when moving across the block.
+    const spacer = readOnly ? null : (
+      <Tag
+        data-slate-spacer
+        style={{
+          height: '0',
+          color: 'transparent',
+          outline: 'none',
+          position: 'absolute',
+        }}
+      >
+        <Text
+          block={node.object === 'block' ? node : block}
+          decorations={decorations}
+          editor={editor}
+          key={text.key}
+          node={text}
+          parent={node}
+          readOnly={readOnly}
+        />
       </Tag>
     )
 
@@ -84,36 +99,9 @@ class Void extends React.Component {
         data-key={node.key}
         contentEditable={readOnly || node.object === 'block' ? null : false}
       >
-        {readOnly ? null : spacer}
+        {spacer}
         {content}
       </Tag>
-    )
-  }
-
-  /**
-   * Render the void node's text node, which will catch the cursor when it the
-   * void node is navigated to with the arrow keys.
-   *
-   * Having this text node there means the browser continues to manage the
-   * selection natively, so it keeps track of the right offset when moving
-   * across the block.
-   *
-   * @return {Element}
-   */
-
-  renderText = () => {
-    const { block, decorations, node, readOnly, editor } = this.props
-    const child = node.getFirstText()
-    return (
-      <Text
-        block={node.object === 'block' ? node : block}
-        decorations={decorations}
-        editor={editor}
-        key={child.key}
-        node={child}
-        parent={node}
-        readOnly={readOnly}
-      />
     )
   }
 }

@@ -47,6 +47,20 @@ class Text extends React.Component {
   }
 
   /**
+   * Constructor.
+   *
+   * @param {Object} props
+   */
+
+  constructor(props) {
+    super(props)
+
+    this.tmp = {
+      element: null,
+    }
+  }
+
+  /**
    * Debug.
    *
    * @param {String} message
@@ -57,6 +71,30 @@ class Text extends React.Component {
     const { node } = this.props
     const { key } = node
     debug(message, `${key} (text)`, ...args)
+  }
+
+  /**
+   * Find the native DOM element for a node at `path`.
+   *
+   * @param {Array|List} path
+   * @return {Object|Null}
+   */
+
+  findDOMNode(path) {
+    const element = path.length === 0 ? this.tmp.element || null : null
+    return element
+  }
+
+  /**
+   * Find the path of a native DOM `el`.
+   *
+   * @param {Element} el
+   * @return {Array|Null}
+   */
+
+  findPath(el) {
+    const path = el === this.tmp.element ? [] : null
+    return path
   }
 
   /**
@@ -141,7 +179,12 @@ class Text extends React.Component {
     })
 
     return (
-      <span data-key={key} style={style}>
+      <span
+        data-slate-node
+        data-key={key}
+        style={style}
+        ref={element => (this.tmp.element = element)}
+      >
         {children}
       </span>
     )

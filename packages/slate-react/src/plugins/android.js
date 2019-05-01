@@ -50,7 +50,7 @@ function AndroidPlugin() {
    * certain scenarios like hitting 'enter' at the end of a word.
    *
    * @type {DomSnapshot} [compositionEndSnapshot]
-   
+
    */
 
   let compositionEndSnapshot = null
@@ -200,7 +200,7 @@ function AndroidPlugin() {
             const selection = getSelectionFromDom(window, editor, domSelection)
             preventNextBeforeInput = true
             event.preventDefault()
-            editor.moveTo(selection.anchor.key, selection.anchor.offset)
+            editor.moveTo(selection.anchor.path, selection.anchor.offset)
             editor.splitBlock()
           }
         } else {
@@ -516,7 +516,7 @@ function AndroidPlugin() {
             // have to grab the selection from the DOM.
             const domSelection = window.getSelection()
             const selection = getSelectionFromDom(window, editor, domSelection)
-            editor.moveTo(selection.anchor.key, selection.anchor.offset)
+            editor.moveTo(selection.anchor.path, selection.anchor.offset)
             editor.splitBlock()
           }
           return

@@ -75,25 +75,77 @@ class Content extends React.Component {
   }
 
   /**
-   * Temporary values.
+   * Constructor.
    *
-   * @type {Object}
+   * @param {Object} props
    */
 
-  tmp = {
-    isUpdatingSelection: false,
+  constructor(props) {
+    super(props)
+
+    this.tmp = {
+      isUpdatingSelection: false,
+      childRefs: {},
+    }
+
+    this.handers = EVENT_HANDLERS.reduce((obj, handler) => {
+      obj[handler] = event => this.onEvent(handler, event)
+      return obj
+    }, {})
   }
 
   /**
-   * Create a set of bound event handlers.
+   * Find the native DOM element for a node at `path`.
    *
-   * @type {Object}
+   * @param {Array|List} path
+   * @return {Object|Null}
    */
 
-  handlers = EVENT_HANDLERS.reduce((obj, handler) => {
-    obj[handler] = event => this.onEvent(handler, event)
-    return obj
-  }, {})
+  findDOMNode(path) {
+    if (!path.length) {
+      return this.tmp.element || null
+    }
+
+    const [index, ...rest] = path
+    const ref = this.tmp.childRefs[index]
+
+    if (!index) {
+      return null
+    }
+
+    if (!rest.length) {
+      return ref.element
+    }
+
+    return ref.findDOMNode(rest)
+  }
+
+  /**
+   * Find the path of a native DOM `element`.
+   *
+   * @param {Element} element
+   * @return {List|Null}
+   */
+
+  findPath(element) {
+    if (element === this.tmp.element) {
+      return []
+    }
+
+    const { childRefs } = this.tmp
+    const keys = Object.keys(childRefs)
+
+    for (const i of keys) {
+      const ref = childRefs[i]
+      const path = ref.findPath(element)
+
+      if (path) {
+        return [i, ...path]
+      }
+    }
+
+    return null
+  }
 
   /**
    * When the editor first mounts in the DOM we need to:
@@ -103,7 +155,7 @@ class Content extends React.Component {
    */
 
   componentDidMount() {
-    const window = getWindow(this.element)
+    const window = getWindow(this.tmp.element)
 
     window.document.addEventListener(
       'selectionchange',
@@ -113,7 +165,10 @@ class Content extends React.Component {
     // COMPAT: Restrict scope of `beforeinput` to clients that support the
     // Input Events Level 2 spec, since they are preventable events.
     if (HAS_INPUT_EVENTS_LEVEL_2) {
-      this.element.addEventListener('beforeinput', this.handlers.onBeforeInput)
+      this.tmp.element.addEventListener(
+        'beforeinput',
+        this.handlers.onBeforeInput
+      )
     }
 
     this.updateSelection()
@@ -124,7 +179,7 @@ class Content extends React.Component {
    */
 
   componentWillUnmount() {
-    const window = getWindow(this.element)
+    const window = getWindow(this.tmp.element)
 
     if (window) {
       window.document.removeEventListener(
@@ -134,7 +189,7 @@ class Content extends React.Component {
     }
 
     if (HAS_INPUT_EVENTS_LEVEL_2) {
-      this.element.removeEventListener(
+      this.tmp.element.removeEventListener(
         'beforeinput',
         this.handlers.onBeforeInput
       )
@@ -159,7 +214,7 @@ class Content extends React.Component {
     const { value } = editor
     const { selection } = value
     const { isBackward } = selection
-    const window = getWindow(this.element)
+    const window = getWindow(this.tmp.element)
     const native = window.getSelection()
     const { activeElement } = window.document
     debug.update('updateSelection', { selection: selection.toJSON() })
@@ -175,8 +230,8 @@ class Content extends React.Component {
 
     // If the Slate selection is blurred, but the DOM's active element is still
     // the editor, we need to blur it.
-    if (selection.isBlurred && activeElement === this.element) {
-      this.element.blur()
+    if (selection.isBlurred && activeElement === this.tmp.element) {
+      this.tmp.element.blur()
       updated = true
     }
 
@@ -190,15 +245,15 @@ class Content extends React.Component {
     // If the Slate selection is focused, but the DOM's active element is not
     // the editor, we need to focus it. We prevent scrolling because we handle
     // scrolling to the correct selection.
-    if (selection.isFocused && activeElement !== this.element) {
-      this.element.focus({ preventScroll: true })
+    if (selection.isFocused && activeElement !== this.tmp.element) {
+      this.tmp.element.focus({ preventScroll: true })
       updated = true
     }
 
     // Otherwise, figure out which DOM nodes should be selected...
     if (selection.isFocused && selection.isSet) {
       const current = !!rangeCount && native.getRangeAt(0)
-      const range = findDOMRange(selection, window)
+      const range = editor.findDOMRange(selection)
 
       if (!range) {
         warning(
@@ -266,8 +321,8 @@ class Content extends React.Component {
       setTimeout(() => {
         // COMPAT: In Firefox, it's not enough to create a range, you also need
         // to focus the contenteditable element too. (2016/11/16)
-        if (IS_FIREFOX && this.element) {
-          this.element.focus()
+        if (IS_FIREFOX && this.tmp.element) {
+          this.tmp.element.focus()
         }
 
         this.tmp.isUpdatingSelection = false
@@ -281,16 +336,6 @@ class Content extends React.Component {
   }
 
   /**
-   * The React ref method to set the root content element locally.
-   *
-   * @param {Element} element
-   */
-
-  ref = element => {
-    this.element = element
-  }
-
-  /**
    * Check if an event `target` is fired from within the contenteditable
    * element. This should be false for edits happening in non-contenteditable
    * children, such as void nodes and other nested Slate editors.
@@ -300,7 +345,7 @@ class Content extends React.Component {
    */
 
   isInEditor = target => {
-    const { element } = this
+    const { element } = this.tmp
 
     let el
 
@@ -387,7 +432,7 @@ class Content extends React.Component {
     ) {
       const closest = event.target.closest('[data-slate-editor]')
 
-      if (closest !== this.element) {
+      if (closest !== this.tmp.element) {
         return
       }
     }
@@ -430,7 +475,7 @@ class Content extends React.Component {
 
     const window = getWindow(event.target)
     const { activeElement } = window.document
-    if (activeElement !== this.element) return
+    if (activeElement !== this.tmp.element) return
 
     this.props.onEvent('onSelect', event)
   }, 100)
@@ -456,15 +501,10 @@ class Content extends React.Component {
     const { value } = editor
     const Container = tagName
     const { document, selection, decorations } = value
+    const { isFocused } = selection
     const indexes = document.getSelectionIndexes(selection)
     const decs = document.getDecorations(editor).concat(decorations)
     const childrenDecorations = getChildrenDecorations(document, decs)
-
-    const children = document.nodes.toArray().map((child, i) => {
-      const isSelected = !!indexes && indexes.start <= i && i < indexes.end
-
-      return this.renderNode(child, isSelected, childrenDecorations[i])
-    })
 
     const style = {
       // Prevent the default outline styles.
@@ -492,8 +532,8 @@ class Content extends React.Component {
     return (
       <Container
         {...handlers}
+        ref={element => (this.tmp.element = element)}
         data-slate-editor
-        ref={this.ref}
         data-key={document.key}
         contentEditable={readOnly ? null : true}
         suppressContentEditableWarning
@@ -509,37 +549,32 @@ class Content extends React.Component {
         // so we have to disable it like this. (2017/04/24)
         data-gramm={false}
       >
-        {children}
+        {document.nodes.toArray().map((child, i) => {
+          const isSelected = !!indexes && indexes.start <= i && i < indexes.end
+          return (
+            <Node
+              block={null}
+              editor={editor}
+              decorations={childrenDecorations[i]}
+              isSelected={isSelected}
+              isFocused={isFocused && isSelected}
+              key={child.key}
+              node={child}
+              parent={document}
+              readOnly={readOnly}
+              // COMPAT: We use this map of refs to lookup a DOM node down the
+              // tree of components by path.
+              ref={ref => {
+                if (ref) {
+                  this.tmp.childRefs[i] = ref
+                } else {
+                  delete this.tmp.childRefs[i]
+                }
+              }}
+            />
+          )
+        })}
       </Container>
-    )
-  }
-
-  /**
-   * Render a `child` node of the document.
-   *
-   * @param {Node} child
-   * @param {Boolean} isSelected
-   * @return {Element}
-   */
-
-  renderNode = (child, isSelected, decorations) => {
-    const { editor, readOnly } = this.props
-    const { value } = editor
-    const { document, selection } = value
-    const { isFocused } = selection
-
-    return (
-      <Node
-        block={null}
-        editor={editor}
-        decorations={decorations}
-        isSelected={isSelected}
-        isFocused={isFocused && isSelected}
-        key={child.key}
-        node={child}
-        parent={document}
-        readOnly={readOnly}
-      />
     )
   }
 }

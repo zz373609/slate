@@ -62,6 +62,6 @@ export default class DomSnapshot {
   apply(editor) {
     const { snapshot, selection } = this
     snapshot.apply()
-    editor.moveTo(selection.anchor.key, selection.anchor.offset)
+    editor.moveTo(selection.anchor.path, selection.anchor.offset)
   }
 }

@@ -42,6 +42,73 @@ class Node extends React.Component {
   }
 
   /**
+   * Constructor.
+   *
+   * @param {Object} props
+   */
+
+  constructor(props) {
+    super(props)
+
+    this.tmp = {
+      childRefs: {},
+      element: null,
+    }
+  }
+
+  /**
+   * Find the native DOM element for a node at `path`.
+   *
+   * @param {Array|List} path
+   * @return {Object|Null}
+   */
+
+  findDOMNode(path) {
+    const { childRefs, element } = this.tmp
+
+    if (!path.length) {
+      return element || null
+    }
+
+    const [index, ...rest] = path
+    const ref = childRefs[index]
+
+    if (!ref) {
+      return null
+    }
+
+    return ref.findDOMNode(rest)
+  }
+
+  /**
+   * Find the path of a native DOM `el`.
+   *
+   * @param {Element} el
+   * @return {List|Null}
+   */
+
+  findPath(el) {
+    const { childRefs, element } = this.tmp
+
+    if (el === element) {
+      return []
+    }
+
+    const keys = Object.keys(childRefs)
+
+    for (const i of keys) {
+      const ref = childRefs[i]
+      const path = ref.findPath(el)
+
+      if (path) {
+        return [i, ...path]
+      }
+    }
+
+    return null
+  }
+
+  /**
    * Debug.
    *
    * @param {String} message
@@ -127,6 +194,7 @@ class Node extends React.Component {
       node,
       decorations,
       parent,
+      block,
       readOnly,
     } = this.props
     const { value } = editor
@@ -134,75 +202,67 @@ class Node extends React.Component {
     const indexes = node.getSelectionIndexes(selection, isSelected)
     const decs = decorations.concat(node.getDecorations(editor))
     const childrenDecorations = getChildrenDecorations(node, decs)
-    const children = []
 
-    node.nodes.forEach((child, i) => {
+    const children = node.nodes.map((child, i) => {
       const isChildSelected = !!indexes && indexes.start <= i && i < indexes.end
-
-      children.push(
-        this.renderNode(child, isChildSelected, childrenDecorations[i])
+      const Component = child.object === 'text' ? Text : Node
+      return (
+        <Component
+          block={node.object === 'block' ? node : block}
+          decorations={childrenDecorations[i]}
+          editor={editor}
+          isSelected={isChildSelected}
+          isFocused={isFocused && isChildSelected}
+          key={child.key}
+          node={child}
+          parent={node}
+          readOnly={readOnly}
+          // COMPAT: We use this map of refs to lookup a DOM node down the
+          // tree of components by path.
+          ref={ref => {
+            if (ref) {
+              this.tmp.childRefs[i] = ref
+            } else {
+              delete this.tmp.childRefs[i]
+            }
+          }}
+        />
       )
     })
 
     // Attributes that the developer must mix into the element in their
     // custom node renderer component.
-    const attributes = { 'data-key': node.key }
+    const attributes = {
+      'data-key': node.key,
+      dir: null,
+      ref: element => (this.element = element),
+    }
 
     // If it's a block node with inline children, add the proper `dir` attribute
     // for text direction.
     if (node.isLeafBlock()) {
       const direction = node.getTextDirection()
-      if (direction === 'rtl') attributes.dir = 'rtl'
+
+      if (direction === 'rtl') {
+        attributes.dir = 'rtl'
+      }
     }
 
-    const props = {
-      key: node.key,
+    const element = editor.run('renderNode', {
+      attributes,
+      children,
       editor,
       isFocused,
       isSelected,
       node,
       parent,
       readOnly,
-    }
-
-    const element = editor.run('renderNode', {
-      ...props,
-      attributes,
-      children,
     })
 
     return editor.query('isVoid', node) ? (
       <Void {...this.props}>{element}</Void>
     ) : (
       element
-    )
-  }
-
-  /**
-   * Render a `child` node.
-   *
-   * @param {Node} child
-   * @param {Boolean} isSelected
-   * @param {Array<Decoration>} decorations
-   * @return {Element}
-   */
-
-  renderNode = (child, isSelected, decorations) => {
-    const { block, editor, node, readOnly, isFocused } = this.props
-    const Component = child.object === 'text' ? Text : Node
-
-    return (
-      <Component
-        block={node.object === 'block' ? node : block}
-        decorations={decorations}
-        editor={editor}
-        isSelected={isSelected}
-        isFocused={isFocused && isSelected}
-        key={child.key}
-        node={child}
-        parent={node}
-        readOnly={readOnly}
-      />
     )
   }
 }

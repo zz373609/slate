@@ -6,8 +6,6 @@ import getWindow from 'get-window'
 import { IS_IOS, IS_IE, IS_EDGE } from 'slate-dev-environment'
 
 import cloneFragment from '../utils/clone-fragment'
-import findDOMNode from '../utils/find-dom-node'
-import findNode from '../utils/find-node'
 import findRange from '../utils/find-range'
 import getEventRange from '../utils/get-event-range'
 import getEventTransfer from '../utils/get-event-transfer'
@@ -171,7 +169,9 @@ function AfterPlugin(options = {}) {
 
     const { value } = editor
     const { document } = value
-    const node = findNode(event.target, editor)
+    debugger
+    const node = editor.findNode(event.target)
+    debugger
     if (!node) return next()
 
     debug('onClick', { event })
@@ -222,8 +222,10 @@ function AfterPlugin(options = {}) {
       // If user cuts a void block node or a void inline node,
       // manually removes it since selection is collapsed in this case.
       const { value } = editor
-      const { endBlock, endInline, selection } = value
-      const { isCollapsed } = selection
+      const { document, selection } = value
+      const { end, isCollapsed } = selection
+      const endBlock = document.getClosestBlock(end.path)
+      const endInline = document.getClosestInline(end.path)
       const isVoidBlock = endBlock && editor.isVoid(endBlock) && isCollapsed
       const isVoidInline = endInline && editor.isVoid(endInline) && isCollapsed
 
@@ -263,18 +265,17 @@ function AfterPlugin(options = {}) {
 
   function onDragStart(event, editor, next) {
     debug('onDragStart', { event })
+    console.log('HHFUFUFK')
 
     isDraggingInternally = true
 
     const { value } = editor
     const { document } = value
-    const node = findNode(event.target, editor)
+    const node = editor.findNode(event.target)
     const ancestors = document.getAncestors(node.key)
     const isVoid =
       node && (editor.isVoid(node) || ancestors.some(a => editor.isVoid(a)))
-    const selectionIncludesNode = value.blocks.some(
-      block => block.key === node.key
-    )
+    const selectionIncludesNode = value.blocks.some(block => block === node)
 
     // If a void block is dragged and is not selected, select it (necessary for local drags).
     if (isVoid && !selectionIncludesNode) {
@@ -300,6 +301,7 @@ function AfterPlugin(options = {}) {
     const { document, selection } = value
     const window = getWindow(event.target)
     let target = getEventRange(event, editor)
+    console.log('DROP', target)
     if (!target) return next()
 
     debug('onDrop', { event })
@@ -313,11 +315,11 @@ function AfterPlugin(options = {}) {
     // needs to account for the selection's content being deleted.
     if (
       isDraggingInternally &&
-      selection.end.key === target.end.key &&
-      selection.end.offset < target.end.offset
+      selection.end.offset < target.end.offset &&
+      selection.end.path.equals(target.end.path)
     ) {
       target = target.moveForward(
-        selection.start.key === selection.end.key
+        selection.start.path.equals(selection.end.path)
           ? 0 - selection.end.offset + selection.start.offset
           : 0 - selection.end.offset
       )
@@ -331,15 +333,21 @@ function AfterPlugin(options = {}) {
 
     if (type === 'text' || type === 'html') {
       const { anchor } = target
-      let hasVoidParent = document.hasVoidParent(anchor.key, editor)
+      let hasVoidParent = document.hasVoidParent(anchor.path, editor)
 
       if (hasVoidParent) {
-        let n = document.getNode(anchor.key)
+        let p = anchor.path
+        let n = document.getNode(anchor.path)
 
         while (hasVoidParent) {
-          n = document.getNextText(n.key)
-          if (!n) break
-          hasVoidParent = document.hasVoidParent(n.key, editor)
+          const nxt = document.getNextTextAndPath(p)
+
+          if (!nxt) {
+            break
+          }
+
+          ;[n, p] = nxt
+          hasVoidParent = document.hasVoidParent(p, editor)
         }
 
         if (n) editor.moveToStartOfNode(n)
@@ -361,8 +369,7 @@ function AfterPlugin(options = {}) {
     // has fired in a node: https://github.com/facebook/react/issues/11379.
     // Until this is fixed in React, we dispatch a mouseup event on that
     // DOM node, since that will make it go back to normal.
-    const focusNode = document.getNode(target.focus.key)
-    const el = findDOMNode(focusNode, window)
+    const el = editor.findDOMNode(target.focus.path)
 
     if (el) {
       el.dispatchEvent(
@@ -435,7 +442,8 @@ function AfterPlugin(options = {}) {
 
     const { value } = editor
     const { document, selection } = value
-    const hasVoidParent = document.hasVoidParent(selection.start.path, editor)
+    const { start } = selection
+    const hasVoidParent = document.hasVoidParent(start.path, editor)
 
     // COMPAT: In iOS, some of these hotkeys are handled in the
     // `onNativeBeforeInput` handler of the `<Content>` component in order to
@@ -535,9 +543,14 @@ function AfterPlugin(options = {}) {
     }
 
     if (Hotkeys.isExtendBackward(event)) {
-      const { previousText, startText } = value
-      const isPreviousInVoid =
-        previousText && document.hasVoidParent(previousText.key, editor)
+      const startText = document.getNode(start.path)
+      const previous = document.getPreviousTextAndPath(start.path)
+      let isPreviousInVoid = false
+
+      if (previous) {
+        const [, prevPath] = previous
+        isPreviousInVoid = document.hasVoidParent(prevPath, editor)
+      }
 
       if (hasVoidParent || isPreviousInVoid || startText.text === '') {
         event.preventDefault()
@@ -546,9 +559,14 @@ function AfterPlugin(options = {}) {
     }
 
     if (Hotkeys.isExtendForward(event)) {
-      const { nextText, startText } = value
-      const isNextInVoid =
-        nextText && document.hasVoidParent(nextText.key, editor)
+      const startText = document.getNode(start.path)
+      const nxt = document.getNextTextAndPath(start.path)
+      let isNextInVoid = false
+
+      if (nxt) {
+        const [, nextPath] = nxt
+        isNextInVoid = document.hasVoidParent(nextPath, editor)
+      }
 
       if (hasVoidParent || isNextInVoid || startText.text === '') {
         event.preventDefault()
@@ -630,6 +648,7 @@ function AfterPlugin(options = {}) {
    */
 
   function onSelect(event, editor, next) {
+    console.log('FUCK')
     debug('onSelect', { event })
     const window = getWindow(event.target)
     const selection = window.getSelection()

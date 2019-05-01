@@ -45,6 +45,8 @@ class Editor {
 
     this.controller = controller
     this.middleware = {}
+    this.elementsToNodes = new WeakMap()
+    this.nodesToElements = new WeakMap()
     this.onChange = onChange
     this.operations = List()
     this.readOnly = null
