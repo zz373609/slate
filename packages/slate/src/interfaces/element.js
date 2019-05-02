@@ -66,6 +66,32 @@ class ElementInterface {
   }
 
   /**
+   * Create an iterator for all of the blocks of a node with `options`.
+   *
+   * @param {Options}
+   * @return {Iterable}
+   */
+
+  blocks(options = {}) {
+    const { leaf = false, type = null } = options
+    const iterator = this.createIterator([], {
+      objects: n => {
+        if (
+          n.object === 'block' &&
+          (!type || n.type === type) &&
+          (!leaf || n.isLeafBlock())
+        ) {
+          return ['block']
+        } else {
+          return []
+        }
+      },
+    })
+
+    return iterator
+  }
+
+  /**
    * Create a decoration with `properties` relative to the node.
    *
    * @param {Object|Decoration} properties
@@ -894,6 +920,26 @@ class ElementInterface {
       .filter(exists => exists)
 
     return array
+  }
+
+  /**
+   * Get an object mapping all the keys in the node to their paths.
+   *
+   * @return {Map}
+   */
+
+  getNodesToPathsMap() {
+    const root = this
+    const map =
+      typeof window === 'undefined' ? new global.Map() : new window.Map()
+
+    map.set(root, PathUtils.create([]))
+
+    root.forEachDescendant((node, path) => {
+      map.set(node, path)
+    })
+
+    return map
   }
 
   /**
@@ -1746,39 +1792,9 @@ class ElementInterface {
     if (range.isUnset) return false
 
     const toStart = PathUtils.compare(path, range.start.path)
-    const toEnd =
-      range.start.key === range.end.key
-        ? toStart
-        : PathUtils.compare(path, range.end.path)
-
+    const toEnd = PathUtils.compare(path, range.end.path)
     const is = toStart !== -1 && toEnd !== 1
     return is
-  }
-
-  /**
-   * Create an iterator for all of the blocks of a node with `options`.
-   *
-   * @param {Options}
-   * @return {Iterable}
-   */
-
-  blocks(options = {}) {
-    const { leaf = false, type = null } = options
-    const iterator = this.createIterator([], {
-      objects: n => {
-        if (
-          n.object === 'block' &&
-          (!type || n.type === type) &&
-          (!leaf || n.isLeafBlock())
-        ) {
-          return ['block']
-        } else {
-          return []
-        }
-      },
-    })
-
-    return iterator
   }
 
   /**
@@ -2223,8 +2239,13 @@ class ElementInterface {
    * @return {Iterable}
    */
 
-  texts() {
-    const iterator = this.createIterator([], { objects: ['text'] })
+  texts(options = {}) {
+    const { reverse = false } = options
+    const iterator = this.createIterator([], {
+      directions: ['upward', 'downward', reverse ? 'backward' : 'forward'],
+      objects: ['text'],
+    })
+
     return iterator
   }
 
@@ -2502,23 +2523,24 @@ for (const method of ASSERTS) {
 
 memoize(ElementInterface.prototype, [
   'getBlocksAsArray',
-  'getLeafBlocksAtRangeAsArray',
   'getBlocksByTypeAsArray',
   'getDecorations',
   'getFragmentAtRange',
   'getInlinesAsArray',
   'getInlinesByTypeAsArray',
+  'getInsertMarksAtRange',
+  'getLeafBlocksAtRangeAsArray',
   'getLeafBlocksAtRangeAsArray',
   'getLeafInlinesAtRangeAsArray',
   'getMarksAsArray',
   'getMarksAtPosition',
-  'getNodesAtRange',
-  'getOrderedMarksBetweenPositions',
-  'getInsertMarksAtRange',
   'getMarksByTypeAsArray',
   'getNextBlock',
+  'getNodesAtRange',
+  'getNodesToPathsMap',
   'getOffset',
   'getOffsetAtRange',
+  'getOrderedMarksBetweenPositions',
   'getPreviousBlock',
   'getRootBlocksAtRange',
   'getRootInlinesAtRangeAsArray',

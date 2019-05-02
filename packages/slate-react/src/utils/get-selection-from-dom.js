@@ -1,5 +1,3 @@
-import findRange from './find-range'
-
 export default function getSelectionFromDOM(window, editor, domSelection) {
   const { value } = editor
   const { document } = value
@@ -11,7 +9,7 @@ export default function getSelectionFromDOM(window, editor, domSelection) {
   }
 
   // Otherwise, determine the Slate selection from the native one.
-  let range = findRange(domSelection, editor)
+  let range = editor.findRange(domSelection)
 
   if (!range) {
     return

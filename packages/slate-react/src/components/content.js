@@ -12,8 +12,7 @@ import {
 
 import EVENT_HANDLERS from '../constants/event-handlers'
 import Node from './node'
-import findDOMRange from '../utils/find-dom-range'
-import findRange from '../utils/find-range'
+import getRenderKey from '../utils/get-render-key'
 import getChildrenDecorations from '../utils/get-children-decorations'
 import scrollToSelection from '../utils/scroll-to-selection'
 import removeAllRanges from '../utils/remove-all-ranges'
@@ -412,7 +411,7 @@ class Content extends React.Component {
       const { selection } = value
       const window = getWindow(event.target)
       const native = window.getSelection()
-      const range = findRange(native, editor)
+      const range = editor.findRange(native)
 
       if (range && range.equals(selection.toRange())) {
         this.updateSelection()
@@ -534,7 +533,7 @@ class Content extends React.Component {
         {...handlers}
         ref={element => (this.tmp.element = element)}
         data-slate-editor
-        data-key={document.key}
+        data-slate-object="document"
         contentEditable={readOnly ? null : true}
         suppressContentEditableWarning
         id={id}
@@ -558,7 +557,7 @@ class Content extends React.Component {
               decorations={childrenDecorations[i]}
               isSelected={isSelected}
               isFocused={isFocused && isSelected}
-              key={child.key}
+              key={getRenderKey(child)}
               node={child}
               parent={document}
               readOnly={readOnly}

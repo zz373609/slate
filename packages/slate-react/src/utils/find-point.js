@@ -14,7 +14,7 @@ export const ZERO_WIDTH_ATTRIBUTE = 'data-slate-zero-width'
 export const ZERO_WIDTH_SELECTOR = `[${ZERO_WIDTH_ATTRIBUTE}]`
 const OFFSET_KEY_ATTRIBUTE = 'data-offset-key'
 const RANGE_SELECTOR = `[${OFFSET_KEY_ATTRIBUTE}]`
-const TEXT_SELECTOR = `[data-key]`
+const TEXT_SELECTOR = `[data-slate-object=text]`
 const VOID_SELECTOR = '[data-slate-void]'
 
 /**

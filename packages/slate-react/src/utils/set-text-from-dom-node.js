@@ -1,5 +1,3 @@
-import findPoint from './find-point'
-
 /**
  * setTextFromDomNode lets us take a domNode and reconcile the text in the
  * editor's Document such that it reflects the text in the DOM. This is the
@@ -15,7 +13,7 @@ import findPoint from './find-point'
  */
 
 export default function setTextFromDomNode(window, editor, domNode) {
-  const point = findPoint(domNode, 0, editor)
+  const point = editor.findPoint(domNode, 0)
   if (!point) return
 
   // Get the text node and leaf in question.

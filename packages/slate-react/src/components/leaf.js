@@ -3,8 +3,6 @@ import React from 'react'
 import Types from 'prop-types'
 import SlateTypes from 'slate-prop-types'
 
-import OffsetKey from '../utils/offset-key'
-
 /**
  * Debugger.
  *
@@ -46,7 +44,7 @@ class Leaf extends React.Component {
    */
 
   debug = (message, ...args) => {
-    debug(message, `${this.props.node.key}-${this.props.index}`, ...args)
+    debug(message, `${this.props.index}`, ...args)
   }
 
   /**
@@ -79,15 +77,10 @@ class Leaf extends React.Component {
 
   render() {
     this.debug('render', this)
-
-    const { node, index } = this.props
-    const offsetKey = OffsetKey.stringify({
-      key: node.key,
-      index,
-    })
+    const { index } = this.props
 
     return (
-      <span data-slate-leaf data-offset-key={offsetKey}>
+      <span data-slate-leaf data-slate-index={index}>
         {this.renderMarks()}
       </span>
     )

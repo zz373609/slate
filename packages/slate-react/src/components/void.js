@@ -44,8 +44,8 @@ class Void extends React.Component {
 
   debug = (message, ...args) => {
     const { node } = this.props
-    const { key, type } = node
-    const id = `${key} (${type})`
+    const { object, type } = node
+    const id = `${object} (${type})`
     debug(message, `${id}`, ...args)
   }
 
@@ -79,7 +79,6 @@ class Void extends React.Component {
           block={node.object === 'block' ? node : block}
           decorations={decorations}
           editor={editor}
-          key={text.key}
           node={text}
           parent={node}
           readOnly={readOnly}
@@ -96,7 +95,7 @@ class Void extends React.Component {
     return (
       <Tag
         data-slate-void
-        data-key={node.key}
+        data-slate-object={node.object}
         contentEditable={readOnly || node.object === 'block' ? null : false}
       >
         {spacer}

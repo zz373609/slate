@@ -8,6 +8,7 @@ import Types from 'prop-types'
 import Void from './void'
 import Text from './text'
 import getChildrenDecorations from '../utils/get-children-decorations'
+import getRenderKey from '../utils/get-render-key'
 
 /**
  * Debug.
@@ -117,8 +118,8 @@ class Node extends React.Component {
 
   debug = (message, ...args) => {
     const { node } = this.props
-    const { key, type } = node
-    debug(message, `${key} (${type})`, ...args)
+    const { object, type } = node
+    debug(message, `${object} (${type})`, ...args)
   }
 
   /**
@@ -213,7 +214,7 @@ class Node extends React.Component {
           editor={editor}
           isSelected={isChildSelected}
           isFocused={isFocused && isChildSelected}
-          key={child.key}
+          key={getRenderKey(child)}
           node={child}
           parent={node}
           readOnly={readOnly}
@@ -233,7 +234,7 @@ class Node extends React.Component {
     // Attributes that the developer must mix into the element in their
     // custom node renderer component.
     const attributes = {
-      'data-key': node.key,
+      'data-slate-object': node.object,
       dir: null,
       ref: element => (this.element = element),
     }

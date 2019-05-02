@@ -1,6 +1,15 @@
 import { JSDOM } from 'jsdom' // eslint-disable-line import/no-extraneous-dependencies
 
-const UNWANTED_ATTRS = ['data-key', 'data-offset-key']
+const UNWANTED_ATTRS = [
+  'data-slate-editor',
+  'data-slate-index',
+  'data-slate-leaf',
+  'data-slate-length',
+  'data-slate-object',
+  'data-slate-void',
+  'data-slate-zero-width',
+  'data-slate-spacer',
+]
 
 const UNWANTED_TOP_LEVEL_ATTRS = [
   'autocorrect',

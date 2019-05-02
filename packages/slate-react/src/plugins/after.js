@@ -6,7 +6,6 @@ import getWindow from 'get-window'
 import { IS_IOS, IS_IE, IS_EDGE } from 'slate-dev-environment'
 
 import cloneFragment from '../utils/clone-fragment'
-import findRange from '../utils/find-range'
 import getEventRange from '../utils/get-event-range'
 import getEventTransfer from '../utils/get-event-transfer'
 import setEventTransfer from '../utils/set-event-transfer'
@@ -63,7 +62,7 @@ function AfterPlugin(options = {}) {
     event.preventDefault()
 
     const { document, selection } = value
-    const range = findRange(targetRange, editor)
+    const range = editor.findRange(targetRange)
 
     switch (event.inputType) {
       case 'deleteByDrag':
@@ -169,14 +168,13 @@ function AfterPlugin(options = {}) {
 
     const { value } = editor
     const { document } = value
-    debugger
-    const node = editor.findNode(event.target)
-    debugger
-    if (!node) return next()
+    const path = editor.findPath(event.target)
+    if (!path) return next()
 
     debug('onClick', { event })
 
-    const ancestors = document.getAncestors(node.key)
+    const node = document.getNode(path)
+    const ancestors = document.getAncestors(path)
     const isVoid =
       node && (editor.isVoid(node) || ancestors.some(a => editor.isVoid(a)))
 
@@ -224,15 +222,19 @@ function AfterPlugin(options = {}) {
       const { value } = editor
       const { document, selection } = value
       const { end, isCollapsed } = selection
-      const endBlock = document.getClosestBlock(end.path)
-      const endInline = document.getClosestInline(end.path)
-      const isVoidBlock = endBlock && editor.isVoid(endBlock) && isCollapsed
-      const isVoidInline = endInline && editor.isVoid(endInline) && isCollapsed
+      let voidPath
 
-      if (isVoidBlock) {
-        editor.removeNodeByKey(endBlock.key)
-      } else if (isVoidInline) {
-        editor.removeNodeByKey(endInline.key)
+      if (isCollapsed) {
+        for (const [node, path] of document.ancestors(end.path)) {
+          if (editor.isVoid(node)) {
+            voidPath = path
+            break
+          }
+        }
+      }
+
+      if (voidPath) {
+        editor.removeNodeByKey(voidPath)
       } else {
         editor.delete()
       }
@@ -271,8 +273,9 @@ function AfterPlugin(options = {}) {
 
     const { value } = editor
     const { document } = value
-    const node = editor.findNode(event.target)
-    const ancestors = document.getAncestors(node.key)
+    const path = editor.findPath(event.target)
+    const node = document.getNode(path)
+    const ancestors = document.getAncestors(path)
     const isVoid =
       node && (editor.isVoid(node) || ancestors.some(a => editor.isVoid(a)))
     const selectionIncludesNode = value.blocks.some(block => block === node)

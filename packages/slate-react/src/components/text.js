@@ -1,10 +1,12 @@
 import Debug from 'debug'
 import ImmutableTypes from 'react-immutable-proptypes'
 import Leaf from './leaf'
-import { PathUtils } from 'slate'
 import React from 'react'
 import SlateTypes from 'slate-prop-types'
 import Types from 'prop-types'
+import { PathUtils } from 'slate'
+
+import getRenderKey from '../utils/get-render-key'
 
 /**
  * Debug.
@@ -68,9 +70,7 @@ class Text extends React.Component {
    */
 
   debug = (message, ...args) => {
-    const { node } = this.props
-    const { key } = node
-    debug(message, `${key} (text)`, ...args)
+    debug(message, `(text)`, ...args)
   }
 
   /**
@@ -140,29 +140,26 @@ class Text extends React.Component {
   render() {
     this.debug('render', this)
 
-    const { decorations, editor, node, style } = this.props
+    const { decorations, editor, node, block, parent, style } = this.props
     const { value } = editor
     const { document } = value
-    const { key } = node
+    const pathMap = document.getNodesToPathsMap()
+    const path = pathMap.get(node)
 
     const decs = decorations.filter(d => {
       const { start, end } = d
 
       // If either of the decoration's keys match, include it.
-      if (start.key === key || end.key === key) return true
+      if (start.path.equals(path) || end.path.equals(path)) return true
 
       // Otherwise, if the decoration is in a single node, it's not ours.
-      if (start.key === end.key) return false
-
-      const path = document.assertPath(key)
-      const startPath = start.path || document.assertPath(start.key)
-      const endPath = end.path || document.assertPath(end.key)
+      if (start.path.equals(end.path)) return false
 
       // If the node's path is before the start path, ignore it.
-      if (PathUtils.compare(path, startPath) === -1) return false
+      if (PathUtils.compare(path, start.path) === -1) return false
 
       // If the node's path is after the end path, ignore it.
-      if (PathUtils.compare(path, endPath) === 1) return false
+      if (PathUtils.compare(path, end.path) === 1) return false
 
       // Otherwise, include it.
       return true
@@ -170,53 +167,38 @@ class Text extends React.Component {
 
     // PERF: Take advantage of cache by avoiding arguments
     const leaves = decs.size === 0 ? node.getLeaves() : node.getLeaves(decs)
-    let offset = 0
+    let o = 0
 
     const children = leaves.map((leaf, i) => {
-      const child = this.renderLeaf(leaves, leaf, i, offset)
-      offset += leaf.text.length
-      return child
+      const { text, marks } = leaf
+      const key = getRenderKey(leaf)
+      const offset = o
+      o += text.length
+
+      return (
+        <Leaf
+          key={key}
+          block={block}
+          editor={editor}
+          index={i}
+          marks={marks}
+          node={node}
+          offset={offset}
+          parent={parent}
+          leaves={leaves}
+          text={text}
+        />
+      )
     })
 
     return (
       <span
-        data-slate-node
-        data-key={key}
+        data-slate-object="text"
         style={style}
         ref={element => (this.tmp.element = element)}
       >
         {children}
       </span>
-    )
-  }
-
-  /**
-   * Render a single leaf given a `leaf` and `offset`.
-   *
-   * @param {List<Leaf>} leaves
-   * @param {Leaf} leaf
-   * @param {Number} index
-   * @param {Number} offset
-   * @return {Element} leaf
-   */
-
-  renderLeaf = (leaves, leaf, index, offset) => {
-    const { block, node, parent, editor } = this.props
-    const { text, marks } = leaf
-
-    return (
-      <Leaf
-        key={`${node.key}-${index}`}
-        block={block}
-        editor={editor}
-        index={index}
-        marks={marks}
-        node={node}
-        offset={offset}
-        parent={parent}
-        leaves={leaves}
-        text={text}
-      />
     )
   }
 }
