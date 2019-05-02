@@ -52,7 +52,7 @@ export default function getSelectionFromDOM(window, editor, domSelection) {
     anchor.offset === anchorText.text.length
   ) {
     const block = document.getClosestBlock(anchor.path)
-    const next = block.getNextTextAndPath(anchor.path)
+    const [next] = block.nextTexts(anchor.path)
 
     if (next) {
       const [, nextPath] = next
@@ -66,7 +66,7 @@ export default function getSelectionFromDOM(window, editor, domSelection) {
     focus.offset === focusText.text.length
   ) {
     const block = document.getClosestBlock(focus.path)
-    const next = block.getNextTextAndPath(focus.path)
+    const [next] = block.nextTexts(focus.path)
 
     if (next) {
       const [, nextPath] = next

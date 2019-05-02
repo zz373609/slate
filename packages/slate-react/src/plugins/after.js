@@ -340,7 +340,7 @@ function AfterPlugin(options = {}) {
         let n = document.getNode(anchor.path)
 
         while (hasVoidParent) {
-          const nxt = document.getNextTextAndPath(p)
+          const [nxt] = document.nextTexts(p)
 
           if (!nxt) {
             break
@@ -544,15 +544,15 @@ function AfterPlugin(options = {}) {
 
     if (Hotkeys.isExtendBackward(event)) {
       const startText = document.getNode(start.path)
-      const previous = document.getPreviousTextAndPath(start.path)
-      let isPreviousInVoid = false
+      const prevEntry = document.previousTexts(start.path)
+      let isPrevInVoid = false
 
-      if (previous) {
-        const [, prevPath] = previous
-        isPreviousInVoid = document.hasVoidParent(prevPath, editor)
+      if (prevEntry) {
+        const [, prevPath] = prevEntry
+        isPrevInVoid = document.hasVoidParent(prevPath, editor)
       }
 
-      if (hasVoidParent || isPreviousInVoid || startText.text === '') {
+      if (hasVoidParent || isPrevInVoid || startText.text === '') {
         event.preventDefault()
         return editor.moveFocusBackward()
       }
@@ -560,11 +560,11 @@ function AfterPlugin(options = {}) {
 
     if (Hotkeys.isExtendForward(event)) {
       const startText = document.getNode(start.path)
-      const nxt = document.getNextTextAndPath(start.path)
+      const [nextEntry] = document.nextTexts(start.path)
       let isNextInVoid = false
 
-      if (nxt) {
-        const [, nextPath] = nxt
+      if (nextEntry) {
+        const [, nextPath] = nextEntry
         isNextInVoid = document.hasVoidParent(nextPath, editor)
       }
 
