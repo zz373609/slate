@@ -1,4 +1,4 @@
-import { Editor } from 'slate-react'
+import { Editor } from '../../packages/slate-react/src'
 import { Value } from 'slate'
 
 import React from 'react'
